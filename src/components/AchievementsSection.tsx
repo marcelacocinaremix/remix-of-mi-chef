@@ -193,7 +193,7 @@ export function AchievementsSection() {
       <div className="relative bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10 rounded-2xl p-5 border border-primary/30 overflow-hidden shadow-lg">
         {/* Sparkle decorations */}
         <div className="absolute top-2 right-4 text-yellow-400 animate-pulse">✨</div>
-        <div className="absolute bottom-4 right-8 text-pink-400 animate-pulse" style={{ animationDelay: '0.5s' }}>💫</div>
+        <div className="absolute bottom-4 right-8 text-sky-400 animate-pulse" style={{ animationDelay: '0.5s' }}>💫</div>
         
         <div className="flex items-start gap-4 relative z-10">
           <div className="relative">

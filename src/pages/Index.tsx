@@ -507,7 +507,7 @@ export default function Index() {
               href="https://www.instagram.com/marcelacocina_ok/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-muted-foreground hover:text-pink-500 transition-colors text-sm"
+              className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors text-sm"
             >
               <Instagram className="h-4 w-4" />
               <span className="hidden sm:inline text-xs">Instagram</span>

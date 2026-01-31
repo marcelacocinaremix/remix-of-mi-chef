@@ -680,8 +680,8 @@ function ShoppingItem({
               className={cn(
                 "h-8 w-8 p-0 rounded-full transition-all duration-300",
                 isFavorite 
-                  ? "text-pink-500 bg-pink-500/10 hover:bg-pink-500/20" 
-                  : "opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-pink-500 hover:bg-pink-500/10"
+                  ? "text-red-500 bg-red-500/10 hover:bg-red-500/20" 
+                  : "opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
               )}
             >
               <Heart className={cn("w-4 h-4 transition-transform", isFavorite && "fill-current scale-110")} />

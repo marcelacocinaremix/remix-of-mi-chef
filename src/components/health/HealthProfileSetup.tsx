@@ -100,8 +100,8 @@ const GOAL_OPTIONS: {
     icon: <TrendingDown className="w-5 h-5" />, 
     labelEs: 'Bajar de peso', 
     labelEn: 'Lose weight', 
-    gradient: 'from-rose-500 to-pink-600',
-    bgColor: 'bg-rose-500/10 border-rose-500/30',
+    gradient: 'from-red-500 to-orange-500',
+    bgColor: 'bg-red-500/10 border-red-500/30',
     cookingTipEs: 'Recetas bajas en calorías',
     cookingTipEn: 'Low-calorie recipes',
     activityTipEs: 'Foco en cardio',
@@ -421,7 +421,7 @@ export function HealthProfileSetup({ currentProfile, onSave, isSaving, isComplet
     >
       <Card className="overflow-hidden border-0 shadow-lg bg-card">
         {/* Compact Header */}
-        <div className="relative bg-gradient-to-r from-primary via-primary/90 to-pink-light px-4 py-4">
+        <div className="relative bg-gradient-to-r from-primary via-primary/90 to-sky-400 px-4 py-4">
           <div className="relative flex items-center gap-3">
             <motion.img 
               src={marcelaCharacter} 

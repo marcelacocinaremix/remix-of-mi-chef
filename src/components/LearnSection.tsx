@@ -914,8 +914,8 @@ const learningContent: Level[] = [
     id: "avanzado",
     name: "Avanzado",
     description: "Dominá la cocina como un chef profesional",
-    color: "bg-purple-500",
-    gradient: "from-purple-500 to-pink-500",
+    color: "bg-indigo-500",
+    gradient: "from-indigo-500 to-blue-500",
     categories: [
       {
         id: "errores-soluciones",
@@ -1650,7 +1650,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame }: LearnSec
               <div
                 className="w-2 h-2 rounded-full"
                 style={{
-                  backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'][Math.floor(Math.random() * 6)],
+                  backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'][Math.floor(Math.random() * 6)],
                   transform: `rotate(${Math.random() * 360}deg)`,
                 }}
               />
