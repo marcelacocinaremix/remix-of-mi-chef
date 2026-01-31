@@ -256,6 +256,11 @@ export const translations = {
     subTabHistory: "Historial",
     subTabAchievements: "Logros",
     subTabScan: "Escaneo",
+    favoritesBannerDesc: "Tus recetas guardadas favoritas",
+    historyBannerDesc: "Recetas que ya cocinaste",
+    achievementsBannerDesc: "Tu progreso y logros de cocina",
+    scanBannerDesc: "Escaneá productos y sus nutrientes",
+    
     
     // PlanificarSection subtabs
     subTabCalendar: "Calendario",
@@ -1001,6 +1006,11 @@ export const translations = {
     subTabHistory: "History",
     subTabAchievements: "Achievements",
     subTabScan: "Scan",
+    favoritesBannerDesc: "Your saved favorite recipes",
+    historyBannerDesc: "Recipes you've already cooked",
+    achievementsBannerDesc: "Your cooking progress and achievements",
+    scanBannerDesc: "Scan products and their nutrients",
+    
     
     // PlanificarSection subtabs
     subTabCalendar: "Calendar",
@@ -1746,6 +1756,11 @@ export const translations = {
     subTabHistory: "Histórico",
     subTabAchievements: "Conquistas",
     subTabScan: "Escanear",
+    favoritesBannerDesc: "Suas receitas favoritas salvas",
+    historyBannerDesc: "Receitas que você já cozinhou",
+    achievementsBannerDesc: "Seu progresso e conquistas na cozinha",
+    scanBannerDesc: "Escaneie produtos e seus nutrientes",
+    
     
     // PlanificarSection subtabs
     subTabCalendar: "Calendário",

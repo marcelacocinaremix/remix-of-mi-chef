@@ -29,11 +29,13 @@ export const MiCocinaSection = ({
   const { t } = useLanguage();
 
   const subTabs = [
-    { id: "favoritos" as SubTab, label: t("subTabFavorites"), icon: Heart },
-    { id: "historial" as SubTab, label: t("subTabHistory"), icon: History },
-    { id: "logros" as SubTab, label: t("subTabAchievements"), icon: Trophy },
-    { id: "escaneo" as SubTab, label: t("subTabScan"), icon: ScanLine },
+    { id: "favoritos" as SubTab, label: t("subTabFavorites"), icon: Heart, descKey: "favoritesBannerDesc" as const },
+    { id: "historial" as SubTab, label: t("subTabHistory"), icon: History, descKey: "historyBannerDesc" as const },
+    { id: "logros" as SubTab, label: t("subTabAchievements"), icon: Trophy, descKey: "achievementsBannerDesc" as const },
+    { id: "escaneo" as SubTab, label: t("subTabScan"), icon: ScanLine, descKey: "scanBannerDesc" as const },
   ];
+
+  const activeTabData = subTabs.find(tab => tab.id === activeSubTab);
 
   return (
     <div className="space-y-6">
@@ -65,12 +67,22 @@ export const MiCocinaSection = ({
       </div>
 
       {/* Section Banner Image */}
-      <div className="w-full h-32 md:h-40 rounded-2xl overflow-hidden shadow-lg">
+      <div className="relative w-full h-32 md:h-40 rounded-2xl overflow-hidden shadow-lg">
         <img 
           src={miCocinaBanner} 
           alt="Mi Cocina" 
           className="w-full h-full object-cover transition-all duration-150"
         />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent flex items-center">
+          <div className="px-5">
+            <h3 className="text-white font-bold text-xl drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+              {activeTabData?.label}
+            </h3>
+            <p className="text-white text-sm drop-shadow-md" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>
+              {activeTabData ? t(activeTabData.descKey) : ''}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Content */}
