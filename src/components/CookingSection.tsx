@@ -216,7 +216,6 @@ export function CookingSection({
           {/* Meal Type Section */}
           <section>
             <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-3">
-              <span className="text-xl animate-heartbeat">🍴</span>
               <span>{t("mealTypeLabel")}</span>
             </label>
             <MealTypeSelector value={mealType} onChange={setMealType} />
