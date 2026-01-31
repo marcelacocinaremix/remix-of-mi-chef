@@ -12,36 +12,38 @@ export function Header() {
   };
 
   return (
-    <header className="text-center mb-10 md:mb-14 animate-fade-in relative">
-      {/* Dark Mode Toggle */}
+    <header className="text-center mb-8 md:mb-12 animate-fade-in relative">
+      {/* Dark Mode Toggle - Futuristic */}
       <Button
         variant="ghost"
         size="icon"
         onClick={toggleTheme}
-        className="absolute right-0 top-0 rounded-full bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card shadow-sm"
+        className="absolute right-0 top-0 rounded-xl bg-card/60 backdrop-blur-md border border-border/30 hover:bg-card hover:border-primary/30 shadow-sm transition-all duration-300 hover:shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]"
         aria-label={theme === "dark" ? t("darkModeLabel") : t("lightModeLabel")}
       >
         {theme === "dark" ? (
-          <Sun className="h-5 w-5 text-amber-400" />
+          <Sun className="h-4 w-4 text-amber-400" strokeWidth={1.5} />
         ) : (
-          <Moon className="h-5 w-5 text-primary" />
+          <Moon className="h-4 w-4 text-primary" strokeWidth={1.5} />
         )}
       </Button>
 
-      {/* Brand Name */}
-      <div className="mb-4">
-        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground tracking-tight">
+      {/* Brand Name - Minimal */}
+      <div className="mb-3">
+        <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-medium text-foreground tracking-tight">
           {t("appName")}
         </h1>
       </div>
 
-      {/* Subtitle */}
-      <p className="text-xs tracking-[0.3em] text-muted-foreground uppercase mb-4">{t("appSubtitle")}</p>
-      <div className="decorative-line mb-6" />
+      {/* Subtitle - Clean */}
+      <p className="text-[10px] tracking-[0.35em] text-muted-foreground/80 uppercase mb-3">{t("appSubtitle")}</p>
+      
+      {/* Minimal decorative line */}
+      <div className="w-12 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto mb-5 opacity-60" />
 
-      {/* Tagline */}
-      <div className="max-w-lg mx-auto">
-        <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+      {/* Tagline - Subtle */}
+      <div className="max-w-md mx-auto">
+        <p className="text-sm text-muted-foreground/70 leading-relaxed font-light">
           {t("headerDescription")}
         </p>
       </div>
