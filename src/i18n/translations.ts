@@ -248,6 +248,8 @@ export const translations = {
     // CocinarGroupSection subtabs
     subTabRecipes: "Recetas",
     subTabTimer: "Reloj",
+    timerBannerDesc: "Controlá los tiempos de cocción",
+    recipesBannerDesc: "Creá recetas con lo que tenés",
     
     // MiCocinaSection subtabs
     subTabFavorites: "Favoritos",
@@ -991,6 +993,8 @@ export const translations = {
     // CocinarGroupSection subtabs
     subTabRecipes: "Recipes",
     subTabTimer: "Timer",
+    timerBannerDesc: "Control cooking times",
+    recipesBannerDesc: "Create recipes with what you have",
     
     // MiCocinaSection subtabs
     subTabFavorites: "Favorites",
@@ -1734,6 +1738,8 @@ export const translations = {
     // CocinarGroupSection subtabs
     subTabRecipes: "Receitas",
     subTabTimer: "Timer",
+    timerBannerDesc: "Controle os tempos de cozimento",
+    recipesBannerDesc: "Crie receitas com o que você tem",
     
     // MiCocinaSection subtabs
     subTabFavorites: "Favoritos",
