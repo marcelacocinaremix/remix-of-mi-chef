@@ -1,0 +1,329 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Nunito:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Mi Chef Personal - Pink & Cream palette (Marcela style) */
+    --background: 20 30% 97%;
+    --foreground: 0 0% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 15%;
+
+    /* Vibrant pink/magenta */
+    --primary: 340 82% 52%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Soft cream/beige */
+    --secondary: 20 25% 95%;
+    --secondary-foreground: 0 0% 25%;
+
+    /* Light neutral muted */
+    --muted: 20 15% 92%;
+    --muted-foreground: 0 0% 45%;
+
+    /* Light pink accent */
+    --accent: 340 60% 95%;
+    --accent-foreground: 340 70% 40%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 20 15% 88%;
+    --input: 20 15% 88%;
+    --ring: 340 82% 52%;
+
+    --radius: 1rem;
+
+    /* Custom brand colors */
+    --pink: 340 82% 52%;
+    --pink-light: 340 70% 65%;
+    --pink-dark: 340 85% 42%;
+    --cream: 20 30% 97%;
+    --cream-dark: 20 25% 92%;
+    --rose: 340 60% 95%;
+    --charcoal: 0 0% 20%;
+    --gold: 40 85% 55%;
+
+    /* Chart colors */
+    --chart-1: 142 76% 36%;
+    --chart-2: 45 93% 47%;
+    --chart-3: 340 82% 52%;
+    --chart-4: 200 95% 45%;
+    --chart-5: 280 65% 60%;
+
+    /* Gradients */
+    --gradient-warm: linear-gradient(135deg, hsl(340 82% 52%) 0%, hsl(340 70% 60%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(20 25% 96%) 100%);
+    --gradient-hero: linear-gradient(160deg, hsl(20 30% 97%) 0%, hsl(20 25% 94%) 50%, hsl(340 40% 97%) 100%);
+    --gradient-earth: linear-gradient(135deg, hsl(340 82% 52%) 0%, hsl(340 85% 42%) 100%);
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -4px hsl(0 0% 20% / 0.08);
+    --shadow-card: 0 8px 30px -8px hsl(0 0% 20% / 0.1);
+    --shadow-elevated: 0 20px 50px -12px hsl(0 0% 20% / 0.15);
+    --shadow-glow: 0 0 40px hsl(340 82% 52% / 0.2);
+
+    /* Typography */
+    --font-display: 'Lora', serif;
+    --font-body: 'Nunito', sans-serif;
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 20%;
+    --sidebar-primary: 340 82% 52%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 340 60% 96%;
+    --sidebar-accent-foreground: 340 70% 40%;
+    --sidebar-border: 20 15% 90%;
+    --sidebar-ring: 340 82% 52%;
+  }
+
+  .dark {
+    --background: 0 0% 8%;
+    --foreground: 0 0% 95%;
+
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 340 75% 58%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 0 0% 85%;
+
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 340 50% 20%;
+    --accent-foreground: 340 60% 85%;
+
+    /* Custom brand colors - dark mode */
+    --pink: 340 75% 58%;
+    --pink-light: 340 65% 70%;
+    --pink-dark: 340 80% 48%;
+    --cream: 0 0% 12%;
+    --cream-dark: 0 0% 8%;
+    --rose: 340 40% 18%;
+    --charcoal: 0 0% 85%;
+    --gold: 40 75% 60%;
+
+    /* Chart colors dark mode */
+    --chart-1: 142 70% 45%;
+    --chart-2: 45 85% 55%;
+    --chart-3: 340 75% 58%;
+    --chart-4: 200 85% 55%;
+    --chart-5: 280 55% 65%;
+
+    /* Gradients - dark mode */
+    --gradient-warm: linear-gradient(135deg, hsl(340 75% 58%) 0%, hsl(340 65% 65%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 12%) 0%, hsl(0 0% 10%) 100%);
+    --gradient-hero: linear-gradient(160deg, hsl(0 0% 8%) 0%, hsl(0 0% 10%) 50%, hsl(340 30% 12%) 100%);
+    --gradient-earth: linear-gradient(135deg, hsl(340 75% 58%) 0%, hsl(340 80% 48%) 100%);
+
+    /* Shadows - dark mode */
+    --shadow-soft: 0 4px 20px -4px hsl(0 0% 0% / 0.3);
+    --shadow-card: 0 8px 30px -8px hsl(0 0% 0% / 0.4);
+    --shadow-elevated: 0 20px 50px -12px hsl(0 0% 0% / 0.5);
+    --shadow-glow: 0 0 40px hsl(340 75% 58% / 0.3);
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 22%;
+    --input: 0 0% 22%;
+    --ring: 340 75% 58%;
+
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 0 0% 92%;
+    --sidebar-primary: 340 75% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 340 40% 18%;
+    --sidebar-accent-foreground: 340 50% 85%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 340 75% 58%;
+  }
+
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  .gradient-warm {
+    background: var(--gradient-warm);
+  }
+
+  .gradient-subtle {
+    background: var(--gradient-subtle);
+  }
+
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .gradient-earth {
+    background: var(--gradient-earth);
+  }
+
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .text-gradient {
+    background: var(--gradient-warm);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Decorative elements */
+  .decorative-line {
+    @apply h-1 w-20 rounded-full mx-auto;
+    background: var(--gradient-warm);
+  }
+}
+
+@layer utilities {
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-pulse-soft {
+    animation: pulse-soft 3s ease-in-out infinite;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.6s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.7s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.5s ease-out forwards;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slide-up {
+    from { 
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 3s linear infinite;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+    20%, 40%, 60%, 80% { transform: translateX(4px); }
+  }
+
+  .animate-shake {
+    animation: shake 0.5s ease-in-out;
+  }
+
+  /* Hide scrollbar for horizontal scroll menus */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Confetti animation */
+  @keyframes confetti-fall {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh) rotate(720deg);
+      opacity: 0;
+    }
+  }
+
+  .animate-confetti {
+    animation: confetti-fall 4s ease-out forwards;
+  }
+}

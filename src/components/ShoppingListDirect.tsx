@@ -1,0 +1,968 @@
+import { useState, useEffect, useMemo } from "react";
+import { 
+  ShoppingCart, Check, Trash2, Copy, Plus, Minus,
+  Star, Sparkles, Trophy, Search, ChevronDown, ChevronUp,
+  ListChecks, Package2, CircleCheck, ShoppingBag, ArrowRight,
+  PackageCheck, X, Undo2, Clock, TrendingUp, Zap
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { useShoppingList, ShoppingListItem } from "@/hooks/useShoppingList";
+import { useAuth } from "@/hooks/useAuth";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { SuperSmartHistory } from "./SuperSmartHistory";
+
+const CATEGORY_CONFIG: Record<string, { emoji: string; label: string; order: number; color: string }> = {
+  verduras: { emoji: "🥬", label: "Verduras", order: 1, color: "emerald" },
+  frutas: { emoji: "🍎", label: "Frutas", order: 2, color: "rose" },
+  carnes: { emoji: "🥩", label: "Carnes", order: 3, color: "red" },
+  pescados: { emoji: "🐟", label: "Pescados", order: 4, color: "cyan" },
+  lacteos: { emoji: "🧀", label: "Lácteos", order: 5, color: "amber" },
+  huevos: { emoji: "🥚", label: "Huevos", order: 6, color: "orange" },
+  almacen: { emoji: "🏪", label: "Almacén", order: 7, color: "amber" },
+  panaderia: { emoji: "🍞", label: "Panadería", order: 8, color: "yellow" },
+  condimentos: { emoji: "🧂", label: "Condimentos", order: 9, color: "purple" },
+  bebidas: { emoji: "🥤", label: "Bebidas", order: 10, color: "blue" },
+  congelados: { emoji: "🧊", label: "Congelados", order: 11, color: "sky" },
+  otros: { emoji: "📦", label: "Otros", order: 99, color: "slate" },
+};
+
+const UNIT_OPTIONS = [
+  { value: "unidad", label: "unidad(es)" },
+  { value: "kg", label: "kg" },
+  { value: "g", label: "g" },
+  { value: "litros", label: "litros" },
+  { value: "ml", label: "ml" },
+  { value: "docena", label: "docena(s)" },
+  { value: "paquete", label: "paquete(s)" },
+  { value: "lata", label: "lata(s)" },
+  { value: "botella", label: "botella(s)" },
+];
+
+const QUICK_ADD_PRODUCTS = [
+  { name: "Leche", category: "lacteos", unit: "litros", emoji: "🥛" },
+  { name: "Pan", category: "panaderia", unit: "unidad", emoji: "🍞" },
+  { name: "Huevos", category: "huevos", unit: "docena", emoji: "🥚" },
+  { name: "Tomate", category: "verduras", unit: "kg", emoji: "🍅" },
+  { name: "Pollo", category: "carnes", unit: "kg", emoji: "🍗" },
+  { name: "Arroz", category: "almacen", unit: "kg", emoji: "🍚" },
+  { name: "Aceite", category: "almacen", unit: "litros", emoji: "🫒" },
+  { name: "Cebolla", category: "verduras", unit: "kg", emoji: "🧅" },
+  { name: "Queso", category: "lacteos", unit: "kg", emoji: "🧀" },
+  { name: "Banana", category: "frutas", unit: "kg", emoji: "🍌" },
+];
+
+interface AddToPantryDialogProps {
+  open: boolean;
+  onClose: () => void;
+  items: ShoppingListItem[];
+  onConfirm: (selectedItems: string[]) => void;
+}
+
+function AddToPantryDialog({ open, onClose, items, onConfirm }: AddToPantryDialogProps) {
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set(items.map(i => i.id)));
+
+  const toggleItem = (id: string) => {
+    setSelectedItems(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const selectAll = () => setSelectedItems(new Set(items.map(i => i.id)));
+  const selectNone = () => setSelectedItems(new Set());
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <PackageCheck className="w-5 h-5 text-primary" />
+            ¿Agregar a la despensa?
+          </DialogTitle>
+          <DialogDescription>
+            Seleccioná los productos que querés agregar a tu despensa
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-2 max-h-[50vh] overflow-y-auto py-2">
+          <div className="flex gap-2 mb-3">
+            <Button variant="outline" size="sm" onClick={selectAll} className="text-xs">
+              Seleccionar todo
+            </Button>
+            <Button variant="outline" size="sm" onClick={selectNone} className="text-xs">
+              Ninguno
+            </Button>
+          </div>
+          
+          {items.map((item) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className={cn(
+                "flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer",
+                selectedItems.has(item.id) 
+                  ? "bg-primary/10 border-2 border-primary/30" 
+                  : "bg-muted/50 border-2 border-transparent"
+              )}
+              onClick={() => toggleItem(item.id)}
+            >
+              <Checkbox 
+                checked={selectedItems.has(item.id)}
+                className="pointer-events-none"
+              />
+              <span className="text-xl">
+                {CATEGORY_CONFIG[item.category]?.emoji || "📦"}
+              </span>
+              <div className="flex-1">
+                <span className="font-medium">{item.ingredient_name}</span>
+                {item.quantity > 1 && (
+                  <span className="text-sm text-muted-foreground ml-1">
+                    ({item.quantity} {item.unit})
+                  </span>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        <DialogFooter className="gap-2">
+          <Button variant="outline" onClick={onClose}>
+            <X className="w-4 h-4 mr-2" />
+            Cancelar
+          </Button>
+          <Button 
+            onClick={() => onConfirm(Array.from(selectedItems))}
+            disabled={selectedItems.size === 0}
+            className="bg-gradient-to-r from-primary to-primary/80"
+          >
+            <PackageCheck className="w-4 h-4 mr-2" />
+            Agregar {selectedItems.size > 0 && `(${selectedItems.size})`}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function ShoppingListDirect() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const { items, isLoading, togglePurchased, removeItem, clearPurchased, pendingCount, addItem, updateQuantity, updateUnit, refetch } = useShoppingList();
+  
+  // Form state
+  const [newItemName, setNewItemName] = useState("");
+  const [newQuantity, setNewQuantity] = useState(1);
+  const [newUnit, setNewUnit] = useState("unidad");
+  const [selectedCategory, setSelectedCategory] = useState("otros");
+  const [showAddForm, setShowAddForm] = useState(false);
+  
+  // UI state
+  const [searchTerm, setSearchTerm] = useState("");
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [showPurchased, setShowPurchased] = useState(false);
+  const [recentlyPurchased, setRecentlyPurchased] = useState<string[]>([]);
+  
+  // Dialog state
+  const [showPantryDialog, setShowPantryDialog] = useState(false);
+  const [itemsForPantry, setItemsForPantry] = useState<ShoppingListItem[]>([]);
+
+  // Calculate progress
+  const purchasedCount = items.filter((i) => i.is_purchased).length;
+  const totalItems = items.length;
+  const progressPercentage = totalItems > 0 ? (purchasedCount / totalItems) * 100 : 0;
+
+  // Separate pending and purchased items
+  const { pendingItems, purchasedItems } = useMemo(() => {
+    const pending = items.filter(i => !i.is_purchased);
+    const purchased = items.filter(i => i.is_purchased);
+    return { pendingItems: pending, purchasedItems: purchased };
+  }, [items]);
+
+  // Group pending items by category
+  const groupedPendingItems = useMemo(() => {
+    return pendingItems.reduce((acc, item) => {
+      const category = item.category?.toLowerCase() || "otros";
+      if (!acc[category]) acc[category] = [];
+      acc[category].push(item);
+      return acc;
+    }, {} as Record<string, ShoppingListItem[]>);
+  }, [pendingItems]);
+
+  // Sort categories by order
+  const sortedCategories = useMemo(() => {
+    return Object.keys(groupedPendingItems).sort((a, b) => {
+      const orderA = CATEGORY_CONFIG[a]?.order || 99;
+      const orderB = CATEGORY_CONFIG[b]?.order || 99;
+      return orderA - orderB;
+    });
+  }, [groupedPendingItems]);
+
+  // Filter by search
+  const filteredCategories = useMemo(() => {
+    if (!searchTerm) return sortedCategories;
+    return sortedCategories.filter(category =>
+      groupedPendingItems[category].some(item =>
+        item.ingredient_name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+  }, [sortedCategories, groupedPendingItems, searchTerm]);
+
+  // Initialize expanded categories
+  useEffect(() => {
+    if (expandedCategories.size === 0 && sortedCategories.length > 0) {
+      setExpandedCategories(new Set(sortedCategories));
+    }
+  }, [sortedCategories]);
+
+
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(category)) {
+        next.delete(category);
+      } else {
+        next.add(category);
+      }
+      return next;
+    });
+  };
+
+  const handleAddItem = async () => {
+    if (!newItemName.trim()) return;
+    const success = await addItem(newItemName.trim(), selectedCategory, newQuantity, newUnit);
+    if (success) {
+      setNewItemName("");
+      setNewQuantity(1);
+      setShowAddForm(false);
+    }
+  };
+
+  const handleQuickAdd = async (product: typeof QUICK_ADD_PRODUCTS[0]) => {
+    const success = await addItem(product.name, product.category, 1, product.unit);
+    if (success) {
+      toast({
+        title: `${product.emoji} ¡Agregado!`,
+        description: `${product.name} en tu lista.`,
+      });
+    }
+  };
+
+  const handleTogglePurchased = async (item: ShoppingListItem) => {
+    await togglePurchased(item.id);
+    
+    if (!item.is_purchased) {
+      // Item was just marked as purchased
+      setRecentlyPurchased(prev => [...prev, item.id]);
+      
+      // Auto-remove from recently purchased after 5 seconds
+      setTimeout(() => {
+        setRecentlyPurchased(prev => prev.filter(id => id !== item.id));
+      }, 5000);
+    }
+  };
+
+  const handleUndoPurchase = async (itemId: string) => {
+    await togglePurchased(itemId);
+    setRecentlyPurchased(prev => prev.filter(id => id !== itemId));
+  };
+
+  const handleConfirmAllPurchases = () => {
+    if (purchasedItems.length === 0) {
+      toast({
+        title: "Sin compras",
+        description: "Marcá productos como comprados primero.",
+      });
+      return;
+    }
+    setItemsForPantry(purchasedItems);
+    setShowPantryDialog(true);
+  };
+
+  const handleAddToPantry = async (selectedItemIds: string[]) => {
+    if (!user) return;
+    
+    const itemsToAdd = purchasedItems.filter(item => selectedItemIds.includes(item.id));
+    
+    try {
+      // Add selected items to pantry
+      for (const item of itemsToAdd) {
+        await supabase.from("pantry_items").insert({
+          user_id: user.id,
+          ingredient_name: item.ingredient_name,
+          category: item.category,
+          source: "shopping_list",
+        });
+      }
+      
+      // Clear all purchased items from shopping list
+      await clearPurchased();
+      
+      toast({
+        title: "🎉 ¡Compra confirmada!",
+        description: selectedItemIds.length > 0 
+          ? `${selectedItemIds.length} productos agregados a tu despensa.`
+          : "Lista limpiada.",
+      });
+    } catch (error) {
+      console.error("Error adding to pantry:", error);
+      toast({
+        title: "Error",
+        description: "No se pudieron agregar los productos.",
+        variant: "destructive",
+      });
+    }
+    
+    setShowPantryDialog(false);
+    setItemsForPantry([]);
+  };
+
+  const handleQuantityChange = (itemId: string, delta: number, currentQty: number) => {
+    const newQty = Math.max(1, currentQty + delta);
+    updateQuantity(itemId, newQty);
+  };
+
+  const copyToClipboard = () => {
+    const text = sortedCategories
+      .map((category) => {
+        const config = CATEGORY_CONFIG[category] || { emoji: "📦", label: category };
+        const categoryItems = groupedPendingItems[category];
+        if (!categoryItems || categoryItems.length === 0) return null;
+        return `${config.emoji} ${config.label}:\n${categoryItems.map((i) => 
+          `  • ${i.quantity > 1 ? `${i.quantity} ${i.unit} de ` : ""}${i.ingredient_name}`
+        ).join("\n")}`;
+      })
+      .filter(Boolean)
+      .join("\n\n");
+
+    if (!text) {
+      toast({
+        title: "Lista vacía",
+        description: "No hay ingredientes pendientes para copiar.",
+      });
+      return;
+    }
+
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "📋 ¡Copiado!",
+      description: "Lista copiada al portapapeles.",
+    });
+  };
+
+  const formatQuantity = (item: ShoppingListItem) => {
+    if (item.quantity === 1 && item.unit === "unidad") return "";
+    return `${item.quantity} ${item.unit}`;
+  };
+
+  if (!user) {
+    return (
+      <Card className="text-center py-12 animate-fade-in border-dashed">
+        <CardContent>
+          <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+            <ShoppingCart className="w-10 h-10 text-primary" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">Iniciá sesión</h3>
+          <p className="text-muted-foreground">Necesitás una cuenta para usar la lista de compras.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-4 pb-6">
+      {/* Header Card with Stats */}
+      <Card className="overflow-hidden border-0 shadow-card bg-gradient-to-br from-primary/5 via-background to-accent/5">
+        <CardContent className="p-4">
+          <div className="flex items-start gap-4">
+            <div className="relative shrink-0">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/25">
+                <ShoppingBag className="w-7 h-7 text-primary-foreground" />
+              </div>
+              {pendingCount > 0 && (
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 w-6 h-6 bg-accent text-accent-foreground text-xs font-bold rounded-full flex items-center justify-center border-2 border-background"
+                >
+                  {pendingCount}
+                </motion.div>
+              )}
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <h2 className="text-xl font-display font-bold">Mi Lista del Super</h2>
+              </div>
+              
+              {/* Stats Row */}
+              {totalItems > 0 && (
+                <div className="flex items-center gap-4 mb-3">
+                  <div className="flex items-center gap-1.5 text-sm">
+                    <Clock className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-muted-foreground">{pendingCount} pendientes</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-sm">
+                    <Check className="w-4 h-4 text-emerald-500" />
+                    <span className="text-emerald-600 dark:text-emerald-400">{purchasedCount} comprados</span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Progress Bar */}
+              {totalItems > 0 && (
+                <div className="space-y-1.5">
+                  <div className="relative h-3 bg-muted/60 rounded-full overflow-hidden">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progressPercentage}%` }}
+                      transition={{ duration: 0.5, ease: "easeOut" }}
+                      className={cn(
+                        "absolute inset-y-0 left-0 rounded-full",
+                        progressPercentage === 100 
+                          ? "bg-gradient-to-r from-emerald-500 to-emerald-400" 
+                          : "bg-gradient-to-r from-primary to-primary/70"
+                      )}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground text-right">
+                    {Math.round(progressPercentage)}% completado
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Quick Actions Bar */}
+      <div className="flex gap-2">
+        <Button 
+          onClick={() => setShowAddForm(!showAddForm)}
+          className={cn(
+            "flex-1 h-12 gap-2 font-semibold transition-all",
+            showAddForm 
+              ? "bg-muted text-foreground hover:bg-muted/80" 
+              : "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25"
+          )}
+        >
+          {showAddForm ? (
+            <>
+              <X className="w-5 h-5" />
+              Cancelar
+            </>
+          ) : (
+            <>
+              <Plus className="w-5 h-5" />
+              Agregar Producto
+            </>
+          )}
+        </Button>
+        
+        {purchasedCount > 0 && (
+          <Button 
+            onClick={handleConfirmAllPurchases}
+            variant="outline"
+            className="h-12 gap-2 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+          >
+            <PackageCheck className="w-5 h-5" />
+            Confirmar
+          </Button>
+        )}
+      </div>
+
+      {/* Add Product Form */}
+      <AnimatePresence>
+        {showAddForm && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Card className="border-primary/30 shadow-lg">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  Nuevo Producto
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Product Name */}
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
+                    ¿Qué necesitás comprar?
+                  </label>
+                  <Input
+                    placeholder="Ej: Tomates, Leche, Arroz..."
+                    value={newItemName}
+                    onChange={(e) => setNewItemName(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleAddItem()}
+                    className="h-12 text-base"
+                    autoFocus
+                  />
+                </div>
+
+                {/* Quantity and Unit Row */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
+                      Cantidad
+                    </label>
+                    <div className="flex items-center bg-muted/50 rounded-xl p-1">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-10 w-10 rounded-lg"
+                        onClick={() => setNewQuantity(Math.max(1, newQuantity - 1))}
+                      >
+                        <Minus className="w-4 h-4" />
+                      </Button>
+                      <Input
+                        type="number"
+                        min={1}
+                        value={newQuantity}
+                        onChange={(e) => setNewQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                        className="w-full h-10 text-center border-0 bg-transparent text-lg font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-10 w-10 rounded-lg"
+                        onClick={() => setNewQuantity(newQuantity + 1)}
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
+                      Unidad
+                    </label>
+                    <Select value={newUnit} onValueChange={setNewUnit}>
+                      <SelectTrigger className="h-12">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {UNIT_OPTIONS.map(opt => (
+                          <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Category */}
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
+                    Categoría
+                  </label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {Object.entries(CATEGORY_CONFIG).slice(0, 8).map(([key, config]) => (
+                      <button
+                        key={key}
+                        onClick={() => setSelectedCategory(key)}
+                        className={cn(
+                          "flex flex-col items-center gap-1 p-2 rounded-xl transition-all text-xs",
+                          selectedCategory === key
+                            ? "bg-primary/15 border-2 border-primary/50 scale-105"
+                            : "bg-muted/50 border-2 border-transparent hover:bg-muted"
+                        )}
+                      >
+                        <span className="text-lg">{config.emoji}</span>
+                        <span className="truncate w-full text-center">{config.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Add Button */}
+                <Button 
+                  onClick={handleAddItem}
+                  disabled={!newItemName.trim()}
+                  className="w-full h-12 gap-2 bg-gradient-to-r from-primary to-primary/80 shadow-lg"
+                >
+                  <Plus className="w-5 h-5" />
+                  Agregar a la lista
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Quick Add Section */}
+      {!showAddForm && (
+        <Card className="border-dashed">
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <Zap className="w-4 h-4 text-amber-500" />
+              <span className="text-sm font-medium text-muted-foreground">Agregar rápido</span>
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+              {QUICK_ADD_PRODUCTS.map((product, i) => (
+                <motion.button
+                  key={product.name}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.03 }}
+                  onClick={() => handleQuickAdd(product)}
+                  className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted/50 hover:bg-primary/10 hover:scale-105 transition-all text-sm border border-transparent hover:border-primary/30"
+                >
+                  <span>{product.emoji}</span>
+                  <span>{product.name}</span>
+                </motion.button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Search */}
+      {totalItems > 3 && (
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar producto..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 h-11"
+            />
+          </div>
+          <Button variant="outline" size="icon" onClick={copyToClipboard} title="Copiar lista" className="h-11 w-11">
+            <Copy className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
+
+      {/* Shopping List */}
+      {isLoading ? (
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-20 bg-muted/50 rounded-2xl animate-pulse" style={{ animationDelay: `${i * 100}ms` }} />
+          ))}
+        </div>
+      ) : totalItems === 0 ? (
+        <Card className="text-center py-12 border-dashed animate-fade-in">
+          <CardContent>
+            <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
+              <ShoppingCart className="w-10 h-10 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Tu lista está vacía</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto">
+              Agregá productos con el botón de arriba o desde las recetas del planificador
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {/* Recently Purchased Undo Bar */}
+          <AnimatePresence>
+            {recentlyPurchased.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20"
+              >
+                <Check className="w-4 h-4 text-emerald-500" />
+                <span className="flex-1 text-sm text-emerald-700 dark:text-emerald-400">
+                  {recentlyPurchased.length} producto(s) marcado(s)
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => recentlyPurchased.forEach(id => handleUndoPurchase(id))}
+                  className="text-xs h-7"
+                >
+                  <Undo2 className="w-3 h-3 mr-1" />
+                  Deshacer
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Pending Items by Category */}
+          {filteredCategories.map((category, categoryIndex) => {
+            const config = CATEGORY_CONFIG[category] || { emoji: "📦", label: category, color: "slate" };
+            const categoryItems = searchTerm
+              ? groupedPendingItems[category].filter(item =>
+                  item.ingredient_name.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+              : groupedPendingItems[category];
+
+            if (!categoryItems || categoryItems.length === 0) return null;
+
+            const isExpanded = expandedCategories.has(category);
+
+            return (
+              <motion.div 
+                key={category}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: categoryIndex * 0.05 }}
+                className="rounded-2xl overflow-hidden border border-border/50 bg-card shadow-sm"
+              >
+                {/* Category Header */}
+                <button
+                  onClick={() => toggleCategory(category)}
+                  className="w-full flex items-center gap-3 p-4 transition-all duration-200 hover:bg-muted/50"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center text-2xl shadow-sm">
+                    {config.emoji}
+                  </div>
+                  <span className="font-semibold flex-1 text-left">{config.label}</span>
+                  <Badge variant="secondary" className="bg-primary/10 text-primary font-semibold">
+                    {categoryItems.length}
+                  </Badge>
+                  <motion.div
+                    animate={{ rotate: isExpanded ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="w-7 h-7 rounded-full bg-muted flex items-center justify-center"
+                  >
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  </motion.div>
+                </button>
+
+                {/* Items */}
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-4 pb-4 space-y-2">
+                        {categoryItems.map((item, index) => (
+                          <motion.div
+                            key={item.id}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.03 }}
+                            className={cn(
+                              "group flex items-center gap-3 p-3 rounded-xl transition-all",
+                              "bg-muted/30 hover:bg-muted/60 border border-transparent hover:border-primary/20"
+                            )}
+                          >
+                            <button
+                              onClick={() => handleTogglePurchased(item)}
+                              className={cn(
+                                "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all",
+                                item.is_purchased
+                                  ? "bg-emerald-500 border-emerald-500"
+                                  : "border-muted-foreground/30 hover:border-primary hover:bg-primary/10"
+                              )}
+                            >
+                              {item.is_purchased && <Check className="w-4 h-4 text-white" />}
+                            </button>
+                            
+                            <div className="flex-1 min-w-0">
+                              <span className={cn(
+                                "font-medium block truncate transition-all",
+                                item.is_purchased && "line-through text-muted-foreground"
+                              )}>
+                                {item.ingredient_name}
+                              </span>
+                              {formatQuantity(item) && (
+                                <span className="text-xs text-muted-foreground">
+                                  {formatQuantity(item)}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Quantity controls */}
+                            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleQuantityChange(item.id, -1, item.quantity)}
+                                className="w-7 h-7 rounded-lg"
+                                disabled={item.quantity <= 1}
+                              >
+                                <Minus className="w-3 h-3" />
+                              </Button>
+                              <span className="w-6 text-center text-sm font-semibold">{item.quantity}</span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleQuantityChange(item.id, 1, item.quantity)}
+                                className="w-7 h-7 rounded-lg"
+                              >
+                                <Plus className="w-3 h-3" />
+                              </Button>
+                            </div>
+
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeItem(item.id)}
+                              className="w-8 h-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+
+          {/* Purchased Items Section */}
+          {purchasedItems.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="rounded-2xl overflow-hidden"
+            >
+              <button
+                onClick={() => setShowPurchased(!showPurchased)}
+                className="w-full flex items-center gap-3 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/15 transition-all"
+              >
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-md">
+                  <CircleCheck className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1 text-left">
+                  <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+                    Comprados
+                  </span>
+                  <p className="text-xs text-emerald-600/70 dark:text-emerald-400/70">
+                    Tocá para confirmar y agregar a despensa
+                  </p>
+                </div>
+                <Badge className="bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-0 font-semibold">
+                  {purchasedItems.length}
+                </Badge>
+                <motion.div
+                  animate={{ rotate: showPurchased ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center"
+                >
+                  <ChevronDown className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                </motion.div>
+              </button>
+
+              <AnimatePresence>
+                {showPurchased && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-2 p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 space-y-2">
+                      {purchasedItems.map((item, index) => (
+                        <motion.div
+                          key={item.id}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: index * 0.03 }}
+                          className="flex items-center gap-3 p-3 rounded-xl bg-card/60"
+                        >
+                          <button
+                            onClick={() => togglePurchased(item.id)}
+                            className="w-6 h-6 rounded-lg bg-emerald-500 flex items-center justify-center"
+                          >
+                            <Check className="w-4 h-4 text-white" />
+                          </button>
+                          <span className="flex-1 text-sm line-through text-muted-foreground">
+                            {item.ingredient_name}
+                            {formatQuantity(item) && ` (${formatQuantity(item)})`}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeItem(item.id)}
+                            className="w-7 h-7 text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </motion.div>
+                      ))}
+                      
+                      {/* Confirm All Button */}
+                      <Button 
+                        onClick={handleConfirmAllPurchases}
+                        className="w-full mt-3 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg"
+                      >
+                        <PackageCheck className="w-4 h-4 mr-2" />
+                        Confirmar compra y agregar a despensa
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          )}
+        </div>
+      )}
+
+      {/* Completion Celebration */}
+      {progressPercentage === 100 && totalItems > 0 && (
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+        >
+          <Card className="bg-gradient-to-r from-emerald-500/20 via-primary/10 to-emerald-500/20 border-emerald-500/30 text-center overflow-hidden">
+            <CardContent className="py-6 relative">
+              <div className="flex items-center justify-center gap-3 mb-3">
+                <Trophy className="w-7 h-7 text-yellow-500 fill-yellow-500 animate-bounce" />
+                <span className="text-3xl">🎉</span>
+                <Star className="w-7 h-7 text-yellow-500 fill-yellow-500 animate-bounce" style={{ animationDelay: "0.1s" }} />
+              </div>
+              <h3 className="text-xl font-display font-bold text-emerald-600 dark:text-emerald-400 mb-2">
+                ¡Compras completadas!
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                Terminaste toda tu lista 🛒
+              </p>
+              <Button 
+                onClick={handleConfirmAllPurchases}
+                className="bg-gradient-to-r from-emerald-500 to-emerald-600"
+              >
+                <PackageCheck className="w-4 h-4 mr-2" />
+                Confirmar y agregar a despensa
+              </Button>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
+      {/* Smart History */}
+      <SuperSmartHistory 
+        currentItems={items}
+        onSuggestItem={(name, category) => addItem(name, category, 1, "unidad")}
+      />
+
+      {/* Add to Pantry Dialog */}
+      <AddToPantryDialog
+        open={showPantryDialog}
+        onClose={() => setShowPantryDialog(false)}
+        items={itemsForPantry}
+        onConfirm={handleAddToPantry}
+      />
+    </div>
+  );
+}

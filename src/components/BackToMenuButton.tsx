@@ -1,0 +1,29 @@
+import { ArrowUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+interface BackToMenuButtonProps {
+  className?: string;
+}
+
+export function BackToMenuButton({ className }: BackToMenuButtonProps) {
+  const { t } = useLanguage();
+
+  const scrollToMenu = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  return (
+    <div className={`flex justify-center pt-8 pb-4 ${className || ''}`}>
+      <Button
+        variant="outline"
+        size="lg"
+        onClick={scrollToMenu}
+        className="gap-2 rounded-full border-primary/30 hover:bg-primary/10 hover:border-primary/50"
+      >
+        <ArrowUp className="w-4 h-4" />
+        Volver al menú
+      </Button>
+    </div>
+  );
+}
