@@ -79,15 +79,7 @@ export function FuturisticOrb({
       ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
       ctx.clip();
 
-      // Dark blue background
-      const bgGradient = ctx.createRadialGradient(
-        centerX, centerY, 0,
-        centerX, centerY, radius
-      );
-      bgGradient.addColorStop(0, "rgba(15, 25, 50, 0.95)");
-      bgGradient.addColorStop(1, "rgba(5, 10, 30, 1)");
-      ctx.fillStyle = bgGradient;
-      ctx.fillRect(0, 0, size, size);
+      // Transparent background - no fill needed
 
       // Speed based on state - Siri-like responsiveness
       const speedMultiplier = isThinking ? 3 : isActive ? 2 : 1;
