@@ -82,7 +82,7 @@ const getFeatureSlides = (t: (key: TranslationKey) => string) => [
     icon: ShoppingCart,
     title: t("tourSuper"),
     description: t("tourSuperDesc"),
-    color: "from-purple-500 to-pink-500",
+    color: "from-purple-500 to-blue-500",
   },
   {
     id: "balance",
@@ -103,7 +103,7 @@ const getFeatureSlides = (t: (key: TranslationKey) => string) => [
     icon: Bot,
     title: t("tourMarcela"),
     description: t("tourMarcelaDesc"),
-    color: "from-pink-500 to-rose-500",
+    color: "from-blue-500 to-cyan-500",
   },
   {
     id: "timer",
