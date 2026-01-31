@@ -91,12 +91,22 @@ export const CocinarGroupSection = ({
       </div>
 
       {/* Section Banner Image */}
-      <div className="w-full h-32 md:h-40 rounded-2xl overflow-hidden shadow-lg">
+      <div className="relative w-full h-32 md:h-40 rounded-2xl overflow-hidden shadow-lg">
         <img 
           src={activeSubTab === "timer" ? timerBanner : cookingBanner} 
           alt={activeSubTab === "timer" ? "Reloj de cocina" : "Recetas"} 
           className="w-full h-full object-cover transition-all duration-150"
         />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent flex items-center">
+          <div className="px-4">
+            <h3 className="text-white font-bold text-lg">
+              {activeSubTab === "timer" ? t("subTabTimer") : t("subTabRecipes")}
+            </h3>
+            <p className="text-white/80 text-sm">
+              {activeSubTab === "timer" ? t("timerBannerDesc") : t("recipesBannerDesc")}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Content */}
