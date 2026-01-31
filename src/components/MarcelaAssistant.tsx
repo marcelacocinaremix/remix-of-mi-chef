@@ -669,9 +669,9 @@ export function MarcelaAssistant({
         onTouchEnd={handleTouchEnd}
         onClick={handleCharacterClick}
       >
-        <div className={`${isDragging ? '' : (isSurpriseMode || isCharacterAnimating) ? 'animate-bounce' : 'animate-float'}`}>
+        <div className={`${isDragging ? '' : 'animate-float'}`}>
           <FuturisticOrb 
-            size={120}
+            size={70}
             isActive={isSurpriseMode || isCharacterAnimating || shouldShowSparkles}
             isThinking={isLoading || currentMood === 'thinking' || isAILoading}
           />
