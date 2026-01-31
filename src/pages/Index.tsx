@@ -563,10 +563,10 @@ export default function Index() {
 
             {/* Navigation Tabs */}
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-              {/* Two row navigation - Futuristic Style */}
-              <div className="mb-6 space-y-2.5">
+              {/* Two row navigation - 4 items per row */}
+              <div className="mb-6 space-y-2">
                 {/* Row 1 */}
-                <div className="grid grid-cols-4 gap-2 bg-card/40 backdrop-blur-md border border-border/30 rounded-2xl p-2.5 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+                <div className="grid grid-cols-4 gap-1.5 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-2">
                   {menuItems.slice(0, 4).map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
@@ -575,34 +575,22 @@ export default function Index() {
                       <button
                         key={item.id}
                         onClick={() => handleTabChange(item.id)}
-                        className={`group relative flex flex-col items-center justify-center gap-2 ${isMobile ? 'p-3' : 'p-4'} rounded-xl ${isMobile ? 'text-xs' : 'text-sm'} font-medium transition-all duration-300 ${isMobile ? 'min-h-[72px]' : 'min-h-[84px]'} overflow-hidden ${
+                        className={`flex flex-col items-center justify-center gap-1.5 ${isMobile ? 'p-2.5' : 'p-3'} rounded-lg ${isMobile ? 'text-xs' : 'text-sm'} font-medium transition-all duration-200 ${isMobile ? 'min-h-[68px]' : 'min-h-[78px]'} ${
                           isActive 
-                            ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-[0_0_25px_rgba(var(--primary-rgb),0.35)] scale-[1.02]" 
-                            : "bg-card/60 backdrop-blur-sm border border-border/40 hover:border-primary/40 hover:shadow-[0_0_15px_rgba(var(--primary-rgb),0.12)] hover:scale-[1.02] active:scale-95 text-foreground"
+                            ? "bg-primary text-primary-foreground shadow-lg scale-105 ring-2 ring-primary/30" 
+                            : "bg-background/60 hover:bg-background hover:scale-102 active:scale-95 text-foreground"
                         }`}
                       >
-                        {isActive && (
-                          <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/15 pointer-events-none" />
-                        )}
-                        <div className={`relative z-10 transition-all duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"}`}>
-                          <Icon 
-                            className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} transition-all duration-300 ${
-                              isActive 
-                                ? "drop-shadow-[0_0_6px_rgba(255,255,255,0.5)]" 
-                                : "group-hover:text-primary"
-                            }`} 
-                            strokeWidth={isActive ? 2 : 1.5}
-                          />
+                        <div className={`relative transition-transform duration-200 ${isActive ? "animate-bounce-once" : ""}`}>
+                          <Icon className={`${isMobile ? 'w-6 h-6' : 'w-7 h-7'} transition-all duration-200 ${isActive ? "drop-shadow-glow" : ""}`} />
                         </div>
-                        <span className={`relative z-10 text-center leading-tight truncate w-full tracking-wide ${isActive ? 'font-semibold' : ''}`}>
-                          {item.label}
-                        </span>
+                        <span className="text-center leading-tight truncate w-full">{item.label}</span>
                       </button>
                     );
                   })}
                 </div>
                 {/* Row 2 */}
-                <div className="grid grid-cols-4 gap-2 bg-card/40 backdrop-blur-md border border-border/30 rounded-2xl p-2.5 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+                <div className="grid grid-cols-4 gap-1.5 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-2">
                   {menuItems.slice(4, 8).map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
@@ -611,28 +599,16 @@ export default function Index() {
                       <button
                         key={item.id}
                         onClick={() => handleTabChange(item.id)}
-                        className={`group relative flex flex-col items-center justify-center gap-2 ${isMobile ? 'p-3' : 'p-4'} rounded-xl ${isMobile ? 'text-xs' : 'text-sm'} font-medium transition-all duration-300 ${isMobile ? 'min-h-[72px]' : 'min-h-[84px]'} overflow-hidden ${
+                        className={`flex flex-col items-center justify-center gap-1.5 ${isMobile ? 'p-2.5' : 'p-3'} rounded-lg ${isMobile ? 'text-xs' : 'text-sm'} font-medium transition-all duration-200 ${isMobile ? 'min-h-[68px]' : 'min-h-[78px]'} ${
                           isActive 
-                            ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-[0_0_25px_rgba(var(--primary-rgb),0.35)] scale-[1.02]" 
-                            : "bg-card/60 backdrop-blur-sm border border-border/40 hover:border-primary/40 hover:shadow-[0_0_15px_rgba(var(--primary-rgb),0.12)] hover:scale-[1.02] active:scale-95 text-foreground"
+                            ? "bg-primary text-primary-foreground shadow-lg scale-105 ring-2 ring-primary/30" 
+                            : "bg-background/60 hover:bg-background hover:scale-102 active:scale-95 text-foreground"
                         }`}
                       >
-                        {isActive && (
-                          <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/15 pointer-events-none" />
-                        )}
-                        <div className={`relative z-10 transition-all duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"}`}>
-                          <Icon 
-                            className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} transition-all duration-300 ${
-                              isActive 
-                                ? "drop-shadow-[0_0_6px_rgba(255,255,255,0.5)]" 
-                                : "group-hover:text-primary"
-                            }`} 
-                            strokeWidth={isActive ? 2 : 1.5}
-                          />
+                        <div className={`relative transition-transform duration-200 ${isActive ? "animate-bounce-once" : ""}`}>
+                          <Icon className={`${isMobile ? 'w-6 h-6' : 'w-7 h-7'} transition-all duration-200 ${isActive ? "drop-shadow-glow" : ""}`} />
                         </div>
-                        <span className={`relative z-10 text-center leading-tight truncate w-full tracking-wide ${isActive ? 'font-semibold' : ''}`}>
-                          {item.label}
-                        </span>
+                        <span className="text-center leading-tight truncate w-full">{item.label}</span>
                       </button>
                     );
                   })}
