@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { X, Loader2, GripVertical, Lightbulb, Sparkles, Eye } from "lucide-react";
-import marcelaImage from "@/assets/marcela-character.png";
+import { FuturisticOrb } from "./FuturisticOrb";
 import { supabase } from "@/integrations/supabase/client";
 import { Recipe } from "@/components/RecipeList";
 import { FiltersState } from "@/components/AdvancedFilters";
@@ -660,7 +660,7 @@ export function MarcelaAssistant({
         {renderMessage()}
       </div>
 
-      {/* Marcela character */}
+      {/* Futuristic AI Orb */}
       <div 
         className="relative flex-shrink-0 cursor-grab active:cursor-grabbing"
         onMouseDown={handleMouseDown}
@@ -669,38 +669,32 @@ export function MarcelaAssistant({
         onTouchEnd={handleTouchEnd}
         onClick={handleCharacterClick}
       >
-        <div className={`w-32 h-36 md:w-40 md:h-44 ${isDragging ? '' : (isSurpriseMode || isCharacterAnimating) ? 'animate-bounce' : getAnimationClass(currentAnimation)}`}>
-          <img
-            src={marcelaImage}
-            alt={tLocal("marcelaAlt")}
-            className={`w-full h-full object-contain drop-shadow-lg ${(isSurpriseMode || isCharacterAnimating || shouldShowSparkles) ? 'animate-pulse' : ''}`}
+        <div className={`${isDragging ? '' : (isSurpriseMode || isCharacterAnimating) ? 'animate-bounce' : 'animate-float'}`}>
+          <FuturisticOrb 
+            size={120}
+            isActive={isSurpriseMode || isCharacterAnimating || shouldShowSparkles}
+            isThinking={isLoading || currentMood === 'thinking' || isAILoading}
           />
           
-          {/* Sparkle effects */}
+          {/* Sparkle effects around orb */}
           {shouldShowSparkles && (
             <>
               <div className="absolute -top-2 -right-2 animate-bounce">
-                <Sparkles className="w-5 h-5 text-yellow-400" />
+                <Sparkles className="w-5 h-5 text-cyan-400" />
               </div>
               <div className="absolute -top-1 -left-1 animate-bounce" style={{ animationDelay: '200ms' }}>
-                <Sparkles className="w-4 h-4 text-pink-400" />
+                <Sparkles className="w-4 h-4 text-blue-400" />
+              </div>
+              <div className="absolute bottom-2 -right-1 animate-bounce" style={{ animationDelay: '400ms' }}>
+                <Sparkles className="w-4 h-4 text-purple-400" />
               </div>
             </>
           )}
           
-          {/* Thinking indicator */}
-          {currentMood === 'thinking' && (
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex gap-1">
-              <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-              <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-              <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-            </div>
-          )}
-          
           {/* Love hearts */}
           {currentMood === 'loving' && (
-            <div className="absolute -top-2 right-0 text-red-500 animate-bounce">
-              💕
+            <div className="absolute -top-2 right-0 text-cyan-400 animate-bounce">
+              💫
             </div>
           )}
         </div>
