@@ -82,10 +82,14 @@ export const PlanificarSection = ({
           alt={currentBanner.alt} 
           className="w-full h-full object-cover transition-all duration-150"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent flex items-center">
-          <div className="px-4">
-            <h3 className="text-white font-bold text-lg">{currentBanner.title}</h3>
-            <p className="text-white/80 text-sm">{currentBanner.description}</p>
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent flex items-center">
+          <div className="px-5">
+            <h3 className="text-white font-bold text-xl drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+              {currentBanner.title}
+            </h3>
+            <p className="text-white text-sm drop-shadow-md" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>
+              {currentBanner.description}
+            </p>
           </div>
         </div>
       </div>
