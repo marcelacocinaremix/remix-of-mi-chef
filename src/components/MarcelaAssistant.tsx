@@ -676,27 +676,6 @@ export function MarcelaAssistant({
             isThinking={isLoading || currentMood === 'thinking' || isAILoading}
           />
           
-          {/* Sparkle effects around orb */}
-          {shouldShowSparkles && (
-            <>
-              <div className="absolute -top-2 -right-2 animate-bounce">
-                <Sparkles className="w-5 h-5 text-cyan-400" />
-              </div>
-              <div className="absolute -top-1 -left-1 animate-bounce" style={{ animationDelay: '200ms' }}>
-                <Sparkles className="w-4 h-4 text-blue-400" />
-              </div>
-              <div className="absolute bottom-2 -right-1 animate-bounce" style={{ animationDelay: '400ms' }}>
-                <Sparkles className="w-4 h-4 text-purple-400" />
-              </div>
-            </>
-          )}
-          
-          {/* Love hearts */}
-          {currentMood === 'loving' && (
-            <div className="absolute -top-2 right-0 text-cyan-400 animate-bounce">
-              💫
-            </div>
-          )}
         </div>
       </div>
     </div>
