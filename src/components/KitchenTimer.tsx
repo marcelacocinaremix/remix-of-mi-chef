@@ -72,26 +72,8 @@ export function KitchenTimer() {
 
       <div className="relative bg-gradient-to-br from-card via-card to-card/80 backdrop-blur-sm border border-border/50 rounded-2xl p-6 shadow-2xl">
         <div className="flex flex-col items-center space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-3">
-              <div className={cn(
-                "p-2.5 rounded-xl transition-all duration-500",
-                isRunning 
-                  ? "bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/30" 
-                  : isFinished 
-                    ? "bg-gradient-to-br from-red-500 to-pink-600 shadow-lg shadow-red-500/30 animate-pulse"
-                    : "bg-gradient-to-br from-primary to-primary/80"
-              )}>
-                <Timer className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-display font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-                  {t('kitchenTimer')}
-                </h2>
-                <p className="text-xs text-muted-foreground">{t('timeAssistant')}</p>
-              </div>
-            </div>
+          {/* Sound toggle */}
+          <div className="flex justify-end w-full">
             <Button
               variant="ghost"
               size="icon"
