@@ -142,9 +142,6 @@ export function CookingSection({
           >
             <ChefHat className={cn("w-5 h-5", activeSubTab === "armar" && "animate-bounce")} />
             <span>{t("buildRecipe")}</span>
-            <Badge variant="secondary" className="bg-primary-foreground/20 text-primary-foreground text-[10px] px-1.5">
-              {t("main")}
-            </Badge>
           </button>
           <button
             onClick={() => setActiveSubTab("extras")}
