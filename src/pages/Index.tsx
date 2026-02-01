@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
+import { FuturisticBackground } from "@/components/FuturisticBackground";
 import { FiltersState } from "@/components/AdvancedFilters";
 import { Recipe } from "@/components/RecipeList";
 import { RecipeDetail } from "@/components/RecipeDetail";
@@ -489,8 +490,9 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen gradient-hero">
-      <div className="container max-w-4xl py-6 md:py-10 px-4">
+    <div className="min-h-screen gradient-hero relative">
+      <FuturisticBackground />
+      <div className="container max-w-4xl py-6 md:py-10 px-4 relative z-10">
         {/* Top bar with social links and user menu */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-3">
