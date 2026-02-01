@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { TipsSection } from "./TipsSection";
+import { FoodStorageGuide } from "./FoodStorageGuide";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import learnBanner from "@/assets/learn-banner.jpg";
@@ -1269,7 +1270,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame }: LearnSec
   const { user } = useAuth();
   const { toast } = useToast();
   const { play } = useSound();
-  const [activeSubMenu, setActiveSubMenu] = useState<"aprender" | "tips">("aprender");
+  const [activeSubMenu, setActiveSubMenu] = useState<"aprender" | "tips" | "conservacion">("aprender");
   const [activeLevel, setActiveLevel] = useState("principiante");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
@@ -1601,30 +1602,42 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame }: LearnSec
 
       {/* Submenu Tabs */}
       <div className="bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5 rounded-2xl p-1.5 border border-border/50">
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-3 gap-1.5">
           <button
             onClick={() => setActiveSubMenu("aprender")}
             className={cn(
-              "flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium text-sm transition-all duration-300",
+              "flex items-center justify-center gap-2 py-3 px-3 rounded-xl font-medium text-sm transition-all duration-300",
               activeSubMenu === "aprender"
                 ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]"
                 : "bg-background/60 hover:bg-background text-foreground"
             )}
           >
-            <BookOpen className={cn("w-5 h-5", activeSubMenu === "aprender" && "animate-bounce")} />
-            <span>Aprender a Cocinar</span>
+            <BookOpen className={cn("w-4 h-4", activeSubMenu === "aprender" && "animate-bounce")} />
+            <span className="hidden sm:inline">Aprender</span>
           </button>
           <button
             onClick={() => setActiveSubMenu("tips")}
             className={cn(
-              "flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium text-sm transition-all duration-300",
+              "flex items-center justify-center gap-2 py-3 px-3 rounded-xl font-medium text-sm transition-all duration-300",
               activeSubMenu === "tips"
                 ? "bg-amber-500 text-white shadow-lg scale-[1.02]"
                 : "bg-background/60 hover:bg-background text-foreground"
             )}
           >
-            <Lightbulb className={cn("w-5 h-5", activeSubMenu === "tips" && "animate-pulse")} />
-            <span>Tips de Cocina</span>
+            <Lightbulb className={cn("w-4 h-4", activeSubMenu === "tips" && "animate-pulse")} />
+            <span className="hidden sm:inline">Tips</span>
+          </button>
+          <button
+            onClick={() => setActiveSubMenu("conservacion")}
+            className={cn(
+              "flex items-center justify-center gap-2 py-3 px-3 rounded-xl font-medium text-sm transition-all duration-300",
+              activeSubMenu === "conservacion"
+                ? "bg-blue-500 text-white shadow-lg scale-[1.02]"
+                : "bg-background/60 hover:bg-background text-foreground"
+            )}
+          >
+            <Refrigerator className={cn("w-4 h-4", activeSubMenu === "conservacion" && "animate-pulse")} />
+            <span className="hidden sm:inline">Conservación</span>
           </button>
         </div>
       </div>
@@ -1878,6 +1891,11 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame }: LearnSec
       {/* Tips de Cocina Content */}
       {activeSubMenu === "tips" && (
         <TipsSection onNavigateToCooking={onNavigateToCooking} />
+      )}
+
+      {/* Conservación de Alimentos Content */}
+      {activeSubMenu === "conservacion" && (
+        <FoodStorageGuide />
       )}
     </div>
   );
