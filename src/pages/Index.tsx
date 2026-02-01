@@ -303,20 +303,22 @@ export default function Index() {
         return;
       }
       
-       if (data?.error) {
-         // If backend included cached recipes as fallback, show them.
-         if (data?.recipes && data.recipes.length > 0 && data.source === 'cache') {
-           setRecipes(data.recipes);
-           setInstantRecipe(data.recipes[0]);
-           toast({
-             title: "Usando recetas guardadas",
-             description: "La IA está con mucha demanda, pero te dejo 2 opciones instantáneas.",
-           });
-           setIsLoading(false);
-           setIsGeneratingAI(false);
-           return;
-         }
+       // Handle fallback recipes (from cache or emergency)
+       if (data?.recipes && data.recipes.length > 0 && (data.source === 'cache' || data.source === 'emergency')) {
+         setRecipes(data.recipes);
+         setInstantRecipe(data.recipes[0]);
+         toast({
+           title: data.source === 'emergency' ? "🍳 Recetas de emergencia" : "Usando recetas guardadas",
+           description: data.source === 'emergency' 
+             ? "La IA está ocupada, pero te preparé opciones clásicas."
+             : "La IA está con mucha demanda, pero te dejo opciones instantáneas.",
+         });
+         setIsLoading(false);
+         setIsGeneratingAI(false);
+         return;
+       }
 
+       if (data?.error) {
          // If we have cached recipes, use them as fallback
          if (instantRecipe) {
            toast({
