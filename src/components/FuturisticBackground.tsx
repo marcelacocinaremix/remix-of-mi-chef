@@ -108,7 +108,7 @@ export function FuturisticBackground() {
         startNode: startIdx,
         endNode: endIdx,
         progress: 0,
-        speed: 0.005 + Math.random() * 0.015,
+        speed: 0.002 + Math.random() * 0.004,
         active: true,
       });
     };
@@ -202,7 +202,7 @@ export function FuturisticBackground() {
             pulse.startNode = pulse.endNode;
             pulse.endNode = nextNodeIdx;
             pulse.progress = 0;
-            pulse.speed = 0.005 + Math.random() * 0.015;
+            pulse.speed = 0.002 + Math.random() * 0.004;
           } else {
             pulses.splice(i, 1);
             createNewPulse();
