@@ -174,8 +174,8 @@ export function FuturisticBackground() {
       time += 0.01;
 
       // Draw circuit connections
-      ctx.strokeStyle = "rgba(59, 130, 246, 0.08)";
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(59, 130, 246, 0.25)";
+      ctx.lineWidth = 1.5;
 
       for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i];
@@ -289,7 +289,7 @@ export function FuturisticBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.7 }}
+      style={{ opacity: 0.9 }}
     />
   );
 }
