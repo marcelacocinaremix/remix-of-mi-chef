@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,6 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { 
   Refrigerator, 
   Search, 
-  Clock, 
   AlertTriangle, 
   Lightbulb, 
   ThermometerSun,
@@ -18,12 +17,15 @@ import {
   Utensils,
   Flame,
   Shield,
-  Droplets,
-  Timer
+  Timer,
+  Heart,
+  History,
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface CategoryOption {
@@ -104,19 +106,59 @@ interface FoodInfo {
   warnings?: string[];
 }
 
+interface SearchHistoryItem {
+  food: string;
+  category: string;
+  timestamp: number;
+}
+
+const HISTORY_KEY = "food_tips_history";
+const MAX_HISTORY = 10;
+
 export function FoodStorageGuide() {
   const [foodName, setFoodName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("conservacion");
   const [isLoading, setIsLoading] = useState(false);
   const [foodInfo, setFoodInfo] = useState<FoodInfo | null>(null);
   const [notFoodError, setNotFoodError] = useState(false);
-  const [lastSearch, setLastSearch] = useState<{food: string, category: string} | null>(null);
+  const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  const handleSearch = async (categoryOverride?: string) => {
+  // Load history from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem(HISTORY_KEY);
+    if (saved) {
+      try {
+        setSearchHistory(JSON.parse(saved));
+      } catch (e) {
+        console.error("Error loading history:", e);
+      }
+    }
+  }, []);
+
+  const saveToHistory = (food: string, category: string) => {
+    const newItem: SearchHistoryItem = { food, category, timestamp: Date.now() };
+    const filtered = searchHistory.filter(
+      (item) => !(item.food.toLowerCase() === food.toLowerCase() && item.category === category)
+    );
+    const newHistory = [newItem, ...filtered].slice(0, MAX_HISTORY);
+    setSearchHistory(newHistory);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(newHistory));
+  };
+
+  const removeFromHistory = (index: number) => {
+    const newHistory = searchHistory.filter((_, i) => i !== index);
+    setSearchHistory(newHistory);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(newHistory));
+  };
+
+  const handleSearch = async (foodOverride?: string, categoryOverride?: string) => {
+    const foodToUse = foodOverride || foodName.trim();
     const categoryToUse = categoryOverride || selectedCategory;
     
-    if (!foodName.trim()) {
+    if (!foodToUse) {
       toast({
         title: "Ingresá un alimento",
         description: "Escribí el nombre de un alimento para buscar.",
@@ -132,7 +174,7 @@ export function FoodStorageGuide() {
     try {
       const { data, error } = await supabase.functions.invoke("food-tips-guide", {
         body: { 
-          foodName: foodName.trim(),
+          foodName: foodToUse,
           category: categoryToUse
         },
       });
@@ -144,7 +186,9 @@ export function FoodStorageGuide() {
         setFoodInfo(null);
       } else if (data) {
         setFoodInfo(data);
-        setLastSearch({ food: foodName.trim(), category: categoryToUse });
+        saveToHistory(foodToUse, categoryToUse);
+        if (foodOverride) setFoodName(foodOverride);
+        if (categoryOverride) setSelectedCategory(categoryOverride);
       }
     } catch (error) {
       console.error("Error fetching food info:", error);
@@ -158,11 +202,52 @@ export function FoodStorageGuide() {
     }
   };
 
-  const handleCategoryChange = (categoryId: string) => {
-    setSelectedCategory(categoryId);
-    // If we already searched for a food, search again with new category
-    if (lastSearch && lastSearch.food === foodName.trim()) {
-      handleSearch(categoryId);
+  const handleSaveToFavorites = async () => {
+    if (!user) {
+      toast({
+        title: "Iniciá sesión",
+        description: "Necesitás estar logueado para guardar favoritos",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!foodInfo) return;
+
+    setIsSaving(true);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase.from("favorite_food_tips") as any).insert([{
+        user_id: user.id,
+        food_name: foodInfo.name,
+        category: foodInfo.category,
+        tip_data: foodInfo,
+      }]);
+
+      if (error) {
+        if (error.code === "23505") {
+          toast({
+            title: "Ya guardado",
+            description: "Este tip ya está en tus favoritos",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "¡Guardado!",
+          description: "Tip agregado a tus favoritos",
+        });
+      }
+    } catch (err) {
+      console.error("Error saving to favorites:", err);
+      toast({
+        title: "Error",
+        description: "No pudimos guardar el tip",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -234,7 +319,7 @@ export function FoodStorageGuide() {
             return (
               <button
                 key={category.id}
-                onClick={() => handleCategoryChange(category.id)}
+                onClick={() => setSelectedCategory(category.id)}
                 disabled={isLoading}
                 className={cn(
                   "flex flex-col items-center gap-1.5 px-4 py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap shrink-0 min-w-[90px]",
@@ -313,19 +398,35 @@ export function FoodStorageGuide() {
             <Card className="border-primary/20 overflow-hidden">
               <div className={cn("h-2", currentCategory?.bgColor)} />
               <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-3">
-                  <div className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center",
-                    currentCategory?.bgColor + "/15"
-                  )}>
-                    {currentCategory && <currentCategory.icon className={cn("w-5 h-5", currentCategory.color)} />}
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "w-10 h-10 rounded-full flex items-center justify-center",
+                      currentCategory?.bgColor + "/15"
+                    )}>
+                      {currentCategory && <currentCategory.icon className={cn("w-5 h-5", currentCategory.color)} />}
+                    </div>
+                    <div>
+                      <span className="capitalize">{foodInfo.name}</span>
+                      <p className="text-sm font-normal text-muted-foreground">
+                        {currentCategory?.description}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <span className="capitalize">{foodInfo.name}</span>
-                    <p className="text-sm font-normal text-muted-foreground">
-                      {currentCategory?.description}
-                    </p>
-                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSaveToFavorites}
+                    disabled={isSaving}
+                    className="gap-1.5"
+                  >
+                    {isSaving ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Heart className="w-4 h-4" />
+                    )}
+                    Guardar
+                  </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -410,8 +511,45 @@ export function FoodStorageGuide() {
         )}
       </AnimatePresence>
 
+      {/* Search History */}
+      {searchHistory.length > 0 && !isLoading && (
+        <Card className="border-dashed">
+          <CardContent className="py-4">
+            <h4 className="font-medium text-sm mb-3 flex items-center gap-2 text-muted-foreground">
+              <History className="w-4 h-4" />
+              Historial de búsquedas
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {searchHistory.map((item, index) => {
+                const cat = categories.find((c) => c.id === item.category);
+                return (
+                  <div
+                    key={index}
+                    className="group flex items-center gap-1 bg-muted/50 rounded-full pl-3 pr-1 py-1"
+                  >
+                    <button
+                      onClick={() => handleSearch(item.food, item.category)}
+                      className="flex items-center gap-1.5 text-sm hover:text-primary transition-colors"
+                    >
+                      {cat && <cat.icon className={cn("w-3 h-3", cat.color)} />}
+                      <span className="capitalize">{item.food}</span>
+                    </button>
+                    <button
+                      onClick={() => removeFromHistory(index)}
+                      className="p-1 rounded-full hover:bg-muted transition-colors opacity-0 group-hover:opacity-100"
+                    >
+                      <X className="w-3 h-3 text-muted-foreground" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Empty State - suggestions */}
-      {!foodInfo && !isLoading && !notFoodError && (
+      {!foodInfo && !isLoading && !notFoodError && searchHistory.length === 0 && (
         <Card className="border-dashed">
           <CardContent className="py-8">
             <div className="text-center space-y-4">
