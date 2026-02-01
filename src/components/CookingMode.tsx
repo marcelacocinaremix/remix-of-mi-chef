@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, ArrowRight, ChefHat, Check, X, Clock, Users, Sparkles, Flame, Heart, Volume2, VolumeX } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChefHat, Check, X, Clock, Users, Sparkles, Flame, Volume2, VolumeX } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Recipe } from "@/components/RecipeList";
@@ -8,7 +8,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CookingTimer, extractTimeFromStep } from "@/components/CookingTimer";
 import { useSound } from "@/hooks/useSound";
-import marcelaImage from "@/assets/marcela-character.png";
 
 interface CookingModeProps {
   recipe: Recipe;
@@ -16,40 +15,23 @@ interface CookingModeProps {
   onMarkAsCooked?: () => void;
 }
 
-// Marcela messages for different events
-const marcelaMessages = {
+// Timer messages
+const timerMessages = {
   start: [
-    "¡Vamos a cocinar algo delicioso! 👩‍🍳",
-    "¡Qué emoción! Esta receta te va a encantar ✨",
-    "¡Manos a la obra! Yo te guío paso a paso 💪",
+    "¡Timer activado!",
+    "¡En marcha!",
   ],
-  timer: {
-    start: [
-      "¡Perfecto! Te aviso cuando esté listo 👩‍🍳",
-      "¡Timer activado! Mientras podés preparar lo siguiente 🕐",
-      "¡Listo! Yo controlo el tiempo por vos ⏱️",
-      "¡En marcha! Relajate que te aviso 😊",
-    ],
-    end: [
-      "¡Tiempo! Ya podés continuar 🔔",
-      "¡Listo el pollo! Seguimos con el próximo paso 🎉",
-      "¡Se cumplió el tiempo! Adelante 👩‍🍳",
-      "¡Ya está! Vamos al siguiente paso ✨",
-    ],
-  },
-  encouragement: [
-    "¡Vas muy bien! 💪",
-    "¡Excelente técnica! ✨",
-    "¡Eso es! Seguí así 🌟",
-    "¡Qué rico va quedando! 😋",
-    "¡Sos un/a crack en la cocina! 👏",
-  ],
-  finish: [
-    "¡FELICITACIONES! 🎉 ¡Lo lograste!",
-    "¡Bravo! ¡Quedó espectacular! 👏",
-    "¡Sos un/a chef increíble! 🌟",
+  end: [
+    "¡Tiempo!",
+    "¡Listo!",
   ],
 };
+
+const finishMessages = [
+  "¡FELICITACIONES! 🎉",
+  "¡Bravo! 👏",
+  "¡Excelente! 🌟",
+];
 
 const getRandomMessage = (messages: string[]) => {
   return messages[Math.floor(Math.random() * messages.length)];
@@ -61,8 +43,6 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked }: CookingModeProp
   const { play } = useSound();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
-  const [marcelaMessage, setMarcelaMessage] = useState<string | null>(null);
-  const [showMarcela, setShowMarcela] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
@@ -76,23 +56,10 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked }: CookingModeProp
   const currentStepText = recipe.steps[currentStep];
   const stepMinutes = extractTimeFromStep(currentStepText);
 
-  // Show welcome message on mount
+  // Play welcome sound on mount
   useEffect(() => {
-    setMarcelaMessage(getRandomMessage(marcelaMessages.start));
     if (soundEnabled) play('magic');
-    const timer = setTimeout(() => setMarcelaMessage(null), 4000);
-    return () => clearTimeout(timer);
   }, []);
-
-  // Encouragement messages every few steps
-  useEffect(() => {
-    if (currentStep > 0 && currentStep % 3 === 0 && !marcelaMessage) {
-      setMarcelaMessage(getRandomMessage(marcelaMessages.encouragement));
-      if (soundEnabled) play('chime');
-      const timer = setTimeout(() => setMarcelaMessage(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [currentStep]);
 
   const handlePrevious = () => {
     if (!isFirstStep) {
@@ -100,7 +67,6 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked }: CookingModeProp
       if (soundEnabled) play('whoosh');
       setTimeout(() => {
         setCurrentStep(currentStep - 1);
-        setMarcelaMessage(null);
         setIsTransitioning(false);
       }, 200);
     }
@@ -115,21 +81,25 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked }: CookingModeProp
       }
       setTimeout(() => {
         setCurrentStep(currentStep + 1);
-        setMarcelaMessage(null);
         setIsTransitioning(false);
       }, 200);
     }
   };
 
   const handleTimerStart = () => {
-    setMarcelaMessage(getRandomMessage(marcelaMessages.timer.start));
     if (soundEnabled) play('notification');
-    setTimeout(() => setMarcelaMessage(null), 4000);
+    toast({
+      title: getRandomMessage(timerMessages.start),
+      description: "Te aviso cuando termine",
+    });
   };
 
   const handleTimerEnd = () => {
-    setMarcelaMessage(getRandomMessage(marcelaMessages.timer.end));
     if (soundEnabled) play('ding');
+    toast({
+      title: getRandomMessage(timerMessages.end),
+      description: "Ya podés continuar",
+    });
   };
 
   const handleMarkAsCooked = async () => {
@@ -144,8 +114,12 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked }: CookingModeProp
 
     setIsSaving(true);
     setShowConfetti(true);
-    setMarcelaMessage(getRandomMessage(marcelaMessages.finish));
     if (soundEnabled) play('success');
+    
+    toast({
+      title: getRandomMessage(finishMessages),
+      description: "¡Lo lograste!",
+    });
 
     try {
       const { error } = await supabase.from("cooked_recipes").insert({
@@ -269,14 +243,6 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked }: CookingModeProp
               <VolumeX className="w-5 h-5 text-muted-foreground" />
             )}
           </Button>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => setShowMarcela(!showMarcela)}
-            className="hover:bg-primary/10"
-          >
-            <Heart className={cn("w-5 h-5 transition-all", showMarcela ? "text-red-500 fill-red-500" : "text-muted-foreground")} />
-          </Button>
         </div>
       </div>
 
@@ -383,45 +349,6 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked }: CookingModeProp
         </div>
       </div>
 
-      {/* Marcela assistant */}
-      {showMarcela && (
-        <div className={cn(
-          "fixed bottom-36 right-4 z-50 flex items-end gap-2",
-          "transition-all duration-500",
-          marcelaMessage ? "animate-scale-in" : "opacity-80 hover:opacity-100"
-        )}>
-          {marcelaMessage && (
-            <div className={cn(
-              "bg-gradient-to-br from-card to-secondary/50 border border-primary/20",
-              "rounded-2xl shadow-xl p-4 max-w-[220px]",
-              "animate-fade-in"
-            )}>
-              <p className="text-sm font-medium text-foreground">{marcelaMessage}</p>
-              <div className="absolute -bottom-2 right-16 w-4 h-4 bg-card border-r border-b border-primary/20 transform rotate-45" />
-            </div>
-          )}
-          <div className="relative group">
-            <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-lg group-hover:blur-xl transition-all opacity-0 group-hover:opacity-100" />
-            <img 
-              src={marcelaImage} 
-              alt="Marcela" 
-              className={cn(
-                "w-20 h-24 object-contain transition-transform cursor-pointer",
-                "hover:scale-110 active:scale-95",
-                marcelaMessage && "animate-bounce"
-              )}
-              style={{ animationDuration: '1s' }}
-              onClick={() => {
-                if (!marcelaMessage) {
-                  if (soundEnabled) play('chime');
-                  setMarcelaMessage(getRandomMessage(marcelaMessages.encouragement));
-                  setTimeout(() => setMarcelaMessage(null), 3000);
-                }
-              }}
-            />
-          </div>
-        </div>
-      )}
 
       {/* Navigation */}
       <div className={cn(
