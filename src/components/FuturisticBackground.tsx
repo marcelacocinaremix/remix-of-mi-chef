@@ -11,140 +11,272 @@ export function FuturisticBackground() {
     if (!ctx) return;
 
     let animationId: number;
-    let particles: Particle[] = [];
     let time = 0;
+
+    interface CircuitNode {
+      x: number;
+      y: number;
+      connections: number[];
+      pulsePhase: number;
+      size: number;
+    }
+
+    interface DataPulse {
+      startNode: number;
+      endNode: number;
+      progress: number;
+      speed: number;
+      active: boolean;
+    }
+
+    let nodes: CircuitNode[] = [];
+    let pulses: DataPulse[] = [];
 
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+      initCircuit();
     };
 
-    resize();
-    window.addEventListener("resize", resize);
+    const initCircuit = () => {
+      nodes = [];
+      pulses = [];
+      
+      // Create a grid of nodes with some randomness
+      const gridSpacingX = 120;
+      const gridSpacingY = 100;
+      const cols = Math.ceil(canvas.width / gridSpacingX) + 2;
+      const rows = Math.ceil(canvas.height / gridSpacingY) + 2;
 
-    interface Particle {
-      x: number;
-      y: number;
-      size: number;
-      speedX: number;
-      speedY: number;
-      opacity: number;
-      pulse: number;
-    }
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          // Add some randomness to positions
+          const offsetX = (Math.random() - 0.5) * 40;
+          const offsetY = (Math.random() - 0.5) * 30;
+          
+          // Only add ~60% of nodes for irregular pattern
+          if (Math.random() > 0.4) {
+            nodes.push({
+              x: col * gridSpacingX + offsetX,
+              y: row * gridSpacingY + offsetY,
+              connections: [],
+              pulsePhase: Math.random() * Math.PI * 2,
+              size: Math.random() * 2 + 2,
+            });
+          }
+        }
+      }
 
-    // Create particles
-    const createParticles = () => {
-      particles = [];
-      const numParticles = Math.floor((canvas.width * canvas.height) / 25000);
-      for (let i = 0; i < numParticles; i++) {
-        particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          size: Math.random() * 2 + 0.5,
-          speedX: (Math.random() - 0.5) * 0.3,
-          speedY: (Math.random() - 0.5) * 0.3,
-          opacity: Math.random() * 0.3 + 0.1,
-          pulse: Math.random() * Math.PI * 2,
-        });
+      // Create connections between nearby nodes
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[j].x - nodes[i].x;
+          const dy = nodes[j].y - nodes[i].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          // Connect nodes within range, with preference for horizontal/vertical
+          if (dist < 150 && dist > 30) {
+            const angle = Math.abs(Math.atan2(dy, dx));
+            // Prefer more horizontal or vertical connections
+            if (angle < 0.3 || angle > 1.27 || (angle > 0.7 && angle < 1.0)) {
+              if (Math.random() > 0.4) {
+                nodes[i].connections.push(j);
+                nodes[j].connections.push(i);
+              }
+            }
+          }
+        }
+      }
+
+      // Initialize data pulses
+      for (let i = 0; i < 15; i++) {
+        createNewPulse();
       }
     };
 
-    createParticles();
+    const createNewPulse = () => {
+      const nodeWithConnections = nodes.filter(n => n.connections.length > 0);
+      if (nodeWithConnections.length === 0) return;
+      
+      const startIdx = nodes.indexOf(nodeWithConnections[Math.floor(Math.random() * nodeWithConnections.length)]);
+      const startNode = nodes[startIdx];
+      if (startNode.connections.length === 0) return;
+      
+      const endIdx = startNode.connections[Math.floor(Math.random() * startNode.connections.length)];
+      
+      pulses.push({
+        startNode: startIdx,
+        endNode: endIdx,
+        progress: 0,
+        speed: 0.005 + Math.random() * 0.015,
+        active: true,
+      });
+    };
+
+    const drawCircuitLine = (x1: number, y1: number, x2: number, y2: number) => {
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      
+      // Draw circuit-style lines with right angles
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      
+      if (Math.abs(dx) > Math.abs(dy)) {
+        // Horizontal first, then vertical
+        const midX = x1 + dx * 0.7;
+        ctx.lineTo(midX, y1);
+        ctx.lineTo(midX, y2);
+        ctx.lineTo(x2, y2);
+      } else {
+        // Vertical first, then horizontal
+        const midY = y1 + dy * 0.7;
+        ctx.lineTo(x1, midY);
+        ctx.lineTo(x2, midY);
+        ctx.lineTo(x2, y2);
+      }
+      
+      ctx.stroke();
+    };
+
+    const getPointOnCircuitLine = (x1: number, y1: number, x2: number, y2: number, t: number) => {
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      
+      if (Math.abs(dx) > Math.abs(dy)) {
+        const midX = x1 + dx * 0.7;
+        const segment1 = 0.35;
+        const segment2 = 0.65;
+        
+        if (t < segment1) {
+          return { x: x1 + (midX - x1) * (t / segment1), y: y1 };
+        } else if (t < segment2) {
+          return { x: midX, y: y1 + (y2 - y1) * ((t - segment1) / (segment2 - segment1)) };
+        } else {
+          return { x: midX + (x2 - midX) * ((t - segment2) / (1 - segment2)), y: y2 };
+        }
+      } else {
+        const midY = y1 + dy * 0.7;
+        const segment1 = 0.35;
+        const segment2 = 0.65;
+        
+        if (t < segment1) {
+          return { x: x1, y: y1 + (midY - y1) * (t / segment1) };
+        } else if (t < segment2) {
+          return { x: x1 + (x2 - x1) * ((t - segment1) / (segment2 - segment1)), y: midY };
+        } else {
+          return { x: x2, y: midY + (y2 - midY) * ((t - segment2) / (1 - segment2)) };
+        }
+      }
+    };
 
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       time += 0.01;
 
-      // Draw subtle grid lines
-      ctx.strokeStyle = "rgba(59, 130, 246, 0.03)";
+      // Draw circuit connections
+      ctx.strokeStyle = "rgba(59, 130, 246, 0.08)";
       ctx.lineWidth = 1;
-      const gridSize = 80;
-      
-      for (let x = 0; x < canvas.width; x += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
-        ctx.stroke();
-      }
-      
-      for (let y = 0; y < canvas.height; y += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
-        ctx.stroke();
+
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+        for (const connIdx of node.connections) {
+          if (connIdx > i) {
+            const targetNode = nodes[connIdx];
+            drawCircuitLine(node.x, node.y, targetNode.x, targetNode.y);
+          }
+        }
       }
 
-      // Draw and update particles
-      particles.forEach((particle) => {
-        particle.x += particle.speedX;
-        particle.y += particle.speedY;
-        particle.pulse += 0.02;
+      // Draw and update data pulses
+      for (let i = pulses.length - 1; i >= 0; i--) {
+        const pulse = pulses[i];
+        if (!pulse.active) continue;
 
-        // Wrap around edges
-        if (particle.x < 0) particle.x = canvas.width;
-        if (particle.x > canvas.width) particle.x = 0;
-        if (particle.y < 0) particle.y = canvas.height;
-        if (particle.y > canvas.height) particle.y = 0;
+        pulse.progress += pulse.speed;
 
-        const pulseOpacity = particle.opacity * (0.5 + Math.sin(particle.pulse) * 0.5);
-        
-        // Draw particle glow
-        const gradient = ctx.createRadialGradient(
-          particle.x, particle.y, 0,
-          particle.x, particle.y, particle.size * 4
-        );
-        gradient.addColorStop(0, `rgba(59, 130, 246, ${pulseOpacity})`);
-        gradient.addColorStop(0.5, `rgba(6, 182, 212, ${pulseOpacity * 0.5})`);
+        if (pulse.progress >= 1) {
+          // Pulse reached end, potentially continue to next connection
+          const currentEnd = nodes[pulse.endNode];
+          if (currentEnd.connections.length > 0 && Math.random() > 0.3) {
+            const nextNodeIdx = currentEnd.connections[Math.floor(Math.random() * currentEnd.connections.length)];
+            pulse.startNode = pulse.endNode;
+            pulse.endNode = nextNodeIdx;
+            pulse.progress = 0;
+            pulse.speed = 0.005 + Math.random() * 0.015;
+          } else {
+            pulses.splice(i, 1);
+            createNewPulse();
+          }
+          continue;
+        }
+
+        const startNode = nodes[pulse.startNode];
+        const endNode = nodes[pulse.endNode];
+        const pos = getPointOnCircuitLine(startNode.x, startNode.y, endNode.x, endNode.y, pulse.progress);
+
+        // Draw pulse glow
+        const gradient = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, 15);
+        gradient.addColorStop(0, "rgba(6, 182, 212, 0.6)");
+        gradient.addColorStop(0.5, "rgba(59, 130, 246, 0.3)");
         gradient.addColorStop(1, "rgba(59, 130, 246, 0)");
 
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size * 4, 0, Math.PI * 2);
+        ctx.arc(pos.x, pos.y, 15, 0, Math.PI * 2);
         ctx.fillStyle = gradient;
         ctx.fill();
 
-        // Draw particle core
+        // Draw pulse core
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(147, 197, 253, ${pulseOpacity * 1.5})`;
+        ctx.arc(pos.x, pos.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(147, 197, 253, 0.9)";
         ctx.fill();
-      });
 
-      // Draw subtle flowing lines
-      ctx.strokeStyle = "rgba(59, 130, 246, 0.02)";
-      ctx.lineWidth = 1;
-      for (let i = 0; i < 3; i++) {
+        // Draw trailing line
+        const trailLength = 0.15;
+        const trailStart = Math.max(0, pulse.progress - trailLength);
+        ctx.strokeStyle = "rgba(6, 182, 212, 0.15)";
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        const yOffset = canvas.height * (0.3 + i * 0.2);
-        ctx.moveTo(0, yOffset + Math.sin(time + i) * 50);
-        for (let x = 0; x < canvas.width; x += 20) {
-          ctx.lineTo(x, yOffset + Math.sin(time + x * 0.01 + i) * 50);
+        
+        for (let t = trailStart; t <= pulse.progress; t += 0.01) {
+          const trailPos = getPointOnCircuitLine(startNode.x, startNode.y, endNode.x, endNode.y, t);
+          if (t === trailStart) {
+            ctx.moveTo(trailPos.x, trailPos.y);
+          } else {
+            ctx.lineTo(trailPos.x, trailPos.y);
+          }
         }
         ctx.stroke();
       }
 
-      // Draw corner accents
-      const accentSize = 150;
-      
-      // Top-left accent
-      const topLeftGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, accentSize);
-      topLeftGradient.addColorStop(0, `rgba(59, 130, 246, ${0.08 + Math.sin(time) * 0.02})`);
-      topLeftGradient.addColorStop(1, "rgba(59, 130, 246, 0)");
-      ctx.fillStyle = topLeftGradient;
-      ctx.fillRect(0, 0, accentSize, accentSize);
+      // Draw circuit nodes
+      for (const node of nodes) {
+        node.pulsePhase += 0.02;
+        const pulseIntensity = 0.3 + Math.sin(node.pulsePhase) * 0.2;
 
-      // Bottom-right accent
-      const bottomRightGradient = ctx.createRadialGradient(
-        canvas.width, canvas.height, 0,
-        canvas.width, canvas.height, accentSize
-      );
-      bottomRightGradient.addColorStop(0, `rgba(6, 182, 212, ${0.06 + Math.sin(time + 1) * 0.02})`);
-      bottomRightGradient.addColorStop(1, "rgba(6, 182, 212, 0)");
-      ctx.fillStyle = bottomRightGradient;
-      ctx.fillRect(canvas.width - accentSize, canvas.height - accentSize, accentSize, accentSize);
+        // Node glow
+        const nodeGradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, node.size * 4);
+        nodeGradient.addColorStop(0, `rgba(59, 130, 246, ${pulseIntensity})`);
+        nodeGradient.addColorStop(0.5, `rgba(6, 182, 212, ${pulseIntensity * 0.5})`);
+        nodeGradient.addColorStop(1, "rgba(59, 130, 246, 0)");
+
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.size * 4, 0, Math.PI * 2);
+        ctx.fillStyle = nodeGradient;
+        ctx.fill();
+
+        // Node core
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(147, 197, 253, ${pulseIntensity + 0.3})`;
+        ctx.fill();
+      }
 
       animationId = requestAnimationFrame(animate);
     };
 
+    resize();
+    window.addEventListener("resize", resize);
     animate();
 
     return () => {
@@ -157,7 +289,7 @@ export function FuturisticBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.6 }}
+      style={{ opacity: 0.7 }}
     />
   );
 }
