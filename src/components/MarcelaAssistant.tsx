@@ -96,6 +96,12 @@ export function MarcelaAssistant({
   const [isDragging, setIsDragging] = useState(false);
   const dragRef = useRef<HTMLDivElement>(null);
   const dragStartPos = useRef({ x: 0, y: 0 });
+  
+  // Reset position on mount to ensure visibility
+  useEffect(() => {
+    setPosition({ x: 0, y: 0 });
+    positionRef.current = { x: 0, y: 0 };
+  }, []);
   const initialPos = useRef({ x: 0, y: 0 });
   
   // Sound
@@ -338,9 +344,13 @@ export function MarcelaAssistant({
       hasDragged.current = true;
     }
     
+    // Bound the position to keep assistant visible
+    const maxX = window.innerWidth - 100;
+    const maxY = window.innerHeight - 150;
+    
     const newPos = {
-      x: initialPos.current.x + deltaX,
-      y: initialPos.current.y + deltaY
+      x: Math.max(-maxX + 100, Math.min(100, initialPos.current.x + deltaX)),
+      y: Math.max(-maxY + 100, Math.min(200, initialPos.current.y + deltaY))
     };
     positionRef.current = newPos;
     setPosition(newPos);
@@ -626,7 +636,7 @@ export function MarcelaAssistant({
       } ${isVisible ? "opacity-100" : "opacity-0"}`}
       style={{
         bottom: `${24 - position.y}px`,
-        right: `${-8 - position.x}px`,
+        right: `${16 - position.x}px`,
         touchAction: 'none',
         willChange: isDragging ? 'bottom, right' : 'auto'
       }}
