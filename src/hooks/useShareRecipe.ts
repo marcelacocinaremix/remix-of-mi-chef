@@ -19,6 +19,40 @@ export function useShareRecipe() {
     return result;
   };
 
+  // Robust clipboard copy that works in PWA/standalone mode
+  const copyToClipboard = async (text: string): Promise<boolean> => {
+    // Method 1: Modern Clipboard API
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch {
+        // Fall through to next method
+      }
+    }
+
+    // Method 2: execCommand fallback (works in more contexts)
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (successful) return true;
+    } catch {
+      // Fall through
+    }
+
+    return false;
+  };
+
   const shareRecipe = async (recipe: Recipe) => {
     if (isSharing) return null; // Prevent double clicks
     
@@ -55,8 +89,13 @@ export function useShareRecipe() {
       const shareUrl = `${window.location.origin}/r/${shareCode}`;
       const shareText = `¡Mirá esta receta de ${validatedRecipe.name}! 👨‍🍳`;
       
-      // Try native share first (mobile)
-      if (navigator.share && /Mobi|Android/i.test(navigator.userAgent)) {
+      // Try native share first (mobile/PWA)
+      // Check if we're in standalone mode or mobile
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                          (window.navigator as any).standalone === true;
+      const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+      
+      if (navigator.share && (isMobile || isStandalone)) {
         try {
           await navigator.share({
             title: validatedRecipe.name,
@@ -70,26 +109,29 @@ export function useShareRecipe() {
           });
           return shareUrl;
         } catch (shareError: any) {
-          // User cancelled - not an error
+          // User cancelled - not an error, still return URL
           if (shareError?.name === 'AbortError') {
-            return shareUrl; // Still return URL, share was saved
+            return shareUrl;
           }
-          // Fall through to clipboard
+          // Fall through to clipboard for other errors
+          console.log('Native share failed, falling back to clipboard:', shareError);
         }
       }
       
-      // Fallback to clipboard
-      try {
-        await navigator.clipboard.writeText(shareUrl);
+      // Fallback to clipboard using robust method
+      const copied = await copyToClipboard(shareUrl);
+      
+      if (copied) {
         toast({
           title: t("linkCopied"),
           description: t("linkCopiedDesc"),
         });
-      } catch {
-        // Final fallback - show URL in toast
+      } else {
+        // Final fallback - show URL in toast for manual copy
         toast({
           title: t("linkCopied"),
           description: shareUrl,
+          duration: 10000, // Longer duration so user can copy manually
         });
       }
       

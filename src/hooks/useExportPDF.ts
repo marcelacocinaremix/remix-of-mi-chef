@@ -7,7 +7,74 @@ export function useExportPDF() {
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
 
+  // Robust download that works in PWA/standalone mode
+  const downloadBlob = async (blob: Blob, filename: string): Promise<boolean> => {
+    // Method 1: Try using File System Access API (best for PWA)
+    if ('showSaveFilePicker' in window) {
+      try {
+        const handle = await (window as any).showSaveFilePicker({
+          suggestedName: filename,
+          types: [{
+            description: 'PDF Document',
+            accept: { 'application/pdf': ['.pdf'] },
+          }],
+        });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        return true;
+      } catch (err: any) {
+        // User cancelled or not supported - fall through to next method
+        if (err?.name === 'AbortError') return false;
+      }
+    }
+
+    // Method 2: Try native share with file (works on mobile PWA)
+    if (navigator.share && navigator.canShare) {
+      const file = new File([blob], filename, { type: 'application/pdf' });
+      if (navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: filename,
+          });
+          return true;
+        } catch (err: any) {
+          if (err?.name === 'AbortError') return false;
+          // Fall through to next method
+        }
+      }
+    }
+
+    // Method 3: Create object URL and trigger download
+    const url = URL.createObjectURL(blob);
+    try {
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.style.display = 'none';
+      
+      // Important: append to body for Safari/iOS compatibility
+      document.body.appendChild(link);
+      
+      // Use click() with a small delay for PWA compatibility
+      await new Promise<void>((resolve) => {
+        link.addEventListener('click', () => setTimeout(resolve, 100), { once: true });
+        link.click();
+      });
+      
+      document.body.removeChild(link);
+      
+      // Keep URL alive briefly for the download to start
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return true;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  };
+
   const exportRecipeToPDF = async (recipe: Recipe) => {
+    if (isExporting) return;
     setIsExporting(true);
     
     try {
@@ -167,19 +234,23 @@ export function useExportPDF() {
         );
       }
 
-      // Save the PDF
-      const fileName = recipe.name.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ ]/g, "").replace(/\s+/g, "_");
-      doc.save(`${fileName}.pdf`);
-
-      toast({
-        title: "¡PDF exportado!",
-        description: `${recipe.name} se descargó correctamente.`,
-      });
+      // Generate blob and download using robust method
+      const pdfBlob = doc.output('blob');
+      const fileName = recipe.name.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ ]/g, "").replace(/\s+/g, "_") + ".pdf";
+      
+      const success = await downloadBlob(pdfBlob, fileName);
+      
+      if (success) {
+        toast({
+          title: "¡PDF exportado!",
+          description: `${recipe.name} se descargó correctamente.`,
+        });
+      }
     } catch (error) {
       console.error("Error exporting PDF:", error);
       toast({
         title: "Error",
-        description: "No se pudo exportar el PDF.",
+        description: "No se pudo exportar el PDF. Intentá de nuevo.",
         variant: "destructive",
       });
     } finally {
