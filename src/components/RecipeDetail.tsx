@@ -431,6 +431,10 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               <Heart className="w-5 h-5" />
               {isSaving ? t("saving") : t("saveToFavorites")}
             </Button>
+            <p className="text-xs text-muted-foreground text-center -mt-1">
+              Guarda esta receta en tu colección de favoritos
+            </p>
+            
             <Button 
               variant="outline" 
               size="lg"
@@ -440,6 +444,9 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               <Play className="w-5 h-5" />
               {t("cookingMode")}
             </Button>
+            <p className="text-xs text-muted-foreground text-center -mt-1">
+              Seguí el paso a paso con temporizadores incluidos
+            </p>
             
             {/* Mark as cooked button - sends to nutrition */}
             <Button 
