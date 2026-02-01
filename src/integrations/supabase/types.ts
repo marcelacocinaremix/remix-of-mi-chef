@@ -83,6 +83,33 @@ export type Database = {
         }
         Relationships: []
       }
+      favorite_food_tips: {
+        Row: {
+          category: string
+          created_at: string
+          food_name: string
+          id: string
+          tip_data: Json
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          food_name: string
+          id?: string
+          tip_data: Json
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          food_name?: string
+          id?: string
+          tip_data?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       favorite_recipes: {
         Row: {
           created_at: string
