@@ -20,7 +20,12 @@ import {
   Timer,
   Heart,
   History,
-  X
+  X,
+  Snowflake,
+  ShoppingCart,
+  Shuffle,
+  Leaf,
+  ChefHat
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,16 +40,62 @@ interface CategoryOption {
   color: string;
   bgColor: string;
   description: string;
+  group: "basico" | "cocina" | "extra";
 }
 
+const categoryGroups = {
+  basico: { label: "Básicos", description: "Lo esencial" },
+  cocina: { label: "Cocina", description: "Para cocinar" },
+  extra: { label: "Más info", description: "Información adicional" },
+};
+
 const categories: CategoryOption[] = [
+  // Básicos
   {
     id: "conservacion",
-    name: "Conservación",
+    name: "Conservar",
     icon: Refrigerator,
     color: "text-blue-500",
     bgColor: "bg-blue-500",
-    description: "Cómo guardar y cuánto dura"
+    description: "Cómo guardar y cuánto dura",
+    group: "basico"
+  },
+  {
+    id: "congelacion",
+    name: "Congelar",
+    icon: Snowflake,
+    color: "text-cyan-500",
+    bgColor: "bg-cyan-500",
+    description: "Tips de congelación",
+    group: "basico"
+  },
+  {
+    id: "compra",
+    name: "Comprar",
+    icon: ShoppingCart,
+    color: "text-pink-500",
+    bgColor: "bg-pink-500",
+    description: "Cómo elegir fresco",
+    group: "basico"
+  },
+  // Cocina
+  {
+    id: "preparacion",
+    name: "Preparar",
+    icon: Utensils,
+    color: "text-amber-500",
+    bgColor: "bg-amber-500",
+    description: "Limpiar y cortar",
+    group: "cocina"
+  },
+  {
+    id: "coccion",
+    name: "Cocinar",
+    icon: Flame,
+    color: "text-orange-500",
+    bgColor: "bg-orange-500",
+    description: "Métodos de cocción",
+    group: "cocina"
   },
   {
     id: "temperaturas",
@@ -52,7 +103,8 @@ const categories: CategoryOption[] = [
     icon: ThermometerSun,
     color: "text-red-500",
     bgColor: "bg-red-500",
-    description: "Temperaturas de cocción"
+    description: "Temperaturas ideales",
+    group: "cocina"
   },
   {
     id: "tiempos",
@@ -60,23 +112,36 @@ const categories: CategoryOption[] = [
     icon: Timer,
     color: "text-purple-500",
     bgColor: "bg-purple-500",
-    description: "Tiempos de cocción"
+    description: "Tiempos de cocción",
+    group: "cocina"
+  },
+  // Extra
+  {
+    id: "sustitutos",
+    name: "Sustitutos",
+    icon: Shuffle,
+    color: "text-indigo-500",
+    bgColor: "bg-indigo-500",
+    description: "Con qué reemplazar",
+    group: "extra"
   },
   {
-    id: "preparacion",
-    name: "Preparación",
-    icon: Utensils,
-    color: "text-amber-500",
-    bgColor: "bg-amber-500",
-    description: "Cómo preparar y cortar"
+    id: "combinaciones",
+    name: "Combinar",
+    icon: ChefHat,
+    color: "text-rose-500",
+    bgColor: "bg-rose-500",
+    description: "Qué combina bien",
+    group: "extra"
   },
   {
-    id: "coccion",
-    name: "Cocción",
-    icon: Flame,
-    color: "text-orange-500",
-    bgColor: "bg-orange-500",
-    description: "Métodos de cocción"
+    id: "nutricion",
+    name: "Nutrición",
+    icon: Leaf,
+    color: "text-green-500",
+    bgColor: "bg-green-500",
+    description: "Info nutricional",
+    group: "extra"
   },
   {
     id: "ahorro",
@@ -84,7 +149,8 @@ const categories: CategoryOption[] = [
     icon: Coins,
     color: "text-emerald-500",
     bgColor: "bg-emerald-500",
-    description: "Tips para no desperdiciar"
+    description: "No desperdiciar",
+    group: "extra"
   },
   {
     id: "seguridad",
@@ -92,7 +158,8 @@ const categories: CategoryOption[] = [
     icon: Shield,
     color: "text-slate-500",
     bgColor: "bg-slate-500",
-    description: "Manipulación segura"
+    description: "Manipulación segura",
+    group: "extra"
   },
 ];
 
@@ -259,84 +326,114 @@ export function FoodStorageGuide() {
 
   const currentCategory = categories.find(c => c.id === selectedCategory);
 
-  return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header Card */}
-      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-amber-500/5">
-        <CardContent className="py-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-primary/15 flex items-center justify-center">
-              <Lightbulb className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold">Guía de Alimentos</h2>
-              <p className="text-sm text-muted-foreground">
-                Ingresá un alimento y elegí qué querés saber
-              </p>
-            </div>
-          </div>
+  // Group categories by type
+  const groupedCategories = {
+    basico: categories.filter(c => c.group === "basico"),
+    cocina: categories.filter(c => c.group === "cocina"),
+    extra: categories.filter(c => c.group === "extra"),
+  };
 
-          {/* Search Input */}
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Apple className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input
-                placeholder="Ej: pollo, tomate, arroz, leche..."
-                value={foodName}
-                onChange={(e) => {
-                  setFoodName(e.target.value);
-                  setNotFoodError(false);
-                }}
-                onKeyPress={handleKeyPress}
-                className="pl-10 h-12 text-base"
-                disabled={isLoading}
-              />
-            </div>
-            <Button 
-              onClick={() => handleSearch()} 
-              disabled={isLoading || !foodName.trim()}
-              className="h-12 px-6"
-            >
-              {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <>
-                  <Search className="w-5 h-5 mr-2" />
-                  Buscar
-                </>
-              )}
-            </Button>
+  return (
+    <div className="space-y-5 animate-fade-in">
+      {/* Step 1: Search Input */}
+      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-amber-500/5">
+        <CardContent className="py-5">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">1</span>
+            <h3 className="font-semibold">Escribí el alimento</h3>
+          </div>
+          <div className="relative">
+            <Apple className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Input
+              placeholder="Ej: pollo, tomate, arroz, leche, carne..."
+              value={foodName}
+              onChange={(e) => {
+                setFoodName(e.target.value);
+                setNotFoodError(false);
+              }}
+              onKeyPress={handleKeyPress}
+              className="pl-10 h-12 text-base"
+              disabled={isLoading}
+            />
           </div>
         </CardContent>
       </Card>
 
-      {/* Category Selector */}
-      <ScrollArea className="w-full">
-        <div className="flex gap-2 pb-4">
-          {categories.map((category) => {
-            const Icon = category.icon;
-            const isActive = selectedCategory === category.id;
-            return (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                disabled={isLoading}
-                className={cn(
-                  "flex flex-col items-center gap-1.5 px-4 py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap shrink-0 min-w-[90px]",
-                  isActive
-                    ? `${category.bgColor} text-white shadow-lg scale-105`
-                    : "bg-muted/50 text-muted-foreground hover:bg-muted",
-                  isLoading && "opacity-50 cursor-not-allowed"
-                )}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="text-xs">{category.name}</span>
-              </button>
-            );
-          })}
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      {/* Step 2: Category Selector */}
+      <Card className="border-border/50">
+        <CardContent className="py-5">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">2</span>
+            <h3 className="font-semibold">Elegí qué querés saber</h3>
+          </div>
+
+          <div className="space-y-4">
+            {(Object.keys(groupedCategories) as Array<keyof typeof groupedCategories>).map((groupKey) => (
+              <div key={groupKey}>
+                <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide font-medium">
+                  {categoryGroups[groupKey].label}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {groupedCategories[groupKey].map((category) => {
+                    const Icon = category.icon;
+                    const isActive = selectedCategory === category.id;
+                    return (
+                      <button
+                        key={category.id}
+                        onClick={() => setSelectedCategory(category.id)}
+                        disabled={isLoading}
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all duration-200 text-sm",
+                          isActive
+                            ? `${category.bgColor} text-white shadow-md`
+                            : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
+                          isLoading && "opacity-50 cursor-not-allowed"
+                        )}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span>{category.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {currentCategory && (
+            <div className={cn("mt-4 p-3 rounded-lg", currentCategory.bgColor + "/10")}>
+              <p className="text-sm flex items-center gap-2">
+                <currentCategory.icon className={cn("w-4 h-4", currentCategory.color)} />
+                <span className="font-medium">{currentCategory.name}:</span>
+                <span className="text-muted-foreground">{currentCategory.description}</span>
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Step 3: Search Button */}
+      <div className="flex items-center gap-3">
+        <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center shrink-0">3</span>
+        <Button 
+          onClick={() => handleSearch()} 
+          disabled={isLoading || !foodName.trim()}
+          className="flex-1 h-12"
+          size="lg"
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              Buscando...
+            </>
+          ) : (
+            <>
+              <Search className="w-5 h-5 mr-2" />
+              Buscar información
+            </>
+          )}
+        </Button>
+      </div>
 
       {/* Not a food error */}
       <AnimatePresence>

@@ -12,6 +12,20 @@ const categoryPrompts: Record<string, string> = {
 - Temperatura ideal de almacenamiento
 - Señales de que está en mal estado`,
 
+  congelacion: `Proporciona información sobre CONGELACIÓN del alimento:
+- Si se puede congelar y cómo hacerlo correctamente
+- Cuánto dura congelado
+- Cómo descongelar correctamente
+- Si pierde propiedades al congelar
+- Tips para congelar porciones`,
+
+  compra: `Proporciona información sobre CÓMO COMPRAR/ELEGIR el alimento fresco:
+- Qué mirar para saber si está fresco
+- Señales de buena calidad
+- Qué evitar al comprarlo
+- Mejor época del año para comprarlo (si aplica)
+- Tips para elegir el mejor`,
+
   temperaturas: `Proporciona información sobre TEMPERATURAS DE COCCIÓN del alimento:
 - Temperatura interna segura
 - Temperatura del horno/sartén recomendada
@@ -35,6 +49,24 @@ const categoryPrompts: Record<string, string> = {
 - Cómo lograr mejores resultados
 - Errores comunes al cocinar
 - Técnicas profesionales`,
+
+  sustitutos: `Proporciona información sobre SUSTITUTOS del alimento:
+- Con qué ingredientes se puede reemplazar
+- Proporciones de sustitución
+- En qué recetas funciona cada sustituto
+- Diferencias de sabor o textura con cada sustituto`,
+
+  combinaciones: `Proporciona información sobre COMBINACIONES Y MARIDAJES del alimento:
+- Con qué ingredientes combina bien
+- Hierbas y especias que lo complementan
+- Con qué bebidas marida
+- Combinaciones clásicas de la gastronomía`,
+
+  nutricion: `Proporciona información sobre NUTRICIÓN del alimento:
+- Principales nutrientes que aporta
+- Beneficios para la salud
+- Calorías aproximadas por porción
+- Para quién es especialmente beneficioso`,
 
   ahorro: `Proporciona información sobre AHORRO Y APROVECHAMIENTO del alimento:
 - Cómo aprovechar al máximo (partes que normalmente se descartan)
