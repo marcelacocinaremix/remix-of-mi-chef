@@ -159,7 +159,7 @@ export function CookingSection({
         <Card className="border-2 border-secondary/30 bg-gradient-to-br from-secondary/5 to-transparent">
           <CardContent className="p-4 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center font-bold text-sm shrink-0">
+              <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shrink-0">
                 2
               </div>
               <div>
@@ -185,7 +185,7 @@ export function CookingSection({
         <Card className="border-2 border-accent/30 bg-gradient-to-br from-accent/5 to-transparent">
           <CardContent className="p-4 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center font-bold text-sm shrink-0">
+              <div className="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-sm shrink-0">
                 3
               </div>
               <div>
@@ -202,7 +202,7 @@ export function CookingSection({
         <Card className="border-2 border-muted/50 bg-gradient-to-br from-muted/10 to-transparent">
           <CardContent className="p-4 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center font-bold text-sm shrink-0">
+              <div className="w-8 h-8 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-sm shrink-0">
                 4
               </div>
               <div>
