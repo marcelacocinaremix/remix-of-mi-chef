@@ -153,11 +153,22 @@ export default function Index() {
     }
 
     if (status === 429 || code === 'RATE_LIMITED') {
-      toast({
-        title: 'Estamos con mucha demanda',
-        description: 'Probá de nuevo en un ratito.',
-        variant: 'destructive',
-      });
+      // Check if it's daily limit (from edge function)
+      const isDailyLimit = err?.context?.body?.dailyLimitReached;
+      if (isDailyLimit) {
+        toast({
+          title: '🍳 ¡Usaste tus 4 recetas de hoy!',
+          description: 'Volvé mañana para seguir cocinando con Marcela',
+          variant: 'destructive',
+        });
+        refetchPremium();
+      } else {
+        toast({
+          title: 'Estamos con mucha demanda',
+          description: 'Probá de nuevo en un ratito.',
+          variant: 'destructive',
+        });
+      }
       return true;
     }
 
