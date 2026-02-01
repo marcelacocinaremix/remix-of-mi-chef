@@ -646,15 +646,6 @@ export function MarcelaAssistant({
       <div className={`relative bg-card border border-border rounded-2xl shadow-xl p-4 max-w-[280px] animate-scale-in ${
         currentMood === 'excited' ? 'ring-2 ring-primary/30' : ''
       }`}>
-        {/* Close/Hide button */}
-        <button
-          onClick={handleHide}
-          className="absolute -top-2 -right-2 w-6 h-6 bg-muted rounded-full flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-colors"
-          title={tLocal("marcelaHideTitle")}
-        >
-          <X className="w-3 h-3" />
-        </button>
-
         {/* Speech bubble tail */}
         <div className="absolute -right-2 bottom-6 w-4 h-4 bg-card border-r border-b border-border transform rotate-[-45deg]" />
 
