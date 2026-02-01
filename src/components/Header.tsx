@@ -1,11 +1,20 @@
-import { Moon, Sun } from "lucide-react";
+import { useState } from "react";
+import { Moon, Sun, Timer } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { KitchenTimer } from "@/components/KitchenTimer";
 
 export function Header() {
   const { theme, setTheme } = useTheme();
   const { t } = useLanguage();
+  const [showTimer, setShowTimer] = useState(false);
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
@@ -13,20 +22,47 @@ export function Header() {
 
   return (
     <header className="text-center mb-10 md:mb-14 animate-fade-in relative">
-      {/* Dark Mode Toggle */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={toggleTheme}
-        className="absolute right-0 top-0 rounded-full bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card shadow-sm"
-        aria-label={theme === "dark" ? t("darkModeLabel") : t("lightModeLabel")}
-      >
-        {theme === "dark" ? (
-          <Sun className="h-5 w-5 text-amber-400" />
-        ) : (
-          <Moon className="h-5 w-5 text-primary" />
-        )}
-      </Button>
+      {/* Header Actions */}
+      <div className="absolute right-0 top-0 flex items-center gap-2">
+        {/* Kitchen Timer Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setShowTimer(true)}
+          className="rounded-full bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card shadow-sm hover:scale-105 transition-transform"
+          aria-label={t("kitchenTimer")}
+        >
+          <Timer className="h-5 w-5 text-primary" />
+        </Button>
+
+        {/* Dark Mode Toggle */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleTheme}
+          className="rounded-full bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card shadow-sm"
+          aria-label={theme === "dark" ? t("darkModeLabel") : t("lightModeLabel")}
+        >
+          {theme === "dark" ? (
+            <Sun className="h-5 w-5 text-amber-400" />
+          ) : (
+            <Moon className="h-5 w-5 text-primary" />
+          )}
+        </Button>
+      </div>
+
+      {/* Kitchen Timer Modal */}
+      <Dialog open={showTimer} onOpenChange={setShowTimer}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Timer className="w-5 h-5 text-primary" />
+              {t("kitchenTimer")}
+            </DialogTitle>
+          </DialogHeader>
+          <KitchenTimer />
+        </DialogContent>
+      </Dialog>
 
       {/* Brand Name */}
       <div className="mb-4">
