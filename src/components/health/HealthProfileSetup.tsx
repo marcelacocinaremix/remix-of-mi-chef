@@ -27,7 +27,7 @@ import {
   ArrowRight,
   X
 } from "lucide-react";
-import marcelaCharacter from "@/assets/marcela-character.png";
+
 
 export type FitnessGoal = 'lose_fat' | 'gain_muscle' | 'stay_active' | 'improve_performance';
 
@@ -423,14 +423,9 @@ export function HealthProfileSetup({ currentProfile, onSave, isSaving, isComplet
         {/* Compact Header */}
         <div className="relative bg-gradient-to-r from-primary via-primary/90 to-sky-400 px-4 py-4">
           <div className="relative flex items-center gap-3">
-            <motion.img 
-              src={marcelaCharacter} 
-              alt="Marcela" 
-              className="w-10 h-10 object-contain drop-shadow-md"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-            />
+            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+              <Target className="w-5 h-5 text-white" />
+            </div>
             <div className="flex-1 text-primary-foreground">
               <h3 className="font-semibold text-sm flex items-center gap-1.5">
                 <Sparkles className="w-4 h-4 text-gold" />
