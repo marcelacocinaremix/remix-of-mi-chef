@@ -27,6 +27,7 @@ import { AdvancedFilters, FiltersState } from "@/components/AdvancedFilters";
 import { RecipeList, Recipe } from "@/components/RecipeList";
 import { LoadingRecipe } from "@/components/LoadingRecipe";
 import { CookingSectionHeader } from "@/components/CookingSectionHeader";
+import { RecentRecipesHistory } from "@/components/RecentRecipesHistory";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
@@ -272,6 +273,9 @@ export function CookingSection({
               <RecipeList recipes={recipes} onSelectRecipe={onSelectRecipe} />
             </div>
           )}
+
+          {/* Recent Recipes History */}
+          <RecentRecipesHistory onSelectRecipe={onSelectRecipe} />
         </div>
       )}
 
