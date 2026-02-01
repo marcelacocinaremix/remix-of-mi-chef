@@ -69,7 +69,7 @@ export default function Index() {
   const [pantryItems, setPantryItems] = useState<string[]>([]);
   const { toast } = useToast();
   const { play: playSound } = useSound();
-  const { getRecentRecipeNames, refetch: refetchCookedRecipes, addCookedRecipe } = useCookedRecipes();
+  const { getRecentRecipeNames, refetch: refetchCookedRecipes } = useCookedRecipes();
   const shoppingList = useShoppingList();
   const { recordCookedRecipe, refetch: refetchAchievements } = useAchievements();
   const [isButtonAnimating, setIsButtonAnimating] = useState(false);
@@ -355,18 +355,11 @@ export default function Index() {
          throw new Error(data.error);
        }
 
-      if (data?.recipes && data.recipes.length > 0) {
+       if (data?.recipes && data.recipes.length > 0) {
         // Always show all recipes (up to 2)
         const recipesToShow = data.recipes.slice(0, 2);
         setRecipes(recipesToShow);
         setInstantRecipe(null); // Clear instant recipe as we have AI recipes now
-        
-        // Save generated recipes to history
-        if (user) {
-          for (const recipe of recipesToShow) {
-            await addCookedRecipe(recipe);
-          }
-        }
         
         toast({
           title: "¡Recetas listas!",
