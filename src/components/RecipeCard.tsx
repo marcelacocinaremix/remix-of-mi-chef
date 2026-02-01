@@ -96,11 +96,11 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
           <section
             className={cn(
               "p-4 rounded-xl",
-              "bg-amber-light/20 border border-amber/30"
+              "bg-accent dark:bg-accent/50 border border-border"
             )}
           >
             <div className="flex items-start gap-3">
-              <Lightbulb className="w-5 h-5 text-amber flex-shrink-0 mt-0.5" />
+              <Lightbulb className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
               <div>
                 <h4 className="font-display font-semibold text-foreground mb-1">
                   💡 Tip de Marcela
