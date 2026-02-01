@@ -213,7 +213,7 @@ export default function Index() {
 
     // HYBRID MODE: First try to get instant cached recipes
     try {
-      const { data: cachedData } = await supabase.functions.invoke('generate-recipe', {
+      const { data: cachedData, error: cacheError } = await supabase.functions.invoke('generate-recipe', {
         body: { 
           ingredients, 
           time: isLimitedMode ? 30 : time, 
@@ -222,6 +222,22 @@ export default function Index() {
           hybridMode: true
         }
       });
+
+      // Check for daily limit in hybrid mode too
+      if (cacheError || cachedData?.dailyLimitReached) {
+        const errorStr = JSON.stringify(cacheError || {}).toLowerCase();
+        const is429 = errorStr.includes('429') || errorStr.includes('límite') || cachedData?.dailyLimitReached;
+        
+        if (is429) {
+          toast({
+            title: "🍳 ¡Usaste tus 4 recetas de hoy!",
+            description: "Volvé mañana para seguir cocinando con Marcela",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
 
       if (cachedData?.recipes && cachedData.recipes.length > 0 && cachedData.source === 'cache') {
         // Show instant recipe while AI generates
@@ -258,8 +274,15 @@ export default function Index() {
       });
 
       if (error) {
-        // Check if it's a daily limit error (429)
-        if (error.message?.includes('429') || data?.dailyLimitReached) {
+        // Check if it's a daily limit error (429) - check multiple formats
+        const errorStr = JSON.stringify(error).toLowerCase();
+        const is429 = error.message?.includes('429') || 
+                      error.status === 429 ||
+                      errorStr.includes('429') ||
+                      errorStr.includes('dailylimitreached') ||
+                      errorStr.includes('límite');
+        
+        if (is429) {
           toast({
             title: "🍳 ¡Usaste tus 4 recetas de hoy!",
             description: "Volvé mañana para seguir cocinando con Marcela",
