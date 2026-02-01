@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Heart, Trash2, ChevronRight, Cookie, Salad, Coffee, Sparkles, BookOpen, UtensilsCrossed, X, AlertTriangle, Lightbulb, Refrigerator, ThermometerSun, Timer, Utensils, Flame, Coins, Shield } from "lucide-react";
+import { Heart, Trash2, ChevronRight, Cookie, Salad, Coffee, Sparkles, BookOpen, UtensilsCrossed, X, AlertTriangle, Lightbulb, Refrigerator, ThermometerSun, Timer, Utensils, Flame, Coins, Shield, Snowflake, ShoppingCart, Shuffle, Leaf, ChefHat } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -57,30 +57,45 @@ function detectCategory(recipe: Recipe): CategoryFilter {
 
 const categoryLabels: Record<string, string> = {
   conservacion: "Conservación",
+  congelacion: "Congelación",
+  compra: "Compra",
   temperaturas: "Temperaturas",
   tiempos: "Tiempos",
   preparacion: "Preparación",
   coccion: "Cocción",
+  sustitutos: "Sustitutos",
+  combinaciones: "Combinaciones",
+  nutricion: "Nutrición",
   ahorro: "Ahorro",
   seguridad: "Seguridad",
 };
 
 const categoryIcons: Record<string, React.ElementType> = {
   conservacion: Refrigerator,
+  congelacion: Snowflake,
+  compra: ShoppingCart,
   temperaturas: ThermometerSun,
   tiempos: Timer,
   preparacion: Utensils,
   coccion: Flame,
+  sustitutos: Shuffle,
+  combinaciones: ChefHat,
+  nutricion: Leaf,
   ahorro: Coins,
   seguridad: Shield,
 };
 
 const categoryColors: Record<string, string> = {
   conservacion: "text-blue-500 bg-blue-500",
+  congelacion: "text-cyan-500 bg-cyan-500",
+  compra: "text-pink-500 bg-pink-500",
   temperaturas: "text-red-500 bg-red-500",
   tiempos: "text-purple-500 bg-purple-500",
   preparacion: "text-amber-500 bg-amber-500",
   coccion: "text-orange-500 bg-orange-500",
+  sustitutos: "text-indigo-500 bg-indigo-500",
+  combinaciones: "text-rose-500 bg-rose-500",
+  nutricion: "text-green-500 bg-green-500",
   ahorro: "text-emerald-500 bg-emerald-500",
   seguridad: "text-slate-500 bg-slate-500",
 };
