@@ -292,6 +292,74 @@ async function cacheRecipes(
   }
 }
 
+// Emergency fallback recipes when AI and cache both fail
+function getEmergencyRecipes(ingredients: string[], time: number, language: string): any[] {
+  const hasProtein = ingredients.some(i => 
+    ['pollo', 'carne', 'cerdo', 'pescado', 'huevo', 'atun', 'jamon'].some(p => i.toLowerCase().includes(p))
+  );
+  const hasVeggies = ingredients.some(i =>
+    ['tomate', 'cebolla', 'papa', 'zanahoria', 'zapallo', 'lechuga'].some(v => i.toLowerCase().includes(v))
+  );
+  const hasPasta = ingredients.some(i => 
+    ['fideos', 'pasta', 'arroz', 'spaguetti', 'tallarines'].some(p => i.toLowerCase().includes(p))
+  );
+
+  const recipes = [];
+
+  // Recipe 1: Based on what user has
+  if (hasPasta || hasProtein) {
+    recipes.push({
+      name: hasProtein ? "Salteado rápido con lo que tenés" : "Pasta express",
+      time: Math.min(time, 25),
+      difficulty: "fácil",
+      servings: 2,
+      ingredients: [
+        ...(ingredients.slice(0, 3).map(i => `${i} (cantidad a gusto)`)),
+        "Sal y pimienta a gusto",
+        "2 cucharadas de aceite",
+        "Condimentos que tengas a mano"
+      ],
+      steps: [
+        "Cortá todos los ingredientes en trozos parejos",
+        "Calentá el aceite en una sartén grande a fuego medio-alto",
+        "Agregá los ingredientes de mayor a menor tiempo de cocción",
+        "Condimentá a gusto y mezclá bien",
+        "Serví caliente, podés agregar queso rallado si tenés"
+      ],
+      tip: "La clave está en no sobrecargar la sartén para que los ingredientes se doren bien",
+      nutrition: { calories: 280, protein: 12, carbs: 30, fat: 10, fiber: 3 },
+      tags: ["rápido", "fácil", "versátil"]
+    });
+  }
+
+  // Recipe 2: Universal option
+  recipes.push({
+    name: "Tortilla versátil",
+    time: Math.min(time, 20),
+    difficulty: "fácil", 
+    servings: 2,
+    ingredients: [
+      "3 huevos",
+      ...(ingredients.slice(0, 2).map(i => `${i} picado`)),
+      "Sal y pimienta",
+      "1 cucharada de aceite",
+      "Queso rallado (opcional)"
+    ],
+    steps: [
+      "Batí los huevos con sal y pimienta",
+      "Salteá los ingredientes picados en la sartén con aceite",
+      "Volcá los huevos batidos sobre los ingredientes",
+      "Cocinala a fuego bajo tapada 3-4 minutos",
+      "Dala vuelta con ayuda de un plato y terminá la cocción"
+    ],
+    tip: "Si le agregás queso rallado antes de dar vuelta, queda más cremosa",
+    nutrition: { calories: 220, protein: 15, carbs: 8, fat: 14, fiber: 2 },
+    tags: ["clásico", "económico", "proteico"]
+  });
+
+  return recipes.slice(0, 2);
+}
+
 const getSystemPrompt = (language: string = 'es') => {
   const langInstructions: Record<string, string> = {
     es: 'Respondé en español rioplatense (argentino). Usá "vos" en lugar de "tú".',
@@ -624,7 +692,7 @@ Generá UNA SOLA receta sorpresa con estas características:
           time || 30,
           mealType,
           language || 'es',
-          0.3 // Lower threshold for fallback
+          0.2 // Very low threshold for emergency fallback
         );
 
         if (cacheResult.recipes.length > 0) {
@@ -641,11 +709,16 @@ Generá UNA SOLA receta sorpresa con estas características:
         }
       }
 
+      // EMERGENCY FALLBACK: Return generic recipes when everything fails
+      console.log('Using emergency fallback recipes');
+      const emergencyRecipes = getEmergencyRecipes(ingredients, time || 30, language || 'es');
+      
       return new Response(JSON.stringify({
-        error: 'Todos los servicios están ocupados. Por favor, esperá 30 segundos e intentá de nuevo.',
-        retryable: true
+        recipes: emergencyRecipes,
+        source: 'emergency',
+        isInstant: true,
+        fallbackReason: 'ai_unavailable'
       }), {
-        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
