@@ -63,6 +63,12 @@ export const translations = {
     wheelDecided: "🎰 ¡La ruleta decidió!",
     added: "Agregaste:",
     ingredientsReadyToUse: "listos para usar",
+    ingredientsStepDesc: "Escribí o seleccioná los ingredientes que tenés",
+    dietaryPreferencesDesc: "Filtrá por tipo de dieta (opcional)",
+    timeStepDesc: "¿Cuánto tiempo tenés para cocinar?",
+    mealTypeStepDesc: "¿Para qué momento del día? (opcional)",
+    cookingReadyStep: "¡Listo para cocinar!",
+    generateStepDesc: "Generá recetas personalizadas con IA",
     
     // Time
     howMuchTime: "⏱️ ¿Cuánto tiempo tenés?",
@@ -812,6 +818,12 @@ export const translations = {
     wheelDecided: "🎰 The wheel decided!",
     added: "You added:",
     ingredientsReadyToUse: "ready to use",
+    ingredientsStepDesc: "Type or select the ingredients you have",
+    dietaryPreferencesDesc: "Filter by diet type (optional)",
+    timeStepDesc: "How much time do you have to cook?",
+    mealTypeStepDesc: "What time of day is it for? (optional)",
+    cookingReadyStep: "Ready to cook!",
+    generateStepDesc: "Generate personalized recipes with AI",
     
     // Time
     howMuchTime: "⏱️ How much time do you have?",
@@ -1562,6 +1574,12 @@ export const translations = {
     wheelDecided: "🎰 A roleta decidiu!",
     added: "Você adicionou:",
     ingredientsReadyToUse: "prontos para usar",
+    ingredientsStepDesc: "Digite ou selecione os ingredientes que você tem",
+    dietaryPreferencesDesc: "Filtre por tipo de dieta (opcional)",
+    timeStepDesc: "Quanto tempo você tem para cozinhar?",
+    mealTypeStepDesc: "Para que momento do dia? (opcional)",
+    cookingReadyStep: "Pronto para cozinhar!",
+    generateStepDesc: "Gere receitas personalizadas com IA",
     
     // Time
     howMuchTime: "⏱️ Quanto tempo você tem?",

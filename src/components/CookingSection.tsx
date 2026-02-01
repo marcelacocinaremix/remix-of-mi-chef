@@ -70,7 +70,7 @@ export function CookingSection({
   const { t } = useLanguage();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
 
       {/* Pending Suggestion Banner */}
       {pendingSuggestion && (
@@ -112,7 +112,7 @@ export function CookingSection({
         </Card>
       )}
 
-      {/* Recipe Generation Content */}
+      {/* Recipe Generation Content - Step by Step */}
       <div className="space-y-6 animate-fade-in">
         {/* Marcela Reactive Tips */}
         <MarcelaReactiveTips 
@@ -120,21 +120,30 @@ export function CookingSection({
           lastAddedIngredient={ingredients[ingredients.length - 1]}
         />
 
-        {/* Ingredients Section */}
-        <section className="space-y-4">
-          <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-3">
-            <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">{t("whatIngredients")}</span>
-          </label>
-          <IngredientInput
-            ingredients={ingredients}
-            onIngredientsChange={setIngredients}
-          />
-          
-          <IngredientCategorySelector
-            selectedIngredients={ingredients}
-            onIngredientsChange={setIngredients}
-          />
-        </section>
+        {/* STEP 1: Ingredients */}
+        <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+          <CardContent className="p-4 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shrink-0">
+                1
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">{t("whatIngredients")}</h3>
+                <p className="text-xs text-muted-foreground">{t("ingredientsStepDesc")}</p>
+              </div>
+            </div>
+            
+            <IngredientInput
+              ingredients={ingredients}
+              onIngredientsChange={setIngredients}
+            />
+            
+            <IngredientCategorySelector
+              selectedIngredients={ingredients}
+              onIngredientsChange={setIngredients}
+            />
+          </CardContent>
+        </Card>
 
         {/* Recipe Prediction - Real-time suggestions */}
         {ingredients.length >= 2 && (
@@ -146,35 +155,67 @@ export function CookingSection({
           </div>
         )}
 
-        {/* Quick Filters */}
-        <QuickFilters 
-          activeFilters={quickFilters}
-          onFiltersChange={(newFilters) => {
-            setQuickFilters(newFilters);
-            const newDiet = newFilters.filter(f => 
-              ['vegetariano', 'sin-gluten', 'sin-lactosa', 'alto-proteina'].includes(f)
-            );
-            setFilters({ ...filters, diet: newDiet });
-          }}
-        />
+        {/* STEP 2: Quick Filters */}
+        <Card className="border-2 border-secondary/30 bg-gradient-to-br from-secondary/5 to-transparent">
+          <CardContent className="p-4 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center font-bold text-sm shrink-0">
+                2
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">{t("dietaryPreferences")}</h3>
+                <p className="text-xs text-muted-foreground">{t("dietaryPreferencesDesc")}</p>
+              </div>
+            </div>
+            
+            <QuickFilters 
+              activeFilters={quickFilters}
+              onFiltersChange={(newFilters) => {
+                setQuickFilters(newFilters);
+                const newDiet = newFilters.filter(f => 
+                  ['vegetariano', 'sin-gluten', 'sin-lactosa', 'alto-proteina'].includes(f)
+                );
+                setFilters({ ...filters, diet: newDiet });
+              }}
+            />
+          </CardContent>
+        </Card>
 
-        {/* Time Section */}
-        <section>
-          <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-3">
-            <span>{t("howMuchTime")}</span>
-          </label>
-          <TimeSelector value={time} onChange={setTime} />
-        </section>
+        {/* STEP 3: Time */}
+        <Card className="border-2 border-accent/30 bg-gradient-to-br from-accent/5 to-transparent">
+          <CardContent className="p-4 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center font-bold text-sm shrink-0">
+                3
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">{t("howMuchTime")}</h3>
+                <p className="text-xs text-muted-foreground">{t("timeStepDesc")}</p>
+              </div>
+            </div>
+            
+            <TimeSelector value={time} onChange={setTime} />
+          </CardContent>
+        </Card>
 
-        {/* Meal Type Section */}
-        <section>
-          <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-3">
-            <span>{t("mealTypeLabel")}</span>
-          </label>
-          <MealTypeSelector value={mealType} onChange={setMealType} />
-        </section>
+        {/* STEP 4: Meal Type */}
+        <Card className="border-2 border-muted/50 bg-gradient-to-br from-muted/10 to-transparent">
+          <CardContent className="p-4 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center font-bold text-sm shrink-0">
+                4
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">{t("mealTypeLabel")}</h3>
+                <p className="text-xs text-muted-foreground">{t("mealTypeStepDesc")}</p>
+              </div>
+            </div>
+            
+            <MealTypeSelector value={mealType} onChange={setMealType} />
+          </CardContent>
+        </Card>
 
-        {/* Advanced Filters Section */}
+        {/* Advanced Filters Section (collapsible) */}
         <AdvancedFilters 
           filters={filters} 
           onChange={setFilters} 
@@ -182,41 +223,53 @@ export function CookingSection({
           onUpgradeClick={onShowPaywall}
         />
 
-        {/* Generate Button */}
-        <div className="flex flex-col items-center gap-4 pt-4">
-          <div className="flex flex-col sm:flex-row gap-3 justify-center w-full">
-            <Button
-              variant="default"
-              size="xl"
-              onClick={onGenerateRecipe}
-              disabled={isLoading}
-              className="group flex-1 min-w-[220px] py-6 px-8 text-lg font-bold rounded-2xl bg-primary hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <Sparkles className="w-6 h-6 group-hover:animate-spin" />
-              <span>{isLoading ? t("thinking") : t("giveRecipes")}</span>
-            </Button>
+        {/* STEP 5: Generate */}
+        <Card className="border-2 border-primary/40 bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10">
+          <CardContent className="p-4 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shrink-0">
+                5
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">{t("cookingReadyStep")}</h3>
+                <p className="text-xs text-muted-foreground">{t("generateStepDesc")}</p>
+              </div>
+            </div>
 
-            {ingredients.length > 0 && (
-              <Button 
-                variant="secondary" 
-                size="xl" 
-                onClick={onDecideForMe}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center w-full">
+              <Button
+                variant="default"
+                size="xl"
+                onClick={onGenerateRecipe}
                 disabled={isLoading}
-                className="hover:scale-105 transition-transform"
+                className="group flex-1 min-w-[220px] py-6 px-8 text-lg font-bold rounded-2xl bg-primary hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
               >
-                <Shuffle className="w-5 h-5" />
-                {t("decideForMe")}
+                <Sparkles className="w-6 h-6 group-hover:animate-spin" />
+                <span>{isLoading ? t("thinking") : t("giveRecipes")}</span>
               </Button>
-            )}
 
-            {(recipes.length > 0 || ingredients.length > 0) && (
-              <Button variant="ghost" size="xl" onClick={onReset} className="hover:scale-105 transition-transform">
-                <RotateCcw className="w-5 h-5" />
-                {t("startOver")}
-              </Button>
-            )}
-          </div>
-        </div>
+              {ingredients.length > 0 && (
+                <Button 
+                  variant="secondary" 
+                  size="xl" 
+                  onClick={onDecideForMe}
+                  disabled={isLoading}
+                  className="hover:scale-105 transition-transform"
+                >
+                  <Shuffle className="w-5 h-5" />
+                  {t("decideForMe")}
+                </Button>
+              )}
+
+              {(recipes.length > 0 || ingredients.length > 0) && (
+                <Button variant="ghost" size="xl" onClick={onReset} className="hover:scale-105 transition-transform">
+                  <RotateCcw className="w-5 h-5" />
+                  {t("startOver")}
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {isLoading && <LoadingRecipe />}
 
