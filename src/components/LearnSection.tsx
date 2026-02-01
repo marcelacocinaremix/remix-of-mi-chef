@@ -1606,38 +1606,38 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame }: LearnSec
           <button
             onClick={() => setActiveSubMenu("aprender")}
             className={cn(
-              "flex items-center justify-center gap-2 py-3 px-3 rounded-xl font-medium text-sm transition-all duration-300",
+              "flex flex-col items-center justify-center gap-1.5 py-3 px-3 rounded-xl font-medium transition-all duration-300",
               activeSubMenu === "aprender"
                 ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]"
                 : "bg-background/60 hover:bg-background text-foreground"
             )}
           >
-            <BookOpen className={cn("w-4 h-4", activeSubMenu === "aprender" && "animate-bounce")} />
-            <span className="hidden sm:inline">Aprender</span>
+            <BookOpen className={cn("w-6 h-6", activeSubMenu === "aprender" && "animate-bounce")} />
+            <span className="text-xs">Aprender</span>
           </button>
           <button
             onClick={() => setActiveSubMenu("tips")}
             className={cn(
-              "flex items-center justify-center gap-2 py-3 px-3 rounded-xl font-medium text-sm transition-all duration-300",
+              "flex flex-col items-center justify-center gap-1.5 py-3 px-3 rounded-xl font-medium transition-all duration-300",
               activeSubMenu === "tips"
                 ? "bg-amber-500 text-white shadow-lg scale-[1.02]"
                 : "bg-background/60 hover:bg-background text-foreground"
             )}
           >
-            <Lightbulb className={cn("w-4 h-4", activeSubMenu === "tips" && "animate-pulse")} />
-            <span className="hidden sm:inline">Tips</span>
+            <Lightbulb className={cn("w-6 h-6", activeSubMenu === "tips" && "animate-pulse")} />
+            <span className="text-xs">Tips</span>
           </button>
           <button
             onClick={() => setActiveSubMenu("conservacion")}
             className={cn(
-              "flex items-center justify-center gap-2 py-3 px-3 rounded-xl font-medium text-sm transition-all duration-300",
+              "flex flex-col items-center justify-center gap-1.5 py-3 px-3 rounded-xl font-medium transition-all duration-300",
               activeSubMenu === "conservacion"
                 ? "bg-blue-500 text-white shadow-lg scale-[1.02]"
                 : "bg-background/60 hover:bg-background text-foreground"
             )}
           >
-            <Refrigerator className={cn("w-4 h-4", activeSubMenu === "conservacion" && "animate-pulse")} />
-            <span className="hidden sm:inline">Conservación</span>
+            <Refrigerator className={cn("w-6 h-6", activeSubMenu === "conservacion" && "animate-pulse")} />
+            <span className="text-xs">Conservación</span>
           </button>
         </div>
       </div>
