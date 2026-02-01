@@ -1270,7 +1270,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame }: LearnSec
   const { user } = useAuth();
   const { toast } = useToast();
   const { play } = useSound();
-  const [activeSubMenu, setActiveSubMenu] = useState<"aprender" | "tips" | "conservacion">("aprender");
+  const [activeSubMenu, setActiveSubMenu] = useState<"aprender" | "guia">("aprender");
   const [activeLevel, setActiveLevel] = useState("principiante");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
@@ -1602,7 +1602,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame }: LearnSec
 
       {/* Submenu Tabs */}
       <div className="bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5 rounded-2xl p-1.5 border border-border/50">
-        <div className="grid grid-cols-3 gap-1.5">
+        <div className="grid grid-cols-2 gap-1.5">
           <button
             onClick={() => setActiveSubMenu("aprender")}
             className={cn(
@@ -1616,28 +1616,16 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame }: LearnSec
             <span className="text-xs">Aprender</span>
           </button>
           <button
-            onClick={() => setActiveSubMenu("tips")}
+            onClick={() => setActiveSubMenu("guia")}
             className={cn(
               "flex flex-col items-center justify-center gap-1.5 py-3 px-3 rounded-xl font-medium transition-all duration-300",
-              activeSubMenu === "tips"
+              activeSubMenu === "guia"
                 ? "bg-amber-500 text-white shadow-lg scale-[1.02]"
                 : "bg-background/60 hover:bg-background text-foreground"
             )}
           >
-            <Lightbulb className={cn("w-6 h-6", activeSubMenu === "tips" && "animate-pulse")} />
-            <span className="text-xs">Tips</span>
-          </button>
-          <button
-            onClick={() => setActiveSubMenu("conservacion")}
-            className={cn(
-              "flex flex-col items-center justify-center gap-1.5 py-3 px-3 rounded-xl font-medium transition-all duration-300",
-              activeSubMenu === "conservacion"
-                ? "bg-blue-500 text-white shadow-lg scale-[1.02]"
-                : "bg-background/60 hover:bg-background text-foreground"
-            )}
-          >
-            <Refrigerator className={cn("w-6 h-6", activeSubMenu === "conservacion" && "animate-pulse")} />
-            <span className="text-xs">Conservación</span>
+            <Lightbulb className={cn("w-6 h-6", activeSubMenu === "guia" && "animate-pulse")} />
+            <span className="text-xs">Guía de Alimentos</span>
           </button>
         </div>
       </div>
@@ -1888,13 +1876,8 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame }: LearnSec
         </div>
       )}
 
-      {/* Tips de Cocina Content */}
-      {activeSubMenu === "tips" && (
-        <TipsSection onNavigateToCooking={onNavigateToCooking} />
-      )}
-
-      {/* Conservación de Alimentos Content */}
-      {activeSubMenu === "conservacion" && (
+      {/* Guía de Alimentos Content */}
+      {activeSubMenu === "guia" && (
         <FoodStorageGuide />
       )}
     </div>
