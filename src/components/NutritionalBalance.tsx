@@ -279,6 +279,42 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
   
   return (
     <div className="space-y-6">
+      {/* How it works - Intro Card */}
+      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
+        <CardContent className="py-4 px-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span className="text-sm font-semibold text-foreground">¿Cómo funciona?</span>
+          </div>
+          <div className="grid grid-cols-4 gap-2">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center mb-1">
+                <Target className="w-5 h-5 text-primary" />
+              </div>
+              <span className="text-[10px] text-muted-foreground leading-tight">Agregá tu objetivo</span>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <div className="w-10 h-10 rounded-full bg-amber-500/15 flex items-center justify-center mb-1">
+                <ChefHat className="w-5 h-5 text-amber-500" />
+              </div>
+              <span className="text-[10px] text-muted-foreground leading-tight">Cociná recetas</span>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <div className="w-10 h-10 rounded-full bg-emerald-500/15 flex items-center justify-center mb-1">
+                <Dumbbell className="w-5 h-5 text-emerald-500" />
+              </div>
+              <span className="text-[10px] text-muted-foreground leading-tight">Registrá entrenamientos</span>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <div className="w-10 h-10 rounded-full bg-purple-500/15 flex items-center justify-center mb-1">
+                <BarChart3 className="w-5 h-5 text-purple-500" />
+              </div>
+              <span className="text-[10px] text-muted-foreground leading-tight">Obtené tu resumen</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Health Profile Setup - Above navigation */}
       <HealthProfileSetup
         currentProfile={currentHealthProfile}
