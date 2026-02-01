@@ -51,16 +51,16 @@ export function Header() {
         </Button>
       </div>
 
-      {/* Kitchen Timer Modal - Compact */}
+      {/* Kitchen Timer Modal - Mini */}
       <Dialog open={showTimer} onOpenChange={setShowTimer}>
-        <DialogContent className="max-w-sm max-h-[80vh] overflow-y-auto p-4">
-          <DialogHeader className="pb-2">
-            <DialogTitle className="flex items-center gap-2 text-base">
+        <DialogContent className="max-w-[280px] p-3">
+          <DialogHeader className="pb-1">
+            <DialogTitle className="flex items-center gap-2 text-sm">
               <Timer className="w-4 h-4 text-primary" />
               {t("kitchenTimer")}
             </DialogTitle>
           </DialogHeader>
-          <div className="scale-90 origin-top">
+          <div className="scale-[0.55] origin-top -mb-[45%]">
             <KitchenTimer />
           </div>
         </DialogContent>
