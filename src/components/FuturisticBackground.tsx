@@ -43,8 +43,8 @@ export function FuturisticBackground() {
       pulses = [];
       
       // Create a grid of nodes with some randomness
-      const gridSpacingX = 120;
-      const gridSpacingY = 100;
+      const gridSpacingX = 80;
+      const gridSpacingY = 70;
       const cols = Math.ceil(canvas.width / gridSpacingX) + 2;
       const rows = Math.ceil(canvas.height / gridSpacingY) + 2;
 
@@ -54,8 +54,8 @@ export function FuturisticBackground() {
           const offsetX = (Math.random() - 0.5) * 40;
           const offsetY = (Math.random() - 0.5) * 30;
           
-          // Only add ~60% of nodes for irregular pattern
-          if (Math.random() > 0.4) {
+          // Only add ~75% of nodes for irregular pattern
+          if (Math.random() > 0.25) {
             nodes.push({
               x: col * gridSpacingX + offsetX,
               y: row * gridSpacingY + offsetY,
@@ -289,7 +289,7 @@ export function FuturisticBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.9 }}
+      style={{ opacity: 0.5 }}
     />
   );
 }
