@@ -79,6 +79,7 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState<string>(user ? "inicio" : "cocinar");
   const [activeSubTab, setActiveSubTab] = useState<string | null>(null);
   const [historyDeleted, setHistoryDeleted] = useState(false);
+  const [clickedMenuId, setClickedMenuId] = useState<string | null>(null);
   
   // Interactive cooking features state
   const [quickFilters, setQuickFilters] = useState<string[]>([]);
@@ -460,6 +461,10 @@ export default function Index() {
   const handleTabChange = (value: string) => {
     const item = menuItems.find(m => m.id === value);
     
+    // Trigger click animation
+    setClickedMenuId(value);
+    setTimeout(() => setClickedMenuId(null), 600);
+    
     // Check if requires auth and user is not logged in
     if (item?.requiresAuth && !user) {
       setLoginRequired(item.label);
@@ -569,9 +574,10 @@ export default function Index() {
               <div className="mb-6 space-y-2">
                 {/* Row 1 */}
                 <div className="grid grid-cols-4 gap-1.5 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-2">
-                  {menuItems.slice(0, 4).map((item) => {
+                {menuItems.slice(0, 4).map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
+                    const isClicked = clickedMenuId === item.id;
 
                     return (
                       <button
@@ -583,8 +589,11 @@ export default function Index() {
                             : "bg-background/60 hover:bg-background hover:scale-102 active:scale-95 text-foreground"
                         }`}
                       >
-                        <div className={`relative transition-transform duration-200 ${isActive ? "animate-bounce-once" : ""}`}>
-                          <Icon className={`${isMobile ? 'w-6 h-6' : 'w-7 h-7'} transition-all duration-200 ${isActive ? "drop-shadow-glow" : ""}`} />
+                        <div className={`relative transition-transform duration-200 ${isActive ? "animate-bounce-once" : ""} ${isClicked ? "animate-futuristic-click" : ""}`}>
+                          <Icon className={`${isMobile ? 'w-6 h-6' : 'w-7 h-7'} transition-all duration-200 ${isActive ? "drop-shadow-glow" : ""} ${isClicked ? "animate-icon-pulse" : ""}`} />
+                          {isClicked && (
+                            <span className="absolute inset-0 animate-ripple-out rounded-full border-2 border-primary/50" />
+                          )}
                         </div>
                         <span className="text-center leading-tight truncate w-full">{item.label}</span>
                       </button>
@@ -593,9 +602,10 @@ export default function Index() {
                 </div>
                 {/* Row 2 */}
                 <div className="grid grid-cols-4 gap-1.5 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-2">
-                  {menuItems.slice(4, 8).map((item) => {
+                {menuItems.slice(4, 8).map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
+                    const isClicked = clickedMenuId === item.id;
 
                     return (
                       <button
@@ -607,8 +617,11 @@ export default function Index() {
                             : "bg-background/60 hover:bg-background hover:scale-102 active:scale-95 text-foreground"
                         }`}
                       >
-                        <div className={`relative transition-transform duration-200 ${isActive ? "animate-bounce-once" : ""}`}>
-                          <Icon className={`${isMobile ? 'w-6 h-6' : 'w-7 h-7'} transition-all duration-200 ${isActive ? "drop-shadow-glow" : ""}`} />
+                        <div className={`relative transition-transform duration-200 ${isActive ? "animate-bounce-once" : ""} ${isClicked ? "animate-futuristic-click" : ""}`}>
+                          <Icon className={`${isMobile ? 'w-6 h-6' : 'w-7 h-7'} transition-all duration-200 ${isActive ? "drop-shadow-glow" : ""} ${isClicked ? "animate-icon-pulse" : ""}`} />
+                          {isClicked && (
+                            <span className="absolute inset-0 animate-ripple-out rounded-full border-2 border-primary/50" />
+                          )}
                         </div>
                         <span className="text-center leading-tight truncate w-full">{item.label}</span>
                       </button>

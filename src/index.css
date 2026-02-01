@@ -326,4 +326,60 @@
   .animate-confetti {
     animation: confetti-fall 4s ease-out forwards;
   }
+
+  /* Futuristic menu icon animations */
+  @keyframes futuristic-click {
+    0% { transform: scale(1) rotate(0deg); }
+    20% { transform: scale(1.3) rotate(-5deg); }
+    40% { transform: scale(0.9) rotate(5deg); }
+    60% { transform: scale(1.15) rotate(-3deg); }
+    80% { transform: scale(1.05) rotate(2deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+
+  @keyframes icon-pulse {
+    0% { 
+      filter: drop-shadow(0 0 0 hsl(var(--primary)));
+      transform: scale(1);
+    }
+    25% { 
+      filter: drop-shadow(0 0 12px hsl(var(--primary))) drop-shadow(0 0 24px hsl(var(--primary) / 0.5));
+      transform: scale(1.15);
+    }
+    50% { 
+      filter: drop-shadow(0 0 8px hsl(var(--primary))) drop-shadow(0 0 16px hsl(var(--primary) / 0.3));
+      transform: scale(1.1);
+    }
+    75% { 
+      filter: drop-shadow(0 0 15px hsl(var(--primary))) drop-shadow(0 0 30px hsl(var(--primary) / 0.4));
+      transform: scale(1.2);
+    }
+    100% { 
+      filter: drop-shadow(0 0 0 hsl(var(--primary)));
+      transform: scale(1);
+    }
+  }
+
+  @keyframes ripple-out {
+    0% {
+      transform: scale(0.5);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(2.5);
+      opacity: 0;
+    }
+  }
+
+  .animate-futuristic-click {
+    animation: futuristic-click 0.5s ease-out;
+  }
+
+  .animate-icon-pulse {
+    animation: icon-pulse 0.6s ease-out;
+  }
+
+  .animate-ripple-out {
+    animation: ripple-out 0.6s ease-out forwards;
+  }
 }
