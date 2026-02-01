@@ -174,7 +174,7 @@ export function FuturisticBackground() {
       time += 0.01;
 
       // Draw circuit connections
-      ctx.strokeStyle = "rgba(59, 130, 246, 0.25)";
+      ctx.strokeStyle = "rgba(0, 191, 255, 0.25)";
       ctx.lineWidth = 1.5;
 
       for (let i = 0; i < nodes.length; i++) {
@@ -216,9 +216,9 @@ export function FuturisticBackground() {
 
         // Draw pulse glow
         const gradient = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, 15);
-        gradient.addColorStop(0, "rgba(6, 182, 212, 0.6)");
-        gradient.addColorStop(0.5, "rgba(59, 130, 246, 0.3)");
-        gradient.addColorStop(1, "rgba(59, 130, 246, 0)");
+        gradient.addColorStop(0, "rgba(0, 230, 255, 0.6)");
+        gradient.addColorStop(0.5, "rgba(0, 191, 255, 0.3)");
+        gradient.addColorStop(1, "rgba(0, 191, 255, 0)");
 
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, 15, 0, Math.PI * 2);
@@ -228,13 +228,13 @@ export function FuturisticBackground() {
         // Draw pulse core
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, 3, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(147, 197, 253, 0.9)";
+        ctx.fillStyle = "rgba(150, 230, 255, 0.9)";
         ctx.fill();
 
         // Draw trailing line
         const trailLength = 0.15;
         const trailStart = Math.max(0, pulse.progress - trailLength);
-        ctx.strokeStyle = "rgba(6, 182, 212, 0.15)";
+        ctx.strokeStyle = "rgba(0, 230, 255, 0.15)";
         ctx.lineWidth = 2;
         ctx.beginPath();
         
@@ -256,9 +256,9 @@ export function FuturisticBackground() {
 
         // Node glow
         const nodeGradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, node.size * 4);
-        nodeGradient.addColorStop(0, `rgba(59, 130, 246, ${pulseIntensity})`);
-        nodeGradient.addColorStop(0.5, `rgba(6, 182, 212, ${pulseIntensity * 0.5})`);
-        nodeGradient.addColorStop(1, "rgba(59, 130, 246, 0)");
+        nodeGradient.addColorStop(0, `rgba(0, 191, 255, ${pulseIntensity})`);
+        nodeGradient.addColorStop(0.5, `rgba(0, 230, 255, ${pulseIntensity * 0.5})`);
+        nodeGradient.addColorStop(1, "rgba(0, 191, 255, 0)");
 
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.size * 4, 0, Math.PI * 2);
@@ -268,7 +268,7 @@ export function FuturisticBackground() {
         // Node core
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(147, 197, 253, ${pulseIntensity + 0.3})`;
+        ctx.fillStyle = `rgba(150, 230, 255, ${pulseIntensity + 0.3})`;
         ctx.fill();
       }
 
