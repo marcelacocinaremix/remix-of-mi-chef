@@ -42,6 +42,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
   const { shareRecipe, isSharing } = useShareRecipe();
   const { exportRecipeToPDF, isExporting } = useExportPDF();
   const [isSaving, setIsSaving] = useState(false);
+  const [isMarkingCooked, setIsMarkingCooked] = useState(false);
   const [showCookingMode, setShowCookingMode] = useState(false);
   const [showSubstitutions, setShowSubstitutions] = useState(false);
   const [addedToList, setAddedToList] = useState<Set<string>>(new Set());
@@ -111,6 +112,44 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleMarkAsCooked = async () => {
+    if (!user) {
+      toast({
+        title: "Iniciá sesión",
+        description: "Necesitás una cuenta para registrar recetas cocinadas.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsMarkingCooked(true);
+    try {
+      const { error } = await supabase.from("cooked_recipes").insert({
+        user_id: user.id,
+        recipe_name: recipe.name,
+        recipe_data: JSON.parse(JSON.stringify(recipe)),
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "¡Receta registrada! 🎉",
+        description: `${recipe.name} se agregó a tu historial de nutrición.`,
+      });
+
+      onRecipeCooked?.();
+    } catch (error) {
+      console.error("Error marking recipe as cooked:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo registrar la receta.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsMarkingCooked(false);
     }
   };
 
@@ -387,8 +426,8 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
           )}
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
-            <Button onClick={handleSaveRecipe} disabled={isSaving} size="lg">
+          <div className="flex flex-col gap-3 pt-4">
+            <Button onClick={handleSaveRecipe} disabled={isSaving} size="lg" className="w-full">
               <Heart className="w-5 h-5" />
               {isSaving ? t("saving") : t("saveToFavorites")}
             </Button>
@@ -396,15 +435,33 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               variant="outline" 
               size="lg"
               onClick={() => setShowCookingMode(true)}
+              className="w-full"
             >
               <Play className="w-5 h-5" />
               {t("cookingMode")}
             </Button>
+            
+            {/* Mark as cooked button - sends to nutrition */}
+            <Button 
+              variant="outline" 
+              size="lg"
+              onClick={handleMarkAsCooked}
+              disabled={isMarkingCooked}
+              className="w-full border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950"
+            >
+              <Check className="w-5 h-5" />
+              {isMarkingCooked ? "Registrando..." : "Ya la cociné"}
+            </Button>
+            <p className="text-xs text-muted-foreground text-center -mt-1">
+              Registra esta receta en tu historial de nutrición
+            </p>
+            
             <Button 
               variant="outline" 
               size="lg"
               onClick={() => shareRecipe(recipe)}
               disabled={isSharing}
+              className="w-full"
             >
               <Share2 className="w-5 h-5" />
               {isSharing ? t("loading") : t("shareRecipe")}
@@ -414,6 +471,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               size="lg"
               onClick={() => exportRecipeToPDF(recipe)}
               disabled={isExporting}
+              className="w-full"
             >
               <FileDown className="w-5 h-5" />
               {isExporting ? "Exportando..." : "Exportar PDF"}
