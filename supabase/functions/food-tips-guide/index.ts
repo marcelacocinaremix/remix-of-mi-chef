@@ -5,13 +5,57 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const categoryPrompts: Record<string, string> = {
+  conservacion: `Proporciona información sobre CONSERVACIÓN del alimento:
+- Dónde guardarlo (heladera, freezer, alacena, etc.)
+- Cuánto dura en cada lugar
+- Temperatura ideal de almacenamiento
+- Señales de que está en mal estado`,
+
+  temperaturas: `Proporciona información sobre TEMPERATURAS DE COCCIÓN del alimento:
+- Temperatura interna segura
+- Temperatura del horno/sartén recomendada
+- Puntos de cocción (jugoso, a punto, bien cocido)
+- Cómo verificar si está cocido`,
+
+  tiempos: `Proporciona información sobre TIEMPOS DE COCCIÓN del alimento:
+- Tiempo según método (hervido, horno, sartén, etc.)
+- Tiempo según tamaño o corte
+- Tiempo de reposo si aplica
+- Tiempos para diferentes puntos de cocción`,
+
+  preparacion: `Proporciona información sobre PREPARACIÓN Y CORTES del alimento:
+- Cómo limpiarlo correctamente
+- Tipos de cortes recomendados
+- Cómo pelar o limpiar según el uso
+- Preparación previa a la cocción`,
+
+  coccion: `Proporciona información sobre MÉTODOS DE COCCIÓN del alimento:
+- Mejores métodos de cocción
+- Cómo lograr mejores resultados
+- Errores comunes al cocinar
+- Técnicas profesionales`,
+
+  ahorro: `Proporciona información sobre AHORRO Y APROVECHAMIENTO del alimento:
+- Cómo aprovechar al máximo (partes que normalmente se descartan)
+- Tips para evitar desperdicio
+- Cómo usar restos o sobras
+- Alternativas económicas`,
+
+  seguridad: `Proporciona información sobre SEGURIDAD ALIMENTARIA del alimento:
+- Manipulación segura
+- Contaminación cruzada a evitar
+- Cómo descongelar de forma segura
+- Tiempos máximos fuera de refrigeración`,
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { foodName } = await req.json();
+    const { foodName, category } = await req.json();
 
     if (!foodName || typeof foodName !== "string" || foodName.trim().length === 0) {
       return new Response(
@@ -20,41 +64,46 @@ serve(async (req) => {
       );
     }
 
+    const selectedCategory = category || "conservacion";
+    const categoryPrompt = categoryPrompts[selectedCategory] || categoryPrompts.conservacion;
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `Eres un experto en conservación de alimentos. Tu tarea es:
+    const systemPrompt = `Eres un experto en cocina y seguridad alimentaria. Tu tarea es:
 1. PRIMERO: Determinar si lo que el usuario ingresó es un ALIMENTO real (comida, bebida, ingrediente de cocina).
 2. Si NO es un alimento (por ejemplo: bicicleta, computadora, ropa, etc.), responder con isFood: false.
-3. Si ES un alimento, proporcionar información detallada sobre su conservación.
+3. Si ES un alimento, proporcionar información específica según la categoría solicitada.
 
 IMPORTANTE: Solo responde sobre ALIMENTOS reales. Si no es comida, responde isFood: false.
+
+${categoryPrompt}
 
 Responde SIEMPRE en formato JSON con esta estructura exacta:
 {
   "isFood": true/false,
   "name": "nombre del alimento",
-  "storage": "dónde y cómo guardarlo (ej: Heladera en recipiente hermético, Alacena en lugar fresco y seco)",
-  "duration": "cuánto dura (ej: 5-7 días en heladera, 2 semanas a temperatura ambiente)",
-  "temperature": "temperatura ideal (ej: 4°C en heladera, temperatura ambiente 15-20°C)",
-  "commonMistakes": ["error 1", "error 2", "error 3"],
-  "tips": ["tip práctico 1", "tip práctico 2", "tip práctico 3"]
+  "category": "${selectedCategory}",
+  "mainInfo": "información principal resumida en 1-2 oraciones",
+  "details": ["detalle específico 1", "detalle específico 2", "detalle específico 3", "detalle específico 4"],
+  "tips": ["tip práctico 1", "tip práctico 2", "tip práctico 3"],
+  "warnings": ["precaución 1", "precaución 2"] // solo si hay advertencias importantes
 }
 
 Si no es un alimento, responde:
 {
   "isFood": false,
   "name": "",
-  "storage": "",
-  "duration": "",
-  "temperature": "",
-  "commonMistakes": [],
-  "tips": []
+  "category": "",
+  "mainInfo": "",
+  "details": [],
+  "tips": [],
+  "warnings": []
 }
 
-Responde en español argentino, de forma clara y práctica.`;
+Responde en español argentino, de forma clara, práctica y concisa.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -66,7 +115,7 @@ Responde en español argentino, de forma clara y práctica.`;
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Alimento a consultar: ${foodName.trim()}` },
+          { role: "user", content: `Alimento: ${foodName.trim()}\nCategoría de información: ${selectedCategory}` },
         ],
         temperature: 0.3,
       }),
@@ -98,12 +147,11 @@ Responde en español argentino, de forma clara y práctica.`;
     }
 
     // Parse the JSON from AI response
-    let storageInfo;
+    let foodInfo;
     try {
-      // Extract JSON from the response (handle potential markdown code blocks)
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        storageInfo = JSON.parse(jsonMatch[0]);
+        foodInfo = JSON.parse(jsonMatch[0]);
       } else {
         throw new Error("No JSON found in response");
       }
@@ -112,11 +160,11 @@ Responde en español argentino, de forma clara y práctica.`;
       throw new Error("Failed to parse AI response");
     }
 
-    return new Response(JSON.stringify(storageInfo), {
+    return new Response(JSON.stringify(foodInfo), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error in food-storage-guide:", error);
+    console.error("Error in food-tips-guide:", error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
