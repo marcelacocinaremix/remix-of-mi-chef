@@ -204,34 +204,34 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
           {recipe.nutrition && (
             <section className={cn(
               "p-4 rounded-xl",
-              "bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200/50"
+              "bg-secondary/50 dark:bg-secondary/30 border border-border"
             )}>
               <h3 className="font-display text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                 <Flame className="w-5 h-5 text-orange-500" />
                 Información nutricional por porción
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <div className="text-center p-3 bg-white rounded-lg shadow-sm">
+                <div className="text-center p-3 bg-card rounded-lg shadow-sm border border-border/50">
                   <Flame className="w-5 h-5 text-orange-500 mx-auto mb-1" />
                   <p className="text-2xl font-bold text-foreground">{recipe.nutrition.calories}</p>
                   <p className="text-xs text-muted-foreground">Calorías</p>
                 </div>
-                <div className="text-center p-3 bg-white rounded-lg shadow-sm">
+                <div className="text-center p-3 bg-card rounded-lg shadow-sm border border-border/50">
                   <Dumbbell className="w-5 h-5 text-blue-500 mx-auto mb-1" />
                   <p className="text-2xl font-bold text-foreground">{recipe.nutrition.protein}g</p>
                   <p className="text-xs text-muted-foreground">Proteínas</p>
                 </div>
-                <div className="text-center p-3 bg-white rounded-lg shadow-sm">
+                <div className="text-center p-3 bg-card rounded-lg shadow-sm border border-border/50">
                   <Wheat className="w-5 h-5 text-amber-500 mx-auto mb-1" />
                   <p className="text-2xl font-bold text-foreground">{recipe.nutrition.carbs}g</p>
                   <p className="text-xs text-muted-foreground">Carbohidratos</p>
                 </div>
-                <div className="text-center p-3 bg-white rounded-lg shadow-sm">
+                <div className="text-center p-3 bg-card rounded-lg shadow-sm border border-border/50">
                   <Droplet className="w-5 h-5 text-yellow-500 mx-auto mb-1" />
                   <p className="text-2xl font-bold text-foreground">{recipe.nutrition.fat}g</p>
                   <p className="text-xs text-muted-foreground">Grasas</p>
                 </div>
-                <div className="text-center p-3 bg-white rounded-lg shadow-sm">
+                <div className="text-center p-3 bg-card rounded-lg shadow-sm border border-border/50">
                   <Leaf className="w-5 h-5 text-green-500 mx-auto mb-1" />
                   <p className="text-2xl font-bold text-foreground">{recipe.nutrition.fiber}g</p>
                   <p className="text-xs text-muted-foreground">Fibra</p>
@@ -355,10 +355,10 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
           {/* Tip */}
           <section className={cn(
             "p-4 rounded-xl",
-            "bg-amber-50 border border-amber-200/50"
+            "bg-accent dark:bg-accent/50 border border-border"
           )}>
             <div className="flex items-start gap-3">
-              <Lightbulb className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <Lightbulb className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
               <div>
                 <h4 className="font-display font-semibold text-foreground mb-1">
                   💡 Tip de Marcela
