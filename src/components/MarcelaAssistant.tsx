@@ -418,6 +418,7 @@ export function MarcelaAssistant({
   const handleCharacterClick = () => {
     if (hasDragged.current) return;
     playSound('pop');
+    setIsHidden(true);
   };
 
   const getMoodEmoji = (mood: MarcelaMood): string => {
