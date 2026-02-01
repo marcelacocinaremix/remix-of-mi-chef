@@ -22,19 +22,8 @@ export function Header() {
 
   return (
     <header className="text-center mb-10 md:mb-14 animate-fade-in relative">
-      {/* Header Actions */}
-      <div className="absolute right-0 top-0 flex items-center gap-2">
-        {/* Kitchen Timer Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setShowTimer(true)}
-          className="rounded-full bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card shadow-sm hover:scale-105 transition-transform"
-          aria-label={t("kitchenTimer")}
-        >
-          <Timer className="h-5 w-5 text-primary" />
-        </Button>
-
+      {/* Header Actions - Vertical Stack */}
+      <div className="absolute right-0 top-0 flex flex-col items-center gap-2">
         {/* Dark Mode Toggle */}
         <Button
           variant="ghost"
@@ -49,18 +38,31 @@ export function Header() {
             <Moon className="h-5 w-5 text-primary" />
           )}
         </Button>
+
+        {/* Kitchen Timer Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setShowTimer(true)}
+          className="rounded-full bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card shadow-sm hover:scale-105 transition-transform"
+          aria-label={t("kitchenTimer")}
+        >
+          <Timer className="h-5 w-5 text-primary" />
+        </Button>
       </div>
 
-      {/* Kitchen Timer Modal */}
+      {/* Kitchen Timer Modal - Compact */}
       <Dialog open={showTimer} onOpenChange={setShowTimer}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Timer className="w-5 h-5 text-primary" />
+        <DialogContent className="max-w-sm max-h-[80vh] overflow-y-auto p-4">
+          <DialogHeader className="pb-2">
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <Timer className="w-4 h-4 text-primary" />
               {t("kitchenTimer")}
             </DialogTitle>
           </DialogHeader>
-          <KitchenTimer />
+          <div className="scale-90 origin-top">
+            <KitchenTimer />
+          </div>
         </DialogContent>
       </Dialog>
 
