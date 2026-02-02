@@ -245,9 +245,9 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
         "text-center"
       )}>
         <Heart className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-        <h3 className="font-display text-lg font-semibold mb-2">{t('favoriteRecipes')}</h3>
+        <h3 className="font-display text-lg font-semibold mb-2">Tus recetas y tips de cocina favoritos</h3>
         <p className="text-muted-foreground text-sm">
-          {t('loginForFavoritesRecipes')}
+          Iniciá sesión para guardar tus favoritos
         </p>
       </div>
     );
@@ -270,9 +270,9 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
         "text-center"
       )}>
         <Heart className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-        <h3 className="font-display text-lg font-semibold mb-2">{t('favoriteRecipes')}</h3>
+        <h3 className="font-display text-lg font-semibold mb-2">Tus recetas y tips de cocina favoritos</h3>
         <p className="text-muted-foreground text-sm">
-          {t('noSavedRecipes')}
+          Aún no guardaste ningún favorito
         </p>
       </div>
     );
@@ -283,10 +283,14 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
       "bg-card rounded-xl p-4 border border-border/50",
       "shadow-card"
     )}>
-      <div className="flex items-center gap-2 mb-4">
-        <Heart className="w-5 h-5 text-primary fill-primary" />
-        <h3 className="font-display text-lg font-semibold">{t('myFavoritesTitle')}</h3>
-        <span className="text-sm text-muted-foreground">({totalFavorites})</span>
+      <div className="mb-5">
+        <div className="flex items-center gap-2 mb-1">
+          <Heart className="w-5 h-5 text-primary fill-primary" />
+          <h3 className="font-display text-lg font-semibold">Tus recetas y tips de cocina favoritos</h3>
+        </div>
+        <p className="text-sm text-muted-foreground ml-7">
+          {totalFavorites} {totalFavorites === 1 ? 'favorito guardado' : 'favoritos guardados'}
+        </p>
       </div>
 
       {/* Tab Selector */}
