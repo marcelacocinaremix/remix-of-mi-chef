@@ -294,68 +294,190 @@ async function cacheRecipes(
 
 // Emergency fallback recipes when AI and cache both fail
 function getEmergencyRecipes(ingredients: string[], time: number, language: string): any[] {
-  const hasProtein = ingredients.some(i => 
-    ['pollo', 'carne', 'cerdo', 'pescado', 'huevo', 'atun', 'jamon'].some(p => i.toLowerCase().includes(p))
+  const ingredientsLower = ingredients.map(i => i.toLowerCase());
+  
+  const hasProtein = ingredientsLower.some(i => 
+    ['pollo', 'carne', 'cerdo', 'pescado', 'huevo', 'atun', 'jamon', 'bondiola', 'milanesa', 'bife'].some(p => i.includes(p))
   );
-  const hasVeggies = ingredients.some(i =>
-    ['tomate', 'cebolla', 'papa', 'zanahoria', 'zapallo', 'lechuga'].some(v => i.toLowerCase().includes(v))
+  const hasVeggies = ingredientsLower.some(i =>
+    ['tomate', 'cebolla', 'papa', 'zanahoria', 'zapallo', 'lechuga', 'morron', 'pimiento'].some(v => i.includes(v))
   );
-  const hasPasta = ingredients.some(i => 
-    ['fideos', 'pasta', 'arroz', 'spaguetti', 'tallarines'].some(p => i.toLowerCase().includes(p))
+  const hasPasta = ingredientsLower.some(i => 
+    ['fideos', 'pasta', 'arroz', 'spaghetti', 'tallarines', 'ñoquis'].some(p => i.includes(p))
+  );
+  const hasEggs = ingredientsLower.some(i => i.includes('huevo'));
+  const hasCheese = ingredientsLower.some(i => 
+    ['queso', 'muzzarella', 'parmesano', 'cremoso'].some(q => i.includes(q))
   );
 
   const recipes = [];
 
-  // Recipe 1: Based on what user has
-  if (hasPasta || hasProtein) {
+  // Recipe 1: Based on main ingredient type
+  if (hasProtein) {
     recipes.push({
-      name: hasProtein ? "Salteado rápido con lo que tenés" : "Pasta express",
+      name: "Salteado express con proteína",
       time: Math.min(time, 25),
       difficulty: "fácil",
       servings: 2,
       ingredients: [
-        ...(ingredients.slice(0, 3).map(i => `${i} (cantidad a gusto)`)),
-        "Sal y pimienta a gusto",
-        "2 cucharadas de aceite",
-        "Condimentos que tengas a mano"
+        ...ingredients.slice(0, 4).map(i => `${i} (cantidad a gusto)`),
+        "2 cucharadas de aceite de oliva",
+        "Sal, pimienta y ajo en polvo",
+        "1 cucharada de salsa de soja (opcional)"
       ],
       steps: [
-        "Cortá todos los ingredientes en trozos parejos",
-        "Calentá el aceite en una sartén grande a fuego medio-alto",
-        "Agregá los ingredientes de mayor a menor tiempo de cocción",
-        "Condimentá a gusto y mezclá bien",
-        "Serví caliente, podés agregar queso rallado si tenés"
+        "Cortá la proteína en cubos o tiras parejas",
+        "Calentá el aceite en una sartén grande o wok a fuego alto",
+        "Sellá la proteína 2-3 minutos sin mover mucho",
+        "Agregá las verduras cortadas y salteá 3-4 minutos más",
+        "Condimentá con sal, pimienta y un toque de salsa de soja si tenés",
+        "Serví bien caliente, podés acompañar con arroz"
       ],
-      tip: "La clave está en no sobrecargar la sartén para que los ingredientes se doren bien",
-      nutrition: { calories: 280, protein: 12, carbs: 30, fat: 10, fiber: 3 },
-      tags: ["rápido", "fácil", "versátil"]
+      tip: "La clave es tener la sartén bien caliente y no sobrecargarla para que todo se dore bien",
+      nutrition: { calories: 320, protein: 25, carbs: 15, fat: 18, fiber: 3 },
+      tags: ["rápido", "proteico", "versátil"]
     });
   }
 
-  // Recipe 2: Universal option
-  recipes.push({
-    name: "Tortilla versátil",
-    time: Math.min(time, 20),
-    difficulty: "fácil", 
-    servings: 2,
-    ingredients: [
-      "3 huevos",
-      ...(ingredients.slice(0, 2).map(i => `${i} picado`)),
-      "Sal y pimienta",
-      "1 cucharada de aceite",
-      "Queso rallado (opcional)"
-    ],
-    steps: [
-      "Batí los huevos con sal y pimienta",
-      "Salteá los ingredientes picados en la sartén con aceite",
-      "Volcá los huevos batidos sobre los ingredientes",
-      "Cocinala a fuego bajo tapada 3-4 minutos",
-      "Dala vuelta con ayuda de un plato y terminá la cocción"
-    ],
-    tip: "Si le agregás queso rallado antes de dar vuelta, queda más cremosa",
-    nutrition: { calories: 220, protein: 15, carbs: 8, fat: 14, fiber: 2 },
-    tags: ["clásico", "económico", "proteico"]
-  });
+  if (hasPasta) {
+    recipes.push({
+      name: "Pasta rápida con lo que hay",
+      time: Math.min(time, 20),
+      difficulty: "fácil",
+      servings: 2,
+      ingredients: [
+        "250g de pasta o fideos",
+        ...ingredients.filter(i => !['fideos', 'pasta', 'arroz'].some(p => i.toLowerCase().includes(p))).slice(0, 3).map(i => `${i} picado`),
+        "3 cucharadas de aceite de oliva",
+        "2 dientes de ajo picados",
+        "Sal, pimienta y queso rallado"
+      ],
+      steps: [
+        "Poné a hervir agua con sal para la pasta",
+        "Mientras, salteá el ajo en aceite a fuego bajo (que no se queme)",
+        "Agregá los otros ingredientes picados y salteá 3-4 minutos",
+        "Cociná la pasta al dente, reservá 1 taza del agua de cocción",
+        "Mezclá la pasta con el salteado, agregá agua de cocción si queda seco",
+        "Serví con abundante queso rallado"
+      ],
+      tip: "El agua de cocción tiene almidón y ayuda a que la salsa se pegue a la pasta",
+      nutrition: { calories: 380, protein: 12, carbs: 55, fat: 14, fiber: 4 },
+      tags: ["clásico", "reconfortante", "fácil"]
+    });
+  }
+
+  // Recipe with eggs (universal)
+  if (hasEggs || recipes.length < 1) {
+    recipes.push({
+      name: "Tortilla versátil rellena",
+      time: Math.min(time, 20),
+      difficulty: "fácil", 
+      servings: 2,
+      ingredients: [
+        "4 huevos",
+        ...ingredients.filter(i => !i.toLowerCase().includes('huevo')).slice(0, 3).map(i => `${i} picado fino`),
+        "Sal y pimienta a gusto",
+        "2 cucharadas de aceite",
+        "Queso rallado (opcional)"
+      ],
+      steps: [
+        "Batí los huevos con sal, pimienta y un chorrito de leche si tenés",
+        "Salteá los ingredientes picados en la sartén con aceite 3-4 min",
+        "Volcá los huevos batidos sobre los ingredientes",
+        "Cocinala a fuego bajo tapada 4-5 minutos",
+        "Si le ponés queso, agregalo antes de dar vuelta",
+        "Dala vuelta con ayuda de un plato y terminá la cocción 2 min más"
+      ],
+      tip: "A fuego bajo queda más jugosa por dentro. Si querés más esponjosa, separá las claras y batílas a nieve",
+      nutrition: { calories: 280, protein: 18, carbs: 8, fat: 20, fiber: 2 },
+      tags: ["clásico", "económico", "proteico", "versátil"]
+    });
+  }
+
+  // Veggie option
+  if (hasVeggies && recipes.length < 2) {
+    recipes.push({
+      name: "Verduras salteadas al wok",
+      time: Math.min(time, 15),
+      difficulty: "fácil",
+      servings: 2,
+      ingredients: [
+        ...ingredients.slice(0, 5).map(i => `${i} cortado en juliana`),
+        "3 cucharadas de aceite",
+        "1 cucharada de salsa de soja",
+        "1 diente de ajo picado",
+        "Jengibre rallado (opcional)",
+        "Semillas de sésamo para decorar"
+      ],
+      steps: [
+        "Cortá todas las verduras en tiras o juliana fina",
+        "Calentá el aceite en wok o sartén grande a fuego muy alto",
+        "Salteá el ajo 30 segundos, que no se queme",
+        "Agregá las verduras más duras primero, luego las blandas",
+        "Salteá 4-5 minutos moviendo constantemente",
+        "Terminá con salsa de soja y semillas de sésamo"
+      ],
+      tip: "El secreto del wok es el fuego muy alto y mover rápido para que las verduras queden crocantes",
+      nutrition: { calories: 180, protein: 5, carbs: 20, fat: 10, fiber: 6 },
+      tags: ["saludable", "vegetariano", "rápido", "liviano"]
+    });
+  }
+
+  // Cheese-based option
+  if (hasCheese && recipes.length < 2) {
+    recipes.push({
+      name: "Tostadas gratinadas express",
+      time: Math.min(time, 15),
+      difficulty: "muy fácil",
+      servings: 2,
+      ingredients: [
+        "4 rebanadas de pan",
+        "150g de queso (el que tengas)",
+        ...ingredients.filter(i => !i.toLowerCase().includes('queso')).slice(0, 2).map(i => `${i} en rodajas`),
+        "Orégano y aceite de oliva",
+        "Sal y pimienta"
+      ],
+      steps: [
+        "Precalentá el horno a 200°C o usá el grill",
+        "Disponé las rebanadas de pan en una fuente",
+        "Agregá los ingredientes cortados sobre el pan",
+        "Cubrí generosamente con queso",
+        "Llevá al horno/grill 5-7 minutos hasta que gratine",
+        "Condimentá con orégano y un hilo de aceite al servir"
+      ],
+      tip: "Si querés que quede más crocante, tostá un poco el pan antes de armar",
+      nutrition: { calories: 350, protein: 15, carbs: 30, fat: 18, fiber: 2 },
+      tags: ["rápido", "comfort food", "fácil"]
+    });
+  }
+
+  // Universal fallback if nothing else matched
+  if (recipes.length < 2) {
+    recipes.push({
+      name: "Revuelto rápido multiuso",
+      time: Math.min(time, 15),
+      difficulty: "muy fácil",
+      servings: 2,
+      ingredients: [
+        "3 huevos",
+        ...ingredients.slice(0, 3).map(i => `${i} picado`),
+        "1 cucharada de manteca o aceite",
+        "Sal y pimienta",
+        "Queso crema o rallado (opcional)"
+      ],
+      steps: [
+        "Batí los huevos ligeramente con sal y pimienta",
+        "Derretí la manteca en sartén a fuego medio-bajo",
+        "Si tenés ingredientes que necesitan cocción, salteálos primero",
+        "Agregá los huevos y revolvé suavemente con espátula",
+        "Cuando estén casi cuajados, retirá del fuego (siguen cocinándose)",
+        "Serví inmediatamente, el revuelto no espera"
+      ],
+      tip: "El secreto del revuelto cremoso es sacarlo del fuego antes de que esté totalmente cocido",
+      nutrition: { calories: 250, protein: 16, carbs: 5, fat: 18, fiber: 1 },
+      tags: ["desayuno", "rápido", "proteico"]
+    });
+  }
 
   return recipes.slice(0, 2);
 }
@@ -616,14 +738,16 @@ Generá UNA SOLA receta sorpresa con estas características:
     console.log('User prompt:', userPrompt);
 
     // Multiple models for fallback - ALL available models for maximum reliability
+    // Alternating between providers to maximize chances of getting a response
     const models = [
       'google/gemini-2.5-flash-lite', // Primary: fastest, cheapest
-      'google/gemini-2.5-flash',      // Fallback 1: fast and capable
-      'openai/gpt-5-nano',            // Fallback 2: OpenAI fast/cheap
-      'openai/gpt-5-mini',            // Fallback 3: OpenAI balanced
-      'google/gemini-2.5-pro',        // Fallback 4: Gemini powerful
-      'google/gemini-3-pro-preview',  // Fallback 5: Next-gen Gemini
-      'openai/gpt-5',                 // Fallback 6: OpenAI powerful
+      'openai/gpt-5-nano',            // Alt provider 1
+      'google/gemini-2.5-flash',      // Gemini fallback 1
+      'openai/gpt-5-mini',            // Alt provider 2
+      'google/gemini-3-flash-preview',// Gemini fast preview
+      'google/gemini-2.5-pro',        // Gemini powerful
+      'openai/gpt-5',                 // OpenAI powerful
+      'google/gemini-3-pro-preview',  // Next-gen Gemini
     ];
     
     let response: Response | null = null;
@@ -632,54 +756,50 @@ Generá UNA SOLA receta sorpresa con estas características:
     for (const model of models) {
       console.log(`Trying model: ${model}`);
       
-      // Try each model with 2 retries
-      for (let attempt = 0; attempt < 2; attempt++) {
-        if (attempt > 0) {
-          await new Promise(resolve => setTimeout(resolve, 500)); // Reduced wait time
+      try {
+        // Single attempt per model with quick timeout to cycle through faster
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+        
+        response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt }
+            ],
+          }),
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          successfulModel = model;
+          console.log(`Success with model: ${model}`);
+          break;
         }
         
-        try {
-          response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              model: model,
-              messages: [
-                { role: 'system', content: systemPrompt },
-                { role: 'user', content: userPrompt }
-              ],
-            }),
-          });
-
-          if (response.ok) {
-            successfulModel = model;
-            console.log(`Success with model: ${model}`);
-            break;
-          }
-          
-          const errorText = await response.text();
-          console.error(`Model ${model} error (attempt ${attempt + 1}):`, response.status, errorText);
-          
-          if (response.status === 402) {
-            return new Response(JSON.stringify({ error: 'Créditos agotados. Contactá al administrador.' }), {
-              status: 402,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            });
-          }
-          
-          if (response.status === 429) {
-            // Rate limited, try next model immediately
-            break;
-          }
-        } catch (fetchError) {
-          console.error(`Fetch error with ${model}:`, fetchError);
+        const errorText = await response.text();
+        console.error(`Model ${model} error:`, response.status, errorText);
+        
+        if (response.status === 402) {
+          // Payment required - but still try to give recipes from cache/emergency
+          console.log('402 error - will try cache/emergency fallback');
+          break;
         }
+        
+        // For 429 or other errors, immediately try next model
+        response = null;
+      } catch (fetchError) {
+        console.error(`Fetch error with ${model}:`, fetchError);
+        response = null;
       }
-      
-      if (response?.ok) break;
     }
 
     if (!response || !response.ok) {
@@ -770,10 +890,47 @@ Generá UNA SOLA receta sorpresa con estas características:
 
   } catch (error) {
     console.error('Error in generate-recipe function:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Error al generar las recetas';
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    
+    // Even on unexpected errors, try to return emergency recipes
+    try {
+      console.log('Attempting emergency recipe fallback after error');
+      const emergencyRecipes = getEmergencyRecipes(['huevo', 'cebolla', 'papa'], 30, 'es');
+      
+      return new Response(JSON.stringify({
+        recipes: emergencyRecipes,
+        source: 'emergency',
+        isInstant: true,
+        fallbackReason: 'unexpected_error'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    } catch (emergencyError) {
+      // Absolute last resort - return a hardcoded simple recipe
+      console.error('Emergency fallback also failed:', emergencyError);
+      return new Response(JSON.stringify({
+        recipes: [{
+          name: "Huevos revueltos clásicos",
+          time: 10,
+          difficulty: "muy fácil",
+          servings: 2,
+          ingredients: ["3 huevos", "1 cda de manteca", "Sal y pimienta", "Queso rallado (opcional)"],
+          steps: [
+            "Batí los huevos con sal y pimienta",
+            "Derretí la manteca en sartén a fuego medio-bajo",
+            "Agregá los huevos y revolvé suavemente",
+            "Retirá cuando estén cremosos (siguen cocinándose)",
+            "Serví de inmediato con queso si querés"
+          ],
+          tip: "El secreto es sacarlos antes de que estén totalmente cocidos",
+          nutrition: { calories: 220, protein: 14, carbs: 2, fat: 16, fiber: 0 },
+          tags: ["rápido", "clásico", "proteico"]
+        }],
+        source: 'hardcoded',
+        isInstant: true,
+        fallbackReason: 'total_failure'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
   }
 });
