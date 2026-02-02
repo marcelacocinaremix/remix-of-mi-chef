@@ -283,16 +283,6 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
       "bg-card rounded-xl p-4 border border-border/50",
       "shadow-card"
     )}>
-      <div className="mb-5">
-        <div className="flex items-center gap-2 mb-1">
-          <Heart className="w-5 h-5 text-primary fill-primary" />
-          <h3 className="font-display text-lg font-semibold">Tus recetas y tips de cocina favoritos</h3>
-        </div>
-        <p className="text-sm text-muted-foreground ml-7">
-          {totalFavorites} {totalFavorites === 1 ? 'favorito guardado' : 'favoritos guardados'}
-        </p>
-      </div>
-
       {/* Tab Selector */}
       <div className="flex gap-2 mb-4">
         <button
