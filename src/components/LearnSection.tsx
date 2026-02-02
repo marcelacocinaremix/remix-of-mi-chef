@@ -1620,7 +1620,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame }: LearnSec
             className={cn(
               "flex flex-col items-center justify-center gap-1.5 py-3 px-3 rounded-xl font-medium transition-all duration-300",
               activeSubMenu === "guia"
-                ? "bg-amber-500 text-white shadow-lg scale-[1.02]"
+                ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]"
                 : "bg-background/60 hover:bg-background text-foreground"
             )}
           >
