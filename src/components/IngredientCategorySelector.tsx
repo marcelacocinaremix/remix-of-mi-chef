@@ -104,6 +104,7 @@ export function IngredientCategorySelector({
   selectedIngredients, 
   onIngredientsChange 
 }: IngredientCategorySelectorProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
 
   const toggleCategory = (category: string) => {
@@ -129,76 +130,103 @@ export function IngredientCategorySelector({
   const getCategorySelectedCount = (items: string[]) => 
     items.filter(item => isSelected(item)).length;
 
+  const totalSelectedFromList = Object.values(INGREDIENT_CATEGORIES)
+    .flatMap(cat => cat.items)
+    .filter(item => isSelected(item)).length;
+
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-        O elegí de la lista:
-      </h3>
-      
-      <ScrollArea className="h-[300px] pr-2">
-        <div className="space-y-2">
-          {Object.entries(INGREDIENT_CATEGORIES).map(([key, category]) => {
-            const isExpanded = expandedCategories.includes(key);
-            const selectedCount = getCategorySelectedCount(category.items);
-            
-            return (
-              <div key={key} className="rounded-lg border border-border overflow-hidden">
-                <button
-                  onClick={() => toggleCategory(key)}
-                  className={cn(
-                    "w-full flex items-center justify-between p-3",
-                    "bg-card hover:bg-accent/50 transition-colors",
-                    "text-left"
-                  )}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{category.label}</span>
-                    {selectedCount > 0 && (
-                      <span className={cn(
-                        "text-xs px-2 py-0.5 rounded-full",
-                        category.color
-                      )}>
-                        {selectedCount}
-                      </span>
-                    )}
-                  </div>
-                  {isExpanded ? (
-                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </button>
-                
-                {isExpanded && (
-                  <div className="p-3 pt-0 bg-card/50">
-                    <div className="flex flex-wrap gap-2 pt-2">
-                      {category.items.map(item => (
-                        <button
-                          key={item}
-                          onClick={() => toggleIngredient(item)}
-                          className={cn(
-                            "px-3 py-1.5 rounded-full text-sm font-medium",
-                            "border-2 transition-all duration-200",
-                            "capitalize",
-                            isSelected(item)
-                              ? cn(category.color, "border-current")
-                              : "bg-secondary/50 border-transparent text-muted-foreground hover:bg-secondary"
-                          )}
-                        >
-                          {isSelected(item) && (
-                            <Check className="h-3 w-3 inline-block mr-1" />
-                          )}
-                          {item}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={cn(
+          "w-full flex items-center justify-between p-4 rounded-xl",
+          "bg-secondary/50 hover:bg-secondary/80 transition-all duration-300",
+          "border-2",
+          isOpen ? "border-primary/50" : "border-border"
+        )}
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-xl">📋</span>
+          <span className="font-medium text-foreground">Elegir de la lista</span>
+          {totalSelectedFromList > 0 && (
+            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary">
+              {totalSelectedFromList}
+            </span>
+          )}
         </div>
-      </ScrollArea>
+        {isOpen ? (
+          <ChevronUp className="h-5 w-5 text-muted-foreground" />
+        ) : (
+          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+        )}
+      </button>
+      
+      {isOpen && (
+        <ScrollArea className="h-[300px] pr-2 animate-fade-in">
+          <div className="space-y-2">
+            {Object.entries(INGREDIENT_CATEGORIES).map(([key, category]) => {
+              const isExpanded = expandedCategories.includes(key);
+              const selectedCount = getCategorySelectedCount(category.items);
+              
+              return (
+                <div key={key} className="rounded-lg border border-border overflow-hidden">
+                  <button
+                    onClick={() => toggleCategory(key)}
+                    className={cn(
+                      "w-full flex items-center justify-between p-3",
+                      "bg-card hover:bg-accent/50 transition-colors",
+                      "text-left"
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{category.label}</span>
+                      {selectedCount > 0 && (
+                        <span className={cn(
+                          "text-xs px-2 py-0.5 rounded-full",
+                          category.color
+                        )}>
+                          {selectedCount}
+                        </span>
+                      )}
+                    </div>
+                    {isExpanded ? (
+                      <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </button>
+                  
+                  {isExpanded && (
+                    <div className="p-3 pt-0 bg-card/50">
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {category.items.map(item => (
+                          <button
+                            key={item}
+                            onClick={() => toggleIngredient(item)}
+                            className={cn(
+                              "px-3 py-1.5 rounded-full text-sm font-medium",
+                              "border-2 transition-all duration-200",
+                              "capitalize",
+                              isSelected(item)
+                                ? cn(category.color, "border-current")
+                                : "bg-secondary/50 border-transparent text-muted-foreground hover:bg-secondary"
+                            )}
+                          >
+                            {isSelected(item) && (
+                              <Check className="h-3 w-3 inline-block mr-1" />
+                            )}
+                            {item}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </ScrollArea>
+      )}
 
       {selectedIngredients.length > 0 && (
         <div className="pt-2 border-t border-border">
