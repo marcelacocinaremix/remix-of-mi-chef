@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { ChefHat, Sparkles, Flame, Heart, Star, Utensils } from "lucide-react";
 import { cn } from "@/lib/utils";
-import marcelaCharacter from "@/assets/marcela-character.png";
 
 const floatingEmojis = ["🥕", "🍳", "🧅", "🍅", "🥩", "🧀", "🌶️", "🥬"];
 const cookingTips = [
@@ -64,19 +63,11 @@ export function CookingSectionHeader() {
       </div>
 
       <div className="relative z-10 flex items-center gap-4">
-        {/* Marcela Character with animated ring */}
+        {/* Chef icon with animated ring */}
         <div className="relative flex-shrink-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary via-pink-light to-accent rounded-full blur-md animate-pulse" style={{ scale: 1.1 }} />
-          <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-white/80 shadow-xl animate-float" style={{ animationDuration: '4s' }}>
-            <img 
-              src={marcelaCharacter} 
-              alt="Marcela" 
-              className="w-full h-full object-cover"
-            />
-          </div>
-          {/* Chef hat badge */}
-          <div className="absolute -top-1 -right-1 bg-gradient-to-br from-primary to-pink-light rounded-full p-1.5 shadow-lg animate-bounce" style={{ animationDuration: '2s' }}>
-            <ChefHat className="w-4 h-4 text-white" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary rounded-full blur-md animate-pulse" style={{ scale: 1.1 }} />
+          <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center border-4 border-white/80 shadow-xl animate-float" style={{ animationDuration: '4s' }}>
+            <ChefHat className="w-8 h-8 text-white" />
           </div>
         </div>
 
