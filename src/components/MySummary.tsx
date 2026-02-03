@@ -38,7 +38,7 @@ interface LastRecipe {
 const MySummary = ({ 
   onOpenRecipe 
 }: MySummaryProps) => {
-  const { user } = useAuth();
+  const { user, session, isLoading: authLoading } = useAuth();
   const { t, language } = useLanguage();
   const [displayName, setDisplayName] = useState<string>("");
   const [nextMeal, setNextMeal] = useState<NextMeal | null>(null);
@@ -64,7 +64,8 @@ const MySummary = ({
   };
 
   useEffect(() => {
-    if (!user) return;
+    // Wait until auth state is determined and we have a valid session
+    if (authLoading || !user || !session) return;
 
     const fetchUserData = async () => {
       // Fetch profile
@@ -133,12 +134,14 @@ const MySummary = ({
         });
       }
 
-      // Generate AI tip
-      await generateAiTip(user.id);
+      // Generate AI tip only if we have a valid session
+      if (session) {
+        await generateAiTip(user.id);
+      }
     };
 
     fetchUserData();
-  }, [user]);
+  }, [user, session, authLoading]);
 
   const generateAiTip = async (userId: string) => {
     setLoadingTip(true);
@@ -200,7 +203,7 @@ const MySummary = ({
     return format(date, "d MMMM", { locale: getLocale() });
   };
 
-  if (!user) return null;
+  if (authLoading || !user || !session) return null;
 
   return (
     <div className="space-y-4 mb-6">
