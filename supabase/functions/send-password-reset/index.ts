@@ -69,10 +69,9 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("No se pudo generar el link de recuperación");
     }
 
-    // Send email via Resend
-    // Note: Using testing mode - onboarding@resend.dev can only send to your own email
+    // Send email via Resend with verified domain
     const emailResponse = await resend.emails.send({
-      from: "Mi Chef Personal <onboarding@resend.dev>",
+      from: "Mi Chef Personal <noreply@marcelacocina.com>",
       to: [email],
       subject: "Restablecé tu contraseña - Mi Chef Personal",
       html: `
