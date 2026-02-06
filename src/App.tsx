@@ -10,6 +10,7 @@ import { PremiumProvider } from "@/hooks/usePremium";
 import { KitchenTimerProvider } from "@/hooks/useKitchenTimer";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import SharedRecipe from "./pages/SharedRecipe";
@@ -33,6 +34,7 @@ const App = () => (
                   <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/privacy" element={<PrivacyPolicy />} />
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="/terms" element={<TermsOfService />} />
