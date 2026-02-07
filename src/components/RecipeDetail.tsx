@@ -1,4 +1,4 @@
-import { Clock, ShoppingBag, ChefHat, Lightbulb, RefreshCw, ArrowLeft, Flame, Dumbbell, Wheat, Droplet, Leaf, Heart, Users, Play, Shuffle, ShoppingCart, Plus, Check, Share2, FileDown } from "lucide-react";
+import { Clock, ShoppingBag, ChefHat, Lightbulb, RefreshCw, ArrowLeft, Flame, Dumbbell, Wheat, Droplet, Leaf, Heart, Users, Play, Shuffle, ShoppingCart, Plus, Check, Copy, FileDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Recipe } from "@/components/RecipeList";
@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { CookingMode } from "@/components/CookingMode";
 import { Badge } from "@/components/ui/badge";
-import { useShareRecipe } from "@/hooks/useShareRecipe";
+
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useExportPDF } from "@/hooks/useExportPDF";
 
@@ -39,7 +39,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
   const { user } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
-  const { shareRecipe, isSharing } = useShareRecipe();
+  const [isCopying, setIsCopying] = useState(false);
   const { exportRecipeToPDF, isExporting } = useExportPDF();
   const [isSaving, setIsSaving] = useState(false);
   const [isMarkingCooked, setIsMarkingCooked] = useState(false);
@@ -466,12 +466,30 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
             <Button 
               variant="outline" 
               size="lg"
-              onClick={() => shareRecipe(recipe)}
-              disabled={isSharing}
+              onClick={async () => {
+                setIsCopying(true);
+                try {
+                  const ingredientsText = recipe.ingredients.join('\n');
+                  await navigator.clipboard.writeText(ingredientsText);
+                  toast({
+                    title: "¡Ingredientes copiados!",
+                    description: "Los ingredientes se copiaron al portapapeles.",
+                  });
+                } catch {
+                  toast({
+                    title: "Error",
+                    description: "No se pudieron copiar los ingredientes.",
+                    variant: "destructive",
+                  });
+                } finally {
+                  setIsCopying(false);
+                }
+              }}
+              disabled={isCopying}
               className="w-full"
             >
-              <Share2 className="w-5 h-5" />
-              {isSharing ? t("loading") : t("shareRecipe")}
+              <Copy className="w-5 h-5" />
+              {isCopying ? "Copiando..." : "Copiar ingredientes"}
             </Button>
             <Button 
               variant="outline" 
