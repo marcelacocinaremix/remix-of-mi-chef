@@ -4,7 +4,6 @@ import { FuturisticOrb } from "./FuturisticOrb";
 import { supabase } from "@/integrations/supabase/client";
 import { Recipe } from "@/components/RecipeList";
 import { FiltersState } from "@/components/AdvancedFilters";
-import { useSound } from "@/hooks/useSound";
 import { useMarcelaAI, MarcelaMood, MarcelaAnimation } from "@/hooks/useMarcelaAI";
 import { translations, Language, TranslationKey } from "@/i18n/translations";
 
@@ -103,9 +102,6 @@ export function MarcelaAssistant({
     positionRef.current = { x: 0, y: 0 };
   }, []);
   const initialPos = useRef({ x: 0, y: 0 });
-  
-  // Sound
-  const { play: playSound } = useSound();
   const prevMessageKeyRef = useRef<string>('');
   const prevIngredientsRef = useRef<string[]>([]);
   const hasInitializedRef = useRef(false);
@@ -427,7 +423,6 @@ export function MarcelaAssistant({
 
   const handleCharacterClick = () => {
     if (hasDragged.current) return;
-    playSound('pop');
     setIsHidden(true);
   };
 
