@@ -44,9 +44,13 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isMarkingCooked, setIsMarkingCooked] = useState(false);
+  const [hasMarkedCooked, setHasMarkedCooked] = useState(false);
   const [showCookingMode, setShowCookingMode] = useState(false);
+  const [hasUsedCookingMode, setHasUsedCookingMode] = useState(false);
   const [showSubstitutions, setShowSubstitutions] = useState(false);
   const [addedToList, setAddedToList] = useState<Set<string>>(new Set());
+  const [hasCopied, setHasCopied] = useState(false);
+  const [hasDownloaded, setHasDownloaded] = useState(false);
   const saveActionRef = useRef(false);
 
   // Check if recipe is already in favorites on mount
@@ -203,6 +207,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
         description: "Se agregó a tus logros y a tu resumen de salud.",
       });
 
+      setHasMarkedCooked(true);
       onRecipeCooked?.();
     } catch (error) {
       console.error("Error marking recipe as cooked:", error);
@@ -505,41 +510,49 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
             </p>
             
             <Button 
-              variant="outline" 
+              variant={hasUsedCookingMode ? "default" : "outline"} 
               size="lg"
-              onClick={() => setShowCookingMode(true)}
+              onClick={() => {
+                setShowCookingMode(true);
+                setHasUsedCookingMode(true);
+              }}
               className="w-full"
             >
               <Play className="w-5 h-5" />
-              {t("cookingMode")}
+              {hasUsedCookingMode ? "Modo cocina ✓" : t("cookingMode")}
             </Button>
             <p className="text-xs text-muted-foreground text-center -mt-1">
-              Seguí el paso a paso con temporizadores incluidos
+              {hasUsedCookingMode ? "Ya usaste el modo cocina" : "Seguí el paso a paso con temporizadores incluidos"}
             </p>
             
             {/* Mark as cooked button - sends to nutrition */}
             <Button 
-              variant="outline" 
+              variant={(hasMarkedCooked || recentlyCooked) ? "default" : "outline"} 
               size="lg"
               onClick={handleMarkAsCooked}
-              disabled={isMarkingCooked}
-              className="w-full border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950"
+              disabled={isMarkingCooked || hasMarkedCooked || recentlyCooked}
+              className={cn(
+                "w-full",
+                !(hasMarkedCooked || recentlyCooked) && "border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950",
+                (hasMarkedCooked || recentlyCooked) && "bg-green-600 hover:bg-green-600 text-white"
+              )}
             >
               <Check className="w-5 h-5" />
-              {isMarkingCooked ? "Registrando..." : "Ya la cociné"}
+              {isMarkingCooked ? "Registrando..." : (hasMarkedCooked || recentlyCooked) ? "Cocinada ✓" : "Ya la cociné"}
             </Button>
             <p className="text-xs text-muted-foreground text-center -mt-1">
-              Registra esta receta en tu historial de nutrición
+              {(hasMarkedCooked || recentlyCooked) ? "Esta receta ya está registrada" : "Registra esta receta en tu historial de nutrición"}
             </p>
             
             <Button 
-              variant="outline" 
+              variant={hasCopied ? "default" : "outline"} 
               size="lg"
               onClick={async () => {
                 setIsCopying(true);
                 try {
                   const ingredientsText = recipe.ingredients.join('\n');
                   await navigator.clipboard.writeText(ingredientsText);
+                  setHasCopied(true);
                   toast({
                     title: "¡Ingredientes copiados!",
                     description: "Los ingredientes se copiaron al portapapeles.",
@@ -558,17 +571,20 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               className="w-full"
             >
               <Copy className="w-5 h-5" />
-              {isCopying ? "Copiando..." : "Copiar ingredientes"}
+              {isCopying ? "Copiando..." : hasCopied ? "Copiados ✓" : "Copiar ingredientes"}
             </Button>
             <Button 
-              variant="outline" 
+              variant={hasDownloaded ? "default" : "outline"} 
               size="lg"
-              onClick={() => exportRecipeToPDF(recipe)}
+              onClick={async () => {
+                await exportRecipeToPDF(recipe);
+                setHasDownloaded(true);
+              }}
               disabled={isExporting}
               className="w-full"
             >
               <FileDown className="w-5 h-5" />
-              {isExporting ? "Descargando..." : "Descargar receta"}
+              {isExporting ? "Descargando..." : hasDownloaded ? "Descargada ✓" : "Descargar receta"}
             </Button>
           </div>
 
