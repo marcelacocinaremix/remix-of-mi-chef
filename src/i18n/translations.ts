@@ -276,9 +276,10 @@ export const translations = {
     marcelaTipTitle: "💡 Tip de Marcela",
     marcelaTipNutrients: "Agregá ingredientes y te sugiero recetas balanceadas",
     
-    // NutritionalBalance (Salud) internal tabs
+    // NutritionalBalance (Balance) internal tabs
     healthTabSummary: "Resumen",
     healthTabBalance: "Nutrición",
+    healthTabBalanceDesc: "Tu balance nutricional semanal",
     healthTabActivity: "Actividad",
     healthActivityComingSoon: "Próximamente",
     healthActivityDescription: "Muy pronto podrás registrar tu actividad física y ver cómo impacta en tu balance nutricional.",
@@ -1034,9 +1035,10 @@ export const translations = {
     marcelaTipTitle: "💡 Marcela's Tip",
     marcelaTipNutrients: "Add ingredients and I'll suggest balanced recipes",
     
-    // NutritionalBalance (Health) internal tabs
+    // NutritionalBalance (Balance) internal tabs
     healthTabSummary: "Summary",
     healthTabBalance: "Nutrition",
+    healthTabBalanceDesc: "Your weekly nutritional balance",
     healthTabActivity: "Activity",
     healthActivityComingSoon: "Coming Soon",
     healthActivityDescription: "Soon you'll be able to track your physical activity and see how it impacts your nutritional balance.",
@@ -1792,9 +1794,10 @@ export const translations = {
     marcelaTipTitle: "💡 Dica da Marcela",
     marcelaTipNutrients: "Adicione ingredientes e eu sugiro receitas balanceadas",
     
-    // NutritionalBalance (Saúde) internal tabs
+    // NutritionalBalance (Balanço) internal tabs
     healthTabSummary: "Resumo",
     healthTabBalance: "Nutrição",
+    healthTabBalanceDesc: "Seu balanço nutricional semanal",
     healthTabActivity: "Atividade",
     healthActivityComingSoon: "Em Breve",
     healthActivityDescription: "Em breve você poderá registrar sua atividade física e ver como ela impacta seu balanço nutricional.",

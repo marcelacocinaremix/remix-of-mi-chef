@@ -329,14 +329,15 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
           <button
             onClick={() => setActiveTab("balance")}
             className={cn(
-              "flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-lg font-medium transition-all duration-300",
+              "flex flex-col items-center justify-center gap-0.5 py-3 px-2 rounded-lg font-medium transition-all duration-300",
               activeTab === "balance"
                 ? "bg-primary text-primary-foreground shadow-md"
                 : "bg-background hover:bg-background/80 text-foreground"
             )}
           >
             <BarChart3 className="w-5 h-5" strokeWidth={1.5} />
-            <span className="text-xs">{t("healthTabBalance")}</span>
+            <span className="text-xs font-semibold">{t("healthTabBalance")}</span>
+            <span className={cn("text-[10px] leading-tight", activeTab === "balance" ? "text-primary-foreground/80" : "text-muted-foreground")}>{t("healthTabBalanceDesc")}</span>
           </button>
           <button
             onClick={() => setActiveTab("actividad")}
