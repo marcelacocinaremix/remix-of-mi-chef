@@ -486,12 +486,6 @@ export function MarcelaAssistant({
             <span className="text-lg">{getMoodEmoji(currentMood)}</span>
             <span>{displayedReaction}</span>
           </p>
-          {showTip && (
-            <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 p-2 rounded-lg animate-fade-in">
-              <Lightbulb className="w-3 h-3 flex-shrink-0" />
-              <span>{showTip}</span>
-            </div>
-          )}
           {isAILoading && (
             <div className="flex items-center gap-1">
               <div
