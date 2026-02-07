@@ -296,32 +296,41 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           >
             <div className="relative z-10 flex flex-col items-center px-6 text-center">
 
-              {/* Title */}
+              {/* Title - Elegant white serif */}
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="font-display text-4xl md:text-5xl font-bold text-primary mb-4"
+                className="font-display text-5xl md:text-6xl font-medium text-white/95 tracking-wide mb-8"
               >
                 Mi Chef
               </motion.h1>
 
-              {/* CTA Button */}
+              {/* CTA Button - Dark elegant style */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1 }}
               >
-                <Button
-                  size="lg"
+                <button
                   onClick={handleContinueToLanguage}
-                  className="group px-12 py-7 text-xl rounded-2xl bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-glow transition-all duration-300"
+                  className="group flex items-center justify-center gap-4 px-16 py-5 text-xl font-medium text-white/90 bg-black/80 backdrop-blur-sm border border-white/20 rounded-2xl hover:bg-black/90 hover:border-white/30 transition-all duration-300"
                 >
                   <span>{t("onboardingStart")}</span>
-                  <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
-                </Button>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
               </motion.div>
             </div>
+
+            {/* Bottom indicator dot */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.5 }}
+              className="absolute bottom-12 left-1/2 -translate-x-1/2"
+            >
+              <div className="w-2 h-2 rounded-full bg-white/60" />
+            </motion.div>
           </motion.div>
         )}
 
