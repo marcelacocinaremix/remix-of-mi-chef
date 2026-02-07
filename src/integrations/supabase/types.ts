@@ -723,36 +723,7 @@ export type Database = {
       }
     }
     Views: {
-      shared_recipes_public: {
-        Row: {
-          created_at: string | null
-          expires_at: string | null
-          id: string | null
-          recipe_data: Json | null
-          recipe_name: string | null
-          share_code: string | null
-          shared_by_name: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          expires_at?: string | null
-          id?: string | null
-          recipe_data?: Json | null
-          recipe_name?: string | null
-          share_code?: string | null
-          shared_by_name?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          expires_at?: string | null
-          id?: string | null
-          recipe_data?: Json | null
-          recipe_name?: string | null
-          share_code?: string | null
-          shared_by_name?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       check_and_increment_daily_uses: {
