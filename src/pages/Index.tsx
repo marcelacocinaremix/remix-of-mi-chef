@@ -69,7 +69,7 @@ export default function Index() {
   const [pantryItems, setPantryItems] = useState<string[]>([]);
   const { toast } = useToast();
   const { play: playSound } = useSound();
-  const { getRecentRecipeNames, refetch: refetchCookedRecipes } = useCookedRecipes();
+  const { getRecentRecipeNames, refetch: refetchCookedRecipes, addCookedRecipe } = useCookedRecipes();
   const shoppingList = useShoppingList();
   const { recordCookedRecipe, refetch: refetchAchievements } = useAchievements();
   const [isButtonAnimating, setIsButtonAnimating] = useState(false);
@@ -330,6 +330,12 @@ export default function Index() {
        if (data?.recipes && data.recipes.length > 0 && (data.source === 'cache' || data.source === 'emergency')) {
          setRecipes(data.recipes);
          setInstantRecipe(data.recipes[0]);
+         
+         // Save to history
+         if (data.recipes[0]) {
+           addCookedRecipe(data.recipes[0]);
+         }
+         
          toast({
            title: data.source === 'emergency' ? "🍳 Recetas de emergencia" : "Usando recetas guardadas",
            description: data.source === 'emergency' 
@@ -361,6 +367,11 @@ export default function Index() {
         setRecipes(recipesToShow);
         setInstantRecipe(null); // Clear instant recipe as we have AI recipes now
         
+        // Save first recipe to history automatically
+        if (recipesToShow[0]) {
+          addCookedRecipe(recipesToShow[0]);
+        }
+        
         toast({
           title: "¡Recetas listas!",
           description: `Preparé ${recipesToShow.length} opciones para vos.`,
@@ -372,6 +383,8 @@ export default function Index() {
       console.error('Error generating recipes:', error);
       // If we have cached recipes, don't show error
       if (instantRecipe) {
+        // Save the fallback recipe to history
+        addCookedRecipe(instantRecipe);
         toast({
           title: "Usando receta de respaldo",
           description: "La IA está ocupada, pero te muestro una receta guardada.",
@@ -452,6 +465,8 @@ export default function Index() {
       if (data?.error) throw new Error(data.error);
       
       if (data?.recipes && data.recipes.length > 0) {
+        // Save to history
+        addCookedRecipe(data.recipes[0]);
         handleSelectRecipe(data.recipes[0]);
         toast({
           title: "¡Decidí por vos!",
