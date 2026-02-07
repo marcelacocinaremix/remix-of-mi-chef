@@ -102,7 +102,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
     }
   };
 
-  const handleSaveRecipe = async () => {
+  const handleToggleFavorite = async () => {
     if (!user) {
       toast({
         title: "Iniciá sesión",
@@ -113,54 +113,63 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
     }
 
     // Prevent rapid clicks
-    if (saveActionRef.current || isSaved) {
-      if (isSaved) {
-        toast({
-          title: "Ya está guardada",
-          description: "Esta receta ya está en tus favoritos.",
-        });
-      }
-      return;
-    }
+    if (saveActionRef.current) return;
     
     saveActionRef.current = true;
     setIsSaving(true);
     
     try {
-      // Double-check in database before saving
-      const { data: existing } = await supabase
-        .from("favorite_recipes")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("recipe_name", recipe.name)
-        .maybeSingle();
-      
-      if (existing) {
+      if (isSaved) {
+        // Remove from favorites
+        const { error } = await supabase
+          .from("favorite_recipes")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("recipe_name", recipe.name);
+
+        if (error) throw error;
+
+        setIsSaved(false);
+        toast({
+          title: "Receta eliminada",
+          description: `${recipe.name} se quitó de tus favoritas.`,
+        });
+      } else {
+        // Check if already exists before saving
+        const { data: existing } = await supabase
+          .from("favorite_recipes")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("recipe_name", recipe.name)
+          .maybeSingle();
+        
+        if (existing) {
+          setIsSaved(true);
+          toast({
+            title: "Ya está guardada",
+            description: "Esta receta ya está en tus favoritos.",
+          });
+          return;
+        }
+
+        const { error } = await supabase.from("favorite_recipes").insert([{
+          user_id: user.id,
+          recipe_name: recipe.name,
+          recipe_data: JSON.parse(JSON.stringify(recipe)),
+        }]);
+
+        if (error) throw error;
+
         setIsSaved(true);
         toast({
-          title: "Ya está guardada",
-          description: "Esta receta ya está en tus favoritos.",
+          title: "¡Receta guardada!",
+          description: `${recipe.name} se agregó a tus favoritas.`,
         });
-        return;
       }
-
-      const { error } = await supabase.from("favorite_recipes").insert([{
-        user_id: user.id,
-        recipe_name: recipe.name,
-        recipe_data: JSON.parse(JSON.stringify(recipe)),
-      }]);
-
-      if (error) throw error;
-
-      setIsSaved(true);
-      toast({
-        title: "¡Receta guardada!",
-        description: `${recipe.name} se agregó a tus favoritas.`,
-      });
     } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudo guardar la receta.",
+        description: isSaved ? "No se pudo quitar la receta." : "No se pudo guardar la receta.",
         variant: "destructive",
       });
     } finally {
@@ -482,16 +491,17 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
           {/* Action Buttons */}
           <div className="flex flex-col gap-3 pt-4">
             <Button 
-              onClick={handleSaveRecipe} 
-              disabled={isSaving || isSaved} 
+              onClick={handleToggleFavorite} 
+              disabled={isSaving} 
               size="lg" 
-              className={cn("w-full", isSaved && "bg-destructive hover:bg-destructive text-destructive-foreground")}
+              variant={isSaved ? "outline" : "default"}
+              className={cn("w-full", isSaved && "border-destructive text-destructive hover:bg-destructive/10")}
             >
-              <Heart className={cn("w-5 h-5", isSaved && "fill-current")} />
-              {isSaving ? t("saving") : isSaved ? "Guardada en favoritos" : t("saveToFavorites")}
+              <Heart className={cn("w-5 h-5", isSaved && "fill-destructive text-destructive")} />
+              {isSaving ? (isSaved ? "Quitando..." : t("saving")) : isSaved ? "Quitar de favoritos" : t("saveToFavorites")}
             </Button>
             <p className="text-xs text-muted-foreground text-center -mt-1">
-              {isSaved ? "Esta receta ya está en tu colección" : "Guarda esta receta en tu colección de favoritos"}
+              {isSaved ? "Tocá para quitar de tu colección" : "Guarda esta receta en tu colección de favoritos"}
             </p>
             
             <Button 
