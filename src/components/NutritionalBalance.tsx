@@ -392,10 +392,10 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
               <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent flex items-center">
               <div className="px-4">
                   <h3 className="text-white font-bold text-lg">
-                    {balanceSubTab === "guia" ? "Guía de Alimentos" : t("healthTabBalance")}
+                    {balanceSubTab === "guia" ? "Guía de Alimentos" : "Mi Balance"}
                   </h3>
                   <p className="text-white/80 text-sm">
-                    {balanceSubTab === "guia" ? "Información nutricional" : t("healthTabBalanceDesc")}
+                    {balanceSubTab === "guia" ? "Información nutricional" : "Tu nutrición semanal"}
                   </p>
                 </div>
               </div>
