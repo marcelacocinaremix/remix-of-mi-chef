@@ -358,44 +358,44 @@ const predefinedReactions: Record<string, ReactionTranslations[]> = {
   tab_cocinar: [
     { 
       reaction: { 
-        es: '¡Zona de cocina! 👩‍🍳 Paso 1: elegí el tipo de comida arriba', 
-        en: 'Cooking zone! 👩‍🍳 Step 1: choose the meal type above',
-        pt: 'Zona de cozinha! 👩‍🍳 Passo 1: escolha o tipo de refeição acima'
+        es: '¡Zona de cocina! 👩‍🍳 Seguí los 5 pasos: Ingredientes → Preferencias → Tiempo → Tipo → ¡Generar!', 
+        en: 'Cooking zone! 👩‍🍳 Follow the 5 steps: Ingredients → Preferences → Time → Type → Generate!',
+        pt: 'Zona de cozinha! 👩‍🍳 Siga os 5 passos: Ingredientes → Preferências → Tempo → Tipo → Gerar!'
       }, 
       mood: 'excited', 
       animation: 'bounce', 
       tip: { 
-        es: 'Después agregá ingredientes y tocá Generar', 
-        en: 'Then add ingredients and tap Generate',
-        pt: 'Depois adicione ingredientes e toque Gerar'
+        es: 'Paso 1: Escribí tus ingredientes en el campo de arriba', 
+        en: 'Step 1: Type your ingredients in the field above',
+        pt: 'Passo 1: Digite seus ingredientes no campo acima'
       } 
     },
     { 
       reaction: { 
-        es: '¡A cocinar! Escribí ingredientes o usá 📸 para detectarlos con la cámara', 
-        en: 'Let\'s cook! Type ingredients or use 📸 to detect them with camera',
-        pt: 'Vamos cozinhar! Digite ingredientes ou use 📸 para detectar com a câmera'
+        es: '¡A cocinar! 🍳 Empezá en paso 1 escribiendo ingredientes, o usá 📸 para detectarlos con la cámara', 
+        en: 'Let\'s cook! 🍳 Start in step 1 typing ingredients, or use 📸 to detect them with camera',
+        pt: 'Vamos cozinhar! 🍳 Comece no passo 1 digitando ingredientes, ou use 📸 para detectar com a câmera'
       }, 
       mood: 'happy', 
       animation: 'sparkle', 
       tip: { 
-        es: 'Con 3+ ingredientes salen mejores recetas', 
-        en: 'With 3+ ingredients you get better recipes',
-        pt: 'Com 3+ ingredientes saem melhores receitas'
+        es: 'Con 3+ ingredientes salen mejores combinaciones de recetas', 
+        en: 'With 3+ ingredients you get better recipe combinations',
+        pt: 'Com 3+ ingredientes saem melhores combinações de receitas'
       } 
     },
     { 
       reaction: { 
-        es: '¡Acá generamos magia! Elegí tipo de comida → agregá ingredientes → ¡Generar!', 
-        en: 'Here we make magic! Choose meal type → add ingredients → Generate!',
-        pt: 'Aqui fazemos magia! Escolha tipo de refeição → adicione ingredientes → Gerar!'
+        es: '¡Tu cocina inteligente! 🤖 Agregá ingredientes, ajustá preferencias y tocá el botón naranja para generar', 
+        en: 'Your smart kitchen! 🤖 Add ingredients, adjust preferences and tap the orange button to generate',
+        pt: 'Sua cozinha inteligente! 🤖 Adicione ingredientes, ajuste preferências e toque o botão laranja para gerar'
       }, 
       mood: 'excited', 
       animation: 'celebrate', 
       tip: { 
-        es: 'Probá el botón "Sorprendeme" si no sabés qué hacer', 
-        en: 'Try the "Surprise me" button if you don\'t know what to do',
-        pt: 'Tente o botão "Surpreenda-me" se não sabe o que fazer'
+        es: 'Probá "Decidí por mí" si no sabés qué cocinar', 
+        en: 'Try "Decide for me" if you don\'t know what to cook',
+        pt: 'Tente "Decida por mim" se não sabe o que cozinhar'
       } 
     },
   ],
@@ -404,44 +404,44 @@ const predefinedReactions: Record<string, ReactionTranslations[]> = {
   tab_micocina: [
     { 
       reaction: { 
-        es: '¡Tu cocina personal! Acá están tus favoritos, historial, logros y productos escaneados', 
-        en: 'Your personal kitchen! Here are your favorites, history, achievements and scanned products',
-        pt: 'Sua cozinha pessoal! Aqui estão seus favoritos, histórico, conquistas e produtos escaneados'
+        es: '¡Tu cocina personal! 🏠 Acá tenés 4 pestañas: ❤️ Favoritos, 📋 Historial, 🏆 Logros y 📷 Escáner', 
+        en: 'Your personal kitchen! 🏠 Here you have 4 tabs: ❤️ Favorites, 📋 History, 🏆 Achievements and 📷 Scanner',
+        pt: 'Sua cozinha pessoal! 🏠 Aqui você tem 4 abas: ❤️ Favoritos, 📋 Histórico, 🏆 Conquistas e 📷 Scanner'
       }, 
       mood: 'proud', 
       animation: 'sparkle', 
       tip: { 
-        es: 'Usá las sub-pestañas para navegar', 
-        en: 'Use the sub-tabs to navigate',
-        pt: 'Use as sub-abas para navegar'
+        es: 'Tocá cada pestaña para explorar tus datos', 
+        en: 'Tap each tab to explore your data',
+        pt: 'Toque cada aba para explorar seus dados'
       } 
     },
     { 
       reaction: { 
-        es: '¡Todo lo tuyo! Recetas guardadas ❤️, lo que cocinaste 📋, tus medallas 🏆 y escáner 📷', 
-        en: 'All yours! Saved recipes ❤️, what you cooked 📋, your medals 🏆 and scanner 📷',
-        pt: 'Tudo seu! Receitas salvas ❤️, o que você cozinhou 📋, suas medalhas 🏆 e scanner 📷'
+        es: '¡Todo lo tuyo en un lugar! ❤️ Recetas guardadas, 📋 lo que cocinaste, 🏆 tus medallas y 📷 productos escaneados', 
+        en: 'Everything yours in one place! ❤️ Saved recipes, 📋 what you cooked, 🏆 your medals and 📷 scanned products',
+        pt: 'Tudo seu em um lugar! ❤️ Receitas salvas, 📋 o que você cozinhou, 🏆 suas medalhas e 📷 produtos escaneados'
       }, 
       mood: 'happy', 
       animation: 'bounce', 
       tip: { 
-        es: 'Tocá Favoritos para ver tus recetas guardadas', 
-        en: 'Tap Favorites to see your saved recipes',
-        pt: 'Toque Favoritos para ver suas receitas salvas'
+        es: 'Empezá por Favoritos para ver tus recetas guardadas', 
+        en: 'Start with Favorites to see your saved recipes',
+        pt: 'Comece por Favoritos para ver suas receitas salvas'
       } 
     },
     { 
       reaction: { 
-        es: '¡Tu rincón gastronómico! Favoritos, historial de recetas y tus logros de chef', 
-        en: 'Your culinary corner! Favorites, recipe history and your chef achievements',
-        pt: 'Seu cantinho gastronômico! Favoritos, histórico de receitas e suas conquistas de chef'
+        es: '¡Tu rincón gastronómico! 👨‍🍳 Navegá las pestañas para ver tu progreso y colección de recetas', 
+        en: 'Your culinary corner! 👨‍🍳 Navigate the tabs to see your progress and recipe collection',
+        pt: 'Seu cantinho gastronômico! 👨‍🍳 Navegue pelas abas para ver seu progresso e coleção de receitas'
       }, 
       mood: 'excited', 
       animation: 'celebrate', 
       tip: { 
-        es: 'El escáner te deja leer etiquetas nutricionales', 
-        en: 'The scanner lets you read nutritional labels',
-        pt: 'O scanner permite ler rótulos nutricionais'
+        es: 'El escáner lee etiquetas nutricionales de productos', 
+        en: 'The scanner reads nutritional labels from products',
+        pt: 'O scanner lê rótulos nutricionais de produtos'
       } 
     },
   ],
@@ -450,44 +450,44 @@ const predefinedReactions: Record<string, ReactionTranslations[]> = {
   tab_planificar: [
     { 
       reaction: { 
-        es: '¡Planificá tu semana! 📅 Calendario, despensa, lista de compras y balance nutricional', 
-        en: 'Plan your week! 📅 Calendar, pantry, shopping list and nutritional balance',
-        pt: 'Planeje sua semana! 📅 Calendário, despensa, lista de compras e balanço nutricional'
+        es: '¡Centro de planificación! 📅 Tenés 3 herramientas: Calendario, Despensa y Lista del Super', 
+        en: 'Planning center! 📅 You have 3 tools: Calendar, Pantry and Shopping List',
+        pt: 'Centro de planejamento! 📅 Você tem 3 ferramentas: Calendário, Despensa e Lista de Compras'
       }, 
       mood: 'excited', 
       animation: 'bounce', 
       tip: { 
-        es: 'Tocá un día para agregar comidas', 
-        en: 'Tap a day to add meals',
-        pt: 'Toque em um dia para adicionar refeições'
+        es: 'Tocá cada pestaña de arriba para navegar', 
+        en: 'Tap each tab above to navigate',
+        pt: 'Toque cada aba acima para navegar'
       } 
     },
     { 
       reaction: { 
-        es: '¡Organizador completo! Planificá comidas, gestioná despensa y armá la lista del super', 
-        en: 'Complete organizer! Plan meals, manage pantry and create shopping list',
-        pt: 'Organizador completo! Planeje refeições, gerencie despensa e crie lista de compras'
+        es: '¡Organizador completo! 🗓️ Planificá comidas en Calendario, gestioná en Despensa, armá la lista en Super', 
+        en: 'Complete organizer! 🗓️ Plan meals in Calendar, manage in Pantry, create list in Grocery',
+        pt: 'Organizador completo! 🗓️ Planeje refeições em Calendário, gerencie em Despensa, crie lista em Mercado'
       }, 
       mood: 'happy', 
       animation: 'sparkle', 
       tip: { 
-        es: 'Tocá "Generar con IA" para autocompletar la semana', 
-        en: 'Tap "Generate with AI" to auto-complete the week',
-        pt: 'Toque "Gerar com IA" para autocompletar a semana'
+        es: 'Cada sección tiene pasos guiados para ayudarte', 
+        en: 'Each section has guided steps to help you',
+        pt: 'Cada seção tem passos guiados para ajudá-lo'
       } 
     },
     { 
       reaction: { 
-        es: '¡Todo para planificar! Calendario semanal, despensa, compras y nutrición en un solo lugar', 
-        en: 'Everything to plan! Weekly calendar, pantry, shopping and nutrition in one place',
-        pt: 'Tudo para planejar! Calendário semanal, despensa, compras e nutrição em um só lugar'
+        es: '¡Todo para planificar tu semana! 📋 Usá las 3 herramientas para organizar comidas y compras', 
+        en: 'Everything to plan your week! 📋 Use the 3 tools to organize meals and shopping',
+        pt: 'Tudo para planejar sua semana! 📋 Use as 3 ferramentas para organizar refeições e compras'
       }, 
       mood: 'proud', 
       animation: 'nod', 
       tip: { 
-        es: 'La IA reutiliza ingredientes para que ahorres', 
-        en: 'AI reuses ingredients to save you money',
-        pt: 'A IA reutiliza ingredientes para você economizar'
+        es: 'La IA del calendario reutiliza ingredientes para que ahorres', 
+        en: 'Calendar AI reuses ingredients to save you money',
+        pt: 'A IA do calendário reutiliza ingredientes para você economizar'
       } 
     },
   ],
@@ -682,39 +682,39 @@ const predefinedReactions: Record<string, ReactionTranslations[]> = {
   tab_favoritos: [
     { 
       reaction: { 
-        es: '¡Tus favoritas! ❤️ Tocá una receta para volver a prepararla', 
-        en: 'Your favorites! ❤️ Tap a recipe to make it again',
-        pt: 'Suas favoritas! ❤️ Toque uma receita para preparar novamente'
+        es: '¡Tus recetas favoritas! ❤️ Tocá cualquiera para ver los detalles o empezar a cocinar', 
+        en: 'Your favorite recipes! ❤️ Tap any to see details or start cooking',
+        pt: 'Suas receitas favoritas! ❤️ Toque em qualquer uma para ver detalhes ou começar a cozinhar'
       }, 
       mood: 'loving', 
       animation: 'sparkle', 
       tip: { 
-        es: 'Deslizá a la izquierda para eliminar', 
-        en: 'Swipe left to delete',
-        pt: 'Deslize para a esquerda para excluir'
+        es: 'Desde cualquier receta podés tocar ❤️ para agregarla acá', 
+        en: 'From any recipe you can tap ❤️ to add it here',
+        pt: 'De qualquer receita você pode tocar ❤️ para adicioná-la aqui'
       } 
     },
     { 
       reaction: { 
-        es: '¡Tu colección personal! Las mejores recetas que guardaste', 
-        en: 'Your personal collection! The best recipes you saved',
-        pt: 'Sua coleção pessoal! As melhores receitas que você salvou'
+        es: '¡Tu colección personal! 📚 Las mejores recetas que guardaste, listas para repetir', 
+        en: 'Your personal collection! 📚 The best recipes you saved, ready to repeat',
+        pt: 'Sua coleção pessoal! 📚 As melhores receitas que você salvou, prontas para repetir'
       }, 
       mood: 'proud', 
       animation: 'celebrate', 
       tip: { 
-        es: 'Tocá el corazón en cualquier receta para agregarla acá', 
-        en: 'Tap the heart on any recipe to add it here',
-        pt: 'Toque o coração em qualquer receita para adicioná-la aqui'
+        es: 'Tocá una receta y después "Empezar a cocinar" para modo guiado', 
+        en: 'Tap a recipe and then "Start cooking" for guided mode',
+        pt: 'Toque uma receita e depois "Começar a cozinhar" para modo guiado'
       } 
     },
   ],
   favorites_opened: [
     { 
       reaction: { 
-        es: '¡Favoritas! Tocá para ver detalles o empezar a cocinar', 
-        en: 'Favorites! Tap to see details or start cooking',
-        pt: 'Favoritas! Toque para ver detalhes ou começar a cozinhar'
+        es: '¡Acá están tus favoritas! Tocá para ver detalles o empezar a cocinar', 
+        en: 'Here are your favorites! Tap to see details or start cooking',
+        pt: 'Aqui estão suas favoritas! Toque para ver detalhes ou começar a cozinhar'
       }, 
       mood: 'loving', 
       animation: 'sparkle' 
@@ -725,23 +725,23 @@ const predefinedReactions: Record<string, ReactionTranslations[]> = {
   tab_historial: [
     { 
       reaction: { 
-        es: '¡Tu historial! 📋 Todas las recetas que cocinaste, ordenadas por fecha', 
-        en: 'Your history! 📋 All recipes you cooked, sorted by date',
-        pt: 'Seu histórico! 📋 Todas as receitas que você cozinhou, ordenadas por data'
+        es: '¡Tu historial de cocina! 📋 Todas las recetas que cocinaste, ordenadas por fecha', 
+        en: 'Your cooking history! 📋 All recipes you cooked, sorted by date',
+        pt: 'Seu histórico de cozinha! 📋 Todas as receitas que você cozinhou, ordenadas por data'
       }, 
       mood: 'curious', 
       animation: 'sparkle', 
       tip: { 
-        es: 'Tocá una para repetirla fácilmente', 
-        en: 'Tap one to repeat it easily',
-        pt: 'Toque uma para repeti-la facilmente'
+        es: 'Tocá cualquier receta para repetirla fácilmente', 
+        en: 'Tap any recipe to repeat it easily',
+        pt: 'Toque em qualquer receita para repeti-la facilmente'
       } 
     },
     { 
       reaction: { 
-        es: '¡Memoria culinaria! Revisá qué hiciste cada día', 
-        en: 'Culinary memory! Review what you made each day',
-        pt: 'Memória culinária! Revise o que você fez cada dia'
+        es: '¡Memoria culinaria! 🧠 Mirá todo lo que cocinaste y volvé a hacer tus platos favoritos', 
+        en: 'Culinary memory! 🧠 See everything you cooked and remake your favorite dishes',
+        pt: 'Memória culinária! 🧠 Veja tudo o que você cozinhou e refaça seus pratos favoritos'
       }, 
       mood: 'happy', 
       animation: 'nod', 
@@ -755,9 +755,9 @@ const predefinedReactions: Record<string, ReactionTranslations[]> = {
   history_viewed: [
     { 
       reaction: { 
-        es: '¡Mirá todo lo que cocinaste! Sos todo un chef', 
-        en: 'Look at everything you cooked! You\'re quite the chef',
-        pt: 'Olha tudo o que você cozinhou! Você é um verdadeiro chef'
+        es: '¡Mirá todo lo que cocinaste! 👨‍🍳 Sos todo un chef con experiencia', 
+        en: 'Look at everything you cooked! 👨‍🍳 You\'re quite an experienced chef',
+        pt: 'Olha tudo o que você cozinhou! 👨‍🍳 Você é um chef experiente'
       }, 
       mood: 'proud', 
       animation: 'sparkle' 
@@ -768,30 +768,30 @@ const predefinedReactions: Record<string, ReactionTranslations[]> = {
   tab_logros: [
     { 
       reaction: { 
-        es: '¡Tus logros! 🏆 Cada receta te acerca a nuevas medallas', 
-        en: 'Your achievements! 🏆 Each recipe brings you closer to new medals',
-        pt: 'Suas conquistas! 🏆 Cada receita te aproxima de novas medalhas'
+        es: '¡Tus logros de chef! 🏆 Cada receta que cocinás te acerca a nuevas medallas', 
+        en: 'Your chef achievements! 🏆 Each recipe you cook brings you closer to new medals',
+        pt: 'Suas conquistas de chef! 🏆 Cada receita que você cozinha te aproxima de novas medalhas'
       }, 
       mood: 'proud', 
       animation: 'celebrate', 
       tip: { 
-        es: 'Cociná más para desbloquear todos', 
-        en: 'Cook more to unlock them all',
-        pt: 'Cozinhe mais para desbloquear todos'
+        es: 'Las medallas grises están bloqueadas, ¡cociná más para desbloquearlas!', 
+        en: 'Gray medals are locked, cook more to unlock them!',
+        pt: 'As medalhas cinzas estão bloqueadas, cozinhe mais para desbloqueá-las!'
       } 
     },
     { 
       reaction: { 
-        es: '¡Medallas de chef! Los grises están bloqueados, ¡a conseguirlos!', 
-        en: 'Chef medals! The gray ones are locked, go get them!',
-        pt: 'Medalhas de chef! Os cinzas estão bloqueados, vá conquistá-los!'
+        es: '¡Colección de medallas! 🥇 Algunas se desbloquean por cantidad de recetas, otras por rachas diarias', 
+        en: 'Medal collection! 🥇 Some unlock by recipe count, others by daily streaks',
+        pt: 'Coleção de medalhas! 🥇 Algumas desbloqueiam por quantidade de receitas, outras por sequências diárias'
       }, 
       mood: 'excited', 
       animation: 'sparkle', 
       tip: { 
-        es: 'Algunas se desbloquean por rachas diarias', 
-        en: 'Some are unlocked by daily streaks',
-        pt: 'Alguns são desbloqueados por sequências diárias'
+        es: 'Mantené una racha diaria para logros especiales', 
+        en: 'Keep a daily streak for special achievements',
+        pt: 'Mantenha uma sequência diária para conquistas especiais'
       } 
     },
   ],
@@ -903,32 +903,60 @@ const predefinedReactions: Record<string, ReactionTranslations[]> = {
   tab_calendario: [
     { 
       reaction: { 
-        es: '¡Calendario semanal! 📅 Tocá un slot vacío para agregar comida', 
-        en: 'Weekly calendar! 📅 Tap an empty slot to add a meal',
-        pt: 'Calendário semanal! 📅 Toque em um slot vazio para adicionar refeição'
+        es: '¡Planificador semanal! 📅 Seguí los 3 pasos: 1️⃣ Ver Semana → 2️⃣ Agregar → 3️⃣ Generar con IA', 
+        en: 'Weekly planner! 📅 Follow the 3 steps: 1️⃣ View Week → 2️⃣ Add → 3️⃣ Generate with AI',
+        pt: 'Planejador semanal! 📅 Siga os 3 passos: 1️⃣ Ver Semana → 2️⃣ Adicionar → 3️⃣ Gerar com IA'
       }, 
       mood: 'excited', 
       animation: 'bounce', 
       tip: { 
-        es: 'O usá "Generar con IA" para autocompletar', 
-        en: 'Or use "Generate with AI" to auto-complete',
-        pt: 'Ou use "Gerar com IA" para autocompletar'
+        es: 'Paso 1: Navegá la semana con las flechas', 
+        en: 'Step 1: Navigate the week with the arrows',
+        pt: 'Passo 1: Navegue pela semana com as setas'
+      } 
+    },
+    { 
+      reaction: { 
+        es: '¡Tu semana culinaria! 🗓️ En paso 1 ves el calendario, en paso 2 agregás recetas manualmente, en paso 3 la IA arma todo', 
+        en: 'Your culinary week! 🗓️ In step 1 view calendar, in step 2 add recipes manually, in step 3 AI builds everything',
+        pt: 'Sua semana culinária! 🗓️ No passo 1 vê o calendário, no passo 2 adiciona receitas manualmente, no passo 3 a IA monta tudo'
+      }, 
+      mood: 'happy', 
+      animation: 'sparkle', 
+      tip: { 
+        es: 'Usá el botón "Al super" para agregar ingredientes a tu lista de compras', 
+        en: 'Use the "To market" button to add ingredients to your shopping list',
+        pt: 'Use o botão "Ao mercado" para adicionar ingredientes à sua lista de compras'
+      } 
+    },
+    { 
+      reaction: { 
+        es: '¡Organizá tu semana! Tocá los días para agregar almuerzo o cena a cada uno', 
+        en: 'Organize your week! Tap days to add lunch or dinner to each one',
+        pt: 'Organize sua semana! Toque nos dias para adicionar almoço ou jantar a cada um'
+      }, 
+      mood: 'curious', 
+      animation: 'nod', 
+      tip: { 
+        es: 'La IA reutiliza ingredientes para que ahorres plata', 
+        en: 'AI reuses ingredients to save you money',
+        pt: 'A IA reutiliza ingredientes para você economizar dinheiro'
       } 
     },
   ],
   calendar_opened: [
     { 
       reaction: { 
-        es: '¡Planificador! Arrastrá recetas a los días o usá la IA', 
-        en: 'Planner! Drag recipes to days or use AI',
-        pt: 'Planejador! Arraste receitas para os dias ou use IA'
+        es: '¡Tu calendario está listo! Tocá un día vacío para agregar comida o usá la IA', 
+        en: 'Your calendar is ready! Tap an empty day to add food or use AI',
+        pt: 'Seu calendário está pronto! Toque em um dia vazio para adicionar comida ou use IA'
       }, 
       mood: 'excited', 
       animation: 'bounce', 
       tip: { 
-        es: 'La IA optimiza para reutilizar ingredientes', 
-        en: 'AI optimizes to reuse ingredients',
-        pt: 'A IA otimiza para reutilizar ingredientes'
+        es: 'El botón "Generar con IA" te arma toda la semana en segundos', 
+        en: 'The "Generate with AI" button builds your entire week in seconds',
+        pt: 'O botão "Gerar com IA" monta toda sua semana em segundos'
       } 
     },
   ],
@@ -937,46 +965,60 @@ const predefinedReactions: Record<string, ReactionTranslations[]> = {
   tab_despensa: [
     { 
       reaction: { 
-        es: '¡Tu despensa! 🏠 Guardá ingredientes que siempre tenés en casa', 
-        en: 'Your pantry! 🏠 Save ingredients you always have at home',
-        pt: 'Sua despensa! 🏠 Salve ingredientes que você sempre tem em casa'
+        es: '¡Bienvenido a tu despensa! 🏠 Seguí los 3 pasos: 1️⃣ Agregar → 2️⃣ Mi Despensa → 3️⃣ Usar', 
+        en: 'Welcome to your pantry! 🏠 Follow the 3 steps: 1️⃣ Add → 2️⃣ My Pantry → 3️⃣ Use',
+        pt: 'Bem-vindo à sua despensa! 🏠 Siga os 3 passos: 1️⃣ Adicionar → 2️⃣ Minha Despensa → 3️⃣ Usar'
       }, 
-      mood: 'curious', 
+      mood: 'excited', 
       animation: 'bounce', 
       tip: { 
-        es: 'Estos se usan automáticamente al generar recetas', 
-        en: 'These are automatically used when generating recipes',
-        pt: 'Estes são usados automaticamente ao gerar receitas'
+        es: 'Paso 1: Escribí el ingrediente y elegí una categoría', 
+        en: 'Step 1: Type the ingredient and choose a category',
+        pt: 'Passo 1: Digite o ingrediente e escolha uma categoria'
       } 
     },
     { 
       reaction: { 
-        es: '¡Ingredientes básicos! Agregá sal, aceite, especias, lo que nunca falta', 
-        en: 'Basic ingredients! Add salt, oil, spices, what you always have',
-        pt: 'Ingredientes básicos! Adicione sal, óleo, temperos, o que nunca falta'
+        es: '¡Tu despensa virtual! 📦 En el paso 1 sumás productos, en el 2 los organizás, en el 3 los usás para cocinar', 
+        en: 'Your virtual pantry! 📦 In step 1 add products, in 2 organize them, in 3 use them to cook',
+        pt: 'Sua despensa virtual! 📦 No passo 1 adiciona produtos, no 2 organiza, no 3 usa para cozinhar'
       }, 
       mood: 'happy', 
+      animation: 'sparkle', 
+      tip: { 
+        es: 'Los ingredientes de acá se usan automáticamente al generar recetas', 
+        en: 'Ingredients here are used automatically when generating recipes',
+        pt: 'Ingredientes aqui são usados automaticamente ao gerar receitas'
+      } 
+    },
+    { 
+      reaction: { 
+        es: '¡Organizá tu cocina! Empezá en "Agregar" escribiendo lo que tenés en casa', 
+        en: 'Organize your kitchen! Start in "Add" typing what you have at home',
+        pt: 'Organize sua cozinha! Comece em "Adicionar" digitando o que você tem em casa'
+      }, 
+      mood: 'curious', 
       animation: 'nod', 
       tip: { 
-        es: 'Tocá + para agregar o usá el escáner', 
-        en: 'Tap + to add or use the scanner',
-        pt: 'Toque + para adicionar ou use o scanner'
+        es: 'Podés poner fecha de vencimiento para recibir alertas', 
+        en: 'You can set expiration dates to receive alerts',
+        pt: 'Você pode colocar data de validade para receber alertas'
       } 
     },
   ],
   pantry_opened: [
     { 
       reaction: { 
-        es: '¡Tu despensa! Estos ingredientes se incluyen automáticamente', 
-        en: 'Your pantry! These ingredients are included automatically',
-        pt: 'Sua despensa! Estes ingredientes são incluídos automaticamente'
+        es: '¡Tu despensa está lista! Tocá los productos para ver opciones', 
+        en: 'Your pantry is ready! Tap products to see options',
+        pt: 'Sua despensa está pronta! Toque nos produtos para ver opções'
       }, 
-      mood: 'curious', 
-      animation: 'bounce', 
+      mood: 'proud', 
+      animation: 'sparkle', 
       tip: { 
-        es: 'Mantené actualizada la lista', 
-        en: 'Keep the list updated',
-        pt: 'Mantenha a lista atualizada'
+        es: 'Desde cada producto podés cocinar, editar vencimiento o agregar al super', 
+        en: 'From each product you can cook, edit expiration or add to shopping list',
+        pt: 'De cada produto você pode cozinhar, editar validade ou adicionar ao mercado'
       } 
     },
   ],
@@ -985,42 +1027,61 @@ const predefinedReactions: Record<string, ReactionTranslations[]> = {
   tab_super: [
     { 
       reaction: { 
-        es: '¡Lista de compras! 🛒 Agregá items con el + de arriba', 
-        en: 'Shopping list! 🛒 Add items with the + above',
-        pt: 'Lista de compras! 🛒 Adicione itens com o + acima'
-      }, 
-      mood: 'happy', 
-      animation: 'nod', 
-      tip: { 
-        es: 'Tocá un item para marcarlo como comprado', 
-        en: 'Tap an item to mark it as purchased',
-        pt: 'Toque um item para marcá-lo como comprado'
-      } 
-    },
-    { 
-      reaction: { 
-        es: '¡Al super! Tu lista organizada por categorías', 
-        en: 'To the market! Your list organized by categories',
-        pt: 'Ao mercado! Sua lista organizada por categorias'
+        es: '¡Lista del super! 🛒 Seguí los 3 pasos: 1️⃣ Agregar → 2️⃣ Mi Lista → 3️⃣ Confirmar', 
+        en: 'Shopping list! 🛒 Follow the 3 steps: 1️⃣ Add → 2️⃣ My List → 3️⃣ Confirm',
+        pt: 'Lista de compras! 🛒 Siga os 3 passos: 1️⃣ Adicionar → 2️⃣ Minha Lista → 3️⃣ Confirmar'
       }, 
       mood: 'excited', 
       animation: 'bounce', 
       tip: { 
-        es: 'Los tachados van abajo automáticamente', 
-        en: 'Crossed off items go to the bottom automatically',
-        pt: 'Os riscados vão para baixo automaticamente'
+        es: 'Paso 1: Escribí lo que necesitás comprar', 
+        en: 'Step 1: Type what you need to buy',
+        pt: 'Passo 1: Digite o que você precisa comprar'
+      } 
+    },
+    { 
+      reaction: { 
+        es: '¡Tu lista organizada! 📝 En paso 1 sumás, en paso 2 tachás lo comprado, en paso 3 pasás a despensa', 
+        en: 'Your organized list! 📝 In step 1 add, in step 2 cross off purchased, in step 3 move to pantry',
+        pt: 'Sua lista organizada! 📝 No passo 1 adiciona, no passo 2 risca o comprado, no passo 3 passa para despensa'
+      }, 
+      mood: 'happy', 
+      animation: 'sparkle', 
+      tip: { 
+        es: 'Los productos se agrupan por categoría automáticamente', 
+        en: 'Products are automatically grouped by category',
+        pt: 'Produtos são agrupados por categoria automaticamente'
+      } 
+    },
+    { 
+      reaction: { 
+        es: '¡Hora de ir al super! Agregá items en el paso 1 y marcalos como comprados en el paso 2', 
+        en: 'Time to go shopping! Add items in step 1 and mark them as purchased in step 2',
+        pt: 'Hora de ir ao mercado! Adicione itens no passo 1 e marque como comprados no passo 2'
+      }, 
+      mood: 'curious', 
+      animation: 'nod', 
+      tip: { 
+        es: 'En paso 3 podés pasar todo lo comprado a tu despensa', 
+        en: 'In step 3 you can move all purchased items to your pantry',
+        pt: 'No passo 3 você pode passar tudo comprado para sua despensa'
       } 
     },
   ],
   shopping_list_opened: [
     { 
       reaction: { 
-        es: '¡Tu lista! Marcá items cuando los compres ✓', 
-        en: 'Your list! Mark items when you buy them ✓',
-        pt: 'Sua lista! Marque itens quando comprar ✓'
+        es: '¡Tu lista está cargada! Tocá los items para marcarlos cuando los compres ✓', 
+        en: 'Your list is loaded! Tap items to mark them when you buy them ✓',
+        pt: 'Sua lista está carregada! Toque nos itens para marcá-los quando comprar ✓'
       }, 
       mood: 'happy', 
-      animation: 'nod' 
+      animation: 'nod',
+      tip: { 
+        es: 'Los tachados van abajo y después podés pasarlos a despensa', 
+        en: 'Crossed off items go to the bottom and then you can move them to pantry',
+        pt: 'Os riscados vão para baixo e depois você pode passá-los para despensa'
+      } 
     },
   ],
 
