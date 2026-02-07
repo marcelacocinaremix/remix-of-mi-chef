@@ -6,72 +6,64 @@ export function useExportPDF() {
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
 
-  // Format recipe as plain text for .txt file
+  // Format recipe as plain text for .txt file (ASCII only for compatibility)
   const formatRecipeAsText = (recipe: Recipe): string => {
     const lines: string[] = [];
     
-    lines.push('═'.repeat(50));
-    lines.push(`🍽️ ${recipe.name.toUpperCase()}`);
-    lines.push('═'.repeat(50));
+    lines.push(recipe.name.toUpperCase());
+    lines.push('='.repeat(50));
     lines.push('');
-    lines.push(`⏱️ Tiempo: ${recipe.time} minutos`);
-    lines.push(`👥 Porciones: ${recipe.servings}`);
-    lines.push(`📊 Dificultad: ${recipe.difficulty}`);
+    lines.push(`Tiempo: ${recipe.time} minutos`);
+    lines.push(`Porciones: ${recipe.servings}`);
+    lines.push(`Dificultad: ${recipe.difficulty}`);
     lines.push('');
     
     // Nutrition
-    lines.push('─'.repeat(50));
-    lines.push('📊 INFORMACIÓN NUTRICIONAL (por porción)');
-    lines.push('─'.repeat(50));
-    lines.push(`• Calorías: ${recipe.nutrition.calories} kcal`);
-    lines.push(`• Proteínas: ${recipe.nutrition.protein}g`);
-    lines.push(`• Carbohidratos: ${recipe.nutrition.carbs}g`);
-    lines.push(`• Grasas: ${recipe.nutrition.fat}g`);
-    lines.push(`• Fibra: ${recipe.nutrition.fiber}g`);
+    lines.push('INFORMACION NUTRICIONAL (por porcion)');
+    lines.push('-'.repeat(50));
+    lines.push(`Calorias: ${recipe.nutrition.calories} kcal`);
+    lines.push(`Proteinas: ${recipe.nutrition.protein}g`);
+    lines.push(`Carbohidratos: ${recipe.nutrition.carbs}g`);
+    lines.push(`Grasas: ${recipe.nutrition.fat}g`);
+    lines.push(`Fibra: ${recipe.nutrition.fiber}g`);
     lines.push('');
     
     // Ingredients
-    lines.push('─'.repeat(50));
-    lines.push('🛒 INGREDIENTES');
-    lines.push('─'.repeat(50));
-    recipe.ingredients.forEach(ing => lines.push(`• ${ing}`));
+    lines.push('INGREDIENTES');
+    lines.push('-'.repeat(50));
+    recipe.ingredients.forEach(ing => lines.push(`- ${ing}`));
     lines.push('');
     
     // Steps
-    lines.push('─'.repeat(50));
-    lines.push('👨‍🍳 PREPARACIÓN');
-    lines.push('─'.repeat(50));
+    lines.push('PREPARACION');
+    lines.push('-'.repeat(50));
     recipe.steps.forEach((step, i) => lines.push(`${i + 1}. ${step}`));
     lines.push('');
     
     // Tip
     if (recipe.tip) {
-      lines.push('─'.repeat(50));
-      lines.push('💡 TIP DE MARCELA');
-      lines.push('─'.repeat(50));
+      lines.push('TIP DE MARCELA');
+      lines.push('-'.repeat(50));
       lines.push(recipe.tip);
       lines.push('');
     }
     
     // Variation
     if (recipe.variation) {
-      lines.push('─'.repeat(50));
-      lines.push('🔄 VARIACIÓN OPCIONAL');
-      lines.push('─'.repeat(50));
+      lines.push('VARIACION OPCIONAL');
+      lines.push('-'.repeat(50));
       lines.push(recipe.variation);
       lines.push('');
     }
     
     // Tags
     if (recipe.tags && recipe.tags.length > 0) {
-      lines.push('─'.repeat(50));
-      lines.push(`🏷️ Tags: ${recipe.tags.join(', ')}`);
+      lines.push(`Tags: ${recipe.tags.join(', ')}`);
       lines.push('');
     }
     
-    lines.push('═'.repeat(50));
+    lines.push('='.repeat(50));
     lines.push('Generado con MiChef by MARCELACOCINA');
-    lines.push('═'.repeat(50));
     
     return lines.join('\n');
   };

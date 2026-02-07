@@ -481,7 +481,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               className="w-full"
             >
               <FileDown className="w-5 h-5" />
-              {isExporting ? "Exportando..." : "Exportar PDF"}
+              {isExporting ? "Descargando..." : "Descargar receta"}
             </Button>
           </div>
 
