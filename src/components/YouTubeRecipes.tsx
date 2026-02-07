@@ -116,10 +116,7 @@ export const YouTubeRecipes = ({ onBack }: YouTubeRecipesProps) => {
         />
       </div>
 
-      {/* Note */}
-      {note && (
-        <p className="text-xs text-muted-foreground text-center max-w-2xl mx-auto">{note}</p>
-      )}
+      {/* Note removed - only showing results count */}
 
       {/* Results count */}
       {resultsText && <p className="text-sm text-muted-foreground text-center">{resultsText}</p>}
