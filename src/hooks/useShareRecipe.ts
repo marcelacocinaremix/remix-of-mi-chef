@@ -1,25 +1,59 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Recipe } from "@/components/RecipeList";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { validateRecipe } from "@/lib/recipeSchema";
 
 export function useShareRecipe() {
   const { toast } = useToast();
   const { t } = useLanguage();
   const [isSharing, setIsSharing] = useState(false);
 
-  const generateShareCode = (): string => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < 8; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
+  // Format recipe as plain text
+  const formatRecipeAsText = (recipe: Recipe): string => {
+    const lines: string[] = [];
+    
+    lines.push(`🍽️ ${recipe.name}`);
+    lines.push(`⏱️ ${recipe.time} min | 👥 ${recipe.servings} porciones | 📊 ${recipe.difficulty}`);
+    lines.push('');
+    
+    // Nutrition
+    lines.push('📊 INFORMACIÓN NUTRICIONAL (por porción):');
+    lines.push(`Calorías: ${recipe.nutrition.calories} kcal`);
+    lines.push(`Proteínas: ${recipe.nutrition.protein}g`);
+    lines.push(`Carbohidratos: ${recipe.nutrition.carbs}g`);
+    lines.push(`Grasas: ${recipe.nutrition.fat}g`);
+    lines.push(`Fibra: ${recipe.nutrition.fiber}g`);
+    lines.push('');
+    
+    // Ingredients
+    lines.push('🛒 INGREDIENTES:');
+    recipe.ingredients.forEach(ing => lines.push(`• ${ing}`));
+    lines.push('');
+    
+    // Steps
+    lines.push('👨‍🍳 PREPARACIÓN:');
+    recipe.steps.forEach((step, i) => lines.push(`${i + 1}. ${step}`));
+    lines.push('');
+    
+    // Tip
+    if (recipe.tip) {
+      lines.push(`💡 TIP: ${recipe.tip}`);
+      lines.push('');
     }
-    return result;
+    
+    // Variation
+    if (recipe.variation) {
+      lines.push(`🔄 VARIACIÓN: ${recipe.variation}`);
+      lines.push('');
+    }
+    
+    lines.push('---');
+    lines.push('Generado con MiChef by MARCELACOCINA');
+    
+    return lines.join('\n');
   };
 
-  // Robust clipboard copy that works in PWA/standalone mode
+  // Robust clipboard copy fallback
   const copyToClipboard = async (text: string): Promise<boolean> => {
     // Method 1: Modern Clipboard API
     if (navigator.clipboard && window.isSecureContext) {
@@ -31,7 +65,7 @@ export function useShareRecipe() {
       }
     }
 
-    // Method 2: execCommand fallback (works in more contexts)
+    // Method 2: execCommand fallback
     try {
       const textArea = document.createElement('textarea');
       textArea.value = text;
@@ -54,89 +88,55 @@ export function useShareRecipe() {
   };
 
   const shareRecipe = async (recipe: Recipe) => {
-    if (isSharing) return null; // Prevent double clicks
+    if (isSharing) return null;
     
     setIsSharing(true);
     
     try {
-      // Validate recipe data before storing
-      const validatedRecipe = validateRecipe(recipe);
-      if (!validatedRecipe) {
-        console.error('Recipe validation failed');
-        toast({
-          title: t("error"),
-          description: "Los datos de la receta no son válidos.",
-          variant: "destructive",
-        });
-        return null;
-      }
-      const shareCode = generateShareCode();
-      
-      // Get current user for ownership tracking (but don't expose identity)
-      const { data: { user } } = await supabase.auth.getUser();
-
-      // Share anonymously by default - no username exposure
-      const { error } = await supabase.from("shared_recipes").insert([{
-        share_code: shareCode,
-        recipe_name: validatedRecipe.name.slice(0, 200),
-        recipe_data: JSON.parse(JSON.stringify(validatedRecipe)), // Convert to plain JSON
-        shared_by_name: null, // Anonymous sharing - no identity exposure
-        user_id: user?.id || null,
-      }]);
-
-      if (error) throw error;
-
-      const shareUrl = `${window.location.origin}/r/${shareCode}`;
-      const shareText = `¡Mirá esta receta de ${validatedRecipe.name}! 👨‍🍳`;
+      const recipeText = formatRecipeAsText(recipe);
+      const shareTitle = `Receta: ${recipe.name}`;
       
       // Try native share first (mobile/PWA)
-      // Check if we're in standalone mode or mobile
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                          (window.navigator as any).standalone === true;
-      const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-      
-      if (navigator.share && (isMobile || isStandalone)) {
+      if (navigator.share) {
         try {
           await navigator.share({
-            title: validatedRecipe.name,
-            text: shareText,
-            url: shareUrl,
+            title: shareTitle,
+            text: recipeText,
           });
           
           toast({
             title: t("shareSuccess"),
             description: t("shareSuccessDesc"),
           });
-          return shareUrl;
+          return recipeText;
         } catch (shareError: any) {
-          // User cancelled - not an error, still return URL
+          // User cancelled - not an error
           if (shareError?.name === 'AbortError') {
-            return shareUrl;
+            return recipeText;
           }
           // Fall through to clipboard for other errors
-          console.log('Native share failed, falling back to clipboard:', shareError);
+          console.log('Native share failed, falling back to clipboard');
         }
       }
       
-      // Fallback to clipboard using robust method
-      const copied = await copyToClipboard(shareUrl);
+      // Fallback to clipboard
+      const copied = await copyToClipboard(recipeText);
       
       if (copied) {
         toast({
           title: t("linkCopied"),
-          description: t("linkCopiedDesc"),
+          description: "La receta se copió al portapapeles.",
         });
       } else {
-        // Final fallback - show URL in toast for manual copy
         toast({
-          title: t("linkCopied"),
-          description: shareUrl,
-          duration: 10000, // Longer duration so user can copy manually
+          title: "Error",
+          description: "No se pudo compartir la receta.",
+          variant: "destructive",
         });
       }
       
-      return shareUrl;
-    } catch (error: any) {
+      return recipeText;
+    } catch (error) {
       console.error("Error sharing recipe:", error);
       toast({
         title: t("error"),
