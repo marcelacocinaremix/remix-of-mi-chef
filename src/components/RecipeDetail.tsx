@@ -510,7 +510,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
             </p>
             
             <Button 
-              variant={hasUsedCookingMode ? "default" : "outline"} 
+              variant={hasUsedCookingMode ? "outline" : "default"} 
               size="lg"
               onClick={() => {
                 setShowCookingMode(true);
@@ -527,14 +527,13 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
             
             {/* Mark as cooked button - sends to nutrition */}
             <Button 
-              variant={(hasMarkedCooked || recentlyCooked) ? "default" : "outline"} 
+              variant={(hasMarkedCooked || recentlyCooked) ? "outline" : "default"} 
               size="lg"
               onClick={handleMarkAsCooked}
               disabled={isMarkingCooked || hasMarkedCooked || recentlyCooked}
               className={cn(
                 "w-full",
-                !(hasMarkedCooked || recentlyCooked) && "border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950",
-                (hasMarkedCooked || recentlyCooked) && "bg-green-600 hover:bg-green-600 text-white"
+                (hasMarkedCooked || recentlyCooked) && "border-green-500 text-green-600"
               )}
             >
               <Check className="w-5 h-5" />
@@ -545,7 +544,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
             </p>
             
             <Button 
-              variant={hasCopied ? "default" : "outline"} 
+              variant={hasCopied ? "outline" : "default"} 
               size="lg"
               onClick={async () => {
                 setIsCopying(true);
@@ -574,7 +573,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               {isCopying ? "Copiando..." : hasCopied ? "Copiados ✓" : "Copiar ingredientes"}
             </Button>
             <Button 
-              variant={hasDownloaded ? "default" : "outline"} 
+              variant={hasDownloaded ? "outline" : "default"} 
               size="lg"
               onClick={async () => {
                 await exportRecipeToPDF(recipe);
