@@ -278,7 +278,7 @@ export const translations = {
     
     // NutritionalBalance (Salud) internal tabs
     healthTabSummary: "Resumen",
-    healthTabBalance: "Mi Balance",
+    healthTabBalance: "Nutrición",
     healthTabActivity: "Actividad",
     healthActivityComingSoon: "Próximamente",
     healthActivityDescription: "Muy pronto podrás registrar tu actividad física y ver cómo impacta en tu balance nutricional.",
@@ -492,7 +492,7 @@ export const translations = {
     tourSuperDesc: "Gestioná tu despensa y creá listas de compras automáticas basadas en tus recetas.",
     tourBalance: "Balance Nutricional",
     tourBalanceDesc: "Controlá el balance de tus comidas y asegurate de comer saludable toda la semana.",
-    tourSalud: "Salud",
+    tourSalud: "Mi Balance",
     tourSaludDesc: "Tu centro de bienestar: objetivos, entrenamientos, balance nutricional y resumen de salud integrado.",
     tourLogros: "Logros",
     tourLogrosDesc: "Desbloqueá medallas y seguí tu progreso como chef. ¡Cada receta cuenta!",
@@ -1036,7 +1036,7 @@ export const translations = {
     
     // NutritionalBalance (Health) internal tabs
     healthTabSummary: "Summary",
-    healthTabBalance: "My Balance",
+    healthTabBalance: "Nutrition",
     healthTabActivity: "Activity",
     healthActivityComingSoon: "Coming Soon",
     healthActivityDescription: "Soon you'll be able to track your physical activity and see how it impacts your nutritional balance.",
@@ -1250,7 +1250,7 @@ export const translations = {
     tourSuperDesc: "Manage your pantry and create automatic shopping lists based on your recipes.",
     tourBalance: "Nutritional Balance",
     tourBalanceDesc: "Control the balance of your meals and make sure you eat healthy all week.",
-    tourSalud: "Health",
+    tourSalud: "My Balance",
     tourSaludDesc: "Your wellness center: goals, workouts, nutritional balance and integrated health summary.",
     tourLogros: "Achievements",
     tourLogrosDesc: "Unlock medals and track your progress as a chef. Every recipe counts!",
@@ -1794,7 +1794,7 @@ export const translations = {
     
     // NutritionalBalance (Saúde) internal tabs
     healthTabSummary: "Resumo",
-    healthTabBalance: "Meu Balanço",
+    healthTabBalance: "Nutrição",
     healthTabActivity: "Atividade",
     healthActivityComingSoon: "Em Breve",
     healthActivityDescription: "Em breve você poderá registrar sua atividade física e ver como ela impacta seu balanço nutricional.",
@@ -2008,7 +2008,7 @@ export const translations = {
     tourSuperDesc: "Gerencie sua despensa e crie listas de compras automáticas baseadas nas suas receitas.",
     tourBalance: "Equilíbrio Nutricional",
     tourBalanceDesc: "Controle o equilíbrio das suas refeições e garanta uma alimentação saudável durante toda a semana.",
-    tourSalud: "Saúde",
+    tourSalud: "Meu Balanço",
     tourSaludDesc: "Seu centro de bem-estar: objetivos, treinos, equilíbrio nutricional e resumo de saúde integrado.",
     tourLogros: "Conquistas",
     tourLogrosDesc: "Desbloqueie medalhas e acompanhe seu progresso como chef. Cada receita conta!",
