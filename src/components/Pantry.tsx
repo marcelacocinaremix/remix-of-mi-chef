@@ -1467,7 +1467,9 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                   </div>
                 </div>
               )}
-      </div>
+            </div>
+          </div>
+        </div>
 
         {/* Cabinet handles */}
         <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 flex gap-8">
