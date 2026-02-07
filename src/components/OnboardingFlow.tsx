@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Globe, Check, User, Mail, Lock, ChefHat, ArrowRight, ArrowLeft, UtensilsCrossed, GraduationCap, Calendar, ShoppingCart, Scale, Trophy, Bot, Timer, Gamepad2, Eye, EyeOff, X } from "lucide-react";
+import { Globe, Check, User, Mail, Lock, ChefHat, ArrowRight, ArrowLeft, UtensilsCrossed, GraduationCap, Calendar, ShoppingCart, HeartPulse, Trophy, Bot, Timer, Gamepad2, Eye, EyeOff, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -85,11 +85,11 @@ const getFeatureSlides = (t: (key: TranslationKey) => string) => [
     color: "from-purple-500 to-blue-500",
   },
   {
-    id: "balance",
-    icon: Scale,
-    title: t("tourBalance"),
-    description: t("tourBalanceDesc"),
-    color: "from-teal-500 to-green-500",
+    id: "salud",
+    icon: HeartPulse,
+    title: t("tourSalud"),
+    description: t("tourSaludDesc"),
+    color: "from-rose-500 to-pink-500",
   },
   {
     id: "logros",
