@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { UserFitnessGoal, WorkoutStats } from "@/hooks/useActivityTracking";
-import marcelaCharacter from "@/assets/marcela-character.png";
+
 import healthSummaryBanner from "@/assets/health-summary-banner.jpg";
 import { GoalProgressChart } from "@/components/activity/GoalProgressChart";
 import { AnimatedCounter } from "@/components/activity/AnimatedCounter";
@@ -590,16 +590,9 @@ export function HealthSummary({
                 animate={{ y: [0, -3, 0] }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
-                <img 
-                  src={marcelaCharacter} 
-                  alt="Marcela" 
-                  className="w-12 h-12 object-contain"
-                />
-                <motion.div
-                  className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-primary border-2 border-card"
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                />
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                  <Sparkles className="w-6 h-6 text-white" />
+                </div>
               </motion.div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
