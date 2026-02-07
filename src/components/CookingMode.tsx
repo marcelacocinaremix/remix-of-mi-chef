@@ -131,8 +131,8 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked }: CookingModeProp
       if (error) throw error;
 
       toast({
-        title: "¡Receta completada!",
-        description: `${recipe.name} se agregó a tu historial.`,
+        title: "¡Receta completada! 🏆",
+        description: "Se agregó a tus logros y a tu resumen de salud.",
       });
 
       setTimeout(() => {
