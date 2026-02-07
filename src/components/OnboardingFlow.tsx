@@ -274,12 +274,16 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             muted
             loop
             playsInline
+            controls={false}
+            disablePictureInPicture
+            controlsList="nodownload nofullscreen noremoteplayback"
             poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3Crect fill='%23000' width='1' height='1'/%3E%3C/svg%3E"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none [&::-webkit-media-controls]:hidden [&::-webkit-media-controls-enclosure]:hidden"
+            style={{ WebkitAppearance: 'none' } as React.CSSProperties}
           >
             <source src="/videos/intro-background.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-black/50" />
+          <div className="absolute inset-0 bg-black/60" />
         </div>
       )}
 
@@ -322,15 +326,6 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               </motion.div>
             </div>
 
-            {/* Bottom indicator dot */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.5 }}
-              className="absolute bottom-12 left-1/2 -translate-x-1/2"
-            >
-              <div className="w-2 h-2 rounded-full bg-white/60" />
-            </motion.div>
           </motion.div>
         )}
 

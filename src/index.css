@@ -382,4 +382,27 @@
   .animate-ripple-out {
     animation: ripple-out 0.6s ease-out forwards;
   }
+
+  /* Hide all video controls */
+  video::-webkit-media-controls,
+  video::-webkit-media-controls-panel,
+  video::-webkit-media-controls-play-button,
+  video::-webkit-media-controls-timeline,
+  video::-webkit-media-controls-current-time-display,
+  video::-webkit-media-controls-time-remaining-display,
+  video::-webkit-media-controls-mute-button,
+  video::-webkit-media-controls-volume-slider,
+  video::-webkit-media-controls-fullscreen-button,
+  video::-webkit-media-controls-enclosure,
+  video::-webkit-media-controls-overlay-enclosure,
+  video::-webkit-media-controls-start-playback-button {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    -webkit-appearance: none !important;
+  }
+
+  video::-moz-media-controls {
+    display: none !important;
+  }
 }
