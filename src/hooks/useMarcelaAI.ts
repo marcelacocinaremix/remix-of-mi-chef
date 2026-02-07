@@ -1153,31 +1153,30 @@ const predefinedReactions: Record<string, ReactionTranslations[]> = {
   tab_guia: [
     { 
       reaction: { 
-        es: '¡Guía de alimentos! 📖 Consultá valores nutricionales de cualquier ingrediente', 
-        en: 'Food guide! 📖 Check nutritional values of any ingredient',
-        pt: 'Guia de alimentos! 📖 Consulte valores nutricionais de qualquer ingrediente'
+        es: '¡Guía de Alimentos! 📚 Seguí 3 pasos: 1️⃣ Escribí un alimento, 2️⃣ Elegí categoría, 3️⃣ ¡Listo!', 
+        en: 'Food Guide! 📚 Follow 3 steps: 1️⃣ Type a food, 2️⃣ Choose category, 3️⃣ Done!',
+        pt: 'Guia de Alimentos! 📚 Siga 3 passos: 1️⃣ Digite um alimento, 2️⃣ Escolha categoria, 3️⃣ Pronto!'
       }, 
-      mood: 'curious', 
-      animation: 'sparkle', 
-      tip: { 
-        es: 'Buscá por nombre o navegá por categoría', 
-        en: 'Search by name or browse by category',
-        pt: 'Busque por nome ou navegue por categoria'
-      } 
+      mood: 'excited', 
+      animation: 'sparkle'
     },
     { 
       reaction: { 
-        es: '¡Enciclopedia nutricional! Info completa de proteínas, carbos, grasas y más', 
-        en: 'Nutritional encyclopedia! Complete info on proteins, carbs, fats and more',
-        pt: 'Enciclopédia nutricional! Info completa de proteínas, carbos, gorduras e mais'
+        es: '¡Tu enciclopedia culinaria! 🍎 Buscá cualquier alimento y elegí qué querés saber: Conservar, Congelar, Cocinar y más', 
+        en: 'Your culinary encyclopedia! 🍎 Search any food and choose what you want to know: Store, Freeze, Cook and more',
+        pt: 'Sua enciclopédia culinária! 🍎 Busque qualquer alimento e escolha o que quer saber: Conservar, Congelar, Cozinhar e mais'
       }, 
       mood: 'happy', 
-      animation: 'nod', 
-      tip: { 
-        es: 'Tocá un alimento para ver todos los detalles', 
-        en: 'Tap a food to see all details',
-        pt: 'Toque um alimento para ver todos os detalhes'
-      } 
+      animation: 'bounce'
+    },
+    { 
+      reaction: { 
+        es: '¡Aprendé sobre alimentos! 🥕 12 categorías: Básicos (Conservar, Congelar, Comprar), Cocina (Preparar, Cocinar, Tiempos) y más', 
+        en: 'Learn about foods! 🥕 12 categories: Basics (Store, Freeze, Buy), Cooking (Prep, Cook, Times) and more',
+        pt: 'Aprenda sobre alimentos! 🥕 12 categorias: Básicos (Conservar, Congelar, Comprar), Cozinha (Preparar, Cozinhar, Tempos) e mais'
+      }, 
+      mood: 'proud', 
+      animation: 'celebrate'
     },
   ],
 

@@ -727,6 +727,7 @@ export default function Index() {
                 <LearnSection 
                   onNavigateToCooking={() => setActiveTab("cocinar")}
                   onNavigateToGame={() => setActiveTab("jugar")}
+                  onSubTabChange={setActiveSubTab}
                 />
                 <BackToMenuButton />
               </TabsContent>

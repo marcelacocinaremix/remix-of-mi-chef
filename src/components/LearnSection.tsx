@@ -1263,9 +1263,10 @@ const learningContent: Level[] = [
 interface LearnSectionProps {
   onNavigateToCooking?: () => void;
   onNavigateToGame?: () => void;
+  onSubTabChange?: (subTab: string) => void;
 }
 
-export const LearnSection = ({ onNavigateToCooking, onNavigateToGame }: LearnSectionProps) => {
+export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabChange }: LearnSectionProps) => {
   const { t } = useLanguage();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -1604,7 +1605,10 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame }: LearnSec
       <div className="bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5 rounded-2xl p-1.5 border border-border/50">
         <div className="grid grid-cols-2 gap-1.5">
           <button
-            onClick={() => setActiveSubMenu("aprender")}
+            onClick={() => {
+              setActiveSubMenu("aprender");
+              onSubTabChange?.("aprender");
+            }}
             className={cn(
               "flex flex-col items-center justify-center gap-1.5 py-3 px-3 rounded-xl font-medium transition-all duration-300",
               activeSubMenu === "aprender"
@@ -1616,7 +1620,10 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame }: LearnSec
             <span className="text-xs">Aprender</span>
           </button>
           <button
-            onClick={() => setActiveSubMenu("guia")}
+            onClick={() => {
+              setActiveSubMenu("guia");
+              onSubTabChange?.("guia");
+            }}
             className={cn(
               "flex flex-col items-center justify-center gap-1.5 py-3 px-3 rounded-xl font-medium transition-all duration-300",
               activeSubMenu === "guia"
