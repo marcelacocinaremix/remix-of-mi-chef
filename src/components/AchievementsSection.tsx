@@ -4,7 +4,6 @@ import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/useAuth";
 import { useAchievements, Achievement } from "@/hooks/useAchievements";
 import { useLanguage } from "@/contexts/LanguageContext";
-import marcelaCharacter from "@/assets/marcela-character.png";
 
 function AchievementCard({ achievement, isCompact = false, index = 0 }: { achievement: Achievement; isCompact?: boolean; index?: number }) {
   return (
@@ -189,7 +188,7 @@ export function AchievementsSection() {
         </div>
       )}
 
-      {/* Marcela's Motivational Message with enhanced style */}
+      {/* Motivational Message with icon-based design */}
       <div className="relative bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10 rounded-2xl p-5 border border-primary/30 overflow-hidden shadow-lg">
         {/* Sparkle decorations */}
         <div className="absolute top-2 right-4 text-yellow-400 animate-pulse">✨</div>
@@ -197,13 +196,8 @@ export function AchievementsSection() {
         
         <div className="flex items-start gap-4 relative z-10">
           <div className="relative">
-            <img 
-              src={marcelaCharacter} 
-              alt="Marcela" 
-              className="w-16 h-16 rounded-full object-cover border-3 border-primary/50 shadow-lg animate-float"
-            />
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-md">
-              <span className="text-xs">💬</span>
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
+              <Sparkles className="w-7 h-7 text-white" />
             </div>
           </div>
           <div className="flex-1 bg-card/50 backdrop-blur-sm rounded-xl p-4 border border-primary/20 shadow-inner">
