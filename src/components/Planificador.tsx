@@ -75,10 +75,21 @@ const initialFilters: FiltersState = {
   maxTime: null,
 };
 
+// Step definitions for guided flow
+const PLANNER_STEPS = [
+  { id: 1, label: "Ver Semana", description: "Navegá por tu calendario", icon: CalendarIcon },
+  { id: 2, label: "Agregar", description: "Añadí recetas a cada día", icon: Plus },
+  { id: 3, label: "Generar con IA", description: "Dejá que Marcela arme tu semana", icon: Sparkles },
+  { id: 4, label: "Lista de Compras", description: "Generá tu lista del super", icon: ShoppingCart },
+];
+
 export function Planificador({ ingredients, pantryItems = [], onStateChange }: PlanificadorProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const shoppingList = useShoppingList();
+  
+  // Step state
+  const [currentStep, setCurrentStep] = useState(1);
   
   const [viewMode, setViewMode] = useState<'week' | 'month'>('week');
   const [currentWeek, setCurrentWeek] = useState<Date>(getWeekStart(new Date()));
@@ -732,6 +743,73 @@ export function Planificador({ ingredients, pantryItems = [], onStateChange }: P
 
   return (
     <div className="animate-slide-up space-y-6">
+      {/* Step Indicators */}
+      <div className="bg-card rounded-2xl p-4 shadow-elevated border border-border/50">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-display text-lg font-bold text-foreground flex items-center gap-2">
+            <CalendarIcon className="w-5 h-5 text-primary" />
+            Planificador Semanal
+          </h2>
+          <Badge variant="secondary" className="bg-primary/10 text-primary">
+            {mealPlans.length}/14 comidas
+          </Badge>
+        </div>
+        
+        <div className="grid grid-cols-4 gap-2">
+          {PLANNER_STEPS.map((step) => {
+            const StepIcon = step.icon;
+            const isActive = currentStep === step.id;
+            const isCompleted = step.id < currentStep;
+            
+            return (
+              <button
+                key={step.id}
+                onClick={() => setCurrentStep(step.id)}
+                className={cn(
+                  "flex flex-col items-center p-3 rounded-xl transition-all duration-300",
+                  "border-2",
+                  isActive 
+                    ? "border-primary bg-primary/10 shadow-lg scale-[1.02]" 
+                    : isCompleted
+                      ? "border-green-500/30 bg-green-50 dark:bg-green-950/20"
+                      : "border-border/50 hover:border-primary/30 hover:bg-accent/30"
+                )}
+              >
+                <div className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center mb-2 transition-all",
+                  isActive 
+                    ? "bg-primary text-primary-foreground" 
+                    : isCompleted
+                      ? "bg-green-500 text-white"
+                      : "bg-muted text-muted-foreground"
+                )}>
+                  {isCompleted ? (
+                    <Check className="w-4 h-4" />
+                  ) : (
+                    <span className="text-sm font-bold">{step.id}</span>
+                  )}
+                </div>
+                <span className={cn(
+                  "text-xs font-medium text-center",
+                  isActive ? "text-primary" : "text-muted-foreground"
+                )}>
+                  {step.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        
+        {/* Step Description */}
+        <div className="mt-4 p-3 bg-accent/30 rounded-xl">
+          <p className="text-sm text-muted-foreground text-center">
+            {PLANNER_STEPS[currentStep - 1]?.description}
+          </p>
+        </div>
+      </div>
+
+      {/* STEP 1 & 2: Calendar View */}
+      {(currentStep === 1 || currentStep === 2) && (
       <div className={cn(
         "bg-card rounded-2xl p-4 md:p-6",
         "shadow-elevated border border-border/50"
@@ -962,12 +1040,24 @@ export function Planificador({ ingredients, pantryItems = [], onStateChange }: P
         )}
 
       </div>
+      )}
 
-      {/* AI Section - at the bottom */}
+      {/* STEP 3: AI Section */}
+      {currentStep === 3 && (
       <div className="bg-card rounded-2xl p-4 md:p-6 shadow-elevated border border-border/50">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+            <Sparkles className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground">Generación con IA</h3>
+            <p className="text-xs text-muted-foreground">Dejá que Marcela arme tu semana</p>
+          </div>
+        </div>
+
         {/* Empty state message */}
         {mealPlans.length === 0 && (
-          <div className="text-center mb-6 py-4">
+          <div className="text-center mb-6 py-4 bg-accent/30 rounded-xl">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
               <Utensils className="w-8 h-8 text-primary" />
             </div>
@@ -975,18 +1065,15 @@ export function Planificador({ ingredients, pantryItems = [], onStateChange }: P
               Tu planificador está vacío
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              Podés completar manualmente o usar la IA
+              ¡Perfecto para que la IA lo complete!
             </p>
           </div>
         )}
 
-        <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-primary" />
-          Preferencias para la IA
-        </h3>
+        <h4 className="font-medium text-foreground mb-3 text-sm">Preferencias</h4>
         <AdvancedFilters filters={filters} onChange={setFilters} />
 
-        <div className="flex flex-wrap gap-2 mt-4">
+        <div className="flex flex-wrap gap-2 mt-6">
           <WeekTemplates 
             onSelectTemplate={handleTemplateSelect}
             isLoading={isGeneratingAI}
@@ -995,13 +1082,78 @@ export function Planificador({ ingredients, pantryItems = [], onStateChange }: P
           <Button
             onClick={handleBuildWeekAI}
             disabled={isGeneratingAI || !user}
-            className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 hover:from-purple-600 hover:via-pink-600 hover:to-orange-500 text-white shadow-lg"
+            className="flex-1 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 hover:from-purple-600 hover:via-pink-600 hover:to-orange-500 text-white shadow-lg"
           >
             <Sparkles className={cn("w-4 h-4", isGeneratingAI && "animate-spin")} />
             {isGeneratingAI ? "Armando..." : "🤖 Armame la semana"}
           </Button>
         </div>
+        
+        <p className="text-xs text-muted-foreground text-center mt-4">
+          La IA generará recetas basadas en tus ingredientes y preferencias
+        </p>
       </div>
+      )}
+
+      {/* STEP 4: Shopping List */}
+      {currentStep === 4 && (
+      <div className="bg-card rounded-2xl p-4 md:p-6 shadow-elevated border border-border/50">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+            <ShoppingCart className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground">Lista de Compras</h3>
+            <p className="text-xs text-muted-foreground">Generá tu lista del super</p>
+          </div>
+        </div>
+
+        {mealPlans.length > 0 ? (
+          <div className="space-y-4">
+            <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl border border-green-200/50">
+              <p className="text-sm text-green-800 dark:text-green-200">
+                ✓ Tenés {mealPlans.length} recetas planificadas esta semana
+              </p>
+              <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                Generá la lista de ingredientes que necesitás comprar
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button 
+                className="flex-1 gap-2"
+                onClick={() => setShowShoppingList(true)}
+              >
+                <Eye className="w-4 h-4" />
+                Ver lista completa
+              </Button>
+              <Button 
+                variant="outline"
+                className="gap-2"
+                onClick={handleAddToShoppingList}
+              >
+                <Package className="w-4 h-4" />
+                Agregar al super
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-8 bg-accent/30 rounded-xl">
+            <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+            <p className="text-muted-foreground">
+              Primero agregá recetas a tu calendario
+            </p>
+            <Button 
+              variant="outline" 
+              className="mt-4"
+              onClick={() => setCurrentStep(2)}
+            >
+              Ir a agregar recetas
+            </Button>
+          </div>
+        )}
+      </div>
+      )}
 
       {/* Recipe selector modal */}
       <Dialog open={!!showRecipeSelector} onOpenChange={() => setShowRecipeSelector(null)}>

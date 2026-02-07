@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import {
   Plus, X, Package, Search, Star, ShoppingCart, ChefHat,
   Calendar, AlertTriangle, Sparkles, Trophy, Gift, Heart,
-  ArrowRight, Lightbulb, Filter, Grid3X3, List, DoorOpen, Refrigerator
+  ArrowRight, Lightbulb, Filter, Grid3X3, List, DoorOpen, Refrigerator, Check
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -68,6 +68,13 @@ const ACHIEVEMENTS = [
 interface PantryProps {
   onSelectIngredients: (ingredients: string[]) => void;
 }
+
+// Step definitions for guided flow
+const PANTRY_STEPS = [
+  { id: 1, label: "Agregar", description: "Sumá productos a tu despensa", icon: Plus },
+  { id: 2, label: "Mi Despensa", description: "Organizá y gestioná tus productos", icon: Package },
+  { id: 3, label: "Usar", description: "Seleccioná ingredientes para cocinar", icon: ChefHat },
+];
 
 // Helper function to calculate days until expiration
 function getDaysUntilExpiration(expirationDate: string | null | undefined): number | null {
@@ -575,6 +582,9 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
   const { toast } = useToast();
   const { addItem: addToShoppingList } = useShoppingList();
   
+  // Step state for guided flow
+  const [currentStep, setCurrentStep] = useState(2); // Default to "Mi Despensa"
+  
   const [items, setItems] = useState<PantryItem[]>([]);
   const [newIngredient, setNewIngredient] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("otros");
@@ -995,7 +1005,167 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Pantry Cabinet Container */}
+      {/* Step Indicators */}
+      <div className="bg-card rounded-2xl p-4 shadow-elevated border border-border/50">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-display text-lg font-bold text-foreground flex items-center gap-2">
+            <Package className="w-5 h-5 text-amber-500" />
+            Mi Despensa
+          </h2>
+          <Badge variant="secondary" className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
+            {items.length} productos
+          </Badge>
+        </div>
+        
+        <div className="grid grid-cols-3 gap-2">
+          {PANTRY_STEPS.map((step) => {
+            const StepIcon = step.icon;
+            const isActive = currentStep === step.id;
+            const isCompleted = step.id < currentStep;
+            
+            return (
+              <button
+                key={step.id}
+                onClick={() => setCurrentStep(step.id)}
+                className={cn(
+                  "flex flex-col items-center p-3 rounded-xl transition-all duration-300",
+                  "border-2",
+                  isActive 
+                    ? "border-amber-500 bg-amber-50 dark:bg-amber-950/30 shadow-lg scale-[1.02]" 
+                    : isCompleted
+                      ? "border-green-500/30 bg-green-50 dark:bg-green-950/20"
+                      : "border-border/50 hover:border-amber-500/30 hover:bg-accent/30"
+                )}
+              >
+                <div className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center mb-2 transition-all",
+                  isActive 
+                    ? "bg-gradient-to-br from-amber-500 to-orange-500 text-white" 
+                    : isCompleted
+                      ? "bg-green-500 text-white"
+                      : "bg-muted text-muted-foreground"
+                )}>
+                  {isCompleted ? (
+                    <Check className="w-4 h-4" />
+                  ) : (
+                    <span className="text-sm font-bold">{step.id}</span>
+                  )}
+                </div>
+                <span className={cn(
+                  "text-xs font-medium text-center",
+                  isActive ? "text-amber-700 dark:text-amber-300" : "text-muted-foreground"
+                )}>
+                  {step.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        
+        {/* Step Description */}
+        <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200/50 dark:border-amber-800/50">
+          <p className="text-sm text-amber-800 dark:text-amber-200 text-center">
+            {PANTRY_STEPS[currentStep - 1]?.description}
+          </p>
+        </div>
+      </div>
+
+      {/* STEP 1: Add Products */}
+      {currentStep === 1 && (
+        <div className="bg-card rounded-2xl p-4 md:p-6 shadow-elevated border border-border/50">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+              <Plus className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground">Agregar Productos</h3>
+              <p className="text-xs text-muted-foreground">Sumá ingredientes a tu despensa</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Ingrediente</label>
+              <Input
+                placeholder="Ej: Tomates, Arroz, Leche..."
+                value={newIngredient}
+                onChange={(e) => setNewIngredient(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAddIngredient()}
+                className="text-lg"
+              />
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium mb-2 block">Estante (Categoría)</label>
+              <div className="grid grid-cols-3 gap-2">
+                {CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={cn(
+                      "p-3 rounded-lg border text-xs transition-all duration-200",
+                      "hover:scale-105",
+                      selectedCategory === cat.id
+                        ? `${cat.bgColor} border-primary ${cat.textColor} shadow-md`
+                        : "border-border hover:border-primary/50"
+                    )}
+                  >
+                    <span className="text-2xl block mb-1">{cat.emoji}</span>
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Cantidad</label>
+                <div className="flex gap-2">
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/g, ''))}
+                    className="w-20"
+                  />
+                  <select
+                    value={unit}
+                    onChange={(e) => setUnit(e.target.value)}
+                    className="flex-1 px-3 py-2 rounded-lg border border-input bg-background text-sm"
+                  >
+                    {UNITS.map((u) => (
+                      <option key={u} value={u}>{u}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Vencimiento</label>
+                <Input
+                  type="date"
+                  value={expirationDate}
+                  onChange={(e) => setExpirationDate(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <Button 
+              onClick={() => {
+                handleAddIngredient();
+                setCurrentStep(2);
+              }} 
+              className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg py-6"
+            >
+              <Plus className="w-5 h-5" />
+              Agregar a la Despensa
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* STEP 2: View Pantry */}
+      {currentStep === 2 && (
       <div className="relative">
         {/* Cabinet frame - outer border */}
         <div className={cn(
@@ -1067,7 +1237,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               {/* Quick Actions */}
               <div className="flex gap-2 flex-wrap">
                 <Button 
-                  onClick={() => setShowAddDialog(true)}
+                  onClick={() => setCurrentStep(1)}
                   className="gap-2 flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg"
                 >
                   <Plus className="w-4 h-4" />
@@ -1077,11 +1247,11 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                 <Button
                   variant="outline" 
                   className="gap-2 border-amber-300 dark:border-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/30"
-                  onClick={handleUseAllIngredients}
+                  onClick={() => setCurrentStep(3)}
                   disabled={items.length === 0}
                 >
                   <ChefHat className="w-4 h-4" />
-                  Cocinar con Todo
+                  Usar para Cocinar
                 </Button>
               </div>
 
@@ -1297,9 +1467,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-        </div>
+      </div>
 
         {/* Cabinet handles */}
         <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 flex gap-8">
@@ -1307,6 +1475,48 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
           <div className="w-8 h-2 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full shadow-lg" />
         </div>
       </div>
+      )}
+
+      {/* STEP 3: Use for Cooking */}
+      {currentStep === 3 && (
+        <div className="bg-card rounded-2xl p-4 md:p-6 shadow-elevated border border-border/50">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+              <ChefHat className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground">Usar para Cocinar</h3>
+              <p className="text-xs text-muted-foreground">Seleccioná ingredientes y generá recetas</p>
+            </div>
+          </div>
+
+          {items.length > 0 ? (
+            <div className="space-y-4">
+              <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl border border-green-200/50">
+                <p className="text-sm text-green-800 dark:text-green-200">
+                  ✓ Tenés {items.length} productos en tu despensa
+                </p>
+              </div>
+
+              <Button 
+                className="w-full gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                onClick={handleUseAllIngredients}
+              >
+                <ChefHat className="w-5 h-5" />
+                Cocinar con todos los ingredientes
+              </Button>
+            </div>
+          ) : (
+            <div className="text-center py-8 bg-accent/30 rounded-xl">
+              <Package className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground">Tu despensa está vacía</p>
+              <Button variant="outline" className="mt-4" onClick={() => setCurrentStep(1)}>
+                Agregar productos
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Pantry Smart History Section */}
       <PantrySmartHistory 
