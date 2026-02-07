@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { 
   Calendar as CalendarIcon, ChefHat, Clock, Users, Plus, X, Sparkles, 
-  ShoppingCart, Lightbulb, RefreshCw, Utensils, Heart, History,
+  Lightbulb, RefreshCw, Utensils, Heart, History,
   Sun, Moon, ChevronLeft, ChevronRight, Trash2, AlertTriangle,
-  GripVertical, Copy, Check, Eye, EyeOff, Package
+  GripVertical, Copy, Check, Package
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Recipe } from "@/components/RecipeList";
 import { RecipeDetail } from "@/components/RecipeDetail";
-import { ShoppingList } from "@/components/ShoppingList";
+
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -80,7 +80,6 @@ const PLANNER_STEPS = [
   { id: 1, label: "Ver Semana", description: "Navegá por tu calendario", icon: CalendarIcon },
   { id: 2, label: "Agregar", description: "Añadí recetas a cada día", icon: Plus },
   { id: 3, label: "Generar con IA", description: "Dejá que Marcela arme tu semana", icon: Sparkles },
-  { id: 4, label: "Lista de Compras", description: "Generá tu lista del super", icon: ShoppingCart },
 ];
 
 export function Planificador({ ingredients, pantryItems = [], onStateChange }: PlanificadorProps) {
@@ -98,7 +97,6 @@ export function Planificador({ ingredients, pantryItems = [], onStateChange }: P
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
-  const [showShoppingList, setShowShoppingList] = useState(false);
   const [showRecipeSelector, setShowRecipeSelector] = useState<{ day: number; meal: 'almuerzo' | 'cena'; date?: Date } | null>(null);
   const [favoriteRecipes, setFavoriteRecipes] = useState<Recipe[]>([]);
   const [recentRecipes, setRecentRecipes] = useState<Recipe[]>([]);
@@ -724,15 +722,6 @@ export function Planificador({ ingredients, pantryItems = [], onStateChange }: P
     );
   }
 
-  if (showShoppingList) {
-    return (
-      <ShoppingList 
-        shoppingList={generateShoppingListFromPlan()}
-        pantryItems={pantryItems}
-        onBack={() => setShowShoppingList(false)} 
-      />
-    );
-  }
 
   // Month view calendar modifiers
   const daysWithMeals = mealPlans.map(p => {
@@ -755,7 +744,7 @@ export function Planificador({ ingredients, pantryItems = [], onStateChange }: P
           </Badge>
         </div>
         
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {PLANNER_STEPS.map((step) => {
             const StepIcon = step.icon;
             const isActive = currentStep === step.id;
@@ -858,10 +847,6 @@ export function Planificador({ ingredients, pantryItems = [], onStateChange }: P
         {/* Action buttons for when there are meals */}
         {mealPlans.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-6">
-            <Button variant="outline" onClick={() => setShowShoppingList(true)}>
-              <ShoppingCart className="w-4 h-4" />
-              Ver lista
-            </Button>
             <Button variant="outline" onClick={handleAddToShoppingList}>
               <Package className="w-4 h-4" />
               Al super
@@ -1095,65 +1080,6 @@ export function Planificador({ ingredients, pantryItems = [], onStateChange }: P
       </div>
       )}
 
-      {/* STEP 4: Shopping List */}
-      {currentStep === 4 && (
-      <div className="bg-card rounded-2xl p-4 md:p-6 shadow-elevated border border-border/50">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-            <ShoppingCart className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-foreground">Lista de Compras</h3>
-            <p className="text-xs text-muted-foreground">Generá tu lista del super</p>
-          </div>
-        </div>
-
-        {mealPlans.length > 0 ? (
-          <div className="space-y-4">
-            <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl border border-green-200/50">
-              <p className="text-sm text-green-800 dark:text-green-200">
-                ✓ Tenés {mealPlans.length} recetas planificadas esta semana
-              </p>
-              <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                Generá la lista de ingredientes que necesitás comprar
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              <Button 
-                className="flex-1 gap-2"
-                onClick={() => setShowShoppingList(true)}
-              >
-                <Eye className="w-4 h-4" />
-                Ver lista completa
-              </Button>
-              <Button 
-                variant="outline"
-                className="gap-2"
-                onClick={handleAddToShoppingList}
-              >
-                <Package className="w-4 h-4" />
-                Agregar al super
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="text-center py-8 bg-accent/30 rounded-xl">
-            <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">
-              Primero agregá recetas a tu calendario
-            </p>
-            <Button 
-              variant="outline" 
-              className="mt-4"
-              onClick={() => setCurrentStep(2)}
-            >
-              Ir a agregar recetas
-            </Button>
-          </div>
-        )}
-      </div>
-      )}
 
       {/* Recipe selector modal */}
       <Dialog open={!!showRecipeSelector} onOpenChange={() => setShowRecipeSelector(null)}>
