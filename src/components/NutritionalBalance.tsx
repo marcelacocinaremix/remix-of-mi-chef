@@ -329,15 +329,14 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
           <button
             onClick={() => setActiveTab("balance")}
             className={cn(
-              "flex flex-col items-center justify-center gap-0.5 py-3 px-2 rounded-lg font-medium transition-all duration-300",
+              "flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-lg font-medium transition-all duration-300",
               activeTab === "balance"
                 ? "bg-primary text-primary-foreground shadow-md"
                 : "bg-background hover:bg-background/80 text-foreground"
             )}
           >
             <BarChart3 className="w-5 h-5" strokeWidth={1.5} />
-            <span className="text-xs font-semibold">{t("healthTabBalance")}</span>
-            <span className={cn("text-[10px] leading-tight", activeTab === "balance" ? "text-primary-foreground/80" : "text-muted-foreground")}>{t("healthTabBalanceDesc")}</span>
+            <span className="text-xs">{t("healthTabBalance")}</span>
           </button>
           <button
             onClick={() => setActiveTab("actividad")}
@@ -391,12 +390,12 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
                 className="w-full h-full object-cover transition-all duration-300"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent flex items-center">
-                <div className="px-4">
+              <div className="px-4">
                   <h3 className="text-white font-bold text-lg">
-                    {balanceSubTab === "guia" ? "Guía de Alimentos" : "Mi Balance"}
+                    {balanceSubTab === "guia" ? "Guía de Alimentos" : t("healthTabBalance")}
                   </h3>
                   <p className="text-white/80 text-sm">
-                    {balanceSubTab === "guia" ? "Información nutricional" : "Tu nutrición semanal"}
+                    {balanceSubTab === "guia" ? "Información nutricional" : t("healthTabBalanceDesc")}
                   </p>
                 </div>
               </div>
