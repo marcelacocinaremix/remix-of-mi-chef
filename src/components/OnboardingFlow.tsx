@@ -127,7 +127,7 @@ interface OnboardingFlowProps {
 
 export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [step, setStep] = useState<OnboardingStep>("intro");
-  const [authMode, setAuthMode] = useState<"login" | "signup">("signup");
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -754,9 +754,9 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     }}
                     className="text-primary hover:underline text-sm font-medium"
                   >
-                    {authMode === "signup" 
-                      ? `${t("onboardingAlreadyAccount")} ${t("onboardingLoginHere")}`
-                      : `${t("onboardingNoAccount")} ${t("onboardingSignupHere")}`}
+                    {authMode === "login" 
+                      ? `${t("onboardingNoAccount")} ${t("onboardingSignupHere")}`
+                      : `${t("onboardingAlreadyAccount")} ${t("onboardingLoginHere")}`}
                   </button>
                 </div>
               </motion.div>
