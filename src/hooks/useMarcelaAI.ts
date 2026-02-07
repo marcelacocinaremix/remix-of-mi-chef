@@ -326,30 +326,30 @@ const predefinedReactions: Record<string, ReactionTranslations[]> = {
   tab_inicio: [
     { 
       reaction: { 
-        es: '¡Tu panel principal! Acá ves tu progreso, rachas y accesos rápidos a todo', 
-        en: 'Your main panel! Here you see your progress, streaks and quick access to everything',
-        pt: 'Seu painel principal! Aqui você vê seu progresso, sequências e acesso rápido a tudo'
+        es: '¡Hola! 👋 Acá empieza todo. Este es tu resumen personal con accesos rápidos a cada sección', 
+        en: 'Hi! 👋 This is where it all starts. Your personal summary with quick access to each section',
+        pt: 'Oi! 👋 Aqui começa tudo. Seu resumo pessoal com acesso rápido a cada seção'
       }, 
       mood: 'happy', 
       animation: 'wave', 
       tip: { 
-        es: 'Tocá las tarjetas para ir directo a cada sección', 
-        en: 'Tap the cards to go directly to each section',
-        pt: 'Toque nos cartões para ir direto a cada seção'
+        es: 'Tocá cualquier tarjeta para ir directo a esa función', 
+        en: 'Tap any card to go directly to that function',
+        pt: 'Toque em qualquer cartão para ir direto a essa função'
       } 
     },
     { 
       reaction: { 
-        es: '¡Bienvenido/a! Este es tu resumen diario: estadísticas, desafíos y más', 
-        en: 'Welcome! This is your daily summary: stats, challenges and more',
-        pt: 'Bem-vindo/a! Este é seu resumo diário: estatísticas, desafios e mais'
+        es: '¡Bienvenido/a! Desde Inicio podés: generar recetas 👨‍🍳, planificar 📅, aprender 📚 y ver tu progreso 🏆', 
+        en: 'Welcome! From Home you can: generate recipes 👨‍🍳, plan 📅, learn 📚 and see your progress 🏆',
+        pt: 'Bem-vindo/a! Do Início você pode: gerar receitas 👨‍🍳, planejar 📅, aprender 📚 e ver seu progresso 🏆'
       }, 
       mood: 'excited', 
       animation: 'sparkle', 
       tip: { 
-        es: 'Revisá el desafío diario para ganar puntos extra', 
-        en: 'Check the daily challenge to earn extra points',
-        pt: 'Verifique o desafio diário para ganhar pontos extras'
+        es: 'Empezá por "Cocinar" para generar tu primera receta', 
+        en: 'Start with "Cook" to generate your first recipe',
+        pt: 'Comece por "Cozinhar" para gerar sua primeira receita'
       } 
     },
   ],
@@ -1177,6 +1177,52 @@ const predefinedReactions: Record<string, ReactionTranslations[]> = {
         es: 'Tocá un alimento para ver todos los detalles', 
         en: 'Tap a food to see all details',
         pt: 'Toque um alimento para ver todos os detalhes'
+      } 
+    },
+  ],
+
+  // Salud
+  tab_salud: [
+    { 
+      reaction: { 
+        es: '¡Tu centro de salud! 💪 Seguí los 4 pasos: 1️⃣ Agregá tu objetivo → 2️⃣ Cocinás y se sincroniza → 3️⃣ Registrá entrenamientos → 4️⃣ Obtené tu resumen', 
+        en: 'Your health center! 💪 Follow 4 steps: 1️⃣ Add goal → 2️⃣ Cook & sync → 3️⃣ Log workouts → 4️⃣ Get summary',
+        pt: 'Seu centro de saúde! 💪 Siga 4 passos: 1️⃣ Adicione objetivo → 2️⃣ Cozinhe e sincronize → 3️⃣ Registre treinos → 4️⃣ Obtenha resumo'
+      }, 
+      mood: 'excited', 
+      animation: 'bounce', 
+      tip: { 
+        es: 'Primero configurá tu objetivo en la sección de arriba', 
+        en: 'First set your goal in the section above',
+        pt: 'Primeiro configure seu objetivo na seção acima'
+      } 
+    },
+    { 
+      reaction: { 
+        es: '¡Salud integral! 🏃 Acá ves tu resumen nutricional, actividad física y progreso hacia tus metas', 
+        en: 'Holistic health! 🏃 Here you see your nutritional summary, physical activity and progress towards your goals',
+        pt: 'Saúde integral! 🏃 Aqui você vê seu resumo nutricional, atividade física e progresso para suas metas'
+      }, 
+      mood: 'proud', 
+      animation: 'sparkle', 
+      tip: { 
+        es: 'La nutrición se actualiza automáticamente cuando cocinás recetas', 
+        en: 'Nutrition updates automatically when you cook recipes',
+        pt: 'A nutrição atualiza automaticamente quando você cozinha receitas'
+      } 
+    },
+    { 
+      reaction: { 
+        es: '¡Todo conectado! 🔗 Las recetas que cocinás suman a tu nutrición, los entrenamientos a tu actividad. ¡Mirá tu resumen!', 
+        en: 'All connected! 🔗 Recipes you cook add to nutrition, workouts add to activity. Check your summary!',
+        pt: 'Tudo conectado! 🔗 Receitas que você cozinha somam à nutrição, treinos à atividade. Veja seu resumo!'
+      }, 
+      mood: 'happy', 
+      animation: 'celebrate', 
+      tip: { 
+        es: 'Registrá tus entrenamientos con el botón + en Actividad', 
+        en: 'Log your workouts with the + button in Activity',
+        pt: 'Registre seus treinos com o botão + em Atividade'
       } 
     },
   ],
