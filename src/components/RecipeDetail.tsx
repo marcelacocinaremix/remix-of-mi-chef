@@ -5,7 +5,7 @@ import { Recipe } from "@/components/RecipeList";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { CookingMode } from "@/components/CookingMode";
 import { Badge } from "@/components/ui/badge";
 
@@ -42,10 +42,32 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
   const [isCopying, setIsCopying] = useState(false);
   const { exportRecipeToPDF, isExporting } = useExportPDF();
   const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const [isMarkingCooked, setIsMarkingCooked] = useState(false);
   const [showCookingMode, setShowCookingMode] = useState(false);
   const [showSubstitutions, setShowSubstitutions] = useState(false);
   const [addedToList, setAddedToList] = useState<Set<string>>(new Set());
+  const saveActionRef = useRef(false);
+
+  // Check if recipe is already in favorites on mount
+  useEffect(() => {
+    const checkIfSaved = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from("favorite_recipes")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("recipe_name", recipe.name)
+        .maybeSingle();
+      
+      if (data) {
+        setIsSaved(true);
+      }
+    };
+    
+    checkIfSaved();
+  }, [user, recipe.name]);
 
   // Check if ingredient is in pantry
   const isInPantry = (ingredient: string): boolean => {
@@ -90,8 +112,38 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
       return;
     }
 
+    // Prevent rapid clicks
+    if (saveActionRef.current || isSaved) {
+      if (isSaved) {
+        toast({
+          title: "Ya está guardada",
+          description: "Esta receta ya está en tus favoritos.",
+        });
+      }
+      return;
+    }
+    
+    saveActionRef.current = true;
     setIsSaving(true);
+    
     try {
+      // Double-check in database before saving
+      const { data: existing } = await supabase
+        .from("favorite_recipes")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("recipe_name", recipe.name)
+        .maybeSingle();
+      
+      if (existing) {
+        setIsSaved(true);
+        toast({
+          title: "Ya está guardada",
+          description: "Esta receta ya está en tus favoritos.",
+        });
+        return;
+      }
+
       const { error } = await supabase.from("favorite_recipes").insert([{
         user_id: user.id,
         recipe_name: recipe.name,
@@ -100,6 +152,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
 
       if (error) throw error;
 
+      setIsSaved(true);
       toast({
         title: "¡Receta guardada!",
         description: `${recipe.name} se agregó a tus favoritas.`,
@@ -112,6 +165,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
       });
     } finally {
       setIsSaving(false);
+      saveActionRef.current = false;
     }
   };
 
@@ -427,12 +481,17 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
 
           {/* Action Buttons */}
           <div className="flex flex-col gap-3 pt-4">
-            <Button onClick={handleSaveRecipe} disabled={isSaving} size="lg" className="w-full">
-              <Heart className="w-5 h-5" />
-              {isSaving ? t("saving") : t("saveToFavorites")}
+            <Button 
+              onClick={handleSaveRecipe} 
+              disabled={isSaving || isSaved} 
+              size="lg" 
+              className={cn("w-full", isSaved && "bg-destructive hover:bg-destructive text-destructive-foreground")}
+            >
+              <Heart className={cn("w-5 h-5", isSaved && "fill-current")} />
+              {isSaving ? t("saving") : isSaved ? "Guardada en favoritos" : t("saveToFavorites")}
             </Button>
             <p className="text-xs text-muted-foreground text-center -mt-1">
-              Guarda esta receta en tu colección de favoritos
+              {isSaved ? "Esta receta ya está en tu colección" : "Guarda esta receta en tu colección de favoritos"}
             </p>
             
             <Button 
