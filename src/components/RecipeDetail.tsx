@@ -500,9 +500,9 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               disabled={isSaving} 
               size="lg" 
               variant={isSaved ? "outline" : "default"}
-              className={cn("w-full", isSaved && "border-destructive text-destructive hover:bg-destructive/10")}
+              className={cn("w-full", isSaved && "border-destructive text-red-700 dark:text-red-400 hover:bg-destructive/10")}
             >
-              <Heart className={cn("w-5 h-5", isSaved && "fill-destructive text-destructive")} />
+              <Heart className={cn("w-5 h-5", isSaved && "fill-red-600 text-red-600")} />
               {isSaving ? (isSaved ? "Quitando..." : t("saving")) : isSaved ? "Quitar de favoritos" : t("saveToFavorites")}
             </Button>
             <p className="text-xs text-muted-foreground text-center -mt-1">
