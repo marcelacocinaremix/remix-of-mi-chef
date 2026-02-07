@@ -137,7 +137,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
 
       toast({
         title: "¡Receta registrada! 🎉",
-        description: `${recipe.name} se agregó a tu historial de nutrición.`,
+        description: "Se agregó a tus logros y a tu resumen de salud.",
       });
 
       onRecipeCooked?.();
