@@ -62,63 +62,63 @@ const getFeatureSlides = (t: (key: TranslationKey) => string) => [
     icon: UtensilsCrossed,
     title: t("tourCocinar"),
     description: t("tourCocinarDesc"),
-    color: "from-orange-500 to-red-500",
+    color: "from-zinc-700 to-zinc-900",
   },
   {
     id: "aprender",
     icon: GraduationCap,
     title: t("tourAprender"),
     description: t("tourAprenderDesc"),
-    color: "from-blue-500 to-cyan-500",
+    color: "from-neutral-600 to-neutral-800",
   },
   {
     id: "planificar",
     icon: Calendar,
     title: t("tourPlanificar"),
     description: t("tourPlanificarDesc"),
-    color: "from-green-500 to-emerald-500",
+    color: "from-stone-600 to-stone-800",
   },
   {
     id: "super",
     icon: ShoppingCart,
     title: t("tourSuper"),
     description: t("tourSuperDesc"),
-    color: "from-purple-500 to-blue-500",
+    color: "from-gray-600 to-gray-800",
   },
   {
     id: "salud",
     icon: HeartPulse,
     title: t("tourSalud"),
     description: t("tourSaludDesc"),
-    color: "from-rose-500 to-pink-500",
+    color: "from-zinc-600 to-zinc-800",
   },
   {
     id: "logros",
     icon: Trophy,
     title: t("tourLogros"),
     description: t("tourLogrosDesc"),
-    color: "from-yellow-500 to-orange-500",
+    color: "from-neutral-700 to-neutral-900",
   },
   {
     id: "marcela",
     icon: Bot,
     title: t("tourMarcela"),
     description: t("tourMarcelaDesc"),
-    color: "from-blue-500 to-cyan-500",
+    color: "from-stone-700 to-stone-900",
   },
   {
     id: "timer",
     icon: Timer,
     title: t("tourTimer"),
     description: t("tourTimerDesc"),
-    color: "from-cyan-500 to-blue-500",
+    color: "from-gray-700 to-gray-900",
   },
   {
     id: "juego",
     icon: Gamepad2,
     title: t("tourJuego"),
     description: t("tourJuegoDesc"),
-    color: "from-violet-500 to-purple-500",
+    color: "from-zinc-700 to-zinc-900",
   },
 ];
 
@@ -385,8 +385,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     className={cn(
                       "w-full flex items-center gap-4 p-5 rounded-2xl border-2 transition-all duration-300",
                       selectedLanguage === lang.code
-                        ? "border-primary bg-primary/10 shadow-lg shadow-primary/10"
-                        : "border-white/20 hover:border-primary/50 hover:bg-white/5"
+                        ? "border-white/60 bg-white/10 shadow-lg shadow-white/5"
+                        : "border-white/20 hover:border-white/40 hover:bg-white/5"
                     )}
                   >
                     <motion.span 
@@ -410,9 +410,9 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                           exit={{ scale: 0 }}
-                          className="w-8 h-8 rounded-full bg-primary flex items-center justify-center"
+                          className="w-8 h-8 rounded-full bg-white flex items-center justify-center"
                         >
-                          <Check className="w-5 h-5 text-primary-foreground" />
+                          <Check className="w-5 h-5 text-black" />
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -430,13 +430,13 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   size="lg"
                   onClick={handleLanguageContinue}
                   disabled={isLoading}
-                  className="w-full py-6 text-lg rounded-2xl bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-glow transition-all group"
+                  className="w-full py-6 text-lg rounded-2xl bg-white text-black hover:bg-white/90 shadow-lg transition-all group"
                 >
                   {isLoading ? (
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full"
+                      className="w-5 h-5 border-2 border-black border-t-transparent rounded-full"
                     />
                   ) : (
                     <>
@@ -532,7 +532,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                       className={cn(
                         "h-2 rounded-full transition-all duration-300",
                         currentSlide === index 
-                          ? "w-8 bg-primary" 
+                          ? "w-8 bg-white" 
                           : "w-2 bg-white/30 hover:bg-white/50"
                       )}
                     />
@@ -651,41 +651,41 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                       <p className="font-medium text-white/70 mb-2">Tu contraseña debe tener:</p>
                       <div className="flex items-center gap-2">
                         {hasMinLength(password) ? (
-                          <Check className="w-4 h-4 text-primary" />
+                          <Check className="w-4 h-4 text-white" />
                         ) : (
                           <X className="w-4 h-4 text-white/40" />
                         )}
-                        <span className={hasMinLength(password) ? "text-primary" : "text-white/50"}>
+                        <span className={hasMinLength(password) ? "text-white" : "text-white/50"}>
                           Al menos 6 caracteres
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         {hasUppercase(password) ? (
-                          <Check className="w-4 h-4 text-primary" />
+                          <Check className="w-4 h-4 text-white" />
                         ) : (
                           <X className="w-4 h-4 text-white/40" />
                         )}
-                        <span className={hasUppercase(password) ? "text-primary" : "text-white/50"}>
+                        <span className={hasUppercase(password) ? "text-white" : "text-white/50"}>
                           Una letra mayúscula (A-Z)
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         {hasNumber(password) ? (
-                          <Check className="w-4 h-4 text-primary" />
+                          <Check className="w-4 h-4 text-white" />
                         ) : (
                           <X className="w-4 h-4 text-white/40" />
                         )}
-                        <span className={hasNumber(password) ? "text-primary" : "text-white/50"}>
+                        <span className={hasNumber(password) ? "text-white" : "text-white/50"}>
                           Un número (0-9)
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         {hasSpecialChar(password) ? (
-                          <Check className="w-4 h-4 text-primary" />
+                          <Check className="w-4 h-4 text-white" />
                         ) : (
                           <X className="w-4 h-4 text-white/40" />
                         )}
-                        <span className={hasSpecialChar(password) ? "text-primary" : "text-white/50"}>
+                        <span className={hasSpecialChar(password) ? "text-white" : "text-white/50"}>
                           Un caracter especial (!@#$%...)
                         </span>
                       </div>
@@ -696,13 +696,13 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 <Button
                   onClick={handleAuth}
                   disabled={isLoading}
-                  className="w-full py-6 text-lg rounded-xl bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg transition-all"
+                  className="w-full py-6 text-lg rounded-xl bg-white text-black hover:bg-white/90 shadow-lg transition-all"
                 >
                   {isLoading ? (
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full"
+                      className="w-5 h-5 border-2 border-black border-t-transparent rounded-full"
                     />
                   ) : (
                     authMode === "signup" ? t("onboardingCreateAccount") : t("login")
@@ -767,7 +767,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     <button
                       type="button"
                       onClick={() => setIsForgotPassword(true)}
-                      className="text-white/60 hover:text-primary text-sm hover:underline"
+                      className="text-white/60 hover:text-white text-sm hover:underline"
                     >
                       ¿Olvidaste tu contraseña?
                     </button>
@@ -789,7 +789,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                       onClick={handleForgotPassword}
                       disabled={isLoading}
                       variant="outline"
-                      className="w-full border-primary/50 text-primary hover:bg-primary/10"
+                      className="w-full border-white/30 text-white hover:bg-white/10"
                     >
                       {isLoading ? "Enviando..." : "Enviar link de recuperación"}
                     </Button>
@@ -809,7 +809,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                       setAuthMode(authMode === "signup" ? "login" : "signup");
                       setIsForgotPassword(false);
                     }}
-                    className="text-primary hover:underline text-sm font-medium"
+                    className="text-white hover:underline text-sm font-medium"
                   >
                     {authMode === "login" 
                       ? `${t("onboardingNoAccount")} ${t("onboardingSignupHere")}`
@@ -835,7 +835,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             transition={{ delay: 0.1 * i, type: "spring" }}
             className={cn(
               "h-2 rounded-full transition-colors duration-300",
-              step === s ? "bg-primary" : "bg-white/30"
+              step === s ? "bg-white" : "bg-white/30"
             )}
           />
         ))}
