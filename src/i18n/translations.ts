@@ -272,7 +272,7 @@ export const translations = {
     subTabCalendar: "Calendario",
     subTabPantry: "Despensa",
     subTabGrocery: "Super",
-    subTabHealth: "Mi Balance",
+    subTabHealth: "Balance",
     marcelaTipTitle: "💡 Tip de Marcela",
     marcelaTipNutrients: "Agregá ingredientes y te sugiero recetas balanceadas",
     
@@ -1030,7 +1030,7 @@ export const translations = {
     subTabCalendar: "Calendar",
     subTabPantry: "Pantry",
     subTabGrocery: "Grocery",
-    subTabHealth: "My Balance",
+    subTabHealth: "Balance",
     marcelaTipTitle: "💡 Marcela's Tip",
     marcelaTipNutrients: "Add ingredients and I'll suggest balanced recipes",
     
@@ -1788,7 +1788,7 @@ export const translations = {
     subTabCalendar: "Calendário",
     subTabPantry: "Despensa",
     subTabGrocery: "Mercado",
-    subTabHealth: "Meu Balanço",
+    subTabHealth: "Balanço",
     marcelaTipTitle: "💡 Dica da Marcela",
     marcelaTipNutrients: "Adicione ingredientes e eu sugiro receitas balanceadas",
     
