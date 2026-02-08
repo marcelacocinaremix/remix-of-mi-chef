@@ -84,50 +84,8 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "Mi Chef Personal <noreply@marcelacocina.com>",
       to: [email],
-      subject: "Restablecé tu contraseña - Mi Chef Personal",
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
-          <div style="background-color: white; border-radius: 12px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #1f2937; font-size: 24px; margin: 0;">🍳 Mi Chef Personal</h1>
-            </div>
-
-            <h2 style="color: #374151; font-size: 20px; margin-bottom: 16px;">Restablecer contraseña</h2>
-
-            <p style="color: #6b7280; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
-              Recibimos una solicitud para restablecer tu contraseña. Tocá el botón de abajo para abrir la app y crear una nueva:
-            </p>
-
-            <div style="text-align: center; margin: 32px 0;">
-              <a href="${webBridgeLink}"
-                 style="background-color: #10b981; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block;">
-                Restablecer contraseña
-              </a>
-            </div>
-
-            <p style="color: #9ca3af; font-size: 12px; line-height: 1.6; margin-top: 24px;">
-              Si el botón no abre la app, probá este link directo: <a href="${deepLink}">Abrir Mi Chef Personal</a>
-            </p>
-
-            <p style="color: #9ca3af; font-size: 14px; line-height: 1.6; margin-top: 24px;">
-              Si no solicitaste este cambio, podés ignorar este email. El link expira en 1 hora.
-            </p>
-
-            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 32px 0;">
-
-            <p style="color: #9ca3af; font-size: 12px; text-align: center; margin: 0;">
-              © ${new Date().getFullYear()} Mi Chef Personal
-            </p>
-          </div>
-        </body>
-        </html>
-      `,
+      subject: "Restablecé tu contraseña",
+      html: `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Restablecer contraseña</title></head><body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: white; border-radius: 12px; padding: 40px;"><tr><td style="text-align: center; padding-bottom: 24px;"><span style="font-size: 32px;">🍳</span><br><span style="color: #1f2937; font-size: 20px; font-weight: 600;">Mi Chef Personal</span></td></tr><tr><td style="color: #374151; font-size: 18px; font-weight: 600; padding-bottom: 16px;">Restablecer contraseña</td></tr><tr><td style="color: #6b7280; font-size: 16px; line-height: 1.6; padding-bottom: 24px;">Recibimos una solicitud para restablecer tu contraseña. Tocá el botón de abajo para abrir la app y crear una nueva:</td></tr><tr><td style="text-align: center; padding: 24px 0;"><a href="${webBridgeLink}" style="background-color: #10b981; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block;">Restablecer contraseña</a></td></tr><tr><td style="color: #9ca3af; font-size: 13px; line-height: 1.6; padding-top: 16px;">Si el botón no funciona, copiá y pegá este link en tu navegador:<br><a href="${webBridgeLink}" style="color: #10b981; word-break: break-all;">${webBridgeLink}</a></td></tr><tr><td style="color: #9ca3af; font-size: 13px; line-height: 1.6; padding-top: 16px;">Si no solicitaste este cambio, podés ignorar este email. El link expira en 1 hora.</td></tr><tr><td style="border-top: 1px solid #e5e7eb; margin-top: 24px; padding-top: 24px; color: #9ca3af; font-size: 12px; text-align: center;">Mi Chef Personal</td></tr></table></body></html>`,
     });
 
     console.log("Password reset email sent successfully:", emailResponse);
