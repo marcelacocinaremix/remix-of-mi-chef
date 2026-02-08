@@ -65,12 +65,16 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Extract the recovery link
-    const recoveryLink = data.properties?.action_link;
+    // Extract the recovery token hash and build a native deep link.
+    // IMPORTANT: We intentionally do NOT send the default action_link (https...) because
+    // opening that in a browser is what typically leads to OTP expired / wrong context.
+    const tokenHash = data.properties?.hashed_token;
 
-    if (!recoveryLink) {
-      throw new Error("No se pudo generar el link de recuperación");
+    if (!tokenHash) {
+      throw new Error("No se pudo generar el token de recuperación");
     }
+
+    const deepLink = `app.marcelacocina.michef://reset-password#type=recovery&token_hash=${encodeURIComponent(tokenHash)}`;
 
     // Send email via Resend with verified domain
     const emailResponse = await resend.emails.send({
@@ -93,11 +97,11 @@ const handler = async (req: Request): Promise<Response> => {
             <h2 style="color: #374151; font-size: 20px; margin-bottom: 16px;">Restablecer contraseña</h2>
             
             <p style="color: #6b7280; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
-              Recibimos una solicitud para restablecer tu contraseña. Hacé click en el botón de abajo para crear una nueva:
+              Recibimos una solicitud para restablecer tu contraseña. Tocá el botón de abajo para abrir la app y crear una nueva:
             </p>
             
             <div style="text-align: center; margin: 32px 0;">
-              <a href="${recoveryLink}" 
+              <a href="${deepLink}" 
                  style="background-color: #10b981; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block;">
                 Restablecer contraseña
               </a>
