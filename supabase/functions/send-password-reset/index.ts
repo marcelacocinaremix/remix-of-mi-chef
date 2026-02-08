@@ -41,12 +41,15 @@ const handler = async (req: Request): Promise<Response> => {
       }
     );
 
-    // Generate recovery link using admin API
+    // Generate recovery link using admin API with native app scheme
+    // Use the native app deep link scheme for direct app opening
+    const nativeRedirectUrl = 'app.marcelacocina.michef://reset-password';
+    
     const { data, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
       type: "recovery",
       email: email,
       options: {
-        redirectTo: redirectUrl,
+        redirectTo: nativeRedirectUrl,
       },
     });
 
