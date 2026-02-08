@@ -65,7 +65,7 @@ export default function Auth() {
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'app.marcelacocina.michef://reset-password'
+        redirectTo: 'https://marcelacocinamichef.lovable.app/reset-password'
       });
 
       if (error) {
