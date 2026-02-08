@@ -19,14 +19,20 @@ export default function OpenResetPassword() {
 
   const deepLink = useMemo(() => {
     if (!tokenHash) return null;
-    return `app.marcelacocina.michef://reset-password#type=${encodeURIComponent(type)}&token_hash=${encodeURIComponent(tokenHash)}`;
+    // Usamos query params (no #hash) porque en Android algunos handlers pierden el fragment.
+    return `app.marcelacocina.michef://reset-password?type=${encodeURIComponent(type)}&token_hash=${encodeURIComponent(tokenHash)}`;
+  }, [tokenHash, type]);
+
+  const webResetLink = useMemo(() => {
+    if (!tokenHash) return null;
+    return `${window.location.origin}/reset-password?type=${encodeURIComponent(type)}&token_hash=${encodeURIComponent(tokenHash)}`;
   }, [tokenHash, type]);
 
   useEffect(() => {
     if (!deepLink) return;
 
     // Intentamos abrir la app automáticamente.
-    // Si el cliente de email/navegador lo bloquea, queda el botón manual.
+    // Si el cliente de email/navegador lo bloquea, quedan los botones manuales.
     window.location.href = deepLink;
   }, [deepLink]);
 
@@ -53,6 +59,18 @@ export default function OpenResetPassword() {
             }}
           >
             Abrir Mi Chef Personal
+          </Button>
+
+          <Button
+            className="w-full"
+            size="lg"
+            variant="outline"
+            disabled={!webResetLink}
+            onClick={() => {
+              if (webResetLink) window.location.href = webResetLink;
+            }}
+          >
+            Cambiar contraseña en el navegador
           </Button>
 
           <p className="text-sm text-muted-foreground">
