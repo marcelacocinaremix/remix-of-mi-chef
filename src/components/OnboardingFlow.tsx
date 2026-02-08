@@ -213,11 +213,18 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth`,
+      const response = await supabase.functions.invoke("send-password-reset", {
+        body: {
+          email,
+          // Intencionalmente hardcodeado/estable del lado backend;
+          // se incluye por compatibilidad futura.
+          redirectUrl: "app.marcelacocina.michef://reset-password",
+        },
       });
 
-      if (error) throw error;
+      if (response.error) {
+        throw new Error(response.error.message || "No se pudo enviar el email");
+      }
 
       toast({
         title: t("authEmailSent"),

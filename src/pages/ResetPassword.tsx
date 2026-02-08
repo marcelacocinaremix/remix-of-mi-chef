@@ -28,25 +28,55 @@ export default function ResetPassword() {
   const { toast } = useToast();
 
   useEffect(() => {
+    let unsubscribe: null | (() => void) = null;
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+
     const initializeSession = async () => {
       try {
-        // Extract tokens from URL - handle both hash fragments and query params
-        // The URL might be: app.marcelacocina.michef://reset-password#access_token=xxx&refresh_token=xxx
-        // Or on web: /reset-password#access_token=xxx&refresh_token=xxx
-        const hash = window.location.hash.substring(1); // Remove the #
-        const params = new URLSearchParams(hash || window.location.search);
-        
-        const accessToken = params.get('access_token');
-        const refreshToken = params.get('refresh_token');
-        const type = params.get('type');
+        // 1) Preferimos tokens en el hash (deep links suelen venir como #...)
+        const hash = window.location.hash.startsWith("#")
+          ? window.location.hash.slice(1)
+          : window.location.hash;
+        const hashParams = new URLSearchParams(hash);
+        const searchParams = new URLSearchParams(window.location.search);
 
-        console.log('Reset password params:', { 
-          hasAccessToken: !!accessToken, 
+        const params = hashParams.toString().length ? hashParams : searchParams;
+
+        // Flow nativo recomendado: token_hash + verifyOtp (evita abrir navegador y el OTP Expired)
+        const tokenHash = params.get("token_hash") || params.get("token");
+        const type = params.get("type") || "recovery";
+
+        // Flow web alternativo: access_token + refresh_token (por compatibilidad)
+        const accessToken = params.get("access_token");
+        const refreshToken = params.get("refresh_token");
+
+        console.log("Reset password params:", {
+          hasTokenHash: !!tokenHash,
+          type,
+          hasAccessToken: !!accessToken,
           hasRefreshToken: !!refreshToken,
-          type 
         });
 
-        // If we have tokens in the URL, set the session manually
+        if (tokenHash) {
+          const { data, error: verifyError } = await supabase.auth.verifyOtp({
+            // supabase-js espera los strings exactos ("recovery", etc.)
+            type: type as any,
+            token_hash: tokenHash,
+          });
+
+          if (verifyError) {
+            console.error("Error verifying OTP:", verifyError);
+            setError("El link de recuperación expiró o es inválido. Solicitá uno nuevo desde la app.");
+            return;
+          }
+
+          if (data.session) {
+            setIsSessionReady(true);
+            setError(null);
+            return;
+          }
+        }
+
         if (accessToken && refreshToken) {
           const { data, error: sessionError } = await supabase.auth.setSession({
             access_token: accessToken,
@@ -54,54 +84,52 @@ export default function ResetPassword() {
           });
 
           if (sessionError) {
-            console.error('Error setting session:', sessionError);
+            console.error("Error setting session:", sessionError);
             setError("El link de recuperación expiró o es inválido. Solicitá uno nuevo desde la app.");
             return;
           }
 
           if (data.session) {
-            console.log('Session established successfully');
             setIsSessionReady(true);
             setError(null);
             return;
           }
         }
 
-        // Fallback: Listen for the PASSWORD_RECOVERY event from Supabase (for web flow)
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-          console.log('Auth state change:', event);
+        // Fallback (web): evento PASSWORD_RECOVERY / SIGNED_IN
+        const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+          console.log("Auth state change:", event);
           if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
             setIsSessionReady(true);
             setError(null);
           }
         });
+        unsubscribe = () => listener.subscription.unsubscribe();
 
-        // Check if there's already a session
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
+        // Si ya hay sesión, seguimos
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData.session) {
           setIsSessionReady(true);
           return;
         }
 
-        // Set a timeout to show error if no session after 5 seconds
-        const timeout = setTimeout(() => {
-          if (!isSessionReady) {
-            setError("El link de recuperación expiró o es inválido. Solicitá uno nuevo desde la app.");
-          }
+        // Timeout defensivo
+        timeout = setTimeout(() => {
+          setError("El link de recuperación expiró o es inválido. Solicitá uno nuevo desde la app.");
         }, 5000);
-
-        return () => {
-          subscription.unsubscribe();
-          clearTimeout(timeout);
-        };
       } catch (err) {
-        console.error('Error initializing session:', err);
+        console.error("Error initializing session:", err);
         setError("Ocurrió un error al procesar el link. Solicitá uno nuevo desde la app.");
       }
     };
 
     initializeSession();
-  }, [isSessionReady]);
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+      if (timeout) clearTimeout(timeout);
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
