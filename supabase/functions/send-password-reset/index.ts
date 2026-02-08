@@ -42,9 +42,8 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
     // Generate recovery link using admin API with native app scheme
-    // Use the native app deep link scheme for direct app opening
-    const nativeRedirectUrl = 'app.marcelacocina.michef://reset-password';
-    
+    const nativeRedirectUrl = "app.marcelacocina.michef://reset-password";
+
     const { data, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
       type: "recovery",
       email: email,
@@ -57,24 +56,29 @@ const handler = async (req: Request): Promise<Response> => {
       console.error("Error generating recovery link:", linkError);
       // Don't reveal if email exists or not for security
       return new Response(
-        JSON.stringify({ success: true, message: "Si el email existe, recibirás un link de recuperación" }),
+        JSON.stringify({
+          success: true,
+          message: "Si el email existe, recibirás un link de recuperación",
+        }),
         {
           status: 200,
           headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
+        },
       );
     }
 
-    // Extract the recovery token hash and build a native deep link.
-    // IMPORTANT: We intentionally do NOT send the default action_link (https...) because
-    // opening that in a browser is what typically leads to OTP expired / wrong context.
+    // Extract the recovery token hash and build links.
     const tokenHash = data.properties?.hashed_token;
 
     if (!tokenHash) {
       throw new Error("No se pudo generar el token de recuperación");
     }
 
+    // 1) Deep link directo (ideal cuando el cliente de email lo permite)
     const deepLink = `app.marcelacocina.michef://reset-password#type=recovery&token_hash=${encodeURIComponent(tokenHash)}`;
+
+    // 2) Link https puente (Gmail suele bloquear esquemas custom y abre un https intermedio)
+    const webBridgeLink = `https://marcelacocinamichef.lovable.app/open-reset-password?type=recovery&token_hash=${encodeURIComponent(tokenHash)}`;
 
     // Send email via Resend with verified domain
     const emailResponse = await resend.emails.send({
@@ -93,26 +97,30 @@ const handler = async (req: Request): Promise<Response> => {
             <div style="text-align: center; margin-bottom: 30px;">
               <h1 style="color: #1f2937; font-size: 24px; margin: 0;">🍳 Mi Chef Personal</h1>
             </div>
-            
+
             <h2 style="color: #374151; font-size: 20px; margin-bottom: 16px;">Restablecer contraseña</h2>
-            
+
             <p style="color: #6b7280; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
               Recibimos una solicitud para restablecer tu contraseña. Tocá el botón de abajo para abrir la app y crear una nueva:
             </p>
-            
+
             <div style="text-align: center; margin: 32px 0;">
-              <a href="${deepLink}" 
+              <a href="${webBridgeLink}"
                  style="background-color: #10b981; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block;">
                 Restablecer contraseña
               </a>
             </div>
-            
+
+            <p style="color: #9ca3af; font-size: 12px; line-height: 1.6; margin-top: 24px;">
+              Si el botón no abre la app, probá este link directo: <a href="${deepLink}">Abrir Mi Chef Personal</a>
+            </p>
+
             <p style="color: #9ca3af; font-size: 14px; line-height: 1.6; margin-top: 24px;">
               Si no solicitaste este cambio, podés ignorar este email. El link expira en 1 hora.
             </p>
-            
+
             <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 32px 0;">
-            
+
             <p style="color: #9ca3af; font-size: 12px; text-align: center; margin: 0;">
               © ${new Date().getFullYear()} Mi Chef Personal
             </p>
