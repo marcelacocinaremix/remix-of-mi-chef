@@ -64,24 +64,12 @@ export default function Auth() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-password-reset`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            redirectUrl: `${window.location.origin}/reset-password`,
-          }),
-        }
-      );
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: 'app.marcelacocina.michef://reset-password'
+      });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "No se pudo enviar el email");
+      if (error) {
+        throw error;
       }
 
       toast({
