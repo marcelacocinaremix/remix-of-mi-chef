@@ -64,12 +64,16 @@ export default function Auth() {
 
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://marcelacocinamichef.lovable.app/reset-password'
+      // Use custom edge function with Resend for better control
+      const response = await supabase.functions.invoke('send-password-reset', {
+        body: {
+          email: email,
+          redirectUrl: 'https://marcelacocinamichef.lovable.app/reset-password'
+        }
       });
 
-      if (error) {
-        throw error;
+      if (response.error) {
+        throw new Error(response.error.message || "No se pudo enviar el email");
       }
 
       toast({
