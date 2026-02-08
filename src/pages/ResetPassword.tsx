@@ -28,36 +28,79 @@ export default function ResetPassword() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Listen for the PASSWORD_RECOVERY event from Supabase
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "PASSWORD_RECOVERY") {
-        setIsSessionReady(true);
-        setError(null);
-      } else if (event === "SIGNED_IN" && session) {
-        // Also handle if already signed in with recovery token
-        setIsSessionReady(true);
-        setError(null);
-      }
-    });
+    const initializeSession = async () => {
+      try {
+        // Extract tokens from URL - handle both hash fragments and query params
+        // The URL might be: app.marcelacocina.michef://reset-password#access_token=xxx&refresh_token=xxx
+        // Or on web: /reset-password#access_token=xxx&refresh_token=xxx
+        const hash = window.location.hash.substring(1); // Remove the #
+        const params = new URLSearchParams(hash || window.location.search);
+        
+        const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
+        const type = params.get('type');
 
-    // Check if there's already a session (in case the event already fired)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setIsSessionReady(true);
-      }
-    });
+        console.log('Reset password params:', { 
+          hasAccessToken: !!accessToken, 
+          hasRefreshToken: !!refreshToken,
+          type 
+        });
 
-    // Set a timeout to show error if no session after 5 seconds
-    const timeout = setTimeout(() => {
-      if (!isSessionReady) {
-        setError("El link de recuperación expiró o es inválido. Solicitá uno nuevo desde la app.");
-      }
-    }, 5000);
+        // If we have tokens in the URL, set the session manually
+        if (accessToken && refreshToken) {
+          const { data, error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
 
-    return () => {
-      subscription.unsubscribe();
-      clearTimeout(timeout);
+          if (sessionError) {
+            console.error('Error setting session:', sessionError);
+            setError("El link de recuperación expiró o es inválido. Solicitá uno nuevo desde la app.");
+            return;
+          }
+
+          if (data.session) {
+            console.log('Session established successfully');
+            setIsSessionReady(true);
+            setError(null);
+            return;
+          }
+        }
+
+        // Fallback: Listen for the PASSWORD_RECOVERY event from Supabase (for web flow)
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+          console.log('Auth state change:', event);
+          if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
+            setIsSessionReady(true);
+            setError(null);
+          }
+        });
+
+        // Check if there's already a session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          setIsSessionReady(true);
+          return;
+        }
+
+        // Set a timeout to show error if no session after 5 seconds
+        const timeout = setTimeout(() => {
+          if (!isSessionReady) {
+            setError("El link de recuperación expiró o es inválido. Solicitá uno nuevo desde la app.");
+          }
+        }, 5000);
+
+        return () => {
+          subscription.unsubscribe();
+          clearTimeout(timeout);
+        };
+      } catch (err) {
+        console.error('Error initializing session:', err);
+        setError("Ocurrió un error al procesar el link. Solicitá uno nuevo desde la app.");
+      }
     };
+
+    initializeSession();
   }, [isSessionReady]);
 
   const handleSubmit = async (e: React.FormEvent) => {
