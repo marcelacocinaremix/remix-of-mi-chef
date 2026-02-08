@@ -94,16 +94,6 @@ export default function ResetPassword() {
       await supabase.auth.signOut();
       
       setIsSuccess(true);
-      
-      toast({
-        title: "¡Contraseña actualizada!",
-        description: "Ya podés volver a la app e iniciar sesión.",
-      });
-
-      // Redirect to app after 3 seconds
-      setTimeout(() => {
-        window.location.href = "app.marcelacocina.michef://login";
-      }, 3000);
 
     } catch (error) {
       toast({
@@ -171,18 +161,14 @@ export default function ResetPassword() {
           <div className="bg-card rounded-2xl shadow-elevated p-8 border border-border/50">
             <CheckCircle className="w-16 h-16 text-primary mx-auto mb-4" />
             <h1 className="font-display text-2xl font-semibold text-foreground mb-2">
-              ¡Contraseña actualizada!
+              ¡Listo!
             </h1>
-            <p className="text-muted-foreground mb-6">
-              Tu contraseña fue cambiada exitosamente. En unos segundos serás redirigido a la app.
+            <p className="text-foreground text-lg mb-2">
+              Tu contraseña fue restablecida correctamente.
             </p>
-            <Button
-              onClick={() => window.location.href = "app.marcelacocina.michef://login"}
-              className="w-full"
-              size="lg"
-            >
-              Volver a la app
-            </Button>
+            <p className="text-muted-foreground mb-6">
+              Ya podés cerrar esta página y volver a la aplicación para iniciar sesión con tu nueva contraseña.
+            </p>
           </div>
         </div>
       </div>
