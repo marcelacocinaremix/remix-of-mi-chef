@@ -216,8 +216,9 @@ export default function Index() {
       const { data: cachedData, error: cacheError } = await supabase.functions.invoke('generate-recipe', {
         body: { 
           ingredients, 
-          time: isLimitedMode ? 30 : time, 
-          mealType: isLimitedMode ? null : mealType,
+          time, 
+          mealType,
+          quickFilters,
           language: language,
           hybridMode: true
         }
@@ -258,16 +259,16 @@ export default function Index() {
       const { data, error } = await supabase.functions.invoke('generate-recipe', {
         body: { 
           ingredients, 
-          time: isLimitedMode ? 30 : time, 
-          mealType: isLimitedMode ? null : mealType,
-          difficulty: isLimitedMode ? null : filters.difficulty,
-          diet: isLimitedMode ? [] : filters.diet,
-          excludeIngredients: isLimitedMode ? [] : filters.excludeIngredients,
-          servings: isLimitedMode ? null : filters.servings,
-          cookingMethod: isLimitedMode ? null : filters.cookingMethod,
-          budget: isLimitedMode ? null : filters.budget,
-          maxTime: isLimitedMode ? null : filters.maxTime,
-          excludeRecipes: isLimitedMode ? [] : recentRecipes,
+          time, 
+          mealType,
+          quickFilters,
+          difficulty: filters.difficulty,
+          diet: filters.diet,
+          excludeIngredients: filters.excludeIngredients,
+          servings: filters.servings,
+          cookingMethod: filters.cookingMethod,
+          budget: filters.budget,
+          excludeRecipes: recentRecipes,
           language: language,
           limitedMode: isLimitedMode
         }

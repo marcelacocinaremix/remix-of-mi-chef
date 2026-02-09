@@ -541,13 +541,13 @@ serve(async (req) => {
       ingredients, 
       time, 
       mealType, 
+      quickFilters,
       difficulty, 
       diet, 
       excludeIngredients, 
       servings, 
       cookingMethod, 
       budget, 
-      maxTime, 
       randomize, 
       excludeRecipes, 
       surpriseMode, 
@@ -673,7 +673,27 @@ Generá UNA SOLA receta sorpresa con estas características:
           'para-chicos': 'comida para niños',
           'para-freezar': 'comida para freezar/congelar'
         };
-        userPrompt += `Tipo de comida: ${mealTypes[mealType] || mealType}\n`;
+        // Handle combined mealType (moment + category separated by comma)
+        const mealTypeParts = mealType.split(',').map((p: string) => p.trim());
+        const mealDescriptions = mealTypeParts.map((mt: string) => mealTypes[mt] || mt).filter(Boolean);
+        if (mealDescriptions.length > 0) {
+          userPrompt += `Tipo de comida: ${mealDescriptions.join(' y ')}\n`;
+        }
+      }
+
+      // Process quick filters
+      if (quickFilters && quickFilters.length > 0) {
+        const quickFilterLabels: Record<string, string> = {
+          'vegetariano': 'vegetariano (sin carne ni pescado)',
+          'bajo-calorias': 'bajo en calorías/light',
+          'sin-gluten': 'sin gluten',
+          'sin-lactosa': 'sin lácteos',
+          'ninos': 'apto para niños (sabores suaves, presentación atractiva)',
+          'economico': 'económico/bajo presupuesto',
+          'alto-proteina': 'alto en proteínas'
+        };
+        const filterDescriptions = quickFilters.map((f: string) => quickFilterLabels[f] || f);
+        userPrompt += `Filtros adicionales: ${filterDescriptions.join(', ')}\n`;
       }
 
       if (servings) {
