@@ -361,7 +361,7 @@ export function HealthSummary({
                   transition={{ duration: 1.5, repeat: Infinity }}
                 />
               </h3>
-              <p className="text-white/70 text-sm">Objetivo + Balance + Actividad</p>
+              <p className="text-white/70 text-sm">Objetivo + Nutrición + Actividad</p>
             </div>
           </div>
         </div>
