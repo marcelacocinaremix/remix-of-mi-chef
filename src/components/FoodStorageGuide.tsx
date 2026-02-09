@@ -543,18 +543,26 @@ export function FoodStorageGuide() {
                       Detalles
                     </h4>
                     <ul className="space-y-2">
-                      {foodInfo.details.map((detail, index) => (
-                        <li key={index} className="flex items-start gap-2 text-sm bg-muted/30 p-2 rounded-lg">
-                          <span className={cn(
-                            "w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
-                            currentCategory?.bgColor + "/20",
-                            currentCategory?.color
-                          )}>
-                            {index + 1}
-                          </span>
-                          <span>{detail}</span>
-                        </li>
-                      ))}
+                      {foodInfo.details.map((detail, index) => {
+                        // Handle case where detail might be an object instead of string
+                        const detailText = typeof detail === 'string' 
+                          ? detail 
+                          : typeof detail === 'object' && detail !== null
+                            ? Object.values(detail).filter(v => typeof v === 'string').join(' - ')
+                            : String(detail);
+                        return (
+                          <li key={index} className="flex items-start gap-2 text-sm bg-muted/30 p-2 rounded-lg">
+                            <span className={cn(
+                              "w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
+                              currentCategory?.bgColor + "/20",
+                              currentCategory?.color
+                            )}>
+                              {index + 1}
+                            </span>
+                            <span>{detailText}</span>
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                 )}
@@ -572,12 +580,20 @@ export function FoodStorageGuide() {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {foodInfo.warnings.map((warning, index) => (
-                      <li key={index} className="flex items-start gap-2 text-sm">
-                        <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                        <span>{warning}</span>
-                      </li>
-                    ))}
+                    {foodInfo.warnings.map((warning, index) => {
+                      // Handle case where warning might be an object instead of string
+                      const warningText = typeof warning === 'string' 
+                        ? warning 
+                        : typeof warning === 'object' && warning !== null
+                          ? Object.values(warning).filter(v => typeof v === 'string').join(' - ')
+                          : String(warning);
+                      return (
+                        <li key={index} className="flex items-start gap-2 text-sm">
+                          <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                          <span>{warningText}</span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </CardContent>
               </Card>
@@ -594,12 +610,20 @@ export function FoodStorageGuide() {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {foodInfo.tips.map((tip, index) => (
-                      <li key={index} className="flex items-start gap-2 text-sm">
-                        <Sparkles className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                        <span>{tip}</span>
-                      </li>
-                    ))}
+                    {foodInfo.tips.map((tip, index) => {
+                      // Handle case where tip might be an object instead of string
+                      const tipText = typeof tip === 'string' 
+                        ? tip 
+                        : typeof tip === 'object' && tip !== null
+                          ? Object.values(tip).filter(v => typeof v === 'string').join(' - ')
+                          : String(tip);
+                      return (
+                        <li key={index} className="flex items-start gap-2 text-sm">
+                          <Sparkles className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                          <span>{tipText}</span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </CardContent>
               </Card>
