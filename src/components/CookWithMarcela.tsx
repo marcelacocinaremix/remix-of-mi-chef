@@ -695,41 +695,6 @@ export function CookWithMarcela({ onAchievementUnlocked }: CookWithMarcelaProps)
 
           {/* Actions */}
           <div className="flex flex-col gap-3 max-w-xs mx-auto">
-            {user && (
-              <>
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-lg"
-                  onClick={() => handleSaveAction("cooked")}
-                  disabled={isSaving}
-                >
-                  <Trophy className="w-5 h-5 mr-2" />
-                  Guardar en historial
-                </Button>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="flex-1"
-                    onClick={() => handleSaveAction("favorite")}
-                    disabled={isSaving}
-                  >
-                    <Heart className="w-4 h-4 mr-1" />
-                    Favoritos
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="flex-1"
-                    onClick={() => handleSaveAction("calendar")}
-                    disabled={isSaving}
-                  >
-                    <Calendar className="w-4 h-4 mr-1" />
-                    Planificar
-                  </Button>
-                </div>
-              </>
-            )}
             <Button
               variant="ghost"
               size="lg"
