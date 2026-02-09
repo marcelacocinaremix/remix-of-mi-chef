@@ -157,7 +157,7 @@ export default function Index() {
       const isDailyLimit = err?.context?.body?.dailyLimitReached;
       if (isDailyLimit) {
         toast({
-          title: '🍳 ¡Usaste tus 4 recetas de hoy!',
+          title: '🍳 ¡Usaste tus 8 recetas de hoy!',
           description: 'Volvé mañana para seguir cocinando con Marcela',
           variant: 'destructive',
         });
@@ -231,7 +231,7 @@ export default function Index() {
         
         if (is429) {
           toast({
-            title: "🍳 ¡Usaste tus 4 recetas de hoy!",
+            title: "🍳 ¡Usaste tus 8 recetas de hoy!",
             description: "Volvé mañana para seguir cocinando con Marcela",
             variant: "destructive",
           });
@@ -259,7 +259,7 @@ export default function Index() {
       
       if (is429) {
         toast({
-          title: "🍳 ¡Usaste tus 4 recetas de hoy!",
+          title: "🍳 ¡Usaste tus 8 recetas de hoy!",
           description: "Volvé mañana para seguir cocinando con Marcela",
           variant: "destructive",
         });
@@ -300,7 +300,7 @@ export default function Index() {
         
         if (is429) {
           toast({
-            title: "🍳 ¡Usaste tus 4 recetas de hoy!",
+            title: "🍳 ¡Usaste tus 8 recetas de hoy!",
             description: "Volvé mañana para seguir cocinando con Marcela",
             variant: "destructive",
           });
@@ -314,7 +314,7 @@ export default function Index() {
       // Check for daily limit in response
       if (data?.dailyLimitReached) {
         toast({
-          title: "🍳 ¡Usaste tus 4 recetas de hoy!",
+          title: "🍳 ¡Usaste tus 8 recetas de hoy!",
           description: "Volvé mañana para seguir cocinando con Marcela",
           variant: "destructive",
         });
