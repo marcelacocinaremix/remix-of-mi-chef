@@ -32,7 +32,6 @@ interface QuickFilter {
 
 const QUICK_FILTERS: QuickFilter[] = [
   { id: "vegetariano", label: "Vegetariano", icon: Leaf, color: "bg-green-500/20 text-green-600 border-green-500/30 hover:bg-green-500/30", category: "diet" },
-  { id: "rapido", label: "< 20 min", icon: Timer, color: "bg-blue-500/20 text-blue-600 border-blue-500/30 hover:bg-blue-500/30", category: "time" },
   { id: "bajo-calorias", label: "Light", icon: Flame, color: "bg-orange-500/20 text-orange-600 border-orange-500/30 hover:bg-orange-500/30", category: "preference" },
   { id: "sin-gluten", label: "Sin Gluten", icon: Wheat, color: "bg-amber-500/20 text-amber-600 border-amber-500/30 hover:bg-amber-500/30", category: "diet" },
   { id: "sin-lactosa", label: "Sin Lácteos", icon: Milk, color: "bg-purple-500/20 text-purple-600 border-purple-500/30 hover:bg-purple-500/30", category: "diet" },
