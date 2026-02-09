@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Language, translations, TranslationKey } from "@/i18n/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
 
 
@@ -747,9 +748,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                         });
                         if (error) throw error;
                       } else {
-                        const { error } = await supabase.auth.signInWithOAuth({
-                          provider: "google",
-                          options: { redirectTo: window.location.origin },
+                        const { error } = await lovable.auth.signInWithOAuth("google", {
+                          redirect_uri: window.location.origin,
                         });
                         if (error) throw error;
                       }
