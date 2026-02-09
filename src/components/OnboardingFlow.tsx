@@ -733,20 +733,18 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     setIsLoading(true);
                     try {
                       if (Capacitor.isNativePlatform()) {
-                        const { GoogleAuth } = await import("@codetrix-studio/capacitor-google-auth");
-                        await GoogleAuth.initialize({
-                          clientId: "917075133002-au4d.apps.googleusercontent.com",
-                          scopes: ["profile", "email"],
-                          grantOfflineAccess: true,
-                        });
-                        const result = await GoogleAuth.signIn();
-                        const idToken = result.authentication.idToken;
-                        if (!idToken) throw new Error("No se obtuvo el token de Google");
-                        const { error } = await supabase.auth.signInWithIdToken({
+                        const { data, error } = await supabase.auth.signInWithOAuth({
                           provider: "google",
-                          token: idToken,
+                          options: {
+                            redirectTo: "app.marcelacocina.michef://google-auth",
+                            skipBrowserRedirect: true,
+                          },
                         });
                         if (error) throw error;
+                        if (data?.url) {
+                          const { Browser } = await import("@capacitor/browser");
+                          await Browser.open({ url: data.url, windowName: "_self" });
+                        }
                       } else {
                         const { error } = await lovable.auth.signInWithOAuth("google", {
                           redirect_uri: window.location.origin,
