@@ -164,6 +164,13 @@ const MySummary = ({
       const pantryList = pantryItems?.map(i => i.ingredient_name).join(", ") || "";
       const recentList = recentRecipes?.map(r => r.recipe_name).join(", ") || "";
 
+      // Re-check session before calling edge function to avoid 401 after logout
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      if (!currentSession) {
+        setAiTip(t("defaultTip"));
+        return;
+      }
+
       const response = await supabase.functions.invoke("generate-smart-tip", {
         body: {
           pantryIngredients: pantryList,
