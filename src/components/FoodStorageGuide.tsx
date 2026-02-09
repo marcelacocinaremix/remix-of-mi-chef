@@ -190,6 +190,7 @@ export function FoodStorageGuide() {
   const [notFoodError, setNotFoodError] = useState(false);
   const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -237,6 +238,7 @@ export function FoodStorageGuide() {
     setIsLoading(true);
     setFoodInfo(null);
     setNotFoodError(false);
+    setIsSaved(false); // Reset saved state for new search
 
     try {
       const { data, error } = await supabase.functions.invoke("food-tips-guide", {
@@ -256,6 +258,19 @@ export function FoodStorageGuide() {
         saveToHistory(foodToUse, categoryToUse);
         if (foodOverride) setFoodName(foodOverride);
         if (categoryOverride) setSelectedCategory(categoryOverride);
+        
+        // Check if already saved in favorites
+        if (user) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const { data: existingFav } = await (supabase.from("favorite_food_tips") as any)
+            .select("id")
+            .eq("user_id", user.id)
+            .eq("food_name", data.name)
+            .eq("category", data.category)
+            .maybeSingle();
+          
+          setIsSaved(!!existingFav);
+        }
       }
     } catch (error) {
       console.error("Error fetching food info:", error);
@@ -269,7 +284,7 @@ export function FoodStorageGuide() {
     }
   };
 
-  const handleSaveToFavorites = async () => {
+  const handleToggleFavorite = async () => {
     if (!user) {
       toast({
         title: "Iniciá sesión",
@@ -283,34 +298,55 @@ export function FoodStorageGuide() {
 
     setIsSaving(true);
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabase.from("favorite_food_tips") as any).insert([{
-        user_id: user.id,
-        food_name: foodInfo.name,
-        category: foodInfo.category,
-        tip_data: foodInfo,
-      }]);
+      if (isSaved) {
+        // Remove from favorites
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (supabase.from("favorite_food_tips") as any)
+          .delete()
+          .eq("user_id", user.id)
+          .eq("food_name", foodInfo.name)
+          .eq("category", foodInfo.category);
 
-      if (error) {
-        if (error.code === "23505") {
-          toast({
-            title: "Ya guardado",
-            description: "Este tip ya está en tus favoritos",
-          });
-        } else {
-          throw error;
-        }
-      } else {
+        if (error) throw error;
+        
+        setIsSaved(false);
         toast({
-          title: "¡Guardado!",
-          description: "Tip agregado a tus favoritos",
+          title: "Eliminado",
+          description: "Tip eliminado de tus favoritos",
         });
+      } else {
+        // Add to favorites
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (supabase.from("favorite_food_tips") as any).insert([{
+          user_id: user.id,
+          food_name: foodInfo.name,
+          category: foodInfo.category,
+          tip_data: foodInfo,
+        }]);
+
+        if (error) {
+          if (error.code === "23505") {
+            setIsSaved(true);
+            toast({
+              title: "Ya guardado",
+              description: "Este tip ya está en tus favoritos",
+            });
+          } else {
+            throw error;
+          }
+        } else {
+          setIsSaved(true);
+          toast({
+            title: "¡Guardado!",
+            description: "Tip agregado a tus favoritos",
+          });
+        }
       }
     } catch (err) {
-      console.error("Error saving to favorites:", err);
+      console.error("Error toggling favorite:", err);
       toast({
         title: "Error",
-        description: "No pudimos guardar el tip",
+        description: "No pudimos procesar la solicitud",
         variant: "destructive",
       });
     } finally {
@@ -511,18 +547,18 @@ export function FoodStorageGuide() {
                     </div>
                   </div>
                   <Button
-                    variant="outline"
+                    variant={isSaved ? "outline" : "default"}
                     size="sm"
-                    onClick={handleSaveToFavorites}
+                    onClick={handleToggleFavorite}
                     disabled={isSaving}
                     className="gap-1.5"
                   >
                     {isSaving ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      <Heart className="w-4 h-4" />
+                      <Heart className={cn("w-4 h-4", isSaved && "fill-rose-500 text-rose-500")} />
                     )}
-                    Guardar
+                    {isSaved ? "Guardado" : "Guardar"}
                   </Button>
                 </CardTitle>
               </CardHeader>
