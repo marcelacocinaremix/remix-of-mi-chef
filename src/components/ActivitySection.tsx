@@ -272,6 +272,34 @@ export function ActivitySection({ onNavigateToBalance }: ActivitySectionProps) {
 
   return (
     <div className="space-y-6">
+      {/* Explanation Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <Card className="border-orange-500/20 bg-gradient-to-r from-orange-500/5 to-transparent">
+          <CardContent className="py-3 px-4">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-orange-500/15 flex items-center justify-center shrink-0 mt-0.5">
+                <Dumbbell className="w-4 h-4 text-orange-500" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-foreground font-medium">
+                  {language === 'es' ? '¿Cómo funciona?' : 'How does it work?'}
+                </p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {language === 'es' 
+                    ? <>Agregá tu <span className="font-medium text-foreground">entrenamiento de cada día</span> y combinalo con tu nutrición para obtener un análisis completo de tu progreso en la pestaña <span className="font-medium text-orange-500">Resumen</span>.</>
+                    : <>Add your <span className="font-medium text-foreground">daily workout</span> and combine it with your nutrition to get a complete analysis of your progress in the <span className="font-medium text-orange-500">Summary</span> tab.</>
+                  }
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* Smart Activity Analysis - Goal connected */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
