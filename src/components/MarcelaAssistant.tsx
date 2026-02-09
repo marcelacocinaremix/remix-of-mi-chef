@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { X, Loader2, GripVertical, Lightbulb, Sparkles, Eye } from "lucide-react";
+import { Loader2, GripVertical, HelpCircle } from "lucide-react";
 import { FuturisticOrb } from "./FuturisticOrb";
 import { supabase } from "@/integrations/supabase/client";
 import { Recipe } from "@/components/RecipeList";
@@ -414,7 +414,7 @@ export function MarcelaAssistant({
     }
   };
 
-  const [isHidden, setIsHidden] = useState(false);
+  const [isHidden, setIsHidden] = useState(true);
   const hasDragged = useRef(false);
 
   const handleHide = () => {
@@ -604,15 +604,15 @@ export function MarcelaAssistant({
 
   const shouldShowSparkles = currentMood === 'excited' || currentMood === 'proud' || currentAnimation === 'sparkle' || currentAnimation === 'celebrate';
 
-  // Show button when hidden
+  // Show help button when hidden
   if (isHidden) {
     return (
       <button
         onClick={() => setIsHidden(false)}
-        className="fixed bottom-6 right-4 z-50 w-12 h-12 bg-primary text-primary-foreground rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform duration-200 animate-fade-in"
+        className="fixed bottom-6 right-4 z-50 w-12 h-12 bg-card border border-border text-primary rounded-full shadow-lg flex items-center justify-center hover:scale-110 hover:bg-accent transition-all duration-200"
         title={tLocal("marcelaShowTitle")}
       >
-        <Eye className="w-5 h-5" />
+        <HelpCircle className="w-6 h-6" />
       </button>
     );
   }
