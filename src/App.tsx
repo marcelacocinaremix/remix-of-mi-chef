@@ -24,7 +24,7 @@ const queryClient = new QueryClient();
 // Main App component with all providers
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
       <AuthProvider>
         <PremiumProvider>
           <LanguageProvider>
