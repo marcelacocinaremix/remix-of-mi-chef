@@ -249,8 +249,23 @@ export default function Index() {
           description: "Te muestro una receta mientras Marcela prepara más opciones...",
         });
       }
-    } catch (cacheError) {
-      console.log('Cache lookup failed, continuing with AI generation');
+    } catch (cacheError: any) {
+      console.log('Cache lookup failed:', cacheError);
+      // Check if it's a 429 error in the catch block
+      const errorStr = JSON.stringify(cacheError || {}).toLowerCase();
+      const errorMessage = cacheError?.message?.toLowerCase() || '';
+      const is429 = errorStr.includes('429') || errorStr.includes('límite') || 
+                    errorStr.includes('dailylimit') || errorMessage.includes('429');
+      
+      if (is429) {
+        toast({
+          title: "🍳 ¡Usaste tus 4 recetas de hoy!",
+          description: "Volvé mañana para seguir cocinando con Marcela",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
     }
 
     // Generate with AI in parallel
