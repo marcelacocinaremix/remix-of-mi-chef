@@ -742,9 +742,7 @@ Generá UNA SOLA receta sorpresa con estas características:
         userPrompt += `Presupuesto: ${budgetLabels[budget] || budget}\n`;
       }
 
-      if (maxTime) {
-        userPrompt += `Tiempo máximo estricto: ${maxTime} minutos\n`;
-      }
+      // Time is already included in the main time parameter
 
       if (randomize) {
         userPrompt += `IMPORTANTE: Sorprendeme con una receta creativa e inesperada. Sugiere solo UNA receta.\n`;
