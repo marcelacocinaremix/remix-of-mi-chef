@@ -433,6 +433,25 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
             {balanceSubTab === "nutricion" && (
               <div className="space-y-6">
                 
+                {/* Explanation Card */}
+                <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+                  <CardContent className="py-3 px-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-0.5">
+                        <ChefHat className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm text-foreground font-medium">¿Cómo se agregan recetas?</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Generando recetas en la app y completando el <span className="font-medium text-foreground">Modo Cocina</span> de cada receta, 
+                          o apretando el botón <span className="font-medium text-foreground">"Ya la cociné"</span>, se agregan automáticamente a tu nutrición. 
+                          Obtené tu resumen en la pestaña <span className="font-medium text-primary">Resumen</span>.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
                 {/* Period Selector */}
                 <PeriodSelector value={balancePeriod} onChange={setBalancePeriod} />
                 
