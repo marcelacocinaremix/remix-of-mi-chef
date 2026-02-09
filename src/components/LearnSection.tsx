@@ -1834,29 +1834,6 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
         ))}
       </Tabs>
 
-      {/* Practice CTA */}
-      <Card className="bg-gradient-to-r from-primary/10 to-amber-500/10 border-primary/20">
-        <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-center sm:text-left">
-              <h3 className="font-semibold text-lg">¿Listo para practicar?</h3>
-              <p className="text-sm text-muted-foreground">
-                Aplicá lo aprendido cocinando recetas reales o jugando
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <Button onClick={onNavigateToCooking} className="gap-2">
-                <ChefHat className="h-4 w-4" />
-                Cocinar
-              </Button>
-              <Button onClick={onNavigateToGame} variant="outline" className="gap-2">
-                <Gamepad2 className="h-4 w-4" />
-                Jugar
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Motivational Footer */}
       <div className="text-center py-4">
