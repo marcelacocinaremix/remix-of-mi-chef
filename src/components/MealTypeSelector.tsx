@@ -35,10 +35,12 @@ export function MealTypeSelector({ value, onChange }: MealTypeSelectorProps) {
   const { t } = useLanguage();
   
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Momento del día */}
-      <div>
-        <span className="text-xs text-muted-foreground mb-2 block">{t("timeOfDay")}</span>
+      <div className="p-3 rounded-xl bg-accent/30 border border-border/50">
+        <span className="text-xs font-medium text-foreground mb-2.5 block flex items-center gap-1.5">
+          ☀️ {t("timeOfDay")}
+        </span>
         <div className="flex flex-wrap gap-2">
           {momentOptions.map((type) => {
             const Icon = type.icon;
@@ -50,11 +52,11 @@ export function MealTypeSelector({ value, onChange }: MealTypeSelectorProps) {
                 onClick={() => onChange(isSelected ? null : type.id)}
                 className={cn(
                   "flex items-center gap-2 px-3 py-2 rounded-full",
-                  "border-2 transition-all duration-300",
+                  "border-2 transition-all duration-200",
                   "text-sm font-medium",
                   isSelected
-                    ? "border-primary bg-primary text-primary-foreground shadow-soft"
-                    : "border-border bg-card text-foreground hover:border-primary/50 hover:bg-accent"
+                    ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                    : "border-border bg-card text-foreground hover:border-primary/50"
                 )}
               >
                 <Icon className="w-4 h-4" />
@@ -66,8 +68,10 @@ export function MealTypeSelector({ value, onChange }: MealTypeSelectorProps) {
       </div>
 
       {/* Tipo de comida */}
-      <div>
-        <span className="text-xs text-muted-foreground mb-2 block">{t("mealTypeCategory")}</span>
+      <div className="p-3 rounded-xl bg-muted/30 border border-border/50">
+        <span className="text-xs font-medium text-foreground mb-2.5 block flex items-center gap-1.5">
+          🍽️ {t("mealTypeCategory")}
+        </span>
         <div className="flex flex-wrap gap-2">
           {typeOptions.map((type) => {
             const Icon = type.icon;
@@ -79,11 +83,11 @@ export function MealTypeSelector({ value, onChange }: MealTypeSelectorProps) {
                 onClick={() => onChange(isSelected ? null : type.id)}
                 className={cn(
                   "flex items-center gap-2 px-3 py-2 rounded-full",
-                  "border-2 transition-all duration-300",
+                  "border-2 transition-all duration-200",
                   "text-sm font-medium",
                   isSelected
-                    ? "border-primary bg-primary text-primary-foreground shadow-soft"
-                    : "border-border bg-card text-foreground hover:border-primary/50 hover:bg-accent"
+                    ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                    : "border-border bg-card text-foreground hover:border-primary/50"
                 )}
               >
                 <Icon className="w-4 h-4" />
