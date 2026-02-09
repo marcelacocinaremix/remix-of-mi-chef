@@ -9,6 +9,13 @@ const config: CapacitorConfig = {
   },
   ios: {
     backgroundColor: '#FDF6F0'
+  },
+  plugins: {
+    GoogleAuth: {
+      scopes: ['profile', 'email'],
+      serverClientId: '917075133002-au4d.apps.googleusercontent.com',
+      forceCodeForRefreshToken: true
+    }
   }
 };
 
