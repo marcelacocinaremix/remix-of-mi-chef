@@ -48,7 +48,7 @@ interface BudgetOption {
 }
 
 const servingsOptions = [1, 2, 4, 6, 8];
-const maxTimeOptions = [15, 30, 45, 60, 90];
+
 
 export function AdvancedFilters({ filters, onChange, disabled = false, onUpgradeClick }: AdvancedFiltersProps) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -129,12 +129,6 @@ export function AdvancedFilters({ filters, onChange, disabled = false, onUpgrade
     });
   };
 
-  const handleMaxTimeChange = (time: number) => {
-    onChange({
-      ...filters,
-      maxTime: filters.maxTime === time ? null : time,
-    });
-  };
 
   const handleAddExclude = () => {
     const trimmed = excludeInput.trim().toLowerCase();
@@ -167,8 +161,7 @@ export function AdvancedFilters({ filters, onChange, disabled = false, onUpgrade
     filters.excludeIngredients.length +
     (filters.servings ? 1 : 0) +
     (filters.cookingMethod ? 1 : 0) +
-    (filters.budget ? 1 : 0) +
-    (filters.maxTime ? 1 : 0);
+    (filters.budget ? 1 : 0);
 
   const clearAllFilters = () => {
     onChange({
@@ -259,30 +252,6 @@ export function AdvancedFilters({ filters, onChange, disabled = false, onUpgrade
             </div>
           </div>
 
-          {/* Max Time */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-3 flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              {t('maxTime')}
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {maxTimeOptions.map((time) => (
-                <button
-                  key={time}
-                  onClick={() => handleMaxTimeChange(time)}
-                  className={cn(
-                    "w-14 h-10 rounded-lg flex items-center justify-center",
-                    "border-2 transition-all duration-300 font-medium text-sm",
-                    filters.maxTime === time
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-background hover:border-primary/50"
-                  )}
-                >
-                  {time}
-                </button>
-              ))}
-            </div>
-          </div>
 
           {/* Servings */}
           <div>
