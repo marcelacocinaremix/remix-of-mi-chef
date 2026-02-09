@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,7 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Check, X } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import logo from "@/assets/logo.png";
-
 const handleGoogleSignIn = async (
   supabaseClient: typeof import("@/integrations/supabase/client").supabase,
   toast: ReturnType<typeof import("@/hooks/use-toast").useToast>["toast"],
@@ -32,10 +32,9 @@ const handleGoogleSignIn = async (
       });
       if (error) throw error;
     } else {
-      // Web fallback: use Supabase OAuth redirect
-      const { error } = await supabaseClient.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: window.location.origin },
+      // Web fallback: use Lovable Cloud OAuth
+      const { error } = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
       });
       if (error) throw error;
     }
