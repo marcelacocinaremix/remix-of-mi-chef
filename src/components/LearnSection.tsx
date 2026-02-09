@@ -1561,22 +1561,6 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                   Marcar como completado
                 </Button>
               )}
-              <Button
-                variant="outline"
-                onClick={onNavigateToCooking}
-                className="flex-1"
-              >
-                <Play className="h-4 w-4 mr-2" />
-                Practicar cocinando
-              </Button>
-              <Button
-                variant="outline"
-                onClick={onNavigateToGame}
-                className="flex-1"
-              >
-                <Gamepad2 className="h-4 w-4 mr-2" />
-                Practicar jugando
-              </Button>
             </div>
           </CardContent>
         </Card>
