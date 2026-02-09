@@ -17,20 +17,20 @@ const handleGoogleSignIn = async (
   setLoading(true);
   try {
     if (Capacitor.isNativePlatform()) {
-      const { GoogleAuth } = await import("@codetrix-studio/capacitor-google-auth");
-      await GoogleAuth.initialize({
-        clientId: "917075133002-au4d.apps.googleusercontent.com",
-        scopes: ["profile", "email"],
-        grantOfflineAccess: true,
-      });
-      const result = await GoogleAuth.signIn();
-      const idToken = result.authentication.idToken;
-      if (!idToken) throw new Error("No se obtuvo el token de Google");
-      const { error } = await supabaseClient.auth.signInWithIdToken({
+      // Native Android/iOS: use Supabase OAuth with custom scheme redirect
+      const { data, error } = await supabaseClient.auth.signInWithOAuth({
         provider: "google",
-        token: idToken,
+        options: {
+          redirectTo: "app.marcelacocina.michef://google-auth",
+          skipBrowserRedirect: true,
+        },
       });
       if (error) throw error;
+      if (data?.url) {
+        // Open the OAuth URL in the system browser
+        const { Browser } = await import("@capacitor/browser");
+        await Browser.open({ url: data.url, windowName: "_self" });
+      }
     } else {
       // Web fallback: use Lovable Cloud OAuth
       const { error } = await lovable.auth.signInWithOAuth("google", {
