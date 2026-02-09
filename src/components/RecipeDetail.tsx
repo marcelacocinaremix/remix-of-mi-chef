@@ -572,19 +572,6 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               <Copy className="w-5 h-5" />
               {isCopying ? "Copiando..." : hasCopied ? "Copiados ✓" : "Copiar ingredientes"}
             </Button>
-            <Button 
-              variant={hasDownloaded ? "outline" : "default"} 
-              size="lg"
-              onClick={async () => {
-                await exportRecipeToPDF(recipe);
-                setHasDownloaded(true);
-              }}
-              disabled={isExporting}
-              className="w-full"
-            >
-              <FileDown className="w-5 h-5" />
-              {isExporting ? "Descargando..." : hasDownloaded ? "Descargada ✓" : "Descargar receta"}
-            </Button>
           </div>
 
           {/* Footer message */}
