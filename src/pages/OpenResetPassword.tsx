@@ -1,5 +1,7 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
+import { Copy, CheckCircle } from "lucide-react";
+import { useState } from "react";
 import logo from "@/assets/logo.png";
 
 function getParams(): URLSearchParams {
@@ -12,39 +14,47 @@ function getParams(): URLSearchParams {
 }
 
 export default function OpenResetPassword() {
+  const [copied, setCopied] = useState(false);
   const params = useMemo(() => getParams(), []);
 
   const tokenHash = params.get("token_hash") || params.get("token");
   const type = params.get("type") || "recovery";
-
-  const deepLink = useMemo(() => {
-    if (!tokenHash) return null;
-    // Usamos query params (no #hash) porque en Android algunos handlers pierden el fragment.
-    return `app.marcelacocina.michef://reset-password?type=${encodeURIComponent(type)}&token_hash=${encodeURIComponent(tokenHash)}`;
-  }, [tokenHash, type]);
 
   const webResetLink = useMemo(() => {
     if (!tokenHash) return null;
     return `${window.location.origin}/reset-password?type=${encodeURIComponent(type)}&token_hash=${encodeURIComponent(tokenHash)}`;
   }, [tokenHash, type]);
 
-  useEffect(() => {
-    if (!deepLink) return;
-
-    // Intentamos abrir la app automáticamente.
-    // Si el cliente de email/navegador lo bloquea, quedan los botones manuales.
-    window.location.href = deepLink;
-  }, [deepLink]);
+  const handleCopy = async () => {
+    if (!webResetLink) return;
+    try {
+      await navigator.clipboard.writeText(webResetLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // Fallback
+      const input = document.createElement("input");
+      input.value = webResetLink;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      document.body.removeChild(input);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
+  };
 
   return (
     <div className="min-h-screen gradient-hero flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <img src={logo} alt="Mi Chef Personal" className="w-24 h-24 mx-auto mb-4" />
-          <h1 className="font-display text-3xl font-semibold text-foreground">Abrir la app</h1>
+          <h1 className="font-display text-3xl font-semibold text-foreground">
+            Restablecer contraseña
+          </h1>
           <p className="text-muted-foreground mt-2">
-            {deepLink
-              ? "Si no se abrió automáticamente, tocá el botón de abajo."
+            {webResetLink
+              ? "Tocá el botón para ir a cambiar tu contraseña."
               : "Este link es inválido o expiró. Volvé a solicitar la recuperación desde la app."}
           </p>
         </div>
@@ -53,29 +63,49 @@ export default function OpenResetPassword() {
           <Button
             className="w-full"
             size="lg"
-            disabled={!deepLink}
-            onClick={() => {
-              if (deepLink) window.location.href = deepLink;
-            }}
-          >
-            Abrir Mi Chef Personal
-          </Button>
-
-          <Button
-            className="w-full"
-            size="lg"
-            variant="outline"
             disabled={!webResetLink}
             onClick={() => {
               if (webResetLink) window.location.href = webResetLink;
             }}
           >
-            Cambiar contraseña en el navegador
+            Cambiar contraseña
           </Button>
 
-          <p className="text-sm text-muted-foreground">
-            Tip: en algunos clientes de correo, los links a apps se abren mejor tocando “Abrir en Chrome” y luego “Abrir en la app”.
-          </p>
+          {webResetLink && (
+            <>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">o copiá el link</span>
+                </div>
+              </div>
+
+              <Button
+                className="w-full"
+                size="lg"
+                variant="outline"
+                onClick={handleCopy}
+              >
+                {copied ? (
+                  <>
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    ¡Link copiado!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copiar link al portapapeles
+                  </>
+                )}
+              </Button>
+
+              <p className="text-sm text-muted-foreground text-center">
+                Si el botón no funciona, copiá el link y pegalo en el navegador Chrome.
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>
