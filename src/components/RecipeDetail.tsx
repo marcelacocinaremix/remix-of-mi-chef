@@ -539,9 +539,6 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               <Check className="w-5 h-5" />
               {isMarkingCooked ? "Registrando..." : (hasMarkedCooked || recentlyCooked) ? "Cocinada ✓" : "Ya la cociné"}
             </Button>
-            <p className="text-xs text-muted-foreground text-center -mt-1">
-              {(hasMarkedCooked || recentlyCooked) ? "Esta receta ya está registrada" : "Registra esta receta en tu historial de nutrición"}
-            </p>
             
             <Button 
               variant={hasCopied ? "outline" : "default"} 
