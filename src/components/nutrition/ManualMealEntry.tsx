@@ -115,7 +115,7 @@ export function ManualMealEntry({ onAdd }: ManualMealEntryProps) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Escribí lo que comiste y la IA completa los valores automáticamente ✨
+        Escribí lo que comiste y la IA calcula los valores nutricionales automáticamente ✨
       </p>
 
       <div className="space-y-3">
@@ -136,74 +136,16 @@ export function ManualMealEntry({ onAdd }: ManualMealEntryProps) {
               </div>
             )}
           </div>
-          {autoFilled && !aiLoading && (
-            <div className="flex items-center gap-1 mt-1">
-              {aiSource ? (
-                <>
-                  <Wand2 className="w-3 h-3 text-primary" />
-                  <span className="text-[11px] text-primary">Valores estimados por IA</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-3 h-3 text-primary" />
-                  <span className="text-[11px] text-primary">Valores completados automáticamente</span>
-                </>
-              )}
-            </div>
-          )}
         </div>
 
         <div>
-          <Label htmlFor="portion">Porción</Label>
+          <Label htmlFor="portion">Porción (opcional)</Label>
           <Input
             id="portion"
             placeholder="Ej: 1 plato, 2 unidades"
             value={portion}
             onChange={(e) => setPortion(e.target.value)}
           />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label htmlFor="calories">Calorías (kcal)</Label>
-            <Input
-              id="calories"
-              type="number"
-              placeholder="0"
-              value={calories}
-              onChange={(e) => { setCalories(e.target.value); setAutoFilled(false); }}
-            />
-          </div>
-          <div>
-            <Label htmlFor="protein">Proteínas (g)</Label>
-            <Input
-              id="protein"
-              type="number"
-              placeholder="0"
-              value={protein}
-              onChange={(e) => { setProtein(e.target.value); setAutoFilled(false); }}
-            />
-          </div>
-          <div>
-            <Label htmlFor="carbs">Carbohidratos (g)</Label>
-            <Input
-              id="carbs"
-              type="number"
-              placeholder="0"
-              value={carbs}
-              onChange={(e) => { setCarbs(e.target.value); setAutoFilled(false); }}
-            />
-          </div>
-          <div>
-            <Label htmlFor="fats">Grasas (g)</Label>
-            <Input
-              id="fats"
-              type="number"
-              placeholder="0"
-              value={fats}
-              onChange={(e) => { setFats(e.target.value); setAutoFilled(false); }}
-            />
-          </div>
         </div>
       </div>
 
