@@ -37,6 +37,11 @@ interface HealthSummaryProps {
   carbsPercent: number;
   fatsPercent: number;
   totalWorkouts: number;
+  todayCalories?: number;
+  todayProtein?: number;
+  todayCarbs?: number;
+  todayFats?: number;
+  todayMealsCount?: number;
 }
 
 const GOAL_CONFIG: Record<string, { 
@@ -228,7 +233,12 @@ export function HealthSummary({
   proteinPercent,
   carbsPercent,
   fatsPercent,
-  totalWorkouts
+  totalWorkouts,
+  todayCalories = 0,
+  todayProtein = 0,
+  todayCarbs = 0,
+  todayFats = 0,
+  todayMealsCount = 0,
 }: HealthSummaryProps) {
   const goalConfig = goal?.goal ? GOAL_CONFIG[goal.goal] : null;
   
@@ -501,37 +511,90 @@ export function HealthSummary({
         </motion.div>
       )}
 
-      {/* Quick Stats Row - Tech Style */}
+      {/* Today's Nutrition Summary */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+      >
+        <Card className="bg-card border-border">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Utensils className="w-4 h-4 text-primary" />
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Nutrición Hoy</p>
+              <Badge variant="secondary" className="text-[10px] font-mono ml-auto">
+                {todayMealsCount} comidas
+              </Badge>
+            </div>
+            {todayMealsCount > 0 ? (
+              <div className="grid grid-cols-4 gap-1.5">
+                {[
+                  { icon: <Flame className="w-4 h-4" />, value: Math.round(todayCalories), label: "Kcal", color: "text-orange-500", delay: 0.2 },
+                  { icon: <span className="text-xs font-bold">P</span>, value: Math.round(todayProtein), label: "Proteína", color: "text-chart-1", suffix: "g", delay: 0.3 },
+                  { icon: <span className="text-xs font-bold">C</span>, value: Math.round(todayCarbs), label: "Carbos", color: "text-chart-2", suffix: "g", delay: 0.4 },
+                  { icon: <span className="text-xs font-bold">G</span>, value: Math.round(todayFats), label: "Grasas", color: "text-chart-3", suffix: "g", delay: 0.5 },
+                ].map((stat) => (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: stat.delay }}
+                    className="text-center"
+                  >
+                    <span className={stat.color}>{stat.icon}</span>
+                    <p className="text-sm font-bold font-mono text-foreground mt-0.5">
+                      <AnimatedCounter value={stat.value} duration={1.5} />
+                      {stat.suffix && <span className="text-xs">{stat.suffix}</span>}
+                    </p>
+                    <p className="text-[9px] text-muted-foreground font-mono uppercase whitespace-nowrap">{stat.label}</p>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-2">
+                Aún no registraste comidas hoy
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Activity Quick Stats */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <div className="grid grid-cols-4 gap-1.5">
-          {[
-            { icon: <Flame className="w-4 h-4" />, value: stats.totalCalories, label: "Kcal", color: "text-rose-500", delay: 0.3 },
-            { icon: <Utensils className="w-4 h-4" />, value: Math.round(totalCaloriesConsumed), label: "Ingeridas", color: "text-emerald-500", delay: 0.4 },
-            { icon: <Zap className="w-4 h-4" />, value: stats.currentStreak, label: "Racha", color: "text-amber-500", delay: 0.5 },
-            { icon: <Clock className="w-4 h-4" />, value: stats.avgDuration, label: "Min", color: "text-primary", delay: 0.6 },
-          ].map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: stat.delay }}
-            >
-              <Card className="bg-card border-border">
-                <CardContent className="p-2 text-center">
+        <Card className="bg-card border-border">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Dumbbell className="w-4 h-4 text-chart-2" />
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Actividad Semanal</p>
+            </div>
+            <div className="grid grid-cols-4 gap-1.5">
+              {[
+                { icon: <Activity className="w-4 h-4" />, value: stats.weeklyWorkouts, label: "Entrenos", color: "text-chart-2", delay: 0.3 },
+                { icon: <Flame className="w-4 h-4" />, value: stats.totalCalories, label: "Kcal quem.", color: "text-rose-500", delay: 0.4 },
+                { icon: <Zap className="w-4 h-4" />, value: stats.currentStreak, label: "Racha", color: "text-amber-500", delay: 0.5 },
+                { icon: <Clock className="w-4 h-4" />, value: stats.avgDuration, label: "Min prom.", color: "text-primary", delay: 0.6 },
+              ].map((stat) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: stat.delay }}
+                  className="text-center"
+                >
                   <span className={stat.color}>{stat.icon}</span>
-                  <p className="text-sm font-bold font-mono text-foreground mt-1">
+                  <p className="text-sm font-bold font-mono text-foreground mt-0.5">
                     <AnimatedCounter value={stat.value} duration={1.5} />
                   </p>
                   <p className="text-[9px] text-muted-foreground font-mono uppercase whitespace-nowrap">{stat.label}</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </motion.div>
 
       {/* Recommendations - Tech Style */}
