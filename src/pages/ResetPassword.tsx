@@ -238,8 +238,15 @@ export default function ResetPassword() {
               Tu contraseña fue restablecida correctamente.
             </p>
             <p className="text-muted-foreground mb-6">
-              Ya podés cerrar esta página y volver a la aplicación para iniciar sesión con tu nueva contraseña.
+              Ya podés volver a la aplicación para iniciar sesión con tu nueva contraseña.
             </p>
+            <Button
+              onClick={() => window.location.href = "app.marcelacocina.michef://login"}
+              className="w-full"
+              size="lg"
+            >
+              Abrir Mi Chef Personal
+            </Button>
           </div>
         </div>
       </div>
