@@ -13,49 +13,54 @@ export function useDeepLink() {
   useEffect(() => {
     let cleanup: (() => void) | null = null;
 
+    const handleDeepLinkUrl = async (url: string) => {
+      console.log("[DeepLink] Procesando URL:", url);
+      try {
+        const urlObj = new URL(url);
+        const params = urlObj.searchParams;
+
+        const tokenHash = params.get("token_hash") || params.get("token");
+        const type = params.get("type") || "recovery";
+
+        if (tokenHash && (type === "recovery" || urlObj.pathname?.includes("reset-password") || urlObj.host?.includes("reset-password"))) {
+          console.log("[DeepLink] Token de recuperación detectado, verificando OTP...");
+
+          const { data, error } = await supabase.auth.verifyOtp({
+            type: type as any,
+            token_hash: tokenHash,
+          });
+
+          if (error) {
+            console.error("[DeepLink] Error verificando OTP:", error);
+            navigate("/reset-password", { replace: true });
+            return;
+          }
+
+          if (data.session) {
+            console.log("[DeepLink] Sesión de recuperación establecida, navegando a /reset-password");
+            navigate("/reset-password", { replace: true });
+          }
+        }
+      } catch (err) {
+        console.error("[DeepLink] Error procesando URL:", err);
+      }
+    };
+
     const setup = async () => {
       try {
-        // Solo importar en entorno nativo
         const { App } = await import("@capacitor/app");
-        console.log("[DeepLink] Plugin @capacitor/app cargado, registrando listener...");
+        console.log("[DeepLink] Plugin cargado, registrando listener...");
 
-        const listener = await App.addListener("appUrlOpen", async ({ url }) => {
-          console.log("[DeepLink] URL recibida:", url);
+        // Cold start: la app fue abierta desde el deep link
+        const launchUrl = await App.getLaunchUrl();
+        if (launchUrl?.url) {
+          console.log("[DeepLink] Cold start URL:", launchUrl.url);
+          handleDeepLinkUrl(launchUrl.url);
+        }
 
-          try {
-            // Parsear la URL del deep link
-            // Formato: app.marcelacocina.michef://reset-password?type=recovery&token_hash=xxx
-            const urlObj = new URL(url);
-            const params = urlObj.searchParams;
-
-            const tokenHash = params.get("token_hash") || params.get("token");
-            const type = params.get("type") || "recovery";
-
-            if (tokenHash && (type === "recovery" || urlObj.pathname?.includes("reset-password") || urlObj.host?.includes("reset-password"))) {
-              console.log("[DeepLink] Token de recuperación detectado, verificando OTP...");
-
-              const { data, error } = await supabase.auth.verifyOtp({
-                type: type as any,
-                token_hash: tokenHash,
-              });
-
-              if (error) {
-                console.error("[DeepLink] Error verificando OTP:", error);
-                // Navegar igualmente al reset para mostrar el error
-                navigate("/reset-password", { replace: true });
-                return;
-              }
-
-              if (data.session) {
-                console.log("[DeepLink] Sesión de recuperación establecida, navegando a /reset-password");
-                // La navegación la puede hacer el onAuthStateChange (PASSWORD_RECOVERY)
-                // pero también forzamos por si acaso
-                navigate("/reset-password", { replace: true });
-              }
-            }
-          } catch (err) {
-            console.error("[DeepLink] Error procesando URL:", err);
-          }
+        // Warm start: la app ya estaba abierta
+        const listener = await App.addListener("appUrlOpen", ({ url }) => {
+          handleDeepLinkUrl(url);
         });
 
         cleanup = () => listener.remove();
