@@ -10,7 +10,7 @@ export interface MealLog {
   meal_date: string;
   meal_type: MealType;
   food_name: string;
-  source: "manual" | "search" | "recipe";
+  source: "manual" | "search" | "recipe" | "ai";
   calories: number;
   protein: number;
   carbs: number;
@@ -24,7 +24,7 @@ export interface MealLogInsert {
   meal_date?: string;
   meal_type: MealType;
   food_name: string;
-  source?: "manual" | "search" | "recipe";
+  source?: "manual" | "search" | "recipe" | "ai";
   calories: number;
   protein: number;
   carbs: number;

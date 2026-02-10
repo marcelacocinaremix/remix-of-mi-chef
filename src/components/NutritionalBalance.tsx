@@ -407,58 +407,72 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
 
                 {/* Charts */}
                 {periodMeals.length > 0 ? (
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {/* Pie Chart */}
-                    <Card>
-                      <CardHeader className="pb-2">
+                  <div className="space-y-4">
+                    {/* Pie Chart - Macro Distribution */}
+                    <Card className="overflow-hidden">
+                      <CardHeader className="pb-0">
                         <CardTitle className="text-base flex items-center gap-2">
-                          <Target className="w-4 h-4" />
+                          <Target className="w-4 h-4 text-primary" />
                           Distribución de Macros
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="pb-4">
-                        <div className="h-[160px] w-full">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                              <Pie data={pieData} cx="50%" cy="50%" innerRadius={40} outerRadius={65} paddingAngle={2} dataKey="value">
-                                {pieData.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={entry.color} />
-                                ))}
-                              </Pie>
-                              <Tooltip
-                                formatter={(value: number, name: string) => [`${Math.round(value)}g`, name === 'value' ? '' : name]}
-                                contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }}
-                              />
-                            </PieChart>
-                          </ResponsiveContainer>
-                        </div>
-                        <div className="flex justify-center gap-4 mt-2">
-                          {pieData.map((item, index) => (
-                            <div key={index} className="flex items-center gap-1.5">
-                              <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: item.color }} />
-                              <span className="text-xs text-muted-foreground">{item.name}</span>
-                            </div>
-                          ))}
+                      <CardContent className="pb-4 pt-3">
+                        <div className="flex items-center gap-4">
+                          <div className="h-[140px] w-[140px] shrink-0">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <PieChart>
+                                <Pie data={pieData} cx="50%" cy="50%" innerRadius={35} outerRadius={60} paddingAngle={3} dataKey="value" strokeWidth={0}>
+                                  {pieData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                  ))}
+                                </Pie>
+                                <Tooltip
+                                  formatter={(value: number, name: string) => [`${Math.round(value)}g`, name]}
+                                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }}
+                                />
+                              </PieChart>
+                            </ResponsiveContainer>
+                          </div>
+                          <div className="flex-1 space-y-3">
+                            {pieData.map((item, index) => {
+                              const total = pieData.reduce((s, i) => s + i.value, 0);
+                              const pct = total > 0 ? Math.round((item.value / total) * 100) : 0;
+                              return (
+                                <div key={index} className="space-y-1">
+                                  <div className="flex items-center justify-between text-xs">
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                                      <span className="font-medium">{item.name}</span>
+                                    </div>
+                                    <span className="text-muted-foreground">{Math.round(item.value)}g ({pct}%)</span>
+                                  </div>
+                                  <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                                    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: item.color }} />
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
 
-                    {/* Bar Chart */}
+                    {/* Bar Chart - Weekly */}
                     <Card>
                       <CardHeader className="pb-2">
                         <CardTitle className="text-base flex items-center gap-2">
-                          <TrendingUp className="w-4 h-4" />
-                          Consumo Semanal por Día
+                          <TrendingUp className="w-4 h-4 text-primary" />
+                          Evolución Semanal
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="pb-4">
-                        <div className="h-[160px] w-full">
+                        <div className="h-[180px] w-full">
                           <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={dailyData} barGap={0}>
-                              <XAxis dataKey="day" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
+                            <BarChart data={dailyData} barGap={1} barSize={20}>
+                              <XAxis dataKey="day" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
                               <YAxis hide domain={[0, 'dataMax + 10']} />
                               <Tooltip
-                                contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }}
+                                contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '10px', fontSize: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                                 formatter={(value: number, name: string) => {
                                   const labels: { [key: string]: string } = { proteinas: 'Proteínas', carbohidratos: 'Carbos', grasas: 'Grasas' };
                                   return [`${Math.round(value)}g`, labels[name] || name];
@@ -469,6 +483,14 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
                               <Bar dataKey="grasas" stackId="a" fill={chartConfig.grasas.color} radius={[4, 4, 0, 0]} />
                             </BarChart>
                           </ResponsiveContainer>
+                        </div>
+                        <div className="flex justify-center gap-4 mt-3">
+                          {Object.entries(chartConfig).map(([key, config]) => (
+                            <div key={key} className="flex items-center gap-1.5">
+                              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: config.color }} />
+                              <span className="text-[11px] text-muted-foreground">{config.label}</span>
+                            </div>
+                          ))}
                         </div>
                       </CardContent>
                     </Card>
