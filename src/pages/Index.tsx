@@ -791,6 +791,7 @@ export default function Index() {
                   <NutritionalBalance 
                     onRecommendRecipes={() => {
                       setActiveTab("cocinar");
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
                       toast({
                         title: t("marcelaTipTitle"),
                         description: t("marcelaTipNutrients"),
