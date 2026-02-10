@@ -733,25 +733,19 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     setIsLoading(true);
                     try {
                       if (Capacitor.isNativePlatform()) {
-                        const redirectUrl = "https://marcelacocinamichef.lovable.app/auth/callback";
-                        const { data, error } = await supabase.auth.signInWithOAuth({
+                        // Native: use native Google Sign-In plugin (no browser needed)
+                        const { GoogleAuth } = await import("@codetrix-studio/capacitor-google-auth");
+                        const googleUser = await GoogleAuth.signIn();
+                        
+                        if (!googleUser?.authentication?.idToken) {
+                          throw new Error("No se obtuvo el token de Google");
+                        }
+
+                        const { error } = await supabase.auth.signInWithIdToken({
                           provider: "google",
-                          options: {
-                            redirectTo: redirectUrl,
-                            skipBrowserRedirect: true,
-                          },
+                          token: googleUser.authentication.idToken,
                         });
                         if (error) throw error;
-                        if (data?.url) {
-                          const { Browser } = await import("@capacitor/browser");
-                          Browser.addListener("browserFinished", async () => {
-                            const { data: sessionData } = await supabase.auth.getSession();
-                            if (sessionData?.session) {
-                              window.location.reload();
-                            }
-                          });
-                          await Browser.open({ url: data.url, windowName: "_self" });
-                        }
                       } else {
                         const { error } = await lovable.auth.signInWithOAuth("google", {
                           redirect_uri: window.location.origin,

@@ -17,30 +17,22 @@ const handleGoogleSignIn = async (
   setLoading(true);
   try {
     if (Capacitor.isNativePlatform()) {
-      // Native Android/iOS: use web redirect + browser listener
-      const redirectUrl = "https://marcelacocinamichef.lovable.app/auth/callback";
-      const { data, error } = await supabaseClient.auth.signInWithOAuth({
+      // Native: use native Google Sign-In plugin (no browser needed)
+      const { GoogleAuth } = await import("@codetrix-studio/capacitor-google-auth");
+      const googleUser = await GoogleAuth.signIn();
+      
+      if (!googleUser?.authentication?.idToken) {
+        throw new Error("No se obtuvo el token de Google");
+      }
+
+      // Use the ID token to sign in with Supabase
+      const { error } = await supabaseClient.auth.signInWithIdToken({
         provider: "google",
-        options: {
-          redirectTo: redirectUrl,
-          skipBrowserRedirect: true,
-        },
+        token: googleUser.authentication.idToken,
       });
       if (error) throw error;
-      if (data?.url) {
-        const { Browser } = await import("@capacitor/browser");
-        // Listen for when user returns from browser
-        Browser.addListener("browserFinished", async () => {
-          // Check if session was established
-          const { data: sessionData } = await supabaseClient.auth.getSession();
-          if (sessionData?.session) {
-            window.location.reload();
-          }
-        });
-        await Browser.open({ url: data.url, windowName: "_self" });
-      }
     } else {
-      // Web fallback: use Lovable Cloud OAuth
+      // Web: use Lovable Cloud OAuth
       const { error } = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.origin,
       });
