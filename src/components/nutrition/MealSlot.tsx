@@ -1,39 +1,46 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Coffee, UtensilsCrossed, Cookie, Moon, Apple } from "lucide-react";
+import { Plus, Trash2, Coffee, UtensilsCrossed, Cookie, Moon, Apple, ChevronDown, ChevronUp } from "lucide-react";
 import { MealLog, MealType } from "@/hooks/useMealLogs";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
-const MEAL_CONFIG: Record<MealType, { label: string; icon: React.ReactNode; hint: string; color: string }> = {
+const MEAL_CONFIG: Record<MealType, { label: string; emoji: string; hint: string; gradient: string; iconBg: string }> = {
   desayuno: {
     label: "Desayuno",
-    icon: <Coffee className="w-4 h-4" />,
+    emoji: "☀️",
     hint: "Empezá el día con energía",
-    color: "text-amber-500",
+    gradient: "from-amber-500/15 to-orange-500/5",
+    iconBg: "bg-amber-500/20 text-amber-600",
   },
   almuerzo: {
     label: "Almuerzo",
-    icon: <UtensilsCrossed className="w-4 h-4" />,
+    emoji: "🍽️",
     hint: "Tu comida principal del mediodía",
-    color: "text-emerald-500",
+    gradient: "from-emerald-500/15 to-green-500/5",
+    iconBg: "bg-emerald-500/20 text-emerald-600",
   },
   merienda: {
     label: "Merienda",
-    icon: <Cookie className="w-4 h-4" />,
+    emoji: "🍪",
     hint: "Un snack para la tarde",
-    color: "text-purple-500",
+    gradient: "from-purple-500/15 to-violet-500/5",
+    iconBg: "bg-purple-500/20 text-purple-600",
   },
   cena: {
     label: "Cena",
-    icon: <Moon className="w-4 h-4" />,
+    emoji: "🌙",
     hint: "Algo liviano para cerrar el día",
-    color: "text-blue-500",
+    gradient: "from-blue-500/15 to-indigo-500/5",
+    iconBg: "bg-blue-500/20 text-blue-600",
   },
   entre_comidas: {
-    label: "Entre comidas",
-    icon: <Apple className="w-4 h-4" />,
-    hint: "Colaciones y snacks durante el día",
-    color: "text-rose-500",
+    label: "Snacks",
+    emoji: "🍎",
+    hint: "Colaciones durante el día",
+    gradient: "from-rose-500/15 to-pink-500/5",
+    iconBg: "bg-rose-500/20 text-rose-600",
   },
 };
 
@@ -47,6 +54,7 @@ interface MealSlotProps {
 export function MealSlot({ mealType, meals, onAddMeal, onDeleteMeal }: MealSlotProps) {
   const config = MEAL_CONFIG[mealType];
   const slotMeals = meals.filter((m) => m.meal_type === mealType);
+  const [expanded, setExpanded] = useState(slotMeals.length > 0);
   const slotTotals = slotMeals.reduce(
     (acc, m) => ({
       calories: acc.calories + Number(m.calories),
@@ -57,60 +65,88 @@ export function MealSlot({ mealType, meals, onAddMeal, onDeleteMeal }: MealSlotP
     { calories: 0, protein: 0, carbs: 0, fats: 0 }
   );
 
-  return (
-    <Card className="border-border/50">
-      <CardContent className="p-3">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <span className={config.color}>{config.icon}</span>
-            <span className="font-medium text-sm">{config.label}</span>
-            {slotMeals.length > 0 && (
-              <Badge variant="secondary" className="text-[10px] h-5">
-                {Math.round(slotTotals.calories)} kcal
-              </Badge>
-            )}
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 gap-1 text-xs text-primary"
-            onClick={() => onAddMeal(mealType)}
-          >
-            <Plus className="w-3.5 h-3.5" />
-            Agregar
-          </Button>
-        </div>
+  const hasMeals = slotMeals.length > 0;
 
-        {slotMeals.length === 0 ? (
-          <p className="text-xs text-muted-foreground italic pl-6">{config.hint}</p>
+  return (
+    <div className={cn(
+      "rounded-xl border border-border/40 overflow-hidden transition-all duration-200",
+      hasMeals ? "shadow-sm" : "opacity-80 hover:opacity-100"
+    )}>
+      {/* Header - always visible */}
+      <button
+        onClick={() => hasMeals ? setExpanded(!expanded) : onAddMeal(mealType)}
+        className={cn(
+          "w-full flex items-center gap-3 p-3 transition-colors",
+          hasMeals ? `bg-gradient-to-r ${config.gradient}` : "bg-card hover:bg-accent/30"
+        )}
+      >
+        <span className={cn("w-9 h-9 rounded-lg flex items-center justify-center text-lg", config.iconBg)}>
+          {config.emoji}
+        </span>
+        <div className="flex-1 text-left">
+          <p className="font-semibold text-sm">{config.label}</p>
+          {hasMeals ? (
+            <p className="text-[11px] text-muted-foreground">
+              {slotMeals.length} {slotMeals.length === 1 ? "comida" : "comidas"} · {Math.round(slotTotals.calories)} kcal
+            </p>
+          ) : (
+            <p className="text-[11px] text-muted-foreground">{config.hint}</p>
+          )}
+        </div>
+        {hasMeals ? (
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-[10px] h-5 font-bold">
+              {Math.round(slotTotals.calories)} kcal
+            </Badge>
+            {expanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+          </div>
         ) : (
-          <div className="space-y-1.5 pl-6">
+          <Plus className="w-4 h-4 text-primary" />
+        )}
+      </button>
+
+      {/* Expanded content */}
+      {expanded && hasMeals && (
+        <div className="bg-card border-t border-border/30">
+          <div className="divide-y divide-border/30">
             {slotMeals.map((meal) => (
-              <div key={meal.id} className="flex items-center justify-between py-1 group">
+              <div key={meal.id} className="flex items-center gap-3 px-3 py-2.5 group">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm truncate">{meal.food_name}</p>
-                  <div className="flex gap-2 text-[10px] text-muted-foreground">
-                    <span>{Math.round(Number(meal.calories))} kcal</span>
-                    <span>P:{Math.round(Number(meal.protein))}g</span>
-                    <span>C:{Math.round(Number(meal.carbs))}g</span>
-                    <span>G:{Math.round(Number(meal.fats))}g</span>
-                    {meal.portion && <span>• {meal.portion}</span>}
+                  <p className="text-sm font-medium truncate">{meal.food_name}</p>
+                  <div className="flex gap-3 text-[10px] text-muted-foreground mt-0.5">
+                    <span className="font-medium">{Math.round(Number(meal.calories))} kcal</span>
+                    <span>P: {Math.round(Number(meal.protein))}g</span>
+                    <span>C: {Math.round(Number(meal.carbs))}g</span>
+                    <span>G: {Math.round(Number(meal.fats))}g</span>
+                    {meal.portion && <span className="text-primary/70">· {meal.portion}</span>}
                   </div>
                 </div>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
-                  onClick={() => onDeleteMeal(meal.id)}
+                  className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-destructive shrink-0"
+                  onClick={(e) => { e.stopPropagation(); onDeleteMeal(meal.id); }}
                 >
-                  <Trash2 className="w-3 h-3" />
+                  <Trash2 className="w-3.5 h-3.5" />
                 </Button>
               </div>
             ))}
           </div>
-        )}
-      </CardContent>
-    </Card>
+          {/* Add more button */}
+          <div className="px-3 py-2 border-t border-border/30">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full h-8 text-xs text-primary gap-1.5"
+              onClick={() => onAddMeal(mealType)}
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Agregar más
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
