@@ -59,7 +59,7 @@ export function AddMealDialog({
                 <ArrowLeft className="w-4 h-4" />
               </Button>
             )}
-            <span className={config.color}>{config.icon}</span>
+            <span>{config.emoji}</span>
             Agregar a {config.label}
           </DialogTitle>
         </DialogHeader>
