@@ -52,6 +52,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
     isSaving,
     isLoading: isActivityLoading,
     refetch: refetchActivity,
+    getWorkoutsByPeriod,
   } = useActivityTracking();
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<string>("balance");
@@ -250,6 +251,18 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
             todayCarbs={getTotalsForPeriod("day").carbs}
             todayFats={getTotalsForPeriod("day").fats}
             todayMealsCount={getMealsForPeriod("day").length}
+            getNutritionForPeriod={(period) => {
+              const totals = getTotalsForPeriod(period);
+              const periodMeals = getMealsForPeriod(period);
+              return {
+                calories: totals.calories,
+                protein: totals.protein,
+                carbs: totals.carbs,
+                fats: totals.fats,
+                mealsCount: periodMeals.length,
+              };
+            }}
+            getWorkoutsForPeriod={(period) => getWorkoutsByPeriod(period).length}
           />
         )}
 
