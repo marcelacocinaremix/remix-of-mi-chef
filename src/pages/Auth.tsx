@@ -18,7 +18,7 @@ const handleGoogleSignIn = async (
   try {
     if (Capacitor.isNativePlatform()) {
       // Native Android/iOS: use web redirect + browser listener
-      const redirectUrl = "https://marcelacocinamichef.lovable.app";
+      const redirectUrl = "https://marcelacocinamichef.lovable.app/auth/callback";
       const { data, error } = await supabaseClient.auth.signInWithOAuth({
         provider: "google",
         options: {

@@ -17,6 +17,7 @@ import TermsOfService from "./pages/TermsOfService";
 import SharedRecipe from "./pages/SharedRecipe";
 import PaymentProcessing from "./pages/PaymentProcessing";
 import PaymentFailed from "./pages/PaymentFailed";
+import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => (
                     <Route path="/r/:shareCode" element={<SharedRecipe />} />
                     <Route path="/payment-processing" element={<PaymentProcessing />} />
                     <Route path="/payment-failed" element={<PaymentFailed />} />
+                    <Route path="/auth/callback" element={<AuthCallback />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </BrowserRouter>
