@@ -98,9 +98,10 @@ const INTENSITY_LABELS: Record<number, { es: string; en: string }> = {
 
 interface ActivitySectionProps {
   onNavigateToBalance?: () => void;
+  onWorkoutsChanged?: () => void;
 }
 
-export function ActivitySection({ onNavigateToBalance }: ActivitySectionProps) {
+export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: ActivitySectionProps) {
   const { user } = useAuth();
   const { language } = useLanguage();
   const { play } = useSound();
@@ -208,6 +209,7 @@ export function ActivitySection({ onNavigateToBalance }: ActivitySectionProps) {
     );
 
     if (success) {
+      onWorkoutsChanged?.();
       if (soundEnabled) {
         play('success');
       }
@@ -620,7 +622,7 @@ export function ActivitySection({ onNavigateToBalance }: ActivitySectionProps) {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => deleteWorkout(workout.id)}
+                          onClick={async () => { await deleteWorkout(workout.id); onWorkoutsChanged?.(); }}
                           className="text-destructive hover:text-destructive h-8 w-8 p-0"
                         >
                           <Trash2 className="w-4 h-4" />
