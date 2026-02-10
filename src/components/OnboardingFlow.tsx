@@ -733,7 +733,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     setIsLoading(true);
                     try {
                       if (Capacitor.isNativePlatform()) {
-                        const redirectUrl = "https://marcelacocinamichef.lovable.app";
+                        const redirectUrl = "https://marcelacocinamichef.lovable.app/auth/callback";
                         const { data, error } = await supabase.auth.signInWithOAuth({
                           provider: "google",
                           options: {
