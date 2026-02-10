@@ -37,7 +37,7 @@ export function ManualMealEntry({ onAdd }: ManualMealEntryProps) {
         setProtein(String(data.protein));
         setCarbs(String(data.carbs));
         setFats(String(data.fats));
-        if (data.portion && !portion) setPortion(data.portion);
+        // Don't auto-fill portion, let the user decide
         setAutoFilled(true);
         setAiSource(true);
       }
@@ -58,7 +58,7 @@ export function ManualMealEntry({ onAdd }: ManualMealEntryProps) {
       setProtein(String(match.protein));
       setCarbs(String(match.carbs));
       setFats(String(match.fats));
-      if (!portion) setPortion(match.portion);
+      // Don't auto-fill portion from local DB either
       setAutoFilled(true);
       setAiSource(false);
       // Cancel any pending AI call
