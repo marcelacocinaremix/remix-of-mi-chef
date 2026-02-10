@@ -2,3 +2,6 @@ project_id = "taddzjuyepftmvmmsdde"
 
 [functions.send-password-reset]
 verify_jwt = false
+
+[functions.estimate-nutrition]
+verify_jwt = false
