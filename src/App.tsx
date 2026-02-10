@@ -26,14 +26,14 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-      <AuthProvider>
-        <PremiumProvider>
-          <LanguageProvider>
-            <KitchenTimerProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
+      <BrowserRouter>
+        <AuthProvider>
+          <PremiumProvider>
+            <LanguageProvider>
+              <KitchenTimerProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
                   <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
@@ -49,12 +49,12 @@ const App = () => (
                     <Route path="/auth/callback" element={<AuthCallback />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
-                </BrowserRouter>
-              </TooltipProvider>
-            </KitchenTimerProvider>
-          </LanguageProvider>
-        </PremiumProvider>
-      </AuthProvider>
+                </TooltipProvider>
+              </KitchenTimerProvider>
+            </LanguageProvider>
+          </PremiumProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </ThemeProvider>
   </QueryClientProvider>
 );
