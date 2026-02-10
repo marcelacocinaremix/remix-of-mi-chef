@@ -811,6 +811,7 @@ export default function Index() {
                         description: `"${ingredientName}" fue agregado a tu lista de cocinar`,
                       });
                     }}
+                    onSubTabChange={setActiveSubTab}
                   />
                 </div>
                 <BackToMenuButton />

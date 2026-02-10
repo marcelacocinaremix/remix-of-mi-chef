@@ -40,9 +40,10 @@ import { NutritionRecommendations } from "@/components/nutrition/NutritionRecomm
 interface NutritionalBalanceProps {
   onRecommendRecipes?: () => void;
   onAddIngredientToCook?: (ingredientName: string) => void;
+  onSubTabChange?: (subTab: string) => void;
 }
 
-export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }: NutritionalBalanceProps) {
+export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, onSubTabChange }: NutritionalBalanceProps) {
   const { meals, getTotalsForPeriod, getMealsForPeriod, refetch: refetchMeals } = useMealLogs();
   const {
     goal,
@@ -196,7 +197,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
       <div className="bg-card/50 rounded-xl p-1.5 border border-border/30">
         <div className="grid grid-cols-3 gap-1.5">
           <button
-            onClick={() => setActiveTab("balance")}
+            onClick={() => { setActiveTab("balance"); onSubTabChange?.("balance"); }}
             className={cn(
               "flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-lg font-medium transition-all duration-300",
               activeTab === "balance"
@@ -208,7 +209,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
             <span className="text-xs">{t("healthTabBalance")}</span>
           </button>
           <button
-            onClick={() => setActiveTab("actividad")}
+            onClick={() => { setActiveTab("actividad"); onSubTabChange?.("actividad"); }}
             className={cn(
               "flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-lg font-medium transition-all duration-300",
               activeTab === "actividad"
@@ -220,7 +221,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
             <span className="text-xs">{t("healthTabActivity")}</span>
           </button>
           <button
-            onClick={() => setActiveTab("resumen")}
+            onClick={() => { setActiveTab("resumen"); onSubTabChange?.("resumen"); }}
             className={cn(
               "flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-lg font-medium transition-all duration-300",
               activeTab === "resumen"
