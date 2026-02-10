@@ -17,18 +17,26 @@ const handleGoogleSignIn = async (
   setLoading(true);
   try {
     if (Capacitor.isNativePlatform()) {
-      // Native Android/iOS: use Supabase OAuth with custom scheme redirect
+      // Native Android/iOS: use web redirect + browser listener
+      const redirectUrl = "https://marcelacocinamichef.lovable.app";
       const { data, error } = await supabaseClient.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: "app.marcelacocina.michef://google-auth",
+          redirectTo: redirectUrl,
           skipBrowserRedirect: true,
         },
       });
       if (error) throw error;
       if (data?.url) {
-        // Open the OAuth URL in the system browser
         const { Browser } = await import("@capacitor/browser");
+        // Listen for when user returns from browser
+        Browser.addListener("browserFinished", async () => {
+          // Check if session was established
+          const { data: sessionData } = await supabaseClient.auth.getSession();
+          if (sessionData?.session) {
+            window.location.reload();
+          }
+        });
         await Browser.open({ url: data.url, windowName: "_self" });
       }
     } else {
