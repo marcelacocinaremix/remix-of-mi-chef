@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Flame, Beef, Wheat, Droplets } from "lucide-react";
+import { ChevronLeft, ChevronRight, Flame, Beef, Wheat, Droplets, CalendarIcon } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 import { MealType, useMealLogs } from "@/hooks/useMealLogs";
 import { MealSlot } from "./MealSlot";
 import { AddMealDialog } from "./AddMealDialog";
@@ -52,16 +54,36 @@ export function DailyMealLog() {
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigateDate(-1)}>
           <ChevronLeft className="w-4 h-4" />
         </Button>
-        <div className="text-center">
-          <p className="font-semibold text-sm">{formatDate(selectedDate)}</p>
-          {!isToday && (
-            <button
-              className="text-[10px] text-primary underline"
-              onClick={() => setSelectedDate(today)}
-            >
-              Volver a hoy
-            </button>
-          )}
+        <div className="flex items-center gap-2">
+          <div className="text-center">
+            <p className="font-semibold text-sm">{formatDate(selectedDate)}</p>
+            {!isToday && (
+              <button
+                className="text-[10px] text-primary underline"
+                onClick={() => setSelectedDate(today)}
+              >
+                Volver a hoy
+              </button>
+            )}
+          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-7 w-7">
+                <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="center">
+              <Calendar
+                mode="single"
+                selected={new Date(selectedDate + "T12:00:00")}
+                onSelect={(date) => {
+                  if (date) setSelectedDate(date.toISOString().split("T")[0]);
+                }}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
         <Button
           variant="ghost"
