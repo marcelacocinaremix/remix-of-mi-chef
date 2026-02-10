@@ -733,16 +733,23 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     setIsLoading(true);
                     try {
                       if (Capacitor.isNativePlatform()) {
+                        const redirectUrl = "https://marcelacocinamichef.lovable.app";
                         const { data, error } = await supabase.auth.signInWithOAuth({
                           provider: "google",
                           options: {
-                            redirectTo: "app.marcelacocina.michef://google-auth",
+                            redirectTo: redirectUrl,
                             skipBrowserRedirect: true,
                           },
                         });
                         if (error) throw error;
                         if (data?.url) {
                           const { Browser } = await import("@capacitor/browser");
+                          Browser.addListener("browserFinished", async () => {
+                            const { data: sessionData } = await supabase.auth.getSession();
+                            if (sessionData?.session) {
+                              window.location.reload();
+                            }
+                          });
                           await Browser.open({ url: data.url, windowName: "_self" });
                         }
                       } else {
