@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { 
   Target, 
@@ -28,6 +30,16 @@ import healthSummaryBanner from "@/assets/health-summary-banner.jpg";
 import { GoalProgressChart } from "@/components/activity/GoalProgressChart";
 import { AnimatedCounter } from "@/components/activity/AnimatedCounter";
 
+type SummaryPeriod = "week" | "month" | "year";
+
+interface PeriodNutritionData {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fats: number;
+  mealsCount: number;
+}
+
 interface HealthSummaryProps {
   goal: UserFitnessGoal | null;
   stats: WorkoutStats;
@@ -42,6 +54,8 @@ interface HealthSummaryProps {
   todayCarbs?: number;
   todayFats?: number;
   todayMealsCount?: number;
+  getNutritionForPeriod?: (period: SummaryPeriod) => PeriodNutritionData;
+  getWorkoutsForPeriod?: (period: SummaryPeriod) => number;
 }
 
 const GOAL_CONFIG: Record<string, { 
@@ -239,8 +253,20 @@ export function HealthSummary({
   todayCarbs = 0,
   todayFats = 0,
   todayMealsCount = 0,
+  getNutritionForPeriod,
+  getWorkoutsForPeriod,
 }: HealthSummaryProps) {
+  const [summaryPeriod, setSummaryPeriod] = useState<SummaryPeriod>("week");
   const goalConfig = goal?.goal ? GOAL_CONFIG[goal.goal] : null;
+
+  const periodLabels: Record<SummaryPeriod, string> = { week: "Semana", month: "Mes", year: "Año" };
+  
+  const periodNutrition = getNutritionForPeriod?.(summaryPeriod) ?? {
+    calories: totalCaloriesConsumed,
+    protein: 0, carbs: 0, fats: 0,
+    mealsCount: weeklyRecipesCount,
+  };
+  const periodWorkoutsCount = getWorkoutsForPeriod?.(summaryPeriod) ?? totalWorkouts;
   
   // Calculate scores for each area
   const balanceScore = weeklyRecipesCount > 0 ? Math.min(100, weeklyRecipesCount * 15) : 0;
@@ -597,7 +623,80 @@ export function HealthSummary({
         </Card>
       </motion.div>
 
-      {/* Recommendations - Tech Style */}
+      {/* Period Summary */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+      >
+        <Card className="bg-card border-border">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-primary" />
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Resumen por período</p>
+              </div>
+            </div>
+            {/* Period selector */}
+            <div className="flex gap-1 mb-4">
+              {(["week", "month", "year"] as SummaryPeriod[]).map((p) => (
+                <Button
+                  key={p}
+                  variant={summaryPeriod === p ? "default" : "ghost"}
+                  size="sm"
+                  className="flex-1 h-8 text-xs"
+                  onClick={() => setSummaryPeriod(p)}
+                >
+                  {periodLabels[p]}
+                </Button>
+              ))}
+            </div>
+            {/* Period data */}
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1.5">
+                  <Utensils className="w-3 h-3" /> Nutrición — {periodLabels[summaryPeriod]}
+                </p>
+                <div className="grid grid-cols-4 gap-1.5 text-center">
+                  <div>
+                    <p className="text-sm font-bold font-mono text-foreground">{Math.round(periodNutrition.calories)}</p>
+                    <p className="text-[9px] text-muted-foreground">kcal</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold font-mono text-chart-1">{Math.round(periodNutrition.protein)}g</p>
+                    <p className="text-[9px] text-muted-foreground">Proteína</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold font-mono text-chart-2">{Math.round(periodNutrition.carbs)}g</p>
+                    <p className="text-[9px] text-muted-foreground">Carbos</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold font-mono text-chart-3">{Math.round(periodNutrition.fats)}g</p>
+                    <p className="text-[9px] text-muted-foreground">Grasas</p>
+                  </div>
+                </div>
+                <p className="text-[10px] text-muted-foreground text-center mt-1">{periodNutrition.mealsCount} comidas registradas</p>
+              </div>
+              <div className="border-t border-border pt-3">
+                <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1.5">
+                  <Dumbbell className="w-3 h-3" /> Actividad — {periodLabels[summaryPeriod]}
+                </p>
+                <div className="grid grid-cols-2 gap-2 text-center">
+                  <div>
+                    <p className="text-sm font-bold font-mono text-foreground">{periodWorkoutsCount}</p>
+                    <p className="text-[9px] text-muted-foreground">Entrenamientos</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold font-mono text-foreground">{stats.currentStreak}</p>
+                    <p className="text-[9px] text-muted-foreground">Racha actual</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {recommendations.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
