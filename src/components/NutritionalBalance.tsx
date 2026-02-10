@@ -51,6 +51,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
     updateActivityProfile,
     isSaving,
     isLoading: isActivityLoading,
+    refetch: refetchActivity,
   } = useActivityTracking();
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<string>("balance");
@@ -585,7 +586,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
                 </div>
               </div>
             </div>
-            <ActivitySection onNavigateToBalance={() => setActiveTab("balance")} />
+            <ActivitySection onNavigateToBalance={() => setActiveTab("balance")} onWorkoutsChanged={refetchActivity} />
           </div>
         )}
       </div>
