@@ -102,7 +102,7 @@ export function DailyMealLog() {
           <CardContent className="py-3 px-4">
             <div className="grid grid-cols-4 gap-2 text-center">
               <div>
-                <Flame className="w-4 h-4 mx-auto mb-0.5 text-accent" />
+                <Flame className="w-4 h-4 mx-auto mb-0.5 text-orange-500" />
                 <p className="text-sm font-bold">{Math.round(dailyTotals.calories)}</p>
                 <p className="text-[10px] text-muted-foreground">kcal</p>
               </div>

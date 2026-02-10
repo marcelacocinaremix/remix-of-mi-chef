@@ -374,8 +374,8 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
                     </div>
                     <div className="grid grid-cols-4 gap-2">
                       <div className="text-center">
-                        <div className="w-8 h-8 mx-auto mb-1 rounded-full bg-accent/20 flex items-center justify-center">
-                          <Flame className="w-4 h-4 text-accent" />
+                        <div className="w-8 h-8 mx-auto mb-1 rounded-full bg-orange-500/20 flex items-center justify-center">
+                          <Flame className="w-4 h-4 text-orange-500" />
                         </div>
                         <p className="text-lg font-bold">{Math.round(periodTotals.calories)}</p>
                         <p className="text-[10px] text-muted-foreground">Calorías</p>
