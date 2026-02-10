@@ -1,110 +1,177 @@
 import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Lightbulb,
   ChefHat,
   TrendingUp,
   TrendingDown,
   CheckCircle2,
-  Beef,
-  Wheat,
-  Droplets,
-  Flame,
   ArrowRight,
+  Info,
 } from "lucide-react";
 
 interface NutritionRecommendationsProps {
   totals: { calories: number; protein: number; carbs: number; fats: number };
   mealsCount: number;
   period: "day" | "week" | "month" | "year";
+  fitnessGoal?: string;
   onNavigateToCooking: () => void;
 }
 
 interface Recommendation {
-  type: "success" | "suggestion" | "warning";
+  type: "success" | "suggestion" | "warning" | "info";
   message: string;
   cookingHint?: string;
+}
+
+// Daily targets based on fitness goal
+function getDailyTargets(goal?: string) {
+  switch (goal) {
+    case "lose_fat":
+      return { calories: 1600, protein: 100, carbs: 150, fats: 50, label: "Bajar de peso" };
+    case "gain_muscle":
+      return { calories: 2500, protein: 140, carbs: 280, fats: 70, label: "Ganar músculo" };
+    case "improve_performance":
+      return { calories: 2200, protein: 120, carbs: 260, fats: 65, label: "Mejorar rendimiento" };
+    case "stay_active":
+    default:
+      return { calories: 2000, protein: 80, carbs: 230, fats: 60, label: "Mantener peso" };
+  }
 }
 
 export function NutritionRecommendations({
   totals,
   mealsCount,
   period,
+  fitnessGoal,
   onNavigateToCooking,
 }: NutritionRecommendationsProps) {
   const recommendations = useMemo(() => {
     const list: Recommendation[] = [];
-    if (mealsCount === 0) return list;
-
-    const macroTotal = totals.protein + totals.carbs + totals.fats;
-    if (macroTotal === 0) return list;
-
-    const proteinPct = (totals.protein / macroTotal) * 100;
-    const carbsPct = (totals.carbs / macroTotal) * 100;
-    const fatsPct = (totals.fats / macroTotal) * 100;
-
-    // Daily calorie reference (adjust for period)
-    const days = period === "day" ? 1 : period === "week" ? 7 : period === "month" ? 30 : 365;
-    const avgDailyCalories = totals.calories / Math.max(1, Math.min(mealsCount, days));
-
-    // Protein check
-    if (proteinPct < 20) {
+    if (mealsCount === 0) {
       list.push({
-        type: "suggestion",
-        message: "Tu ingesta de proteínas está baja. Sumá pollo, pescado, huevos o legumbres para mantener energía y masa muscular.",
-        cookingHint: "recetas con alto contenido de proteínas",
+        type: "info",
+        message: "Empezá a registrar tus comidas para recibir recomendaciones personalizadas.",
       });
-    } else if (proteinPct >= 25 && proteinPct <= 35) {
-      list.push({
-        type: "success",
-        message: "¡Buen nivel de proteínas! Seguí así para mantener tu masa muscular.",
-      });
+      return list;
     }
 
-    // Carbs check
-    if (carbsPct > 60) {
-      list.push({
-        type: "suggestion",
-        message: "Estás comiendo muchos carbohidratos. Probá reemplazar algunos por más verduras o proteínas.",
-        cookingHint: "recetas bajas en carbohidratos con verduras",
-      });
-    }
+    const targets = getDailyTargets(fitnessGoal);
 
-    // Fats check
-    if (fatsPct > 35) {
-      list.push({
-        type: "warning",
-        message: "Las grasas están un poco altas. Optá por preparaciones al horno o a la plancha en lugar de fritas.",
-        cookingHint: "recetas livianas al horno",
-      });
-    } else if (fatsPct < 15) {
-      list.push({
-        type: "suggestion",
-        message: "Tus grasas están bajas. Sumá palta, frutos secos o aceite de oliva para una dieta equilibrada.",
-      });
-    }
+    if (period === "day") {
+      // Calorie progress
+      const calPct = (totals.calories / targets.calories) * 100;
+      const protPct = (totals.protein / targets.protein) * 100;
+      const carbsPct = (totals.carbs / targets.carbs) * 100;
+      const fatsPct = (totals.fats / targets.fats) * 100;
 
-    // Overall balance
-    if (proteinPct >= 20 && proteinPct <= 35 && carbsPct >= 40 && carbsPct <= 55 && fatsPct >= 20 && fatsPct <= 30) {
-      list.push({
-        type: "success",
-        message: "¡Tu balance nutricional está excelente! Seguí variando tus comidas para mantenerlo.",
-      });
-    }
+      // Overall calorie status
+      if (calPct < 40 && mealsCount >= 1) {
+        const remaining = Math.round(targets.calories - totals.calories);
+        list.push({
+          type: "suggestion",
+          message: `Llevás ${Math.round(totals.calories)} kcal de las ~${targets.calories} sugeridas. Te faltan unas ${remaining} kcal para hoy.`,
+          cookingHint: "recetas nutritivas",
+        });
+      } else if (calPct >= 40 && calPct <= 80) {
+        list.push({
+          type: "info",
+          message: `Vas bien: ${Math.round(totals.calories)} kcal de ~${targets.calories}. Seguí sumando comidas balanceadas.`,
+        });
+      } else if (calPct > 80 && calPct <= 110) {
+        list.push({
+          type: "success",
+          message: `¡Excelente! Estás cerca de tu objetivo calórico diario (~${targets.calories} kcal).`,
+        });
+      } else if (calPct > 110) {
+        list.push({
+          type: "warning",
+          message: `Superaste tu objetivo calórico (${Math.round(totals.calories)} de ~${targets.calories} kcal). Elegí opciones más livianas si seguís comiendo.`,
+        });
+      }
 
-    // Low calorie warning
-    if (period === "day" && totals.calories > 0 && totals.calories < 1000 && mealsCount >= 2) {
-      list.push({
-        type: "suggestion",
-        message: "Parece que comiste poco hoy. Asegurate de cubrir tus necesidades energéticas.",
-        cookingHint: "recetas nutritivas y energéticas",
-      });
+      // Protein check
+      if (protPct < 50 && mealsCount >= 2) {
+        const missing = Math.round(targets.protein - totals.protein);
+        list.push({
+          type: "suggestion",
+          message: `Te faltan ~${missing}g de proteína. Sumá pollo, huevos, atún o legumbres.`,
+          cookingHint: "recetas con alto contenido de proteínas",
+        });
+      } else if (protPct >= 80 && protPct <= 120) {
+        list.push({
+          type: "success",
+          message: `Buen nivel de proteínas: ${Math.round(totals.protein)}g de ~${targets.protein}g.`,
+        });
+      }
+
+      // Fat check
+      if (fatsPct > 120) {
+        list.push({
+          type: "warning",
+          message: `Las grasas están altas (${Math.round(totals.fats)}g de ~${targets.fats}g). Optá por preparaciones al horno o a la plancha.`,
+          cookingHint: "recetas livianas al horno",
+        });
+      }
+
+      // Carbs check
+      if (carbsPct > 130) {
+        list.push({
+          type: "suggestion",
+          message: `Muchos carbohidratos (${Math.round(totals.carbs)}g de ~${targets.carbs}g). Probá reemplazar algunos por verduras.`,
+          cookingHint: "recetas bajas en carbohidratos con verduras",
+        });
+      }
+
+      // Goal-specific tips
+      if (fitnessGoal === "lose_fat" && calPct < 70 && mealsCount <= 1) {
+        list.push({
+          type: "info",
+          message: "Para bajar de peso no saltees comidas. Mejor comer poco y variado que hacer ayunos largos.",
+        });
+      }
+      if (fitnessGoal === "gain_muscle" && protPct < 60 && mealsCount >= 2) {
+        list.push({
+          type: "suggestion",
+          message: "Para ganar músculo necesitás más proteína. Agregá un batido, huevos o carne magra.",
+          cookingHint: "recetas ricas en proteínas para ganar músculo",
+        });
+      }
+    } else {
+      // Weekly/monthly/yearly view
+      const macroTotal = totals.protein + totals.carbs + totals.fats;
+      if (macroTotal > 0) {
+        const proteinPct = (totals.protein / macroTotal) * 100;
+        const carbsRatio = (totals.carbs / macroTotal) * 100;
+        const fatsRatio = (totals.fats / macroTotal) * 100;
+
+        if (proteinPct >= 20 && proteinPct <= 35 && carbsRatio >= 40 && carbsRatio <= 55 && fatsRatio >= 20 && fatsRatio <= 30) {
+          list.push({
+            type: "success",
+            message: "¡Tu balance nutricional del período está excelente! Seguí variando tus comidas.",
+          });
+        } else {
+          if (proteinPct < 20) {
+            list.push({
+              type: "suggestion",
+              message: "Tu ingesta de proteínas está baja en el período. Sumá más carnes, huevos o legumbres.",
+              cookingHint: "recetas con alto contenido de proteínas",
+            });
+          }
+          if (fatsRatio > 35) {
+            list.push({
+              type: "warning",
+              message: "Las grasas están elevadas en el período. Reducí frituras y optá por cocciones más livianas.",
+              cookingHint: "recetas livianas al horno",
+            });
+          }
+        }
+      }
     }
 
     return list;
-  }, [totals, mealsCount, period]);
+  }, [totals, mealsCount, period, fitnessGoal]);
 
   if (recommendations.length === 0) return null;
 
@@ -125,6 +192,8 @@ export function NutritionRecommendations({
               ? "border-l-emerald-500 bg-emerald-500/5"
               : rec.type === "warning"
               ? "border-l-amber-500 bg-amber-500/5"
+              : rec.type === "info"
+              ? "border-l-blue-500 bg-blue-500/5"
               : "border-l-primary bg-primary/5"
           }`}
         >
@@ -133,6 +202,7 @@ export function NutritionRecommendations({
               {rec.type === "success" && <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />}
               {rec.type === "warning" && <TrendingDown className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />}
               {rec.type === "suggestion" && <TrendingUp className="w-4 h-4 text-primary mt-0.5 shrink-0" />}
+              {rec.type === "info" && <Info className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />}
               <p className="text-sm">{rec.message}</p>
             </div>
           </CardContent>

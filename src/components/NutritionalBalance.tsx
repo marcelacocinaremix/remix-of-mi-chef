@@ -318,6 +318,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
                   totals={getTotalsForPeriod("day")}
                   mealsCount={getMealsForPeriod("day").length}
                   period="day"
+                  fitnessGoal={goal?.goal}
                   onNavigateToCooking={() => onRecommendRecipes?.()}
                 />
 
@@ -514,6 +515,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
                   totals={periodTotals}
                   mealsCount={periodMeals.length}
                   period={nutritionPeriod}
+                  fitnessGoal={goal?.goal}
                   onNavigateToCooking={() => onRecommendRecipes?.()}
                 />
 
