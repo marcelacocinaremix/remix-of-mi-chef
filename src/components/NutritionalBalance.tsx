@@ -245,6 +245,11 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
             carbsPercent={periodTotals.protein + periodTotals.carbs + periodTotals.fats > 0 ? (periodTotals.carbs / (periodTotals.protein + periodTotals.carbs + periodTotals.fats)) * 100 : 0}
             fatsPercent={periodTotals.protein + periodTotals.carbs + periodTotals.fats > 0 ? (periodTotals.fats / (periodTotals.protein + periodTotals.carbs + periodTotals.fats)) * 100 : 0}
             totalWorkouts={workouts.length}
+            todayCalories={getTotalsForPeriod("day").calories}
+            todayProtein={getTotalsForPeriod("day").protein}
+            todayCarbs={getTotalsForPeriod("day").carbs}
+            todayFats={getTotalsForPeriod("day").fats}
+            todayMealsCount={getMealsForPeriod("day").length}
           />
         )}
 
