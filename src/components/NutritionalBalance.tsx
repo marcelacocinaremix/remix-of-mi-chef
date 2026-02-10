@@ -43,7 +43,7 @@ interface NutritionalBalanceProps {
 }
 
 export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }: NutritionalBalanceProps) {
-  const { meals, getTotalsForPeriod, getMealsForPeriod } = useMealLogs();
+  const { meals, getTotalsForPeriod, getMealsForPeriod, refetch: refetchMeals } = useMealLogs();
   const {
     goal,
     stats: activityStats,
@@ -311,7 +311,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook }
             {/* Registro - Daily meal log (main view) */}
             {balanceSubTab === "registro" && (
               <div className="space-y-6">
-                <DailyMealLog />
+                <DailyMealLog onMealsChanged={refetchMeals} />
 
                 {/* Recommendations based on today's meals */}
                 <NutritionRecommendations

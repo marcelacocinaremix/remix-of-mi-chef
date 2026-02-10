@@ -12,7 +12,11 @@ import { toast } from "sonner";
 
 const MEAL_TYPES: MealType[] = ["desayuno", "almuerzo", "merienda", "cena", "entre_comidas"];
 
-export function DailyMealLog() {
+interface DailyMealLogProps {
+  onMealsChanged?: () => void;
+}
+
+export function DailyMealLog({ onMealsChanged }: DailyMealLogProps) {
   const {
     dailyMeals,
     dailyTotals,
@@ -44,7 +48,10 @@ export function DailyMealLog() {
 
   const handleDelete = async (id: string) => {
     const success = await deleteMeal(id);
-    if (success) toast.success("Comida eliminada");
+    if (success) {
+      toast.success("Comida eliminada");
+      onMealsChanged?.();
+    }
   };
 
   return (
@@ -146,7 +153,11 @@ export function DailyMealLog() {
           onOpenChange={(open) => { if (!open) setAddMealType(null); }}
           mealType={addMealType}
           mealDate={selectedDate}
-          onAddMeal={addMeal}
+          onAddMeal={async (meal) => {
+            const result = await addMeal(meal);
+            if (result) onMealsChanged?.();
+            return result;
+          }}
         />
       )}
     </div>
