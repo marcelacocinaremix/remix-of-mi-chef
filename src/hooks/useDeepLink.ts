@@ -17,6 +17,7 @@ export function useDeepLink() {
       try {
         // Solo importar en entorno nativo
         const { App } = await import("@capacitor/app");
+        console.log("[DeepLink] Plugin @capacitor/app cargado, registrando listener...");
 
         const listener = await App.addListener("appUrlOpen", async ({ url }) => {
           console.log("[DeepLink] URL recibida:", url);
