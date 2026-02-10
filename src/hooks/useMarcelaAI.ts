@@ -1226,6 +1226,100 @@ const predefinedReactions: Record<string, ReactionTranslations[]> = {
     },
   ],
 
+  // === HEALTH SUB-TABS ===
+  tab_balance: [
+    {
+      reaction: {
+        es: '📊 ¡Nutrición! Acá ves tus macros y calorías. Registrá comidas o cociná recetas para que se actualice automáticamente',
+        en: '📊 Nutrition! Here you see your macros and calories. Log meals or cook recipes to auto-update',
+        pt: '📊 Nutrição! Aqui você vê seus macros e calorias. Registre refeições ou cozinhe receitas para atualizar'
+      },
+      mood: 'thinking',
+      animation: 'think',
+      tip: {
+        es: 'Podés registrar comidas manualmente o usar el modo cocina',
+        en: 'You can log meals manually or use cooking mode',
+        pt: 'Você pode registrar refeições manualmente ou usar o modo cozinha'
+      }
+    },
+    {
+      reaction: {
+        es: '🥗 ¡Tu balance nutricional! Mirá los gráficos de macros y usá el período para ver tu evolución',
+        en: '🥗 Your nutritional balance! Check the macro charts and use the period selector to see your evolution',
+        pt: '🥗 Seu balanço nutricional! Veja os gráficos de macros e use o período para ver sua evolução'
+      },
+      mood: 'happy',
+      animation: 'sparkle',
+      tip: {
+        es: 'Cambiá entre día, semana, mes y año para ver tu progreso',
+        en: 'Switch between day, week, month and year to see your progress',
+        pt: 'Mude entre dia, semana, mês e ano para ver seu progresso'
+      }
+    },
+  ],
+
+  tab_actividad: [
+    {
+      reaction: {
+        es: '🏋️ ¡Actividad física! Registrá tus entrenamientos con el botón + y mirá tu progreso semanal',
+        en: '🏋️ Physical activity! Log your workouts with the + button and check your weekly progress',
+        pt: '🏋️ Atividade física! Registre seus treinos com o botão + e veja seu progresso semanal'
+      },
+      mood: 'excited',
+      animation: 'bounce',
+      tip: {
+        es: 'Sumá entrenamientos para completar tu meta semanal',
+        en: 'Add workouts to complete your weekly goal',
+        pt: 'Adicione treinos para completar sua meta semanal'
+      }
+    },
+    {
+      reaction: {
+        es: '💪 ¡Tu registro de actividad! Cada entrenamiento suma a tu racha y progreso. ¡No la rompas!',
+        en: '💪 Your activity log! Each workout adds to your streak and progress. Don\'t break it!',
+        pt: '💪 Seu registro de atividade! Cada treino soma à sua sequência e progresso. Não quebre!'
+      },
+      mood: 'proud',
+      animation: 'celebrate',
+      tip: {
+        es: 'Podés borrar entrenamientos deslizando o con el botón de basura',
+        en: 'You can delete workouts by swiping or with the trash button',
+        pt: 'Você pode deletar treinos deslizando ou com o botão de lixeira'
+      }
+    },
+  ],
+
+  tab_resumen: [
+    {
+      reaction: {
+        es: '📋 ¡Tu resumen integral! Acá ves nutrición + actividad + progreso hacia tu objetivo, todo junto',
+        en: '📋 Your complete summary! Here you see nutrition + activity + progress towards your goal, all together',
+        pt: '📋 Seu resumo integral! Aqui você vê nutrição + atividade + progresso para seu objetivo, tudo junto'
+      },
+      mood: 'proud',
+      animation: 'sparkle',
+      tip: {
+        es: 'Cambiá entre semana, mes y año para ver tu evolución',
+        en: 'Switch between week, month and year to see your evolution',
+        pt: 'Mude entre semana, mês e ano para ver sua evolução'
+      }
+    },
+    {
+      reaction: {
+        es: '🎯 ¡Vista completa! Tu resumen combina lo que comés y cómo te movés. ¡Seguí así para alcanzar tu meta!',
+        en: '🎯 Full view! Your summary combines what you eat and how you move. Keep going to reach your goal!',
+        pt: '🎯 Visão completa! Seu resumo combina o que você come e como se move. Continue para alcançar sua meta!'
+      },
+      mood: 'excited',
+      animation: 'celebrate',
+      tip: {
+        es: 'Configurá tu objetivo arriba para recibir recomendaciones personalizadas',
+        en: 'Set your goal above to receive personalized recommendations',
+        pt: 'Configure seu objetivo acima para receber recomendações personalizadas'
+      }
+    },
+  ],
+
   // Búsqueda
   tab_buscar: [
     { 
