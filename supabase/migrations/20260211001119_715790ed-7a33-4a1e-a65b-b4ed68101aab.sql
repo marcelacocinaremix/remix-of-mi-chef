@@ -1,0 +1,2 @@
+ALTER TABLE public.meal_logs DROP CONSTRAINT IF EXISTS meal_logs_source_check;
+ALTER TABLE public.meal_logs ADD CONSTRAINT meal_logs_source_check CHECK (source IN ('manual', 'search', 'recipe', 'ai'));
