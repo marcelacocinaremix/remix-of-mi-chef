@@ -15,7 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSound } from "@/hooks/useSound";
 import { toast } from "sonner";
-import marcelaCharacter from "@/assets/marcela-character.png";
+
 import { MetricCard } from "@/components/activity/MetricCard";
 import { SmartActivityAnalysis } from "@/components/activity/SmartActivityAnalysis";
 import { ActivityProgressChart } from "@/components/activity/ActivityProgressChart";
@@ -325,15 +325,11 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
           <CardContent className="pt-5 pb-4">
             <div className="flex items-start gap-4">
               <motion.div 
-                className="relative shrink-0"
+                className="relative shrink-0 w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center"
                 animate={{ y: [0, -3, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
               >
-                <img 
-                  src={marcelaCharacter} 
-                  alt="Marcela" 
-                  className="w-14 h-14 object-contain"
-                />
+                <Sparkles className="w-7 h-7 text-primary" />
                 {/* Status indicator */}
                 <motion.div 
                   className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-card"
