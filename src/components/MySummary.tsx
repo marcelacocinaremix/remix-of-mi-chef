@@ -223,7 +223,7 @@ const MySummary = ({
             </div>
             <div>
               <h2 className="text-lg font-bold text-foreground">
-                {t("welcomeToMiChef")}{displayName ? `, ${displayName}` : ""} 👋
+                {t("welcomeToMiChef")} 👋
               </h2>
               <p className="text-muted-foreground text-sm mt-1">
                 {t("summaryDescription")}
