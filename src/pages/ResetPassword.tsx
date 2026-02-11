@@ -293,19 +293,19 @@ export default function ResetPassword() {
 
   // Password reset form
   return (
-    <div className="min-h-screen gradient-hero flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <img src={logo} alt="Mi Chef Personal" className="w-24 h-24 mx-auto mb-4" />
-          <h1 className="font-display text-3xl font-semibold text-foreground">
+    <div className="min-h-screen gradient-hero flex items-center justify-center px-6">
+      <div className="w-full max-w-lg">
+        <div className="text-center mb-10">
+          <img src={logo} alt="Mi Chef Personal" className="w-32 h-32 mx-auto mb-6" />
+          <h1 className="font-display text-4xl font-semibold text-foreground">
             Nueva contraseña
           </h1>
-          <p className="text-muted-foreground mt-2">
+          <p className="text-muted-foreground mt-3 text-lg">
             Ingresá tu nueva contraseña para recuperar tu cuenta
           </p>
         </div>
 
-        <div className="bg-card rounded-2xl shadow-elevated p-6 border border-border/50">
+        <div className="bg-card rounded-2xl shadow-elevated p-8 border border-border/50">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="password">Nueva contraseña</Label>
