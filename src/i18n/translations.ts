@@ -428,7 +428,7 @@ export const translations = {
     sectionRecipesDesc: "Videos de Marcela Cocina",
     
     // MySummary
-    welcomeToMiChef: "Bienvenido a Mi Chef",
+    welcomeToMiChef: "¡Te damos la bienvenida a Mi Chef!",
     summaryDescription: "Tu asistente de cocina personal. Con la ayuda de Marcela, indicá tus ingredientes y tiempo disponible y recibirás recetas deliciosas al instante.",
     summaryStartHint: "👉 Comenzá desde la opción \"Cocinar\"",
     nextPlannedMeal: "Próxima comida planificada",
