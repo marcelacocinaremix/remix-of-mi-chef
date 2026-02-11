@@ -193,6 +193,16 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
         isComplete={isHealthProfileComplete}
       />
 
+      {/* Active goal indicator */}
+      {goal?.goal && (
+        <div className="flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-primary/10 border border-primary/20">
+          <Target className="w-4 h-4 text-primary" />
+          <span className="text-xs font-medium text-primary">
+            Objetivo activo: {goal.goal === "lose_fat" ? "Bajar de peso" : goal.goal === "gain_muscle" ? "Ganar músculo" : goal.goal === "improve_performance" ? "Mejorar rendimiento" : "Mantener peso"}
+          </span>
+        </div>
+      )}
+
       {/* Sub-navigation */}
       <div className="bg-card/50 rounded-xl p-1.5 border border-border/30">
         <div className="grid grid-cols-3 gap-1.5">
@@ -331,7 +341,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
             {/* Registro - Daily meal log (main view) */}
             {balanceSubTab === "registro" && (
               <div className="space-y-6">
-                <DailyMealLog onMealsChanged={refetchMeals} />
+                <DailyMealLog onMealsChanged={refetchMeals} fitnessGoal={goal?.goal} />
 
                 {/* Recommendations based on today's meals */}
                 <NutritionRecommendations
