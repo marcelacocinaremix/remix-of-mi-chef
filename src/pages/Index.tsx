@@ -555,9 +555,9 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen gradient-hero relative">
+    <div className="min-h-screen gradient-hero relative overflow-x-hidden">
       <FuturisticBackground />
-      <div className="container max-w-4xl py-6 md:py-10 px-4 relative z-10">
+      <div className="container max-w-4xl py-6 md:py-10 px-4 relative z-10 overflow-x-hidden">
         {/* Top bar with social links and user menu */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-3">
@@ -633,7 +633,7 @@ export default function Index() {
               {/* Two row navigation - 4 items per row */}
               <div className="mb-6 space-y-2">
                 {/* Row 1 */}
-                <div className="grid grid-cols-4 gap-1.5 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-2">
+                <div className="grid grid-cols-4 gap-1 sm:gap-1.5 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-1.5 sm:p-2">
                 {menuItems.slice(0, 4).map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
@@ -643,14 +643,14 @@ export default function Index() {
                       <button
                         key={item.id}
                         onClick={() => handleTabChange(item.id)}
-                        className={`flex flex-col items-center justify-center gap-1.5 ${isMobile ? 'p-2.5' : 'p-3'} rounded-lg ${isMobile ? 'text-xs' : 'text-sm'} font-medium transition-all duration-200 ${isMobile ? 'min-h-[68px]' : 'min-h-[78px]'} ${
+                        className={`flex flex-col items-center justify-center gap-1 p-1.5 sm:p-3 rounded-lg text-[0.65rem] sm:text-sm font-medium transition-all duration-200 min-h-[60px] sm:min-h-[78px] min-w-0 ${
                           isActive 
-                            ? "bg-primary text-primary-foreground shadow-lg scale-105 ring-2 ring-primary/30" 
-                            : "bg-background/60 hover:bg-background hover:scale-102 active:scale-95 text-foreground"
+                            ? "bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/30" 
+                            : "bg-background/60 hover:bg-background active:scale-95 text-foreground"
                         }`}
                       >
                         <div className={`relative transition-transform duration-200 ${isActive ? "animate-bounce-once" : ""} ${isClicked ? "animate-futuristic-click" : ""}`}>
-                          <Icon className={`${isMobile ? 'w-6 h-6' : 'w-7 h-7'} transition-all duration-200 ${isActive ? "drop-shadow-glow" : ""} ${isClicked ? "animate-icon-pulse" : ""}`} />
+                          <Icon className={`w-5 h-5 sm:w-7 sm:h-7 transition-all duration-200 ${isActive ? "drop-shadow-glow" : ""} ${isClicked ? "animate-icon-pulse" : ""}`} />
                           {isClicked && (
                             <span className="absolute inset-0 animate-ripple-out rounded-full border-2 border-primary/50" />
                           )}
@@ -661,7 +661,7 @@ export default function Index() {
                   })}
                 </div>
                 {/* Row 2 */}
-                <div className="grid grid-cols-4 gap-1.5 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-2">
+                <div className="grid grid-cols-4 gap-1 sm:gap-1.5 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-1.5 sm:p-2">
                 {menuItems.slice(4, 8).map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
@@ -671,14 +671,14 @@ export default function Index() {
                       <button
                         key={item.id}
                         onClick={() => handleTabChange(item.id)}
-                        className={`flex flex-col items-center justify-center gap-1.5 ${isMobile ? 'p-2.5' : 'p-3'} rounded-lg ${isMobile ? 'text-xs' : 'text-sm'} font-medium transition-all duration-200 ${isMobile ? 'min-h-[68px]' : 'min-h-[78px]'} ${
+                        className={`flex flex-col items-center justify-center gap-1 p-1.5 sm:p-3 rounded-lg text-[0.65rem] sm:text-sm font-medium transition-all duration-200 min-h-[60px] sm:min-h-[78px] min-w-0 ${
                           isActive 
-                            ? "bg-primary text-primary-foreground shadow-lg scale-105 ring-2 ring-primary/30" 
-                            : "bg-background/60 hover:bg-background hover:scale-102 active:scale-95 text-foreground"
+                            ? "bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/30" 
+                            : "bg-background/60 hover:bg-background active:scale-95 text-foreground"
                         }`}
                       >
                         <div className={`relative transition-transform duration-200 ${isActive ? "animate-bounce-once" : ""} ${isClicked ? "animate-futuristic-click" : ""}`}>
-                          <Icon className={`${isMobile ? 'w-6 h-6' : 'w-7 h-7'} transition-all duration-200 ${isActive ? "drop-shadow-glow" : ""} ${isClicked ? "animate-icon-pulse" : ""}`} />
+                          <Icon className={`w-5 h-5 sm:w-7 sm:h-7 transition-all duration-200 ${isActive ? "drop-shadow-glow" : ""} ${isClicked ? "animate-icon-pulse" : ""}`} />
                           {isClicked && (
                             <span className="absolute inset-0 animate-ripple-out rounded-full border-2 border-primary/50" />
                           )}
