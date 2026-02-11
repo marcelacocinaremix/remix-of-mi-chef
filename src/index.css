@@ -160,12 +160,41 @@
     @apply border-border;
   }
 
+  html {
+    font-size: 17px;
+  }
+
+  @media (min-width: 768px) {
+    html {
+      font-size: 18px;
+    }
+  }
+
   body {
     @apply bg-background text-foreground font-body antialiased;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-display;
+  }
+
+  h1 { @apply text-3xl; }
+  h2 { @apply text-2xl; }
+  h3 { @apply text-xl; }
+  h4 { @apply text-lg; }
+
+  p, span, label, li {
+    @apply text-base;
+  }
+
+  .text-xs {
+    font-size: 0.8rem;
+    line-height: 1.2rem;
+  }
+
+  .text-sm {
+    font-size: 0.9rem;
+    line-height: 1.35rem;
   }
 }
 
