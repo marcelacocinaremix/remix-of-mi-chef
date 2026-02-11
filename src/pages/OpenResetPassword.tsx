@@ -45,21 +45,21 @@ export default function OpenResetPassword() {
   };
 
   return (
-    <div className="min-h-screen gradient-hero flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <img src={logo} alt="Mi Chef Personal" className="w-24 h-24 mx-auto mb-4" />
-          <h1 className="font-display text-3xl font-semibold text-foreground">
+    <div className="min-h-screen gradient-hero flex items-center justify-center px-6">
+      <div className="w-full max-w-lg">
+        <div className="text-center mb-10">
+          <img src={logo} alt="Mi Chef Personal" className="w-32 h-32 mx-auto mb-6" />
+          <h1 className="font-display text-4xl font-semibold text-foreground">
             Restablecer contraseña
           </h1>
-          <p className="text-muted-foreground mt-2">
+          <p className="text-muted-foreground mt-3 text-lg">
             {webResetLink
               ? "Tocá el botón para ir a cambiar tu contraseña."
               : "Este link es inválido o expiró. Volvé a solicitar la recuperación desde la app."}
           </p>
         </div>
 
-        <div className="bg-card rounded-2xl shadow-elevated p-6 border border-border/50 space-y-4">
+        <div className="bg-card rounded-2xl shadow-elevated p-8 border border-border/50 space-y-5">
           <Button
             className="w-full"
             size="lg"
