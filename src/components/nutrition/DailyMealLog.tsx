@@ -151,32 +151,29 @@ export function DailyMealLog({ onMealsChanged, fitnessGoal }: DailyMealLogProps)
                   </div>
                   <Progress value={calPct} className="h-1.5 [&>div]:bg-orange-500" />
                 </div>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2">
                   <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                        <Beef className="w-3 h-3 text-chart-1" /> Prot
-                      </span>
-                      <span className="text-[10px] font-semibold">{Math.round(dailyTotals.protein)}/<span className="text-muted-foreground font-normal">{targets.protein}g</span></span>
+                    <div className="flex items-center gap-1 mb-1">
+                      <Beef className="w-3 h-3 text-chart-1 shrink-0" />
+                      <span className="text-[10px] text-muted-foreground">Prot</span>
                     </div>
+                    <span className="text-[10px] font-semibold block mb-1">{Math.round(dailyTotals.protein)} / <span className="text-muted-foreground font-normal">{targets.protein}g</span></span>
                     <Progress value={protPct} className="h-1 [&>div]:bg-chart-1" />
                   </div>
                   <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                        <Wheat className="w-3 h-3 text-chart-2" /> Carbs
-                      </span>
-                      <span className="text-[10px] font-semibold">{Math.round(dailyTotals.carbs)}/<span className="text-muted-foreground font-normal">{targets.carbs}g</span></span>
+                    <div className="flex items-center gap-1 mb-1">
+                      <Wheat className="w-3 h-3 text-chart-2 shrink-0" />
+                      <span className="text-[10px] text-muted-foreground">Carbs</span>
                     </div>
+                    <span className="text-[10px] font-semibold block mb-1">{Math.round(dailyTotals.carbs)} / <span className="text-muted-foreground font-normal">{targets.carbs}g</span></span>
                     <Progress value={carbsPct} className="h-1 [&>div]:bg-chart-2" />
                   </div>
                   <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                        <Droplets className="w-3 h-3 text-chart-3" /> Grasas
-                      </span>
-                      <span className="text-[10px] font-semibold">{Math.round(dailyTotals.fats)}/<span className="text-muted-foreground font-normal">{targets.fats}g</span></span>
+                    <div className="flex items-center gap-1 mb-1">
+                      <Droplets className="w-3 h-3 text-chart-3 shrink-0" />
+                      <span className="text-[10px] text-muted-foreground">Grasas</span>
                     </div>
+                    <span className="text-[10px] font-semibold block mb-1">{Math.round(dailyTotals.fats)} / <span className="text-muted-foreground font-normal">{targets.fats}g</span></span>
                     <Progress value={fatsPct} className="h-1 [&>div]:bg-chart-3" />
                   </div>
                 </div>
