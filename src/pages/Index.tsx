@@ -555,9 +555,9 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen gradient-hero relative overflow-x-hidden">
+    <div className="min-h-screen gradient-hero relative overflow-hidden w-screen max-w-[100vw]">
       <FuturisticBackground />
-      <div className="container max-w-4xl py-6 md:py-10 px-4 relative z-10 overflow-x-hidden">
+      <div className="w-full max-w-4xl mx-auto py-6 md:py-10 px-3 sm:px-4 relative z-10 overflow-hidden box-border">
         {/* Top bar with social links and user menu */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-3">
@@ -633,7 +633,7 @@ export default function Index() {
               {/* Two row navigation - 4 items per row */}
               <div className="mb-6 space-y-2">
                 {/* Row 1 */}
-                <div className="grid grid-cols-4 gap-1 sm:gap-1.5 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-1.5 sm:p-2">
+                <div className="grid grid-cols-4 gap-0.5 sm:gap-1.5 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-1 sm:p-2 overflow-hidden">
                 {menuItems.slice(0, 4).map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
@@ -643,25 +643,25 @@ export default function Index() {
                       <button
                         key={item.id}
                         onClick={() => handleTabChange(item.id)}
-                        className={`flex flex-col items-center justify-center gap-1 p-1.5 sm:p-3 rounded-lg text-[0.65rem] sm:text-sm font-medium transition-all duration-200 min-h-[60px] sm:min-h-[78px] min-w-0 ${
+                        className={`flex flex-col items-center justify-center gap-0.5 p-1 sm:p-3 rounded-lg text-[0.6rem] sm:text-sm font-medium transition-all duration-200 min-h-[52px] sm:min-h-[78px] min-w-0 overflow-hidden ${
                           isActive 
-                            ? "bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/30" 
+                            ? "bg-primary text-primary-foreground shadow-lg" 
                             : "bg-background/60 hover:bg-background active:scale-95 text-foreground"
                         }`}
                       >
-                        <div className={`relative transition-transform duration-200 ${isActive ? "animate-bounce-once" : ""} ${isClicked ? "animate-futuristic-click" : ""}`}>
-                          <Icon className={`w-5 h-5 sm:w-7 sm:h-7 transition-all duration-200 ${isActive ? "drop-shadow-glow" : ""} ${isClicked ? "animate-icon-pulse" : ""}`} />
+                        <div className={`relative flex-shrink-0 ${isClicked ? "animate-futuristic-click" : ""}`}>
+                          <Icon className={`w-4 h-4 sm:w-7 sm:h-7 ${isActive ? "drop-shadow-glow" : ""} ${isClicked ? "animate-icon-pulse" : ""}`} />
                           {isClicked && (
                             <span className="absolute inset-0 animate-ripple-out rounded-full border-2 border-primary/50" />
                           )}
                         </div>
-                        <span className="text-center leading-tight truncate w-full">{item.label}</span>
+                        <span className="text-center leading-none truncate w-full px-0.5">{item.label}</span>
                       </button>
                     );
                   })}
                 </div>
                 {/* Row 2 */}
-                <div className="grid grid-cols-4 gap-1 sm:gap-1.5 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-1.5 sm:p-2">
+                <div className="grid grid-cols-4 gap-0.5 sm:gap-1.5 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-1 sm:p-2 overflow-hidden">
                 {menuItems.slice(4, 8).map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
@@ -671,19 +671,19 @@ export default function Index() {
                       <button
                         key={item.id}
                         onClick={() => handleTabChange(item.id)}
-                        className={`flex flex-col items-center justify-center gap-1 p-1.5 sm:p-3 rounded-lg text-[0.65rem] sm:text-sm font-medium transition-all duration-200 min-h-[60px] sm:min-h-[78px] min-w-0 ${
+                        className={`flex flex-col items-center justify-center gap-0.5 p-1 sm:p-3 rounded-lg text-[0.6rem] sm:text-sm font-medium transition-all duration-200 min-h-[52px] sm:min-h-[78px] min-w-0 overflow-hidden ${
                           isActive 
-                            ? "bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/30" 
+                            ? "bg-primary text-primary-foreground shadow-lg" 
                             : "bg-background/60 hover:bg-background active:scale-95 text-foreground"
                         }`}
                       >
-                        <div className={`relative transition-transform duration-200 ${isActive ? "animate-bounce-once" : ""} ${isClicked ? "animate-futuristic-click" : ""}`}>
-                          <Icon className={`w-5 h-5 sm:w-7 sm:h-7 transition-all duration-200 ${isActive ? "drop-shadow-glow" : ""} ${isClicked ? "animate-icon-pulse" : ""}`} />
+                        <div className={`relative flex-shrink-0 ${isClicked ? "animate-futuristic-click" : ""}`}>
+                          <Icon className={`w-4 h-4 sm:w-7 sm:h-7 ${isActive ? "drop-shadow-glow" : ""} ${isClicked ? "animate-icon-pulse" : ""}`} />
                           {isClicked && (
                             <span className="absolute inset-0 animate-ripple-out rounded-full border-2 border-primary/50" />
                           )}
                         </div>
-                        <span className="text-center leading-tight truncate w-full">{item.label}</span>
+                        <span className="text-center leading-none truncate w-full px-0.5">{item.label}</span>
                       </button>
                     );
                   })}
