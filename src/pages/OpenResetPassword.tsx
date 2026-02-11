@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Copy, CheckCircle } from "lucide-react";
 import { useState } from "react";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/mi-chef-logo.webp";
 
 function getParams(): URLSearchParams {
   const hash = window.location.hash.startsWith("#")
@@ -46,20 +46,20 @@ export default function OpenResetPassword() {
 
   return (
     <div className="min-h-screen gradient-hero flex items-center justify-center px-6">
-      <div className="w-full max-w-lg">
-        <div className="text-center mb-10">
-          <img src={logo} alt="Mi Chef Personal" className="w-32 h-32 mx-auto mb-6" />
-          <h1 className="font-display text-4xl font-semibold text-foreground">
+      <div className="w-full max-w-xl">
+        <div className="text-center mb-8">
+          <img src={logo} alt="Mi Chef Personal" className="w-40 h-40 mx-auto mb-6" />
+          <h1 className="font-display text-5xl font-semibold text-foreground">
             Restablecer contraseña
           </h1>
-          <p className="text-muted-foreground mt-3 text-lg">
+          <p className="text-muted-foreground mt-4 text-xl">
             {webResetLink
               ? "Tocá el botón para ir a cambiar tu contraseña."
               : "Este link es inválido o expiró. Volvé a solicitar la recuperación desde la app."}
           </p>
         </div>
 
-        <div className="bg-card rounded-2xl shadow-elevated p-8 border border-border/50 space-y-5">
+        <div className="bg-card rounded-2xl shadow-elevated p-10 border border-border/50 space-y-5">
           <Button
             className="w-full"
             size="lg"

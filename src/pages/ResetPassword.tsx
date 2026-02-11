@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Lock, Check, X, Loader2, CheckCircle } from "lucide-react";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/mi-chef-logo.webp";
 
 // Password validation helpers
 const hasMinLength = (password: string) => password.length >= 6;
@@ -294,18 +294,18 @@ export default function ResetPassword() {
   // Password reset form
   return (
     <div className="min-h-screen gradient-hero flex items-center justify-center px-6">
-      <div className="w-full max-w-lg">
-        <div className="text-center mb-10">
-          <img src={logo} alt="Mi Chef Personal" className="w-32 h-32 mx-auto mb-6" />
-          <h1 className="font-display text-4xl font-semibold text-foreground">
+      <div className="w-full max-w-xl">
+        <div className="text-center mb-8">
+          <img src={logo} alt="Mi Chef Personal" className="w-40 h-40 mx-auto mb-6" />
+          <h1 className="font-display text-5xl font-semibold text-foreground">
             Nueva contraseña
           </h1>
-          <p className="text-muted-foreground mt-3 text-lg">
+          <p className="text-muted-foreground mt-4 text-xl">
             Ingresá tu nueva contraseña para recuperar tu cuenta
           </p>
         </div>
 
-        <div className="bg-card rounded-2xl shadow-elevated p-8 border border-border/50">
+        <div className="bg-card rounded-2xl shadow-elevated p-10 border border-border/50">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="password">Nueva contraseña</Label>
