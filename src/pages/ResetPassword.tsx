@@ -227,22 +227,22 @@ export default function ResetPassword() {
   // Success screen
   if (isSuccess) {
     return (
-      <div className="min-h-screen gradient-hero flex items-center justify-center px-4">
-        <div className="w-full max-w-md text-center">
-          <div className="bg-card rounded-2xl shadow-elevated p-8 border border-border/50">
-            <CheckCircle className="w-16 h-16 text-primary mx-auto mb-4" />
-            <h1 className="font-display text-2xl font-semibold text-foreground mb-2">
+      <div className="min-h-screen gradient-hero flex items-center justify-center px-4 sm:px-6">
+        <div className="w-full max-w-xl text-center">
+          <div className="bg-card rounded-2xl shadow-elevated p-6 sm:p-10 border border-border/50">
+            <CheckCircle className="w-20 h-20 text-primary mx-auto mb-4" />
+            <h1 className="font-display text-3xl sm:text-4xl font-semibold text-foreground mb-2">
               ¡Listo!
             </h1>
-            <p className="text-foreground text-lg mb-2">
+            <p className="text-foreground text-lg sm:text-xl mb-2">
               Tu contraseña fue restablecida correctamente.
             </p>
-            <p className="text-muted-foreground mb-6">
+            <p className="text-muted-foreground text-base sm:text-lg mb-6">
               Ya podés volver a la aplicación para iniciar sesión con tu nueva contraseña.
             </p>
             <Button
               onClick={() => window.location.href = "app.marcelacocina.michef://login"}
-              className="w-full"
+              className="w-full text-lg py-6"
               size="lg"
             >
               Abrir Mi Chef Personal
@@ -256,19 +256,19 @@ export default function ResetPassword() {
   // Error screen
   if (error) {
     return (
-      <div className="min-h-screen gradient-hero flex items-center justify-center px-4">
-        <div className="w-full max-w-md text-center">
-          <div className="bg-card rounded-2xl shadow-elevated p-8 border border-border/50">
-            <X className="w-16 h-16 text-destructive mx-auto mb-4" />
-            <h1 className="font-display text-2xl font-semibold text-foreground mb-2">
+      <div className="min-h-screen gradient-hero flex items-center justify-center px-4 sm:px-6">
+        <div className="w-full max-w-xl text-center">
+          <div className="bg-card rounded-2xl shadow-elevated p-6 sm:p-10 border border-border/50">
+            <X className="w-20 h-20 text-destructive mx-auto mb-4" />
+            <h1 className="font-display text-3xl sm:text-4xl font-semibold text-foreground mb-2">
               Link expirado
             </h1>
-            <p className="text-muted-foreground mb-6">
+            <p className="text-muted-foreground text-base sm:text-lg mb-6">
               {error}
             </p>
             <Button
               onClick={() => window.location.href = "app.marcelacocina.michef://forgot-password"}
-              className="w-full"
+              className="w-full text-lg py-6"
               size="lg"
             >
               Volver a la app
@@ -282,10 +282,10 @@ export default function ResetPassword() {
   // Loading screen while waiting for session
   if (!isSessionReady) {
     return (
-      <div className="min-h-screen gradient-hero flex items-center justify-center px-4">
-        <div className="w-full max-w-md text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Verificando link de recuperación...</p>
+      <div className="min-h-screen gradient-hero flex items-center justify-center px-4 sm:px-6">
+        <div className="w-full max-w-xl text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground text-lg sm:text-xl">Verificando link de recuperación...</p>
         </div>
       </div>
     );
@@ -293,19 +293,19 @@ export default function ResetPassword() {
 
   // Password reset form
   return (
-    <div className="min-h-screen gradient-hero flex items-center justify-center px-6">
+    <div className="min-h-screen gradient-hero flex items-center justify-center px-4 sm:px-6">
       <div className="w-full max-w-xl">
-        <div className="text-center mb-8">
-          <img src={logo} alt="Mi Chef Personal" className="w-40 h-40 mx-auto mb-6" />
-          <h1 className="font-display text-5xl font-semibold text-foreground">
+        <div className="text-center mb-6 sm:mb-8">
+          <img src={logo} alt="Mi Chef Personal" className="w-28 h-28 sm:w-40 sm:h-40 mx-auto mb-4 sm:mb-6" />
+          <h1 className="font-display text-3xl sm:text-5xl font-semibold text-foreground">
             Nueva contraseña
           </h1>
-          <p className="text-muted-foreground mt-4 text-xl">
+          <p className="text-muted-foreground mt-3 sm:mt-4 text-lg sm:text-xl">
             Ingresá tu nueva contraseña para recuperar tu cuenta
           </p>
         </div>
 
-        <div className="bg-card rounded-2xl shadow-elevated p-10 border border-border/50">
+        <div className="bg-card rounded-2xl shadow-elevated p-5 sm:p-10 border border-border/50">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="password">Nueva contraseña</Label>
