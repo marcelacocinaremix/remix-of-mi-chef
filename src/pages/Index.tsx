@@ -655,7 +655,7 @@ export default function Index() {
                             <span className="absolute inset-0 animate-ripple-out rounded-full border-2 border-primary/50" />
                           )}
                         </div>
-                        <span className="text-center leading-tight w-full text-[0.65rem]">{item.label}</span>
+                        <span className="text-center leading-tight truncate w-full">{item.label}</span>
                       </button>
                     );
                   })}
@@ -683,7 +683,7 @@ export default function Index() {
                             <span className="absolute inset-0 animate-ripple-out rounded-full border-2 border-primary/50" />
                           )}
                         </div>
-                        <span className="text-center leading-tight w-full text-[0.65rem]">{item.label}</span>
+                        <span className="text-center leading-tight truncate w-full">{item.label}</span>
                       </button>
                     );
                   })}
