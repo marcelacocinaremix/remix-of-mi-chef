@@ -71,7 +71,7 @@ export function ManualMealEntry({ onAdd }: ManualMealEntryProps) {
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
         fillFromAI(value.trim());
-      }, 1200);
+      }, 2000);
     } else {
       if (autoFilled) {
         setCalories("");

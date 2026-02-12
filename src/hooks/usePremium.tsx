@@ -25,7 +25,7 @@ interface PremiumContextType {
 
 const PremiumContext = createContext<PremiumContextType | undefined>(undefined);
 
-const DAILY_LIMIT = 4;
+const DAILY_LIMIT = 8;
 
 export function PremiumProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();

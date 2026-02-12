@@ -144,6 +144,15 @@ const MySummary = ({
   }, [user, session, authLoading]);
 
   const generateAiTip = async (userId: string) => {
+    // Check localStorage cache first - 1 tip per day
+    const today = new Date().toISOString().split('T')[0];
+    const cacheKey = `ai_tip_${userId}_${today}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      setAiTip(cached);
+      return;
+    }
+
     setLoadingTip(true);
     try {
       // Fetch pantry items for context
@@ -188,6 +197,8 @@ const MySummary = ({
 
       if (response.data?.tip) {
         setAiTip(response.data.tip);
+        // Cache for today
+        localStorage.setItem(cacheKey, response.data.tip);
       } else {
         setAiTip(t("defaultTip"));
       }
