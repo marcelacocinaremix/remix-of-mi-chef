@@ -996,10 +996,10 @@ export function ShoppingListDirect() {
               {/* Confirm Button */}
               <Button 
                 onClick={handleConfirmAllPurchases}
-                className="w-full h-14 gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg text-base"
+                className="w-full h-12 gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg text-sm px-3"
               >
-                <PackageCheck className="w-5 h-5" />
-                Confirmar compra y agregar a despensa
+                <PackageCheck className="w-4 h-4 flex-shrink-0" />
+                <span className="truncate">Confirmar y agregar a despensa</span>
               </Button>
 
               {/* Back to list */}
