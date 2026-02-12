@@ -101,8 +101,8 @@ RESPUESTA EN JSON:
 
     // Multiple models for fallback
     const models = [
-      'google/gemini-2.5-flash',
       'google/gemini-2.5-flash-lite',
+      'google/gemini-2.5-flash',
       'openai/gpt-5-nano',
       'openai/gpt-5-mini',
       'google/gemini-2.5-pro',
