@@ -133,7 +133,19 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
 export function usePremium() {
   const context = useContext(PremiumContext);
   if (context === undefined) {
-    throw new Error("usePremium must be used within a PremiumProvider");
+    // Fallback: return safe defaults so components outside PremiumProvider don't crash
+    return {
+      isPremium: false,
+      isLoading: false,
+      subscriptionStatus: 'free',
+      subscriptionEnd: null,
+      planType: 'free',
+      trialUsed: false,
+      daysRemaining: null,
+      refetch: async () => {},
+      dailyUsage: null,
+      checkDailyUsage: async () => ({ allowed: true }),
+    } as PremiumContextType;
   }
   return context;
 }
