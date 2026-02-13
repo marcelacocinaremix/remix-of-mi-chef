@@ -291,7 +291,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
         </div>
 
         {/* Cooking Mode Button */}
-        <div className="p-4 bg-primary/5 border-b border-border space-y-3">
+        <div className="p-4 bg-primary/5 border-b border-border">
           <Button
             onClick={() => setShowCookingMode(true)}
             size="lg"
@@ -300,37 +300,8 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
             <Play className="w-5 h-5 mr-2" />
             Iniciar modo cocina
           </Button>
-          <p className="text-sm text-muted-foreground text-center">
+          <p className="text-sm text-muted-foreground text-center mt-2">
             Pasos grandes y fáciles de leer mientras cocinás
-          </p>
-
-          {/* Ya la cociné button */}
-          <Button
-            onClick={handleMarkAsCooked}
-            disabled={isMarkingCooked || hasMarkedCooked}
-            size="lg"
-            variant="outline"
-            className={cn(
-              "w-full",
-              hasMarkedCooked 
-                ? "border-green-500 text-green-600 bg-green-50 dark:bg-green-950/30" 
-                : "border-primary/30 hover:border-primary"
-            )}
-          >
-            {hasMarkedCooked ? (
-              <>
-                <Check className="w-5 h-5 mr-2" />
-                ¡Registrada! 🎉
-              </>
-            ) : (
-              <>
-                <ChefHat className="w-5 h-5 mr-2" />
-                Ya la cociné
-              </>
-            )}
-          </Button>
-          <p className="text-xs text-muted-foreground text-center">
-            Registrá esta receta para desbloquear logros y llevar tu progreso
           </p>
         </div>
 
@@ -552,6 +523,33 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
             </Button>
             <p className="text-xs text-muted-foreground text-center -mt-1">
               {hasUsedCookingMode ? "Ya usaste el modo cocina" : "Seguí el paso a paso con temporizadores incluidos"}
+            </p>
+
+            {/* Ya la cociné */}
+            <Button
+              onClick={handleMarkAsCooked}
+              disabled={isMarkingCooked || hasMarkedCooked}
+              size="lg"
+              variant={hasMarkedCooked ? "outline" : "default"}
+              className={cn(
+                "w-full",
+                hasMarkedCooked && "border-green-500 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/30"
+              )}
+            >
+              {hasMarkedCooked ? (
+                <>
+                  <Check className="w-5 h-5" />
+                  ¡Registrada! 🎉
+                </>
+              ) : (
+                <>
+                  <ChefHat className="w-5 h-5" />
+                  Ya la cociné
+                </>
+              )}
+            </Button>
+            <p className="text-xs text-muted-foreground text-center -mt-1">
+              {hasMarkedCooked ? "Receta sumada a tus logros" : "Registrá esta receta para desbloquear logros"}
             </p>
             
             
