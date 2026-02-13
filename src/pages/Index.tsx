@@ -157,8 +157,8 @@ export default function Index() {
       const isDailyLimit = err?.context?.body?.dailyLimitReached;
       if (isDailyLimit) {
         toast({
-          title: '🍳 ¡Usaste tus 8 recetas de hoy!',
-          description: 'Volvé mañana para seguir cocinando con Marcela',
+          title: '🍳 ¡Se acabaron tus recetas de hoy!',
+          description: 'Ya usaste tus 3 recetas del día. ¡Volvé mañana para seguir cocinando!',
           variant: 'destructive',
         });
         refetchPremium();
@@ -194,7 +194,18 @@ export default function Index() {
       return;
     }
 
-    // No need to track uses anymore - subscription based
+    // Check daily usage before generating
+    if (user) {
+      const usageResult = await checkDailyUsage();
+      if (!usageResult.allowed) {
+        toast({
+          title: "🍳 ¡Se acabaron tus recetas de hoy!",
+          description: usageResult.message || "Ya usaste tus 3 recetas del día. ¡Volvé mañana para seguir cocinando!",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
 
     playSound('magic');
     setIsButtonAnimating(true);
@@ -231,8 +242,8 @@ export default function Index() {
         
         if (is429) {
           toast({
-            title: "🍳 ¡Usaste tus 8 recetas de hoy!",
-            description: "Volvé mañana para seguir cocinando con Marcela",
+            title: "🍳 ¡Se acabaron tus recetas de hoy!",
+            description: "Ya usaste tus 3 recetas del día. ¡Volvé mañana para seguir cocinando!",
             variant: "destructive",
           });
           setIsLoading(false);
@@ -259,8 +270,8 @@ export default function Index() {
       
       if (is429) {
         toast({
-          title: "🍳 ¡Usaste tus 8 recetas de hoy!",
-          description: "Volvé mañana para seguir cocinando con Marcela",
+            title: "🍳 ¡Se acabaron tus recetas de hoy!",
+            description: "Ya usaste tus 3 recetas del día. ¡Volvé mañana para seguir cocinando!",
           variant: "destructive",
         });
         setIsLoading(false);
@@ -300,8 +311,8 @@ export default function Index() {
         
         if (is429) {
           toast({
-            title: "🍳 ¡Usaste tus 8 recetas de hoy!",
-            description: "Volvé mañana para seguir cocinando con Marcela",
+            title: "🍳 ¡Se acabaron tus recetas de hoy!",
+            description: "Ya usaste tus 3 recetas del día. ¡Volvé mañana para seguir cocinando!",
             variant: "destructive",
           });
           setIsLoading(false);
@@ -314,8 +325,8 @@ export default function Index() {
       // Check for daily limit in response
       if (data?.dailyLimitReached) {
         toast({
-          title: "🍳 ¡Usaste tus 8 recetas de hoy!",
-          description: "Volvé mañana para seguir cocinando con Marcela",
+            title: "🍳 ¡Se acabaron tus recetas de hoy!",
+            description: "Ya usaste tus 3 recetas del día. ¡Volvé mañana para seguir cocinando!",
           variant: "destructive",
         });
         setIsLoading(false);

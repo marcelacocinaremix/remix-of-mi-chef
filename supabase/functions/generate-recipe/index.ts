@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const DAILY_LIMIT = 8;
+const DAILY_LIMIT = 3;
 
 // Check daily usage limit for users
 async function checkUserLimits(req: Request): Promise<{ 
