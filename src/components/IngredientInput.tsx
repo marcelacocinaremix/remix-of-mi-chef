@@ -1,7 +1,6 @@
 import { useState, KeyboardEvent, useEffect } from "react";
-import { X, Plus, Camera, Package, Check } from "lucide-react";
+import { X, Plus, Package, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { PhotoIngredientDetector } from "./PhotoIngredientDetector";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -25,7 +24,6 @@ interface PantryItem {
 
 export function IngredientInput({ ingredients, onIngredientsChange }: IngredientInputProps) {
   const [inputValue, setInputValue] = useState("");
-  const [showPhotoDetector, setShowPhotoDetector] = useState(false);
   const [showPantryModal, setShowPantryModal] = useState(false);
   const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
   const [selectedPantryItems, setSelectedPantryItems] = useState<string[]>([]);
@@ -95,14 +93,6 @@ export function IngredientInput({ ingredients, onIngredientsChange }: Ingredient
     }
   };
 
-  const handlePhotoIngredients = (detectedIngredients: string[]) => {
-    const newIngredients = detectedIngredients.filter(
-      (ing) => !ingredients.includes(ing.toLowerCase())
-    );
-    if (newIngredients.length > 0) {
-      onIngredientsChange([...ingredients, ...newIngredients.map(i => i.toLowerCase())]);
-    }
-  };
 
   const groupedPantryItems = pantryItems.reduce((acc, item) => {
     const category = item.category || 'otros';
@@ -142,21 +132,6 @@ export function IngredientInput({ ingredients, onIngredientsChange }: Ingredient
         >
           <Package className="w-5 h-5" />
           <span className="hidden sm:inline">{t('pantry')}</span>
-        </button>
-
-        {/* Photo button */}
-        <button
-          onClick={() => setShowPhotoDetector(true)}
-          className={cn(
-            "h-12 w-12 rounded-xl shrink-0",
-            "bg-secondary text-secondary-foreground",
-            "flex items-center justify-center",
-            "hover:bg-secondary/80 transition-all duration-300",
-            "border-2 border-border hover:border-primary/50"
-          )}
-          title={t('cookPhoto')}
-        >
-          <Camera className="w-5 h-5" />
         </button>
 
         <div className="relative flex-1">
@@ -214,12 +189,6 @@ export function IngredientInput({ ingredients, onIngredientsChange }: Ingredient
           ))}
         </div>
       )}
-
-      <PhotoIngredientDetector
-        open={showPhotoDetector}
-        onClose={() => setShowPhotoDetector(false)}
-        onIngredientsDetected={handlePhotoIngredients}
-      />
 
       {/* Pantry Modal */}
       <Dialog open={showPantryModal} onOpenChange={setShowPantryModal}>
