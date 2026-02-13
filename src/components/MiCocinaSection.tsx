@@ -2,8 +2,7 @@ import { useState } from "react";
 import { FavoriteRecipes } from "./FavoriteRecipes";
 import SmartHistory from "./SmartHistory";
 import { AchievementsSection } from "./AchievementsSection";
-import { ScannedProducts } from "./ScannedProducts";
-import { Heart, History, Trophy, ScanLine } from "lucide-react";
+import { Heart, History, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Recipe } from "./RecipeList";
@@ -17,7 +16,7 @@ interface MiCocinaSectionProps {
   onSubTabChange?: (subTab: string) => void;
 }
 
-type SubTab = "favoritos" | "historial" | "logros" | "escaneo";
+type SubTab = "favoritos" | "historial" | "logros";
 
 export const MiCocinaSection = ({
   onSelectRecipe,
@@ -32,7 +31,6 @@ export const MiCocinaSection = ({
     { id: "favoritos" as SubTab, label: t("subTabFavorites"), icon: Heart, descKey: "favoritesBannerDesc" as const },
     { id: "historial" as SubTab, label: t("subTabHistory"), icon: History, descKey: "historyBannerDesc" as const },
     { id: "logros" as SubTab, label: t("subTabAchievements"), icon: Trophy, descKey: "achievementsBannerDesc" as const },
-    { id: "escaneo" as SubTab, label: t("subTabScan"), icon: ScanLine, descKey: "scanBannerDesc" as const },
   ];
 
   const activeTabData = subTabs.find(tab => tab.id === activeSubTab);
@@ -41,7 +39,7 @@ export const MiCocinaSection = ({
     <div className="space-y-6">
       {/* Sub-navigation */}
       <div className="bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5 rounded-2xl p-1.5 border border-border/50">
-        <div className="grid grid-cols-4 gap-1.5">
+        <div className="grid grid-cols-3 gap-1.5">
           {subTabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -107,11 +105,6 @@ export const MiCocinaSection = ({
           </div>
         )}
 
-        {activeSubTab === "escaneo" && (
-          <div className="max-w-xl mx-auto">
-            <ScannedProducts />
-          </div>
-        )}
       </div>
     </div>
   );
