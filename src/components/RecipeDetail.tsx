@@ -592,6 +592,14 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               tenés muchas más ideas fáciles para el día a día."
             </p>
           </div>
+
+          {/* Bottom back button */}
+          <div className="pt-2">
+            <Button variant="outline" onClick={onBack} className="w-full">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Volver al menú
+            </Button>
+          </div>
         </div>
       </div>
     </div>
