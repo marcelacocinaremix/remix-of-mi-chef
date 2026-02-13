@@ -6,7 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell, Refere
 import { BarChart3 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WorkoutLog, WorkoutType } from "@/hooks/useActivityTracking";
-import { cn } from "@/lib/utils";
+import { cn, formatLocalDate } from "@/lib/utils";
 
 interface ChartDataPoint {
   day: string;
@@ -54,7 +54,7 @@ export function ActivityProgressChart({ getWorkoutsByPeriod, weeklyTarget }: Act
       for (let i = 6; i >= 0; i--) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = formatLocalDate(date);
         const dayWorkouts = periodWorkouts.filter(w => w.workout_date === dateStr);
         const dayMinutes = dayWorkouts.reduce((sum, w) => sum + w.duration_minutes, 0);
         const dayCalories = dayWorkouts.reduce((sum, w) => sum + (w.calories_burned || 0), 0);

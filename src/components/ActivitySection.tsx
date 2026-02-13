@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
+import { cn, formatLocalDate } from "@/lib/utils";
 import { useActivityTracking, FitnessGoal, WorkoutType } from "@/hooks/useActivityTracking";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -129,7 +129,7 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
     duration: 30,
     intensity: 3,
     notes: '',
-    date: new Date().toISOString().split('T')[0],
+    date: formatLocalDate(),
   });
 
   const resetForm = useCallback(() => {
@@ -138,7 +138,7 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
       duration: 30,
       intensity: 3,
       notes: '',
-      date: new Date().toISOString().split('T')[0],
+      date: formatLocalDate(),
     });
     setEditingWorkout(null);
     setSessionWorkouts([]);
@@ -477,7 +477,7 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
                 type="date"
                 value={workoutForm.date}
                 onChange={(e) => setWorkoutForm({ ...workoutForm, date: e.target.value })}
-                max={new Date().toISOString().split('T')[0]}
+                max={formatLocalDate()}
               />
             </div>
 
