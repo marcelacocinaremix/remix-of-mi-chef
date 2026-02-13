@@ -229,6 +229,47 @@ export function useActivityTracking() {
     }
   }, [user, fetchData]);
 
+  // Update workout
+  const updateWorkout = useCallback(async (
+    workoutId: string,
+    workoutType: WorkoutType,
+    durationMinutes: number,
+    intensity?: number,
+    notes?: string,
+    workoutDate?: string
+  ) => {
+    if (!user) return false;
+
+    setIsSaving(true);
+    try {
+      const caloriesBurned = Math.round(durationMinutes * WORKOUT_CALORIES_PER_MINUTE[workoutType] * ((intensity || 5) / 5));
+      
+      const { error } = await supabase
+        .from('workout_logs')
+        .update({
+          workout_type: workoutType,
+          duration_minutes: durationMinutes,
+          intensity: intensity || null,
+          calories_burned: caloriesBurned,
+          notes: notes || null,
+          workout_date: workoutDate || new Date().toISOString().split('T')[0],
+        })
+        .eq('id', workoutId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      await fetchData();
+      toast.success('Entrenamiento actualizado');
+      return true;
+    } catch (error) {
+      console.error('Error updating workout:', error);
+      toast.error('Error al actualizar entrenamiento');
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  }, [user, fetchData]);
+
   // Delete workout
   const deleteWorkout = useCallback(async (workoutId: string) => {
     if (!user) return;
@@ -382,6 +423,7 @@ export function useActivityTracking() {
     setFitnessGoal,
     updateActivityProfile,
     addWorkout,
+    updateWorkout,
     deleteWorkout,
     getWorkoutsByPeriod,
     refetch: fetchData,
