@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { formatLocalDate, parseLocalDate } from '@/lib/utils';
 
 export type FitnessGoal = 'lose_fat' | 'gain_muscle' | 'stay_active' | 'improve_performance';
 export type WorkoutType = 'strength' | 'cardio' | 'boxing' | 'functional' | 'yoga' | 'swimming' | 'running' | 'cycling' | 'hiit' | 'other';
@@ -214,7 +215,7 @@ export function useActivityTracking() {
           intensity: intensity || null,
           calories_burned: caloriesBurned,
           notes: notes || null,
-          workout_date: workoutDate || new Date().toISOString().split('T')[0],
+          workout_date: workoutDate || formatLocalDate(),
         });
 
       if (error) throw error;
@@ -252,7 +253,7 @@ export function useActivityTracking() {
           intensity: intensity || null,
           calories_burned: caloriesBurned,
           notes: notes || null,
-          workout_date: workoutDate || new Date().toISOString().split('T')[0],
+          workout_date: workoutDate || formatLocalDate(),
         })
         .eq('id', workoutId)
         .eq('user_id', user.id);
@@ -334,8 +335,8 @@ export function useActivityTracking() {
     let bestStreak = 0;
     let tempStreak = 0;
     
-    const today = new Date().toISOString().split('T')[0];
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    const today = formatLocalDate();
+    const yesterday = formatLocalDate(new Date(Date.now() - 86400000));
     
     if (sortedDates[0] === today || sortedDates[0] === yesterday) {
       for (let i = 0; i < sortedDates.length; i++) {
@@ -343,7 +344,7 @@ export function useActivityTracking() {
         const expectedDate = new Date(sortedDates[0]);
         expectedDate.setDate(expectedDate.getDate() - i);
         
-        if (currentDate.toISOString().split('T')[0] === expectedDate.toISOString().split('T')[0]) {
+        if (formatLocalDate(currentDate) === formatLocalDate(expectedDate)) {
           tempStreak++;
         } else {
           break;
