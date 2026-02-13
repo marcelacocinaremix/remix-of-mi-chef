@@ -31,9 +31,10 @@ function getDailyTargets(goal?: string) {
 interface DailyMealLogProps {
   onMealsChanged?: () => void;
   fitnessGoal?: string;
+  onBlockedAction?: () => void;
 }
 
-export function DailyMealLog({ onMealsChanged, fitnessGoal }: DailyMealLogProps) {
+export function DailyMealLog({ onMealsChanged, fitnessGoal, onBlockedAction }: DailyMealLogProps) {
   const {
     dailyMeals,
     dailyTotals,
@@ -193,7 +194,13 @@ export function DailyMealLog({ onMealsChanged, fitnessGoal }: DailyMealLogProps)
             key={type}
             mealType={type}
             meals={dailyMeals}
-            onAddMeal={(mt) => setAddMealType(mt)}
+            onAddMeal={(mt) => {
+              if (onBlockedAction) {
+                onBlockedAction();
+                return;
+              }
+              setAddMealType(mt);
+            }}
             onDeleteMeal={handleDelete}
           />
         ))}

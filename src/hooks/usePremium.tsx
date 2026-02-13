@@ -9,7 +9,6 @@ interface DailyUsageInfo {
 }
 
 interface PremiumContextType {
-  // Always free now - these are kept for compatibility but always return free values
   isPremium: boolean;
   isLoading: boolean;
   subscriptionStatus: string;
@@ -18,22 +17,68 @@ interface PremiumContextType {
   trialUsed: boolean;
   daysRemaining: number | null;
   refetch: () => Promise<void>;
-  // New daily usage tracking
   dailyUsage: DailyUsageInfo | null;
   checkDailyUsage: () => Promise<{ allowed: boolean; message?: string }>;
+  // Trial system
+  isTrialActive: boolean;
+  isTrialExpired: boolean;
+  trialDaysRemaining: number;
+  canUseFeature: (feature: 'balance_add' | 'planificador_modify' | 'general') => boolean;
+  showPaywall: boolean;
+  setShowPaywall: (show: boolean) => void;
 }
 
 const PremiumContext = createContext<PremiumContextType | undefined>(undefined);
 
 const DAILY_LIMIT = 8;
+const TRIAL_DAYS = 15;
 
 export function PremiumProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [dailyUsage, setDailyUsage] = useState<DailyUsageInfo | null>(null);
+  const [showPaywall, setShowPaywall] = useState(false);
+  
+  // Trial & premium state
+  const [isPremium, setIsPremium] = useState(false);
+  const [planType, setPlanType] = useState<string | null>('free');
+  const [trialStartDate, setTrialStartDate] = useState<Date | null>(null);
+  const [trialEndDate, setTrialEndDate] = useState<Date | null>(null);
+  const [subscriptionStatus, setSubscriptionStatus] = useState('free');
 
-  const fetchDailyUsage = useCallback(async () => {
+  const isTrialActive = (() => {
+    if (isPremium) return false;
+    if (!trialEndDate) return true; // No trial data yet, assume active
+    return new Date() < trialEndDate;
+  })();
+
+  const isTrialExpired = (() => {
+    if (isPremium) return false;
+    if (!trialEndDate) return false;
+    return new Date() >= trialEndDate;
+  })();
+
+  const trialDaysRemaining = (() => {
+    if (!trialEndDate) return TRIAL_DAYS;
+    const now = new Date();
+    const diff = trialEndDate.getTime() - now.getTime();
+    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+  })();
+
+  const canUseFeature = useCallback((feature: 'balance_add' | 'planificador_modify' | 'general') => {
+    if (isPremium) return true;
+    if (isTrialActive) return true;
+    // Trial expired, block certain features
+    if (feature === 'balance_add' || feature === 'planificador_modify') return false;
+    return true; // General viewing is still allowed
+  }, [isPremium, isTrialActive]);
+
+  const fetchSubscription = useCallback(async () => {
     if (!user) {
+      setIsPremium(false);
+      setPlanType('free');
+      setTrialStartDate(null);
+      setTrialEndDate(null);
       setDailyUsage(null);
       return;
     }
@@ -41,26 +86,35 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     try {
       const { data, error } = await supabase
         .from('user_subscriptions')
-        .select('daily_uses, last_use_date')
+        .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching daily usage:', error);
+        console.error('Error fetching subscription:', error);
         return;
       }
 
-      const today = new Date().toISOString().split('T')[0];
-      const lastUseDate = data?.last_use_date;
-      const usesToday = (lastUseDate === today) ? (data?.daily_uses || 0) : 0;
+      if (data) {
+        setIsPremium(data.is_premium || false);
+        setPlanType(data.plan_type || 'free');
+        setSubscriptionStatus(data.subscription_status || 'free');
+        
+        if (data.trial_start_date) setTrialStartDate(new Date(data.trial_start_date));
+        if (data.trial_end_date) setTrialEndDate(new Date(data.trial_end_date));
 
-      setDailyUsage({
-        usesToday,
-        remaining: Math.max(0, DAILY_LIMIT - usesToday),
-        limit: DAILY_LIMIT
-      });
+        // Daily usage
+        const today = new Date().toISOString().split('T')[0];
+        const lastUseDate = data.last_use_date;
+        const usesToday = (lastUseDate === today) ? (data.daily_uses || 0) : 0;
+        setDailyUsage({
+          usesToday,
+          remaining: Math.max(0, DAILY_LIMIT - usesToday),
+          limit: DAILY_LIMIT
+        });
+      }
     } catch (err) {
-      console.error('Error in fetchDailyUsage:', err);
+      console.error('Error in fetchSubscription:', err);
     }
   }, [user]);
 
@@ -81,7 +135,6 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         return { allowed: false, message: 'Error al verificar el uso diario' };
       }
 
-      // Update local state - cast data to proper type
       if (data && typeof data === 'object' && !Array.isArray(data)) {
         const result = data as { allowed: boolean; uses_today: number; remaining: number; message?: string };
         
@@ -107,23 +160,27 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   useEffect(() => {
-    fetchDailyUsage();
-  }, [fetchDailyUsage]);
+    fetchSubscription();
+  }, [fetchSubscription]);
 
   return (
     <PremiumContext.Provider value={{
-      // Always free - compatibility values
-      isPremium: false,
+      isPremium,
       isLoading,
-      subscriptionStatus: 'free',
+      subscriptionStatus,
       subscriptionEnd: null,
-      planType: 'free',
+      planType,
       trialUsed: false,
-      daysRemaining: null,
-      refetch: fetchDailyUsage,
-      // Daily usage
+      daysRemaining: trialDaysRemaining,
+      refetch: fetchSubscription,
       dailyUsage,
-      checkDailyUsage
+      checkDailyUsage,
+      isTrialActive,
+      isTrialExpired,
+      trialDaysRemaining,
+      canUseFeature,
+      showPaywall,
+      setShowPaywall,
     }}>
       {children}
     </PremiumContext.Provider>
@@ -133,7 +190,6 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
 export function usePremium() {
   const context = useContext(PremiumContext);
   if (context === undefined) {
-    // Fallback: return safe defaults so components outside PremiumProvider don't crash
     return {
       isPremium: false,
       isLoading: false,
@@ -145,6 +201,12 @@ export function usePremium() {
       refetch: async () => {},
       dailyUsage: null,
       checkDailyUsage: async () => ({ allowed: true }),
+      isTrialActive: true,
+      isTrialExpired: false,
+      trialDaysRemaining: TRIAL_DAYS,
+      canUseFeature: () => true,
+      showPaywall: false,
+      setShowPaywall: () => {},
     } as PremiumContextType;
   }
   return context;
