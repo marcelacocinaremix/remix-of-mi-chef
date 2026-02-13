@@ -14,6 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
+      cached_food_guides: {
+        Row: {
+          category: string
+          created_at: string
+          food_name: string
+          food_name_normalized: string
+          id: string
+          response_data: Json
+          updated_at: string
+          usage_count: number
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          food_name: string
+          food_name_normalized: string
+          id?: string
+          response_data: Json
+          updated_at?: string
+          usage_count?: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          food_name?: string
+          food_name_normalized?: string
+          id?: string
+          response_data?: Json
+          updated_at?: string
+          usage_count?: number
+        }
+        Relationships: []
+      }
+      cached_nutrition: {
+        Row: {
+          calories: number
+          carbs: number
+          created_at: string
+          fats: number
+          food_name: string
+          food_name_normalized: string
+          id: string
+          portion: string | null
+          portion_description: string | null
+          protein: number
+          updated_at: string
+          usage_count: number
+        }
+        Insert: {
+          calories?: number
+          carbs?: number
+          created_at?: string
+          fats?: number
+          food_name: string
+          food_name_normalized: string
+          id?: string
+          portion?: string | null
+          portion_description?: string | null
+          protein?: number
+          updated_at?: string
+          usage_count?: number
+        }
+        Update: {
+          calories?: number
+          carbs?: number
+          created_at?: string
+          fats?: number
+          food_name?: string
+          food_name_normalized?: string
+          id?: string
+          portion?: string | null
+          portion_description?: string | null
+          protein?: number
+          updated_at?: string
+          usage_count?: number
+        }
+        Relationships: []
+      }
       cached_recipes: {
         Row: {
           created_at: string
@@ -56,6 +134,30 @@ export type Database = {
           time_range?: string | null
           updated_at?: string
           usage_count?: number | null
+        }
+        Relationships: []
+      }
+      cached_smart_tips: {
+        Row: {
+          context_type: string
+          created_at: string
+          id: string
+          tip: string
+          usage_count: number
+        }
+        Insert: {
+          context_type?: string
+          created_at?: string
+          id?: string
+          tip: string
+          usage_count?: number
+        }
+        Update: {
+          context_type?: string
+          created_at?: string
+          id?: string
+          tip?: string
+          usage_count?: number
         }
         Relationships: []
       }
