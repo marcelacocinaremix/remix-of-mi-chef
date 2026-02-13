@@ -81,6 +81,50 @@ serve(async (req) => {
 
     const { action, context } = await req.json() as ReactionRequest;
     const userProfile = context?.userProfile;
+
+    // 1. Check cache first for non-personalized actions
+    const nonPersonalizedActions = [
+      'ingredient_added', 'ingredient_removed', 'filter_changed', 'meal_type_selected',
+      'recipe_generated', 'recipe_selected', 'favorite_added', 'pantry_opened',
+      'shopping_list_opened', 'history_viewed', 'calendar_opened', 'surprise_clicked',
+      'idle', 'time_changed', 'favorites_opened', 'history_deleted',
+      'tab_inicio', 'tab_resumen', 'tab_cocinar', 'tab_recetas', 'tab_plan',
+      'tab_despensa', 'tab_super', 'tab_favoritos', 'tab_nutrientes',
+      'tab_logros', 'tab_historial', 'tab_jugar', 'tab_marcelacocina',
+    ];
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+    // For non-personalized actions (no name needed), try cache
+    const canUseCache = nonPersonalizedActions.includes(action) && 
+      (!userProfile?.display_name || action !== 'app_opened');
+
+    if (canUseCache) {
+      const { data: cachedReactions } = await supabaseAdmin
+        .from('cached_marcela_reactions')
+        .select('*')
+        .eq('action', action)
+        .order('usage_count', { ascending: true })
+        .limit(10);
+
+      if (cachedReactions && cachedReactions.length >= 3) {
+        const picked = cachedReactions[Math.floor(Math.random() * cachedReactions.length)];
+        console.log(`Marcela reaction cache HIT for "${action}"`);
+        
+        await supabaseAdmin
+          .from('cached_marcela_reactions')
+          .update({ usage_count: (picked.usage_count || 1) + 1 })
+          .eq('id', picked.id);
+
+        return new Response(JSON.stringify(picked.reaction_data), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    console.log(`Marcela reaction cache MISS for "${action}", calling AI`);
     
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
@@ -191,6 +235,20 @@ IMPORTANTE: Respondé SOLO con un JSON válido, sin markdown.
     
     try {
       const parsed = JSON.parse(content);
+      
+      // 3. Cache the AI result for non-personalized actions
+      if (canUseCache && parsed.reaction) {
+        try {
+          await supabaseAdmin.from('cached_marcela_reactions').insert({
+            action,
+            reaction_data: parsed,
+          });
+          console.log(`Cached marcela reaction for "${action}"`);
+        } catch (cacheErr) {
+          console.error('Error caching reaction:', cacheErr);
+        }
+      }
+      
       return new Response(JSON.stringify(parsed), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
