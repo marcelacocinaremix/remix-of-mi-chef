@@ -595,7 +595,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
 
           {/* Bottom back button */}
           <div className="pt-2">
-            <Button variant="outline" onClick={onBack} className="w-full">
+            <Button variant="outline" onClick={() => { onBack(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="w-full">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Volver al menú
             </Button>
