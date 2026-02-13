@@ -434,31 +434,6 @@ export function SmartActivityAnalysis({
         </motion.div>
       )}
 
-      {/* Empty activity advice */}
-      {stats.totalWorkouts === 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card className="bg-card border-primary/30">
-            <CardContent className="py-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-                  <Lightbulb className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium mb-1 text-foreground">¡Es momento de empezar!</p>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Para {goalConfig?.label.toLowerCase()}, te recomiendo {goalConfig?.focusWorkouts.slice(0, 2).join(" o ")}.
-                    La nutrición es importante, pero el movimiento es clave para alcanzar tu objetivo.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
     </div>
   );
 }

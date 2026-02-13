@@ -161,39 +161,6 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
     };
   }, [stats, language]);
 
-  // Get motivational message based on goal and progress
-  const getMotivationalMessage = useMemo(() => {
-    if (!goal) {
-      return language === 'es' 
-        ? "¡Configurá tu perfil para empezar a registrar tu actividad!" 
-        : "Set up your profile to start tracking your activity!";
-    }
-
-    const goalConfig = GOAL_CONFIG[goal.goal];
-    
-    if (stats.weeklyWorkouts === 0) {
-      return language === 'es'
-        ? `¡Es hora de empezar! Tu objetivo es ${goalConfig.label.toLowerCase()}.`
-        : `Time to get started! Your goal is to ${goalConfig.labelEn.toLowerCase()}.`;
-    }
-    
-    if (stats.currentStreak >= 3) {
-      return language === 'es'
-        ? `¡Increíble! Llevas ${stats.currentStreak} días seguidos entrenando 🔥`
-        : `Amazing! You've been training for ${stats.currentStreak} days in a row 🔥`;
-    }
-
-    if (stats.weeklyWorkouts >= stats.weeklyWorkoutTarget) {
-      return language === 'es'
-        ? "¡Objetivo semanal cumplido! Sos imparable 💪"
-        : "Weekly goal achieved! You're unstoppable 💪";
-    }
-
-    const remaining = stats.weeklyWorkoutTarget - stats.weeklyWorkouts;
-    return language === 'es'
-      ? `Te faltan ${remaining} entrenamiento${remaining > 1 ? 's' : ''} para tu meta semanal. ¡Vamos!`
-      : `${remaining} more workout${remaining > 1 ? 's' : ''} to reach your weekly goal. Let's go!`;
-  }, [goal, stats, language]);
 
   // Handle add workout
   const handleAddWorkout = useCallback(async () => {
@@ -315,44 +282,6 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
         />
       </motion.div>
 
-      {/* Marcela Tip */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-      >
-        <Card className="overflow-hidden bg-card border-border">
-          <CardContent className="pt-5 pb-4">
-            <div className="flex items-start gap-4">
-              <motion.div 
-                className="relative shrink-0 w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center"
-                animate={{ y: [0, -3, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <Sparkles className="w-7 h-7 text-primary" />
-                {/* Status indicator */}
-                <motion.div 
-                  className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-card"
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-              </motion.div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <Sparkles className="w-4 h-4 text-primary" />
-                  <span className="font-semibold text-sm text-primary">
-                    Marcela AI
-                  </span>
-                  <Badge variant="secondary" className="text-[10px] px-1.5">
-                    {language === 'es' ? 'EN LÍNEA' : 'ONLINE'}
-                  </Badge>
-                </div>
-                <p className="text-sm text-foreground leading-relaxed">{getMotivationalMessage}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
 
       {/* Stats Overview with Feedback */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
