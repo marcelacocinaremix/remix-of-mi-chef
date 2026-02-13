@@ -525,20 +525,6 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               {hasUsedCookingMode ? "Ya usaste el modo cocina" : "Seguí el paso a paso con temporizadores incluidos"}
             </p>
             
-            {/* Mark as cooked button - sends to nutrition */}
-            <Button 
-              variant={(hasMarkedCooked || recentlyCooked) ? "outline" : "default"} 
-              size="lg"
-              onClick={handleMarkAsCooked}
-              disabled={isMarkingCooked || hasMarkedCooked || recentlyCooked}
-              className={cn(
-                "w-full",
-                (hasMarkedCooked || recentlyCooked) && "border-green-500 text-green-600"
-              )}
-            >
-              <Check className="w-5 h-5" />
-              {isMarkingCooked ? "Registrando..." : (hasMarkedCooked || recentlyCooked) ? "Cocinada ✓" : "Ya la cociné"}
-            </Button>
             
             <Button 
               variant={hasCopied ? "outline" : "default"} 
