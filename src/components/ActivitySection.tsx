@@ -31,6 +31,7 @@ import {
   Heart,
   Plus,
   Trash2,
+  Pencil,
   Sparkles,
   Activity,
   ChevronRight,
@@ -112,6 +113,7 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
     isLoading, 
     isSaving,
     addWorkout, 
+    updateWorkout,
     deleteWorkout,
     getWorkoutsByPeriod 
   } = useActivityTracking();
@@ -119,15 +121,41 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
   const [showAddWorkout, setShowAddWorkout] = useState(false);
   const [soundEnabled] = useState(true);
   const [workoutRegistered, setWorkoutRegistered] = useState(false);
+  const [editingWorkout, setEditingWorkout] = useState<string | null>(null);
   
   // Add workout form state
   const [workoutForm, setWorkoutForm] = useState({
     type: 'strength' as WorkoutType,
     duration: 30,
-    intensity: 3, // Changed to 1-5 scale (baja/media/alta)
+    intensity: 3,
     notes: '',
     date: new Date().toISOString().split('T')[0],
   });
+
+  const resetForm = useCallback(() => {
+    setWorkoutForm({
+      type: 'strength',
+      duration: 30,
+      intensity: 3,
+      notes: '',
+      date: new Date().toISOString().split('T')[0],
+    });
+    setEditingWorkout(null);
+  }, []);
+
+  const handleEditWorkout = useCallback((workout: typeof workouts[0]) => {
+    // Map stored intensity (1-10) back to form scale (1-5)
+    const formIntensity = workout.intensity ? Math.round(workout.intensity / 2) : 3;
+    setWorkoutForm({
+      type: workout.workout_type,
+      duration: workout.duration_minutes,
+      intensity: Math.max(1, Math.min(5, formIntensity)),
+      notes: workout.notes || '',
+      date: workout.workout_date,
+    });
+    setEditingWorkout(workout.id);
+    setShowAddWorkout(true);
+  }, []);
 
   // Get metric feedback messages
   const getMetricFeedback = useMemo(() => {
@@ -162,29 +190,45 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
   }, [stats, language]);
 
 
-  // Handle add workout
-  const handleAddWorkout = useCallback(async () => {
-    // Map intensity from 1-5 to 1-10 for storage
+  // Handle add/edit workout
+  const handleSaveWorkout = useCallback(async () => {
     const mappedIntensity = workoutForm.intensity * 2;
     
-    const success = await addWorkout(
-      workoutForm.type,
-      workoutForm.duration,
-      mappedIntensity,
-      workoutForm.notes || undefined,
-      workoutForm.date
-    );
+    let success: boolean | undefined;
+    
+    if (editingWorkout) {
+      success = await updateWorkout(
+        editingWorkout,
+        workoutForm.type,
+        workoutForm.duration,
+        mappedIntensity,
+        workoutForm.notes || undefined,
+        workoutForm.date
+      );
+    } else {
+      success = await addWorkout(
+        workoutForm.type,
+        workoutForm.duration,
+        mappedIntensity,
+        workoutForm.notes || undefined,
+        workoutForm.date
+      );
+    }
 
     if (success) {
       onWorkoutsChanged?.();
       if (soundEnabled) {
         play('success');
       }
-      setWorkoutRegistered(true);
-      setTimeout(() => setWorkoutRegistered(false), 2000);
+      if (!editingWorkout) {
+        setWorkoutRegistered(true);
+        setTimeout(() => setWorkoutRegistered(false), 2000);
+      }
       
       toast.success(
-        language === 'es' ? '¡Entrenamiento registrado!' : 'Workout logged!',
+        editingWorkout 
+          ? (language === 'es' ? '¡Entrenamiento actualizado!' : 'Workout updated!')
+          : (language === 'es' ? '¡Entrenamiento registrado!' : 'Workout logged!'),
         { 
           description: language === 'es' 
             ? `${workoutForm.duration} min de ${WORKOUT_CONFIG[workoutForm.type].label}` 
@@ -192,15 +236,9 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
         }
       );
       setShowAddWorkout(false);
-      setWorkoutForm({
-        type: 'strength',
-        duration: 30,
-        intensity: 3,
-        notes: '',
-        date: new Date().toISOString().split('T')[0],
-      });
+      resetForm();
     }
-  }, [workoutForm, addWorkout, soundEnabled, play, language]);
+  }, [workoutForm, addWorkout, updateWorkout, editingWorkout, soundEnabled, play, language, resetForm, onWorkoutsChanged]);
 
   if (!user) {
     return (
@@ -321,7 +359,10 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
       </div>
 
       {/* Add Workout Button */}
-      <Dialog open={showAddWorkout} onOpenChange={setShowAddWorkout}>
+      <Dialog open={showAddWorkout} onOpenChange={(open) => {
+        setShowAddWorkout(open);
+        if (!open) resetForm();
+      }}>
         <DialogTrigger asChild>
           <motion.div 
             whileHover={{ scale: 1.02 }} 
@@ -330,7 +371,7 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Button className="w-full h-12 text-base font-semibold">
+            <Button className="w-full h-12 text-base font-semibold" onClick={() => resetForm()}>
               <Plus className="w-5 h-5 mr-2" />
               {language === 'es' ? 'Registrar entrenamiento' : 'Log workout'}
             </Button>
@@ -340,10 +381,13 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground">
-                <Dumbbell className="w-5 h-5" />
+                {editingWorkout ? <Pencil className="w-5 h-5" /> : <Dumbbell className="w-5 h-5" />}
               </div>
               <span>
-                {language === 'es' ? 'Nuevo entrenamiento' : 'New workout'}
+                {editingWorkout 
+                  ? (language === 'es' ? 'Editar entrenamiento' : 'Edit workout')
+                  : (language === 'es' ? 'Nuevo entrenamiento' : 'New workout')
+                }
               </span>
             </DialogTitle>
           </DialogHeader>
@@ -437,7 +481,7 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
             </div>
 
             <Button 
-              onClick={handleAddWorkout}
+              onClick={handleSaveWorkout}
               disabled={isSaving}
               className="w-full bg-accent hover:bg-accent/90 text-accent-foreground h-11"
             >
@@ -460,7 +504,10 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
                     className="flex items-center gap-2"
                   >
                     <Check className="w-4 h-4" />
-                    {language === 'es' ? 'Guardar entrenamiento' : 'Save workout'}
+                    {editingWorkout 
+                      ? (language === 'es' ? 'Actualizar entrenamiento' : 'Update workout')
+                      : (language === 'es' ? 'Guardar entrenamiento' : 'Save workout')
+                    }
                   </motion.span>
                 )}
               </AnimatePresence>
@@ -539,11 +586,19 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
                         <div className="text-right">
                           <p className="text-sm font-medium">{workout.duration_minutes} min</p>
                           <p className="text-xs text-muted-foreground">{workout.calories_burned} cal</p>
                         </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditWorkout(workout)}
+                          className="text-muted-foreground hover:text-primary h-8 w-8 p-0"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
