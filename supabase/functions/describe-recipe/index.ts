@@ -6,27 +6,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-async function checkAuth(req: Request): Promise<{ authenticated: boolean; userId: string | null }> {
-  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-  
-  const authHeader = req.headers.get('Authorization');
-  
-  if (!authHeader) {
-    return { authenticated: false, userId: null };
-  }
-
-  const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-    global: { headers: { Authorization: authHeader } }
-  });
-
-  const { data: { user }, error } = await supabaseClient.auth.getUser();
-  
-  if (error || !user) {
-    return { authenticated: false, userId: null };
-  }
-
-  return { authenticated: true, userId: user.id };
+function normalize(name: string): string {
+  return name.trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ');
 }
 
 serve(async (req) => {
@@ -35,20 +18,47 @@ serve(async (req) => {
   }
 
   try {
-    // Check authentication (optional - describe-recipe works for all but logs for debugging)
-    const { authenticated, userId } = await checkAuth(req);
-    
-    if (authenticated && userId) {
-      console.log(`Authorized: User ${userId} accessing describe-recipe`);
-    } else {
-      console.log('Anonymous user accessing describe-recipe');
+    const { recipeName, recipeIngredients, recipeTime, recipeDifficulty } = await req.json();
+
+    if (!recipeName) {
+      return new Response(JSON.stringify({ description: '¡Esta opción se ve deliciosa!' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    const { recipeName, recipeIngredients, recipeTime, recipeDifficulty } = await req.json();
-    
+    const normalized = normalize(recipeName);
+
+    // 1. Check cache first
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    const { data: cached } = await supabase
+      .from('cached_descriptions')
+      .select('*')
+      .eq('recipe_name_normalized', normalized)
+      .maybeSingle();
+
+    if (cached) {
+      console.log(`Description cache HIT for "${recipeName}"`);
+      await supabase
+        .from('cached_descriptions')
+        .update({ usage_count: (cached.usage_count || 1) + 1, updated_at: new Date().toISOString() })
+        .eq('id', cached.id);
+
+      return new Response(JSON.stringify({ description: cached.description }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    console.log(`Description cache MISS for "${recipeName}", calling AI`);
+
+    // 2. No cache → call AI
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+      return new Response(JSON.stringify({ description: '¡Esta opción se ve deliciosa!' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const prompt = `Sos Marcela, una chef amigable. Dame UNA frase corta y entusiasta (máximo 15 palabras) describiendo esta receta:
@@ -60,15 +70,10 @@ Dificultad: ${recipeDifficulty}
 
 Respondé SOLO con la frase, sin comillas, sin emojis al inicio. Ejemplo: "Esta opción es perfecta para un almuerzo rápido y nutritivo"`;
 
-    // Multiple models for fallback
     const models = [
       'google/gemini-2.5-flash-lite',
       'google/gemini-2.5-flash',
       'openai/gpt-5-nano',
-      'openai/gpt-5-mini',
-      'google/gemini-2.5-pro',
-      'google/gemini-3-pro-preview',
-      'openai/gpt-5'
     ];
     
     let response: Response | null = null;
@@ -83,9 +88,7 @@ Respondé SOLO con la frase, sin comillas, sin emojis al inicio. Ejemplo: "Esta 
           },
           body: JSON.stringify({
             model: model,
-            messages: [
-              { role: 'user', content: prompt }
-            ],
+            messages: [{ role: 'user', content: prompt }],
           }),
         });
 
@@ -94,16 +97,13 @@ Respondé SOLO con la frase, sin comillas, sin emojis al inicio. Ejemplo: "Esta 
           break;
         }
         
-        console.log(`describe-recipe model ${model} failed: ${response.status}`);
-        
-        if (response.status === 429) continue; // Rate limited, try next
+        if (response.status === 429) continue;
       } catch (e) {
         console.error(`describe-recipe fetch error with ${model}:`, e);
       }
     }
 
     if (!response || !response.ok) {
-      console.log('All AI models failed for describe-recipe');
       return new Response(JSON.stringify({ description: '¡Esta opción se ve deliciosa!' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -111,6 +111,18 @@ Respondé SOLO con la frase, sin comillas, sin emojis al inicio. Ejemplo: "Esta 
 
     const data = await response.json();
     const description = data.choices?.[0]?.message?.content?.trim() || '¡Esta opción se ve deliciosa!';
+
+    // 3. Cache the result
+    try {
+      await supabase.from('cached_descriptions').insert({
+        recipe_name: recipeName.trim(),
+        recipe_name_normalized: normalized,
+        description,
+      });
+      console.log(`Cached description for "${recipeName}"`);
+    } catch (cacheErr) {
+      console.error('Error caching description:', cacheErr);
+    }
 
     return new Response(JSON.stringify({ description }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

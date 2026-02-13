@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      cached_descriptions: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          recipe_name: string
+          recipe_name_normalized: string
+          updated_at: string
+          usage_count: number
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          recipe_name: string
+          recipe_name_normalized: string
+          updated_at?: string
+          usage_count?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          recipe_name?: string
+          recipe_name_normalized?: string
+          updated_at?: string
+          usage_count?: number
+        }
+        Relationships: []
+      }
       cached_food_guides: {
         Row: {
           category: string
@@ -43,6 +73,30 @@ export type Database = {
           id?: string
           response_data?: Json
           updated_at?: string
+          usage_count?: number
+        }
+        Relationships: []
+      }
+      cached_marcela_reactions: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          reaction_data: Json
+          usage_count: number
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          reaction_data: Json
+          usage_count?: number
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          reaction_data?: Json
           usage_count?: number
         }
         Relationships: []
