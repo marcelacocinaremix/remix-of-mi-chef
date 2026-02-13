@@ -559,7 +559,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               onClick={async () => {
                 setIsCopying(true);
                 try {
-                  const ingredientsText = recipe.ingredients.join('\n');
+                  const ingredientsText = `🍽️ ${recipe.name}\n\n` + recipe.ingredients.join('\n');
                   await navigator.clipboard.writeText(ingredientsText);
                   setHasCopied(true);
                   toast({
