@@ -13,8 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Recipe } from "@/components/RecipeList";
 import {
   format, startOfMonth, endOfMonth, eachDayOfInterval,
-  isSameDay, isToday, addMonths, subMonths, startOfWeek, endOfWeek,
-  getDay
+  isSameDay, isToday, isTomorrow, addMonths, subMonths, startOfWeek, endOfWeek,
+  getDay, differenceInCalendarDays
 } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -240,6 +240,10 @@ export function MonthlyCalendar({ onNavigateToCooking }: MonthlyCalendarProps) {
             const meals = getMealsForDate(day);
             const hasMeals = meals.length > 0;
             const today = isToday(day);
+            const tomorrow = isTomorrow(day);
+            const now = new Date();
+            const diff = differenceInCalendarDays(day, now);
+            const isNear = diff >= 2 && diff <= 4;
 
             return (
               <button
@@ -248,8 +252,16 @@ export function MonthlyCalendar({ onNavigateToCooking }: MonthlyCalendarProps) {
                 className={cn(
                   "relative flex flex-col items-center justify-start p-1 min-h-[52px] sm:min-h-[64px] border-b border-r border-border/20 transition-colors",
                   inMonth ? "bg-background" : "bg-muted/30",
-                  today && "ring-2 ring-primary ring-inset",
-                  selectedDate && isSameDay(day, selectedDate) && "bg-primary/10",
+                  // Proximity highlights
+                  today && "bg-primary/15 ring-2 ring-primary ring-inset",
+                  tomorrow && "bg-primary/8",
+                  isNear && inMonth && "bg-primary/4",
+                  // Stronger bg when nearby + has meals
+                  hasMeals && today && "bg-primary/20",
+                  hasMeals && tomorrow && "bg-primary/12",
+                  hasMeals && isNear && inMonth && "bg-primary/8",
+                  // Selection
+                  selectedDate && isSameDay(day, selectedDate) && "bg-primary/10 ring-2 ring-primary/60 ring-inset",
                   "hover:bg-accent/50 active:scale-95"
                 )}
               >
@@ -257,7 +269,8 @@ export function MonthlyCalendar({ onNavigateToCooking }: MonthlyCalendarProps) {
                   className={cn(
                     "text-xs sm:text-sm font-medium",
                     !inMonth && "text-muted-foreground/40",
-                    today && "text-primary font-bold"
+                    today && "text-primary font-bold",
+                    tomorrow && "text-primary/80 font-semibold"
                   )}
                 >
                   {format(day, "d")}
@@ -273,7 +286,10 @@ export function MonthlyCalendar({ onNavigateToCooking }: MonthlyCalendarProps) {
                     ) : (
                       <div className="flex gap-0.5">
                         {meals.map((_, j) => (
-                          <div key={j} className="w-1.5 h-1.5 rounded-full bg-primary" />
+                          <div key={j} className={cn(
+                            "w-1.5 h-1.5 rounded-full",
+                            (today || tomorrow || isNear) ? "bg-primary" : "bg-primary/60"
+                          )} />
                         ))}
                       </div>
                     )}
