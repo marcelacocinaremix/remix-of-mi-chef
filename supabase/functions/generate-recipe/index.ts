@@ -6,7 +6,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const DAILY_LIMIT = 3;
+const DAILY_LIMIT_FREE = 3;
+const DAILY_LIMIT_PREMIUM = 8;
 
 // Check daily usage limit for users
 async function checkUserLimits(req: Request): Promise<{ 
@@ -23,7 +24,7 @@ async function checkUserLimits(req: Request): Promise<{
   const authHeader = req.headers.get('Authorization');
   
   if (!authHeader) {
-    return { allowed: true, userId: null, usesToday: 0, remaining: DAILY_LIMIT };
+    return { allowed: true, userId: null, usesToday: 0, remaining: DAILY_LIMIT_FREE };
   }
 
   const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
@@ -33,19 +34,28 @@ async function checkUserLimits(req: Request): Promise<{
   const { data: { user } } = await supabaseClient.auth.getUser();
   
   if (!user) {
-    return { allowed: true, userId: null, usesToday: 0, remaining: DAILY_LIMIT };
+    return { allowed: true, userId: null, usesToday: 0, remaining: DAILY_LIMIT_FREE };
   }
 
   const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+  // Check if user is premium to set proper limit
+  const { data: subData } = await supabaseAdmin
+    .from('user_subscriptions')
+    .select('is_premium')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  const userLimit = subData?.is_premium ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
   
   const { data, error } = await supabaseAdmin.rpc('check_and_increment_daily_uses', {
     p_user_id: user.id,
-    p_daily_limit: DAILY_LIMIT
+    p_daily_limit: userLimit
   });
 
   if (error) {
     console.error('Error checking daily limit:', error);
-    return { allowed: true, userId: user.id, usesToday: 0, remaining: DAILY_LIMIT };
+    return { allowed: true, userId: user.id, usesToday: 0, remaining: userLimit };
   }
 
   return {
@@ -695,7 +705,7 @@ serve(async (req) => {
         });
       }
       
-      console.log(`User ${limitCheck.userId} usage: ${limitCheck.usesToday}/${DAILY_LIMIT}`);
+      console.log(`User ${limitCheck.userId} usage: ${limitCheck.usesToday}/${limitCheck.remaining + limitCheck.usesToday}`);
     }
     
     // STEP 1: Always try cache first (≥70% match) for non-surprise requests

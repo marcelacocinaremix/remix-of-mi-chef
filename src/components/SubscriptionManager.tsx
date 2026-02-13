@@ -76,7 +76,7 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
                   <span className="text-green-500">✓</span>
-                  {isPremium ? "Recetas ilimitadas" : "3 recetas por día"}
+                  {isPremium ? "8 recetas por día" : "3 recetas por día"}
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-green-500">✓</span>

@@ -30,7 +30,8 @@ interface PremiumContextType {
 
 const PremiumContext = createContext<PremiumContextType | undefined>(undefined);
 
-const DAILY_LIMIT = 3;
+const DAILY_LIMIT_FREE = 3;
+const DAILY_LIMIT_PREMIUM = 8;
 const TRIAL_DAYS = 15;
 
 export function PremiumProvider({ children }: { children: ReactNode }) {
@@ -107,10 +108,11 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         const today = new Date().toISOString().split('T')[0];
         const lastUseDate = data.last_use_date;
         const usesToday = (lastUseDate === today) ? (data.daily_uses || 0) : 0;
+        const userLimit = (data.is_premium) ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
         setDailyUsage({
           usesToday,
-          remaining: Math.max(0, DAILY_LIMIT - usesToday),
-          limit: DAILY_LIMIT
+          remaining: Math.max(0, userLimit - usesToday),
+          limit: userLimit
         });
       }
     } catch (err) {
@@ -125,9 +127,10 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
 
     try {
       setIsLoading(true);
+      const userLimit = isPremium ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
       const { data, error } = await supabase.rpc('check_and_increment_daily_uses', {
         p_user_id: user.id,
-        p_daily_limit: DAILY_LIMIT
+        p_daily_limit: userLimit
       });
 
       if (error) {
@@ -141,7 +144,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         setDailyUsage({
           usesToday: result.uses_today,
           remaining: result.remaining,
-          limit: DAILY_LIMIT
+          limit: userLimit
         });
 
         return {
