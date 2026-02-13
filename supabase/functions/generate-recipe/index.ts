@@ -22,7 +22,6 @@ async function checkUserLimits(req: Request): Promise<{
   
   const authHeader = req.headers.get('Authorization');
   
-  // For non-authenticated users, allow but don't track
   if (!authHeader) {
     return { allowed: true, userId: null, usesToday: 0, remaining: DAILY_LIMIT };
   }
@@ -37,7 +36,6 @@ async function checkUserLimits(req: Request): Promise<{
     return { allowed: true, userId: null, usesToday: 0, remaining: DAILY_LIMIT };
   }
 
-  // Use service role to call the function (bypasses RLS)
   const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
   
   const { data, error } = await supabaseAdmin.rpc('check_and_increment_daily_uses', {
@@ -47,11 +45,8 @@ async function checkUserLimits(req: Request): Promise<{
 
   if (error) {
     console.error('Error checking daily limit:', error);
-    // On error, allow but log
     return { allowed: true, userId: user.id, usesToday: 0, remaining: DAILY_LIMIT };
   }
-
-  console.log('Daily limit check result:', data);
 
   return {
     allowed: data.allowed,
@@ -62,55 +57,122 @@ async function checkUserLimits(req: Request): Promise<{
   };
 }
 
-// Ingredient synonyms for better matching
+// ============================================================
+// INGREDIENT NORMALIZATION SYSTEM
+// ============================================================
+
+// Stopwords to remove from ingredient names
+const stopwords = new Set([
+  'de', 'del', 'la', 'el', 'las', 'los', 'un', 'una', 'unos', 'unas',
+  'con', 'sin', 'para', 'por', 'en', 'al', 'a', 'y', 'o', 'e',
+  'muy', 'poco', 'mucho', 'bastante', 'algo',
+  'fresco', 'fresca', 'frescos', 'frescas',
+  'grande', 'grandes', 'chico', 'chica', 'chicos', 'chicas',
+  'medio', 'media', 'mediano', 'mediana',
+  'cantidad', 'necesaria', 'gusto', 'pizca', 'chorrito',
+  'cucharada', 'cucharadas', 'cucharadita', 'cucharaditas',
+  'taza', 'tazas', 'vaso', 'vasos',
+  'gramo', 'gramos', 'kilo', 'kilos', 'litro', 'litros', 'ml',
+  'picado', 'picada', 'picados', 'picadas',
+  'cortado', 'cortada', 'cortados', 'cortadas',
+  'rallado', 'rallada', 'rallados', 'ralladas',
+  'trozo', 'trozos', 'rodaja', 'rodajas', 'rebanada', 'rebanadas',
+  'diente', 'dientes', 'ramita', 'ramitas', 'hoja', 'hojas',
+]);
+
+// Expanded synonym map: canonical → variants
 const ingredientSynonyms: Record<string, string[]> = {
-  'pollo': ['pechuga', 'muslo', 'ala', 'pata'],
-  'carne': ['bife', 'lomo', 'picada', 'milanesa', 'nalga', 'cuadril', 'asado'],
-  'cerdo': ['bondiola', 'matambre', 'costeleta', 'jamon'],
-  'papa': ['patata', 'papas'],
-  'tomate': ['tomates', 'cherry', 'perita'],
-  'cebolla': ['cebollas', 'cebollita', 'verdeo'],
-  'ajo': ['ajos', 'diente de ajo'],
-  'queso': ['muzzarella', 'parmesano', 'cremoso', 'rallado', 'cheddar', 'roquefort'],
-  'huevo': ['huevos'],
-  'leche': ['crema', 'nata'],
-  'arroz': ['arroz integral', 'arroz blanco'],
-  'pasta': ['fideos', 'spaghetti', 'tallarines', 'mostachol', 'tirabuzón', 'penne'],
-  'pan': ['pan rallado', 'pan lactal', 'baguette'],
-  'zapallo': ['calabaza', 'anco', 'zapallito'],
-  'morron': ['pimiento', 'morrón', 'aji'],
+  'pollo':    ['pechuga', 'muslo', 'ala', 'pata', 'pata muslo', 'suprema', 'pollo entero', 'trutro'],
+  'carne':    ['bife', 'lomo', 'picada', 'milanesa', 'nalga', 'cuadril', 'asado', 'vacuno', 'ternera', 'vacio', 'entraña', 'tapa', 'paleta', 'osobuco', 'roast beef', 'carne molida'],
+  'cerdo':    ['bondiola', 'matambre', 'costeleta', 'jamon', 'panceta', 'chorizo', 'lomo de cerdo', 'costilla', 'solomillo'],
+  'pescado':  ['merluza', 'salmon', 'atun', 'trucha', 'lenguado', 'surubi', 'corvina', 'caballa', 'sardina', 'filet de pescado'],
+  'papa':     ['patata', 'papas', 'papines'],
+  'tomate':   ['tomates', 'cherry', 'perita', 'salsa de tomate', 'pure de tomate', 'tomate triturado'],
+  'cebolla':  ['cebollas', 'cebollita', 'verdeo', 'cebolla morada', 'cebolla blanca', 'echalote', 'chalota'],
+  'ajo':      ['ajos', 'diente de ajo', 'ajo en polvo'],
+  'queso':    ['muzzarella', 'mozzarella', 'parmesano', 'cremoso', 'cheddar', 'roquefort', 'provolone', 'reggianito', 'gruyere', 'fontina', 'brie', 'camembert', 'dambo', 'port salut', 'queso crema', 'ricota'],
+  'huevo':    ['huevos', 'clara', 'claras', 'yema', 'yemas'],
+  'leche':    ['crema', 'nata', 'crema de leche', 'leche entera', 'leche descremada'],
+  'arroz':    ['arroz integral', 'arroz blanco', 'arroz largo', 'arroz yamaní', 'arroz arborio'],
+  'pasta':    ['fideos', 'spaghetti', 'tallarines', 'mostachol', 'tirabuzon', 'penne', 'fusilli', 'rigatoni', 'lasagna', 'ravioles', 'ñoquis', 'canelones', 'fetuccini', 'noquis'],
+  'pan':      ['pan rallado', 'pan lactal', 'baguette', 'pan de molde', 'pan integral', 'tostada', 'miñon'],
+  'zapallo':  ['calabaza', 'anco', 'zapallito', 'zapallito largo', 'zucchini', 'calabacin'],
+  'morron':   ['pimiento', 'aji', 'aji rojo', 'aji verde', 'pimiento rojo', 'pimiento verde', 'pimiento amarillo'],
+  'batata':   ['boniato', 'camote', 'papa dulce'],
+  'banana':   ['banano', 'platano'],
+  'choclo':   ['maiz', 'elote', 'mazorca'],
+  'poroto':   ['frijol', 'alubia', 'poroto negro', 'poroto colorado', 'poroto blanco', 'garbanzo', 'lenteja'],
+  'manteca':  ['mantequilla', 'margarina'],
+  'aceite':   ['aceite de oliva', 'aceite de girasol', 'aceite de maiz', 'aceite vegetal'],
+  'harina':   ['harina leudante', 'harina 000', 'harina 0000', 'harina integral', 'fecula', 'maicena', 'almidon'],
+  'azucar':   ['azucar impalpable', 'azucar mascabo', 'azucar rubia', 'edulcorante', 'stevia', 'miel'],
+  'espinaca': ['acelga', 'kale', 'berro', 'rucula'],
+  'lechuga':  ['radicheta', 'radicchio', 'escarola'],
 };
 
-// Normalize ingredient for matching
-function normalizeIngredient(ingredient: string): string[] {
-  const normalized = ingredient.toLowerCase().trim()
-    .replace(/s$/, '') // Remove trailing 's' (plural)
-    .replace(/es$/, '') // Remove 'es' plural
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, ''); // Remove accents
+// Remove accents from text
+function removeAccents(str: string): string {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+// Full normalization: lowercase, no accents, no stopwords, no quantities
+function normalizeText(text: string): string {
+  let normalized = text.toLowerCase().trim();
+  normalized = removeAccents(normalized);
+  // Remove quantities and numbers (e.g., "200g", "2 cucharadas")
+  normalized = normalized.replace(/\d+[gkml]?\s*/g, '');
+  // Split, remove stopwords, rejoin
+  const words = normalized.split(/\s+/).filter(w => w.length > 1 && !stopwords.has(w));
+  return words.join(' ').trim();
+}
+
+// Get the canonical key for an ingredient
+function getCanonicalIngredient(ingredient: string): string {
+  const normalized = normalizeText(ingredient);
   
-  const variants = [normalized];
-  
-  // Add synonyms
-  for (const [base, synonyms] of Object.entries(ingredientSynonyms)) {
-    if (normalized.includes(base) || synonyms.some(s => normalized.includes(s))) {
-      variants.push(base, ...synonyms);
+  // Check direct match with canonical keys
+  for (const [canonical, variants] of Object.entries(ingredientSynonyms)) {
+    if (normalized === canonical || normalized.includes(canonical)) return canonical;
+    for (const variant of variants) {
+      const normVariant = removeAccents(variant.toLowerCase());
+      if (normalized.includes(normVariant) || normVariant.includes(normalized)) {
+        return canonical;
+      }
     }
   }
   
-  return [...new Set(variants)];
+  // No synonym found, return the cleaned text as-is
+  return normalized;
 }
 
-// Search for cached recipes with improved matching
+// Generate all keyword variants for an ingredient (for fuzzy matching)
+function getIngredientVariants(ingredient: string): string[] {
+  const canonical = getCanonicalIngredient(ingredient);
+  const variants = new Set<string>([canonical, normalizeText(ingredient)]);
+  
+  // Add all synonyms for this canonical
+  if (ingredientSynonyms[canonical]) {
+    for (const syn of ingredientSynonyms[canonical]) {
+      variants.add(removeAccents(syn.toLowerCase()));
+    }
+  }
+  
+  return [...variants];
+}
+
+// ============================================================
+// SMART CACHE SEARCH WITH ≥70% MATCHING
+// ============================================================
+
 async function searchCachedRecipes(
   ingredients: string[],
   time: number,
   mealType: string | null,
   language: string,
-  minMatchScore: number = 0.5 // Minimum 50% ingredient match
+  minMatchScore: number = 0.7 // 70% threshold
 ): Promise<{ recipes: any[]; fromCache: boolean; matchScore: number }> {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-  
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
   
   // Determine time range
@@ -118,83 +180,79 @@ async function searchCachedRecipes(
   if (time <= 20) timeRange = 'quick';
   else if (time > 45) timeRange = 'long';
   
-  // Normalize all user ingredients with synonyms
-  const userIngredientVariants = ingredients.flatMap(i => normalizeIngredient(i));
+  // Normalize all user ingredients to canonical forms
+  const userCanonicals = ingredients.map(i => getCanonicalIngredient(i));
+  const userVariantsFlat = ingredients.flatMap(i => getIngredientVariants(i));
   
-  console.log('Searching cached recipes for:', { 
-    ingredients, 
-    userIngredientVariants: userIngredientVariants.slice(0, 10), // Log first 10
+  console.log('Smart search:', { 
+    raw: ingredients, 
+    canonicals: userCanonicals,
     timeRange, 
-    mealType, 
-    language 
+    mealType,
+    threshold: minMatchScore 
   });
   
-  // Build query - get more recipes to have better matching options
+  // Build query
   let query = supabase
     .from('cached_recipes')
     .select('*')
     .eq('language', language)
-    .order('usage_count', { ascending: false }); // Prefer popular recipes
+    .order('usage_count', { ascending: false });
   
-  // Filter by time range (allow equal or faster recipes)
   if (timeRange === 'quick') {
     query = query.eq('time_range', 'quick');
   } else if (timeRange === 'medium') {
     query = query.in('time_range', ['quick', 'medium']);
   }
   
-  // Filter by meal type if specified
   if (mealType) {
     query = query.eq('meal_type', mealType);
   }
   
-  const { data: recipes, error } = await query.limit(50); // Get more for better matching
+  const { data: recipes, error } = await query.limit(80);
   
-  if (error) {
-    console.error('Error searching cached recipes:', error);
+  if (error || !recipes || recipes.length === 0) {
+    if (error) console.error('Cache search error:', error);
     return { recipes: [], fromCache: false, matchScore: 0 };
   }
   
-  if (!recipes || recipes.length === 0) {
-    console.log('No cached recipes found');
-    return { recipes: [], fromCache: false, matchScore: 0 };
-  }
-  
-  // Score recipes by ingredient match with improved algorithm
+  // Score each cached recipe by ingredient similarity
   const scoredRecipes = recipes.map(recipe => {
-    const recipeIngredients = recipe.main_ingredients.map((i: string) => i.toLowerCase());
-    const recipeIngredientVariants = recipeIngredients.flatMap((i: string) => normalizeIngredient(i));
+    const recipeKeys: string[] = (recipe.main_ingredients || []).map((i: string) => 
+      getCanonicalIngredient(i)
+    );
+    const recipeVariants = (recipe.main_ingredients || []).flatMap((i: string) => 
+      getIngredientVariants(i)
+    );
     
-    let matchedUserIngredients = 0;
-    let matchedRecipeIngredients = 0;
-    
-    // Check how many user ingredients match recipe
-    for (const userIngredient of ingredients) {
-      const userVariants = normalizeIngredient(userIngredient);
-      const hasMatch = userVariants.some((uv: string) => 
-        recipeIngredientVariants.some((rv: string) => rv.includes(uv) || uv.includes(rv))
+    // How many of the USER's ingredients does this recipe use?
+    let matchedUserCount = 0;
+    for (const userCanonical of userCanonicals) {
+      const userVars = getIngredientVariants(userCanonical);
+      const hit = userVars.some(uv => 
+        recipeVariants.some(rv => rv.includes(uv) || uv.includes(rv))
       );
-      if (hasMatch) matchedUserIngredients++;
+      if (hit) matchedUserCount++;
     }
     
-    // Check how many recipe ingredients user has
-    for (const recipeIngredient of recipeIngredients) {
-      const recipeVariants = normalizeIngredient(recipeIngredient);
-      const hasMatch = recipeVariants.some((rv: string) =>
-        userIngredientVariants.some((uv: string) => uv.includes(rv) || rv.includes(uv))
+    // How many of the RECIPE's key ingredients does the user have?
+    let matchedRecipeCount = 0;
+    for (const rk of recipeKeys) {
+      const rkVars = getIngredientVariants(rk);
+      const hit = rkVars.some(rv =>
+        userVariantsFlat.some(uv => uv.includes(rv) || rv.includes(uv))
       );
-      if (hasMatch) matchedRecipeIngredients++;
+      if (hit) matchedRecipeCount++;
     }
     
-    // Combined score: prioritize recipes where user has most ingredients
-    const userCoverage = matchedUserIngredients / ingredients.length; // How many user ingredients are used
-    const recipeCoverage = matchedRecipeIngredients / recipeIngredients.length; // How complete the recipe is
+    const userCoverage = userCanonicals.length > 0 ? matchedUserCount / userCanonicals.length : 0;
+    const recipeCoverage = recipeKeys.length > 0 ? matchedRecipeCount / recipeKeys.length : 0;
     
-    // Weight recipe coverage more (we want recipes user can actually make)
-    const combinedScore = (userCoverage * 0.3) + (recipeCoverage * 0.7);
+    // Combined: weight recipe coverage more (can the user actually make it?)
+    const combinedScore = (userCoverage * 0.35) + (recipeCoverage * 0.65);
     
-    // Bonus for popular recipes
-    const popularityBonus = Math.min((recipe.usage_count || 0) / 100, 0.1);
+    // Small popularity bonus
+    const popularityBonus = Math.min((recipe.usage_count || 0) / 200, 0.05);
     
     return {
       ...recipe,
@@ -204,19 +262,19 @@ async function searchCachedRecipes(
     };
   });
   
-  // Filter recipes that meet minimum threshold and sort by score
-  const matchedRecipes = scoredRecipes
-    .filter(r => r.matchScore >= minMatchScore && r.recipeCoverage >= 0.6) // At least 60% of recipe ingredients available
+  // Filter and sort
+  const matched = scoredRecipes
+    .filter(r => r.matchScore >= minMatchScore && r.recipeCoverage >= 0.5)
     .sort((a, b) => b.matchScore - a.matchScore)
     .slice(0, 2);
   
-  if (matchedRecipes.length > 0) {
-    console.log(`Found ${matchedRecipes.length} cached recipes with scores:`, 
-      matchedRecipes.map(r => ({ name: r.recipe_name, score: r.matchScore.toFixed(2), coverage: r.recipeCoverage.toFixed(2) }))
+  if (matched.length > 0) {
+    console.log(`Cache HIT: ${matched.length} recipes`, 
+      matched.map(r => ({ name: r.recipe_name, score: r.matchScore.toFixed(2) }))
     );
     
-    // Increment usage count for returned recipes
-    for (const recipe of matchedRecipes) {
+    // Increment usage count
+    for (const recipe of matched) {
       await supabase
         .from('cached_recipes')
         .update({ usage_count: (recipe.usage_count || 0) + 1, updated_at: new Date().toISOString() })
@@ -224,17 +282,61 @@ async function searchCachedRecipes(
     }
     
     return { 
-      recipes: matchedRecipes.map(r => r.recipe_data),
+      recipes: matched.map(r => r.recipe_data),
       fromCache: true,
-      matchScore: matchedRecipes[0].matchScore
+      matchScore: matched[0].matchScore
     };
   }
   
-  console.log('No recipes met the matching threshold');
+  console.log('Cache MISS: no recipes above threshold');
   return { recipes: [], fromCache: false, matchScore: 0 };
 }
 
-// Save AI-generated recipes to cache
+// ============================================================
+// SMART RECIPE CACHING (with normalized keys + dedup)
+// ============================================================
+
+// Extract the key ingredient names from a recipe's ingredient list
+function extractKeyIngredients(ingredientLines: string[]): string[] {
+  // Common pantry items that are NOT key ingredients
+  const pantryBasics = new Set([
+    'sal', 'pimienta', 'aceite', 'agua', 'vinagre', 'azucar',
+    'oregano', 'perejil', 'cilantro', 'laurel', 'comino', 'pimenton',
+    'aji molido', 'provenzal', 'nuez moscada',
+  ]);
+  
+  const keys: string[] = [];
+  
+  for (const line of ingredientLines) {
+    const canonical = getCanonicalIngredient(line);
+    if (canonical.length > 1 && !pantryBasics.has(canonical) && !keys.includes(canonical)) {
+      keys.push(canonical);
+    }
+  }
+  
+  return keys.slice(0, 8); // Max 8 key ingredients
+}
+
+// Check if a new recipe is too similar to an existing one
+function areSimilarRecipes(existingKeys: string[], newKeys: string[]): boolean {
+  if (existingKeys.length === 0 || newKeys.length === 0) return false;
+  
+  let overlap = 0;
+  for (const ek of existingKeys) {
+    const ekVars = getIngredientVariants(ek);
+    for (const nk of newKeys) {
+      const nkVars = getIngredientVariants(nk);
+      if (ekVars.some(ev => nkVars.some(nv => ev.includes(nv) || nv.includes(ev)))) {
+        overlap++;
+        break;
+      }
+    }
+  }
+  
+  const similarity = overlap / Math.max(existingKeys.length, newKeys.length);
+  return similarity >= 0.8; // 80% ingredient overlap = duplicate
+}
+
 async function cacheRecipes(
   recipes: any[],
   ingredients: string[],
@@ -244,7 +346,6 @@ async function cacheRecipes(
 ): Promise<void> {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-  
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
   
   let timeRange = 'medium';
@@ -252,30 +353,48 @@ async function cacheRecipes(
   else if (time > 45) timeRange = 'long';
   
   for (const recipe of recipes) {
-    // Extract main ingredients from recipe (first 5 ingredients, simplified)
-    const mainIngredients = (recipe.ingredients || [])
-      .slice(0, 5)
-      .map((i: string) => i.split(' ').slice(-2).join(' ').toLowerCase()); // Last 2 words usually are the ingredient
+    // Extract normalized key ingredients from the recipe
+    const keyIngredients = extractKeyIngredients(recipe.ingredients || []);
     
-    // Check if similar recipe already exists
-    const { data: existing } = await supabase
-      .from('cached_recipes')
-      .select('id')
-      .eq('recipe_name', recipe.name)
-      .eq('language', language)
-      .maybeSingle();
-    
-    if (existing) {
-      console.log(`Recipe "${recipe.name}" already cached, skipping`);
+    if (keyIngredients.length === 0) {
+      console.log(`Skipping cache for "${recipe.name}": no key ingredients extracted`);
       continue;
     }
+    
+    // Check for duplicates: exact name OR similar ingredients
+    const { data: existing } = await supabase
+      .from('cached_recipes')
+      .select('id, recipe_name, main_ingredients')
+      .eq('language', language);
+    
+    let isDuplicate = false;
+    if (existing) {
+      const normalizedName = removeAccents(recipe.name.toLowerCase().trim());
+      for (const ex of existing) {
+        // Check name similarity
+        const exName = removeAccents(ex.recipe_name.toLowerCase().trim());
+        if (exName === normalizedName) {
+          isDuplicate = true;
+          console.log(`Duplicate by name: "${recipe.name}"`);
+          break;
+        }
+        // Check ingredient similarity
+        if (areSimilarRecipes(ex.main_ingredients || [], keyIngredients)) {
+          isDuplicate = true;
+          console.log(`Duplicate by ingredients: "${recipe.name}" ≈ "${ex.recipe_name}"`);
+          break;
+        }
+      }
+    }
+    
+    if (isDuplicate) continue;
     
     const { error } = await supabase
       .from('cached_recipes')
       .insert({
         recipe_name: recipe.name,
         recipe_data: recipe,
-        main_ingredients: mainIngredients.length > 0 ? mainIngredients : ingredients.slice(0, 5),
+        main_ingredients: keyIngredients,
         time_range: timeRange,
         meal_type: mealType,
         language: language || 'es',
@@ -285,14 +404,17 @@ async function cacheRecipes(
       });
     
     if (error) {
-      console.error(`Error caching recipe "${recipe.name}":`, error);
+      console.error(`Error caching "${recipe.name}":`, error);
     } else {
-      console.log(`Cached new recipe: "${recipe.name}"`);
+      console.log(`Cached: "${recipe.name}" keys=[${keyIngredients.join(', ')}]`);
     }
   }
 }
 
-// Emergency fallback recipes when AI and cache both fail
+// ============================================================
+// EMERGENCY FALLBACK RECIPES
+// ============================================================
+
 function getEmergencyRecipes(ingredients: string[], time: number, language: string): any[] {
   const ingredientsLower = ingredients.map(i => i.toLowerCase());
   
@@ -312,7 +434,6 @@ function getEmergencyRecipes(ingredients: string[], time: number, language: stri
 
   const recipes = [];
 
-  // Recipe 1: Based on main ingredient type
   if (hasProtein) {
     recipes.push({
       name: "Salteado express con proteína",
@@ -366,7 +487,6 @@ function getEmergencyRecipes(ingredients: string[], time: number, language: stri
     });
   }
 
-  // Recipe with eggs (universal)
   if (hasEggs || recipes.length < 1) {
     recipes.push({
       name: "Tortilla versátil rellena",
@@ -394,7 +514,6 @@ function getEmergencyRecipes(ingredients: string[], time: number, language: stri
     });
   }
 
-  // Veggie option
   if (hasVeggies && recipes.length < 2) {
     recipes.push({
       name: "Verduras salteadas al wok",
@@ -423,7 +542,6 @@ function getEmergencyRecipes(ingredients: string[], time: number, language: stri
     });
   }
 
-  // Cheese-based option
   if (hasCheese && recipes.length < 2) {
     recipes.push({
       name: "Tostadas gratinadas express",
@@ -451,7 +569,6 @@ function getEmergencyRecipes(ingredients: string[], time: number, language: stri
     });
   }
 
-  // Universal fallback if nothing else matched
   if (recipes.length < 2) {
     recipes.push({
       name: "Revuelto rápido multiuso",
@@ -481,6 +598,10 @@ function getEmergencyRecipes(ingredients: string[], time: number, language: stri
 
   return recipes.slice(0, 2);
 }
+
+// ============================================================
+// SYSTEM PROMPT & MAIN HANDLER
+// ============================================================
 
 const getSystemPrompt = (language: string = 'es') => {
   const langInstructions: Record<string, string> = {
@@ -556,22 +677,13 @@ serve(async (req) => {
       hybridMode
     } = await req.json();
     
-    console.log('Request received:', { 
-      ingredients, 
-      time, 
-      mealType, 
-      language, 
-      surpriseMode, 
-      useCacheOnly, 
-      hybridMode 
-    });
+    console.log('Request:', { ingredients, time, mealType, language, surpriseMode, useCacheOnly, hybridMode });
 
     // Check daily limit BEFORE processing (except for cache-only requests)
     if (!useCacheOnly) {
       const limitCheck = await checkUserLimits(req);
       
       if (!limitCheck.allowed) {
-        console.log('User reached daily limit:', limitCheck);
         return new Response(JSON.stringify({
           error: limitCheck.message || '¡Llegaste al límite de recetas por hoy! Volvé mañana 🍳',
           dailyLimitReached: true,
@@ -586,17 +698,18 @@ serve(async (req) => {
       console.log(`User ${limitCheck.userId} usage: ${limitCheck.usesToday}/${DAILY_LIMIT}`);
     }
     
-    // HYBRID MODE: First try to return cached recipes instantly
-    if (hybridMode && ingredients && ingredients.length > 0 && !surpriseMode) {
+    // STEP 1: Always try cache first (≥70% match) for non-surprise requests
+    if (ingredients && ingredients.length > 0 && !surpriseMode) {
       const cacheResult = await searchCachedRecipes(
         ingredients, 
         time || 30, 
         mealType, 
-        language || 'es'
+        language || 'es',
+        0.7 // 70% threshold
       );
       
       if (cacheResult.recipes.length > 0) {
-        console.log(`Returning ${cacheResult.recipes.length} cached recipes in hybrid mode (score: ${cacheResult.matchScore.toFixed(2)})`);
+        console.log(`✅ Serving ${cacheResult.recipes.length} cached recipes (score: ${cacheResult.matchScore.toFixed(2)})`);
         return new Response(JSON.stringify({ 
           recipes: cacheResult.recipes,
           source: 'cache',
@@ -608,27 +721,22 @@ serve(async (req) => {
       }
     }
     
-    // CACHE ONLY MODE: Only return cached recipes, don't call AI
-    if (useCacheOnly && ingredients && ingredients.length > 0) {
-      const cacheResult = await searchCachedRecipes(
-        ingredients, 
-        time || 30, 
-        mealType, 
-        language || 'es'
-      );
-      
+    // CACHE ONLY MODE: Don't call AI
+    if (useCacheOnly) {
       return new Response(JSON.stringify({ 
-        recipes: cacheResult.recipes,
+        recipes: [],
         source: 'cache',
         isInstant: true,
-        matchScore: cacheResult.matchScore
+        matchScore: 0
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
     
+    // STEP 2: No cache hit → call AI
+    console.log('🤖 Cache miss, calling AI...');
+    
     const systemPrompt = getSystemPrompt(language || 'es');
-
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');
@@ -637,7 +745,6 @@ serve(async (req) => {
     // Build user prompt
     let userPrompt = '';
     
-    // Surprise mode - generate recipe without user input
     if (surpriseMode) {
       const categories = ['pasta', 'ensalada', 'guiso', 'tortilla', 'tarta', 'arroz', 'carne', 'pollo', 'pescado', 'vegetariano', 'sopa', 'sandwich especial', 'wrap', 'pizza casera', 'empanadas', 'milanesas', 'revuelto', 'panqueques', 'budín', 'licuado nutritivo'];
       const randomCategory = categories[Math.floor(Math.random() * categories.length)];
@@ -661,19 +768,11 @@ Generá UNA SOLA receta sorpresa con estas características:
 
       if (mealType) {
         const mealTypes: Record<string, string> = {
-          desayuno: 'desayuno',
-          almuerzo: 'almuerzo',
-          merienda: 'merienda',
-          cena: 'cena',
-          snack: 'snack',
-          postre: 'postre',
-          rapida: 'comida rápida',
-          economica: 'comida económica',
-          liviana: 'comida liviana/light',
-          'para-chicos': 'comida para niños',
-          'para-freezar': 'comida para freezar/congelar'
+          desayuno: 'desayuno', almuerzo: 'almuerzo', merienda: 'merienda',
+          cena: 'cena', snack: 'snack', postre: 'postre', rapida: 'comida rápida',
+          economica: 'comida económica', liviana: 'comida liviana/light',
+          'para-chicos': 'comida para niños', 'para-freezar': 'comida para freezar/congelar'
         };
-        // Handle combined mealType (moment + category separated by comma)
         const mealTypeParts = mealType.split(',').map((p: string) => p.trim());
         const mealDescriptions = mealTypeParts.map((mt: string) => mealTypes[mt] || mt).filter(Boolean);
         if (mealDescriptions.length > 0) {
@@ -681,7 +780,6 @@ Generá UNA SOLA receta sorpresa con estas características:
         }
       }
 
-      // Process quick filters
       if (quickFilters && quickFilters.length > 0) {
         const quickFilterLabels: Record<string, string> = {
           'vegetariano': 'vegetariano (sin carne ni pescado)',
@@ -696,34 +794,23 @@ Generá UNA SOLA receta sorpresa con estas características:
         userPrompt += `Filtros adicionales: ${filterDescriptions.join(', ')}\n`;
       }
 
-      if (servings) {
-        userPrompt += `Cantidad de porciones: ${servings} personas\n`;
-      }
+      if (servings) userPrompt += `Cantidad de porciones: ${servings} personas\n`;
 
       if (cookingMethod) {
         const cookingMethods: Record<string, string> = {
-          'horno': 'al horno',
-          'sarten': 'en sartén',
-          'olla': 'en olla',
-          'airfryer': 'en airfryer',
-          'sin-coccion': 'sin cocción',
-          'microondas': 'en microondas'
+          'horno': 'al horno', 'sarten': 'en sartén', 'olla': 'en olla',
+          'airfryer': 'en airfryer', 'sin-coccion': 'sin cocción', 'microondas': 'en microondas'
         };
         userPrompt += `Método de cocción preferido: ${cookingMethods[cookingMethod] || cookingMethod}\n`;
       }
 
-      if (difficulty) {
-        userPrompt += `Nivel de dificultad preferido: ${difficulty}\n`;
-      }
+      if (difficulty) userPrompt += `Nivel de dificultad preferido: ${difficulty}\n`;
 
       if (diet && diet.length > 0) {
         const dietLabels: Record<string, string> = {
-          'vegetariano': 'vegetariano (sin carne ni pescado)',
-          'vegano': 'vegano (sin productos animales)',
-          'sin-gluten': 'sin gluten',
-          'sin-lactosa': 'sin lactosa',
-          'bajo-calorias': 'bajo en calorías',
-          'saludable': 'saludable y nutritivo'
+          'vegetariano': 'vegetariano (sin carne ni pescado)', 'vegano': 'vegano (sin productos animales)',
+          'sin-gluten': 'sin gluten', 'sin-lactosa': 'sin lactosa',
+          'bajo-calorias': 'bajo en calorías', 'saludable': 'saludable y nutritivo'
         };
         const dietDescriptions = diet.map((d: string) => dietLabels[d] || d);
         userPrompt += `Preferencias dietéticas: ${dietDescriptions.join(', ')}\n`;
@@ -735,37 +822,30 @@ Generá UNA SOLA receta sorpresa con estas características:
 
       if (budget) {
         const budgetLabels: Record<string, string> = {
-          'bajo': 'económico/bajo presupuesto',
-          'medio': 'presupuesto moderado',
-          'alto': 'sin restricción de presupuesto'
+          'bajo': 'económico/bajo presupuesto', 'medio': 'presupuesto moderado', 'alto': 'sin restricción de presupuesto'
         };
         userPrompt += `Presupuesto: ${budgetLabels[budget] || budget}\n`;
       }
 
-      // Time is already included in the main time parameter
-
-      if (randomize) {
-        userPrompt += `IMPORTANTE: Sorprendeme con una receta creativa e inesperada. Sugiere solo UNA receta.\n`;
-      }
+      if (randomize) userPrompt += `IMPORTANTE: Sorprendeme con una receta creativa e inesperada. Sugiere solo UNA receta.\n`;
 
       if (excludeRecipes && excludeRecipes.length > 0) {
         userPrompt += `IMPORTANTE - NO sugerir estas recetas que ya cociné recientemente: ${excludeRecipes.join(', ')}\n`;
       }
     }
 
-    console.log('User prompt:', userPrompt);
+    console.log('AI prompt:', userPrompt.substring(0, 200) + '...');
 
-    // Multiple models for fallback - ALL available models for maximum reliability
-    // Alternating between providers to maximize chances of getting a response
+    // Multiple models for fallback
     const models = [
-      'google/gemini-2.5-flash-lite', // Primary: fastest, cheapest
-      'openai/gpt-5-nano',            // Alt provider 1
-      'google/gemini-2.5-flash',      // Gemini fallback 1
-      'openai/gpt-5-mini',            // Alt provider 2
-      'google/gemini-3-flash-preview',// Gemini fast preview
-      'google/gemini-2.5-pro',        // Gemini powerful
-      'openai/gpt-5',                 // OpenAI powerful
-      'google/gemini-3-pro-preview',  // Next-gen Gemini
+      'google/gemini-2.5-flash-lite',
+      'openai/gpt-5-nano',
+      'google/gemini-2.5-flash',
+      'openai/gpt-5-mini',
+      'google/gemini-3-flash-preview',
+      'google/gemini-2.5-pro',
+      'openai/gpt-5',
+      'google/gemini-3-pro-preview',
     ];
     
     let response: Response | null = null;
@@ -775,9 +855,8 @@ Generá UNA SOLA receta sorpresa con estas características:
       console.log(`Trying model: ${model}`);
       
       try {
-        // Single attempt per model with quick timeout to cycle through faster
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
         
         response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
           method: 'POST',
@@ -786,7 +865,7 @@ Generá UNA SOLA receta sorpresa con estas características:
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: model,
+            model,
             messages: [
               { role: 'system', content: systemPrompt },
               { role: 'user', content: userPrompt }
@@ -799,20 +878,13 @@ Generá UNA SOLA receta sorpresa con estas características:
 
         if (response.ok) {
           successfulModel = model;
-          console.log(`Success with model: ${model}`);
           break;
         }
         
         const errorText = await response.text();
         console.error(`Model ${model} error:`, response.status, errorText);
         
-        if (response.status === 402) {
-          // Payment required - but still try to give recipes from cache/emergency
-          console.log('402 error - will try cache/emergency fallback');
-          break;
-        }
-        
-        // For 429 or other errors, immediately try next model
+        if (response.status === 402) break;
         response = null;
       } catch (fetchError) {
         console.error(`Fetch error with ${model}:`, fetchError);
@@ -823,18 +895,10 @@ Generá UNA SOLA receta sorpresa con estas características:
     if (!response || !response.ok) {
       console.error('All models failed');
 
-      // FINAL FALLBACK: return cached recipes if possible (avoid forcing the user to wait)
+      // Fallback to cache with very low threshold
       if (!surpriseMode && ingredients && ingredients.length > 0) {
-        const cacheResult = await searchCachedRecipes(
-          ingredients,
-          time || 30,
-          mealType,
-          language || 'es',
-          0.2 // Very low threshold for emergency fallback
-        );
-
+        const cacheResult = await searchCachedRecipes(ingredients, time || 30, mealType, language || 'es', 0.2);
         if (cacheResult.recipes.length > 0) {
-          console.log(`Falling back to ${cacheResult.recipes.length} cached recipes after AI failure`);
           return new Response(JSON.stringify({
             recipes: cacheResult.recipes,
             source: 'cache',
@@ -847,10 +911,7 @@ Generá UNA SOLA receta sorpresa con estas características:
         }
       }
 
-      // EMERGENCY FALLBACK: Return generic recipes when everything fails
-      console.log('Using emergency fallback recipes');
       const emergencyRecipes = getEmergencyRecipes(ingredients, time || 30, language || 'es');
-      
       return new Response(JSON.stringify({
         recipes: emergencyRecipes,
         source: 'emergency',
@@ -862,21 +923,17 @@ Generá UNA SOLA receta sorpresa con estas características:
     }
 
     const data = await response.json();
-    console.log('AI response received from:', successfulModel);
+    console.log('AI response from:', successfulModel);
 
     const content = data.choices?.[0]?.message?.content;
-    if (!content) {
-      throw new Error('No response content from AI');
-    }
+    if (!content) throw new Error('No response content from AI');
 
-    // Parse the JSON response
     let result;
     try {
-      let cleanContent = content.replace(/```json\n?|\n?```/g, '').trim();
-      
+      let cleanContent = content.replace(/```json\n?|\\n?```/g, '').trim();
       try {
         result = JSON.parse(cleanContent);
-      } catch (firstError) {
+      } catch {
         const jsonStart = cleanContent.indexOf('{');
         const jsonEnd = cleanContent.lastIndexOf('}');
         if (jsonStart !== -1 && jsonEnd !== -1) {
@@ -886,13 +943,12 @@ Generá UNA SOLA receta sorpresa con estas características:
       }
     } catch (parseError) {
       console.error('Failed to parse recipe JSON:', content);
-      console.error('Parse error:', parseError);
       throw new Error('Failed to parse recipe response');
     }
 
-    console.log('Parsed recipes count:', result.recipes?.length);
+    console.log('Parsed recipes:', result.recipes?.length);
 
-    // Cache the AI-generated recipes for future use (async, don't block response)
+    // STEP 3: Cache AI results with normalized ingredients (async)
     if (result.recipes && result.recipes.length > 0 && !surpriseMode) {
       cacheRecipes(result.recipes, ingredients, time || 30, mealType, language || 'es')
         .catch(err => console.error('Error caching recipes:', err));
@@ -907,13 +963,10 @@ Generá UNA SOLA receta sorpresa con estas características:
     });
 
   } catch (error) {
-    console.error('Error in generate-recipe function:', error);
+    console.error('Error in generate-recipe:', error);
     
-    // Even on unexpected errors, try to return emergency recipes
     try {
-      console.log('Attempting emergency recipe fallback after error');
       const emergencyRecipes = getEmergencyRecipes(['huevo', 'cebolla', 'papa'], 30, 'es');
-      
       return new Response(JSON.stringify({
         recipes: emergencyRecipes,
         source: 'emergency',
@@ -923,29 +976,17 @@ Generá UNA SOLA receta sorpresa con estas características:
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     } catch (emergencyError) {
-      // Absolute last resort - return a hardcoded simple recipe
-      console.error('Emergency fallback also failed:', emergencyError);
       return new Response(JSON.stringify({
         recipes: [{
           name: "Huevos revueltos clásicos",
-          time: 10,
-          difficulty: "muy fácil",
-          servings: 2,
+          time: 10, difficulty: "muy fácil", servings: 2,
           ingredients: ["3 huevos", "1 cda de manteca", "Sal y pimienta", "Queso rallado (opcional)"],
-          steps: [
-            "Batí los huevos con sal y pimienta",
-            "Derretí la manteca en sartén a fuego medio-bajo",
-            "Agregá los huevos y revolvé suavemente",
-            "Retirá cuando estén cremosos (siguen cocinándose)",
-            "Serví de inmediato con queso si querés"
-          ],
+          steps: ["Batí los huevos con sal y pimienta", "Derretí la manteca en sartén a fuego medio-bajo", "Agregá los huevos y revolvé suavemente", "Retirá cuando estén cremosos", "Serví de inmediato"],
           tip: "El secreto es sacarlos antes de que estén totalmente cocidos",
           nutrition: { calories: 220, protein: 14, carbs: 2, fat: 16, fiber: 0 },
           tags: ["rápido", "clásico", "proteico"]
         }],
-        source: 'hardcoded',
-        isInstant: true,
-        fallbackReason: 'total_failure'
+        source: 'emergency', isInstant: true, fallbackReason: 'critical_error'
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
