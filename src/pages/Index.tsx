@@ -756,6 +756,7 @@ export default function Index() {
                   onStateChange={setWeeklyCalendarState}
                   onSelectIngredients={handleSelectIngredients}
                   onSubTabChange={setActiveSubTab}
+                  onNavigateToCooking={() => setActiveTab("cocinar")}
                 />
                 <BackToMenuButton />
               </TabsContent>
