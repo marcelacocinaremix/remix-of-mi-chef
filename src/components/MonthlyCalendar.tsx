@@ -65,6 +65,7 @@ export function MonthlyCalendar({ onNavigateToCooking }: MonthlyCalendarProps) {
   const [allMeals, setAllMeals] = useState<Record<string, DayMeal[]>>({});
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showRecipeSelector, setShowRecipeSelector] = useState<MealType | null>(null);
+  const [previewRecipe, setPreviewRecipe] = useState<Recipe | null>(null);
   const [favoriteRecipes, setFavoriteRecipes] = useState<Recipe[]>([]);
   const [recentRecipes, setRecentRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -373,7 +374,7 @@ export function MonthlyCalendar({ onNavigateToCooking }: MonthlyCalendarProps) {
       </Dialog>
 
       {/* Recipe selector modal */}
-      <Dialog open={!!showRecipeSelector} onOpenChange={(open) => !open && setShowRecipeSelector(null)}>
+      <Dialog open={!!showRecipeSelector && !previewRecipe} onOpenChange={(open) => !open && setShowRecipeSelector(null)}>
         <DialogContent className="max-w-md max-h-[85vh]">
           <DialogHeader>
             <DialogTitle>Elegir receta</DialogTitle>
@@ -412,7 +413,7 @@ export function MonthlyCalendar({ onNavigateToCooking }: MonthlyCalendarProps) {
                 (recipeTab === "favoritos" ? favoriteRecipes : recentRecipes).map((recipe, i) => (
                   <button
                     key={i}
-                    onClick={() => showRecipeSelector && handleAddRecipe(recipe, showRecipeSelector)}
+                    onClick={() => setPreviewRecipe(recipe)}
                     className="w-full text-left p-3 rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
                   >
                     <p className="font-medium text-sm">{recipe.name}</p>
@@ -438,6 +439,85 @@ export function MonthlyCalendar({ onNavigateToCooking }: MonthlyCalendarProps) {
             <Sparkles className="w-4 h-4 mr-1" />
             Generar nueva receta
           </Button>
+        </DialogContent>
+      </Dialog>
+
+      {/* Recipe preview modal */}
+      <Dialog open={!!previewRecipe} onOpenChange={(open) => !open && setPreviewRecipe(null)}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base">{previewRecipe?.name}</DialogTitle>
+            <DialogDescription>
+              {previewRecipe?.time} min · {previewRecipe?.difficulty}
+              {previewRecipe?.servings ? ` · ${previewRecipe.servings}` : ""}
+            </DialogDescription>
+          </DialogHeader>
+
+          {previewRecipe && (
+            <div className="space-y-4">
+              {/* Ingredients */}
+              {previewRecipe.ingredients && previewRecipe.ingredients.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
+                    <BookOpen className="w-4 h-4 text-primary" />
+                    Ingredientes
+                  </h4>
+                  <ul className="space-y-1">
+                    {previewRecipe.ingredients.map((ing, j) => (
+                      <li key={j} className="text-sm text-muted-foreground flex items-start gap-2">
+                        <span className="text-primary mt-1.5 w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+                        {ing}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Steps */}
+              {previewRecipe.steps && previewRecipe.steps.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    Preparación
+                  </h4>
+                  <ol className="space-y-2">
+                    {previewRecipe.steps.map((step, j) => (
+                      <li key={j} className="text-sm text-muted-foreground flex items-start gap-2">
+                        <span className="text-xs font-bold text-primary bg-primary/10 rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          {j + 1}
+                        </span>
+                        <span>{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              {/* Action buttons */}
+              <div className="flex gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setPreviewRecipe(null)}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Volver
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={() => {
+                    if (showRecipeSelector && previewRecipe) {
+                      handleAddRecipe(previewRecipe, showRecipeSelector);
+                      setPreviewRecipe(null);
+                    }
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Agregar
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
