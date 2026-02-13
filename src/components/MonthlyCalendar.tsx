@@ -66,6 +66,7 @@ export function MonthlyCalendar({ onNavigateToCooking }: MonthlyCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showRecipeSelector, setShowRecipeSelector] = useState<MealType | null>(null);
   const [previewRecipe, setPreviewRecipe] = useState<Recipe | null>(null);
+  const [viewingAssignedRecipe, setViewingAssignedRecipe] = useState<Recipe | null>(null);
   const [favoriteRecipes, setFavoriteRecipes] = useState<Recipe[]>([]);
   const [recentRecipes, setRecentRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -326,7 +327,12 @@ export function MonthlyCalendar({ onNavigateToCooking }: MonthlyCalendarProps) {
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-muted-foreground">{mt.label}</p>
                     {meal ? (
-                      <p className="text-sm font-semibold truncate">{meal.recipeName}</p>
+                      <button
+                        className="text-sm font-semibold truncate text-left hover:text-primary transition-colors"
+                        onClick={() => setViewingAssignedRecipe(meal.recipeData)}
+                      >
+                        {meal.recipeName}
+                      </button>
                     ) : (
                       <p className="text-sm text-muted-foreground italic">Sin asignar</p>
                     )}
@@ -516,6 +522,68 @@ export function MonthlyCalendar({ onNavigateToCooking }: MonthlyCalendarProps) {
                   Agregar
                 </Button>
               </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Assigned recipe detail modal */}
+      <Dialog open={!!viewingAssignedRecipe} onOpenChange={(open) => !open && setViewingAssignedRecipe(null)}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base">{viewingAssignedRecipe?.name}</DialogTitle>
+            <DialogDescription>
+              {viewingAssignedRecipe?.time} min · {viewingAssignedRecipe?.difficulty}
+              {viewingAssignedRecipe?.servings ? ` · ${viewingAssignedRecipe.servings}` : ""}
+            </DialogDescription>
+          </DialogHeader>
+
+          {viewingAssignedRecipe && (
+            <div className="space-y-4">
+              {viewingAssignedRecipe.ingredients && viewingAssignedRecipe.ingredients.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
+                    <BookOpen className="w-4 h-4 text-primary" />
+                    Ingredientes
+                  </h4>
+                  <ul className="space-y-1">
+                    {viewingAssignedRecipe.ingredients.map((ing, j) => (
+                      <li key={j} className="text-sm text-muted-foreground flex items-start gap-2">
+                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+                        {ing}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {viewingAssignedRecipe.steps && viewingAssignedRecipe.steps.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    Preparación
+                  </h4>
+                  <ol className="space-y-2">
+                    {viewingAssignedRecipe.steps.map((step, j) => (
+                      <li key={j} className="text-sm text-muted-foreground flex items-start gap-2">
+                        <span className="text-xs font-bold text-primary bg-primary/10 rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          {j + 1}
+                        </span>
+                        <span>{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => setViewingAssignedRecipe(null)}
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                Volver
+              </Button>
             </div>
           )}
         </DialogContent>
