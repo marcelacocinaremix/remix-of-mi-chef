@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { LogOut, User, Globe, Settings } from "lucide-react";
+import { LogOut, User, Globe, Settings, Crown, Clock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePremium } from "@/hooks/usePremium";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { LanguageSettingsModal } from "@/components/LanguageSettingsModal";
 import { UserProfileModal } from "@/components/UserProfileModal";
+import { SubscriptionManager } from "@/components/SubscriptionManager";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,9 +20,11 @@ import {
 export function UserMenu() {
   const { user, signOut } = useAuth();
   const { t, language } = useLanguage();
+  const { isPremium, isTrialActive, trialDaysRemaining } = usePremium();
   const navigate = useNavigate();
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showSubscription, setShowSubscription] = useState(false);
 
   const languageFlags: Record<string, string> = {
     es: "🇦🇷",
@@ -54,6 +59,28 @@ export function UserMenu() {
   return (
     <>
       <div className="flex items-center gap-2">
+        {/* Plan Status Badge */}
+        <button
+          onClick={() => setShowSubscription(true)}
+          className="cursor-pointer"
+        >
+          {isPremium ? (
+            <Badge className="bg-amber-500 hover:bg-amber-600 text-white gap-1 text-[10px] px-2 py-0.5">
+              <Crown className="w-3 h-3" />
+              Premium
+            </Badge>
+          ) : isTrialActive ? (
+            <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white gap-1 text-[10px] px-2 py-0.5">
+              <Clock className="w-3 h-3" />
+              Prueba – {trialDaysRemaining}d
+            </Badge>
+          ) : (
+            <Badge variant="secondary" className="gap-1 text-[10px] px-2 py-0.5">
+              Plan gratuito
+            </Badge>
+          )}
+        </button>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="gap-2">
@@ -70,6 +97,10 @@ export function UserMenu() {
               <Globe className="w-4 h-4 mr-2" />
               {t("language")}: {languageFlags[language]}
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setShowSubscription(true)}>
+              <Crown className="w-4 h-4 mr-2" />
+              Mi plan
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={signOut} className="text-destructive">
               <LogOut className="w-4 h-4 mr-2" />
@@ -80,6 +111,7 @@ export function UserMenu() {
       </div>
       <LanguageSettingsModal open={showLanguageModal} onOpenChange={setShowLanguageModal} />
       <UserProfileModal open={showProfileModal} onOpenChange={setShowProfileModal} />
+      <SubscriptionManager open={showSubscription} onOpenChange={setShowSubscription} />
     </>
   );
 }
