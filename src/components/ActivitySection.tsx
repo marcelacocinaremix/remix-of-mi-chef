@@ -122,7 +122,7 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
   const [soundEnabled] = useState(true);
   const [workoutRegistered, setWorkoutRegistered] = useState(false);
   const [editingWorkout, setEditingWorkout] = useState<string | null>(null);
-  
+  const [sessionWorkouts, setSessionWorkouts] = useState<{ type: WorkoutType; duration: number }[]>([]);
   // Add workout form state
   const [workoutForm, setWorkoutForm] = useState({
     type: 'strength' as WorkoutType,
@@ -141,6 +141,7 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
       date: new Date().toISOString().split('T')[0],
     });
     setEditingWorkout(null);
+    setSessionWorkouts([]);
   }, []);
 
   const handleEditWorkout = useCallback((workout: typeof workouts[0]) => {
@@ -220,10 +221,6 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
       if (soundEnabled) {
         play('success');
       }
-      if (!editingWorkout) {
-        setWorkoutRegistered(true);
-        setTimeout(() => setWorkoutRegistered(false), 2000);
-      }
       
       toast.success(
         editingWorkout 
@@ -235,8 +232,23 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
             : `${workoutForm.duration} min of ${WORKOUT_CONFIG[workoutForm.type].labelEn}`
         }
       );
-      setShowAddWorkout(false);
-      resetForm();
+
+      if (editingWorkout) {
+        // Close dialog on edit
+        setShowAddWorkout(false);
+        resetForm();
+      } else {
+        // Keep dialog open, track added workout, reset form but keep same date
+        const savedDate = workoutForm.date;
+        setSessionWorkouts(prev => [...prev, { type: workoutForm.type, duration: workoutForm.duration }]);
+        setWorkoutForm({
+          type: 'strength',
+          duration: 30,
+          intensity: 3,
+          notes: '',
+          date: savedDate,
+        });
+      }
     }
   }, [workoutForm, addWorkout, updateWorkout, editingWorkout, soundEnabled, play, language, resetForm, onWorkoutsChanged]);
 
@@ -480,38 +492,73 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
               />
             </div>
 
-            <Button 
-              onClick={handleSaveWorkout}
-              disabled={isSaving}
-              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground h-11"
-            >
-              <AnimatePresence mode="wait">
-                {isSaving ? (
-                  <motion.span
-                    key="saving"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                  >
-                    {language === 'es' ? 'Guardando...' : 'Saving...'}
-                  </motion.span>
-                ) : (
-                  <motion.span
-                    key="save"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="flex items-center gap-2"
-                  >
-                    <Check className="w-4 h-4" />
-                    {editingWorkout 
-                      ? (language === 'es' ? 'Actualizar entrenamiento' : 'Update workout')
-                      : (language === 'es' ? 'Guardar entrenamiento' : 'Save workout')
-                    }
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </Button>
+            {/* Session workouts added */}
+            {sessionWorkouts.length > 0 && !editingWorkout && (
+              <div className="rounded-lg border border-border bg-muted/50 p-3 space-y-2">
+                <p className="text-xs font-medium text-muted-foreground">
+                  {language === 'es' ? `${sessionWorkouts.length} agregado${sessionWorkouts.length > 1 ? 's' : ''} hoy:` : `${sessionWorkouts.length} added today:`}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {sessionWorkouts.map((sw, i) => (
+                    <Badge key={i} variant="secondary" className="text-xs gap-1">
+                      {WORKOUT_CONFIG[sw.type].icon}
+                      {language === 'es' ? WORKOUT_CONFIG[sw.type].label : WORKOUT_CONFIG[sw.type].labelEn}
+                      <span className="text-muted-foreground">({sw.duration}min)</span>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleSaveWorkout}
+                disabled={isSaving}
+                className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground h-11"
+              >
+                <AnimatePresence mode="wait">
+                  {isSaving ? (
+                    <motion.span
+                      key="saving"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      {language === 'es' ? 'Guardando...' : 'Saving...'}
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key="save"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="flex items-center gap-2"
+                    >
+                      {editingWorkout ? (
+                        <>
+                          <Check className="w-4 h-4" />
+                          {language === 'es' ? 'Actualizar' : 'Update'}
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-4 h-4" />
+                          {language === 'es' ? 'Agregar' : 'Add'}
+                        </>
+                      )}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </Button>
+              {sessionWorkouts.length > 0 && !editingWorkout && (
+                <Button 
+                  variant="outline"
+                  onClick={() => { setShowAddWorkout(false); resetForm(); }}
+                  className="h-11"
+                >
+                  {language === 'es' ? 'Listo' : 'Done'}
+                </Button>
+              )}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
