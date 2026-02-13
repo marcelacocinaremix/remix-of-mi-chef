@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Planificador } from "./Planificador";
+import { MonthlyCalendar } from "./MonthlyCalendar";
 import { Pantry } from "./Pantry";
 import { ShoppingListDirect } from "./ShoppingListDirect";
 import { CalendarDays, Package, ShoppingCart } from "lucide-react";
@@ -25,6 +25,7 @@ interface PlanificarSectionProps {
   onStateChange: (state: { isActive: boolean; isGeneratingAI: boolean; mealsPlanned: number }) => void;
   onSelectIngredients: (items: string[]) => void;
   onSubTabChange?: (subTab: string) => void;
+  onNavigateToCooking?: () => void;
 }
 
 export const PlanificarSection = ({
@@ -33,6 +34,7 @@ export const PlanificarSection = ({
   onStateChange,
   onSelectIngredients,
   onSubTabChange,
+  onNavigateToCooking,
 }: PlanificarSectionProps) => {
   const [activeSubTab, setActiveSubTab] = useState<SubTab>("calendario");
   const { toast } = useToast();
@@ -97,10 +99,8 @@ export const PlanificarSection = ({
       {/* Content */}
       <div className="animate-fade-in">
         {activeSubTab === "calendario" && (
-          <Planificador
-            ingredients={ingredients}
-            pantryItems={pantryItems}
-            onStateChange={onStateChange}
+          <MonthlyCalendar
+            onNavigateToCooking={onNavigateToCooking || (() => {})}
           />
         )}
 

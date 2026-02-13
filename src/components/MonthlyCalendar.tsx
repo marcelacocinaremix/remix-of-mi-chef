@@ -1,0 +1,429 @@
+import { useState, useEffect, useMemo } from "react";
+import {
+  ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, BookOpen, X,
+  Coffee, Sun, Cookie, Moon
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Recipe } from "@/components/RecipeList";
+import {
+  format, startOfMonth, endOfMonth, eachDayOfInterval,
+  isSameDay, isToday, addMonths, subMonths, startOfWeek, endOfWeek,
+  getDay
+} from "date-fns";
+import { es } from "date-fns/locale";
+
+const MEAL_TYPES = [
+  { id: "desayuno", label: "Desayuno", icon: Coffee, color: "text-amber-500" },
+  { id: "almuerzo", label: "Almuerzo", icon: Sun, color: "text-orange-500" },
+  { id: "merienda", label: "Merienda", icon: Cookie, color: "text-pink-500" },
+  { id: "cena", label: "Cena", icon: Moon, color: "text-indigo-500" },
+] as const;
+
+type MealType = typeof MEAL_TYPES[number]["id"];
+
+interface DayMeal {
+  id: string;
+  mealType: MealType;
+  recipeName: string;
+  recipeData: Recipe;
+}
+
+// Helper to get week_start (Monday) and day_of_week from a Date
+const getWeekStartAndDay = (date: Date) => {
+  const d = new Date(date);
+  const dayOfWeek = d.getDay();
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const weekStart = new Date(d);
+  weekStart.setDate(d.getDate() + mondayOffset);
+  const dayIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Mon=0, Sun=6
+  return {
+    weekStart: weekStart.toISOString().split("T")[0],
+    dayOfWeek: dayIndex,
+  };
+};
+
+const dateFromWeekStartAndDay = (weekStart: string, dayOfWeek: number): Date => {
+  const d = new Date(weekStart + "T12:00:00");
+  d.setDate(d.getDate() + dayOfWeek);
+  return d;
+};
+
+interface MonthlyCalendarProps {
+  onNavigateToCooking: () => void;
+}
+
+export function MonthlyCalendar({ onNavigateToCooking }: MonthlyCalendarProps) {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [allMeals, setAllMeals] = useState<Record<string, DayMeal[]>>({});
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [showRecipeSelector, setShowRecipeSelector] = useState<MealType | null>(null);
+  const [favoriteRecipes, setFavoriteRecipes] = useState<Recipe[]>([]);
+  const [recentRecipes, setRecentRecipes] = useState<Recipe[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [recipeTab, setRecipeTab] = useState<"favoritos" | "recientes">("favoritos");
+
+  // Calendar grid
+  const monthStart = startOfMonth(currentMonth);
+  const monthEnd = endOfMonth(currentMonth);
+  const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 });
+  const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
+  const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+
+  const weekDays = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+
+  // Fetch meals for visible range
+  useEffect(() => {
+    if (user) {
+      fetchMealsForRange();
+      fetchFavoriteRecipes();
+      fetchRecentRecipes();
+    }
+  }, [user, currentMonth]);
+
+  const fetchMealsForRange = async () => {
+    if (!user) return;
+    setIsLoading(true);
+    try {
+      // Get all unique week_starts that could appear in this month view
+      const weeks = new Set<string>();
+      calendarDays.forEach((day) => {
+        const { weekStart } = getWeekStartAndDay(day);
+        weeks.add(weekStart);
+      });
+
+      const { data, error } = await supabase
+        .from("meal_plans")
+        .select("*")
+        .eq("user_id", user.id)
+        .in("week_start", Array.from(weeks));
+
+      if (error) throw error;
+
+      const mealsMap: Record<string, DayMeal[]> = {};
+      (data || []).forEach((item) => {
+        const date = dateFromWeekStartAndDay(item.week_start, item.day_of_week);
+        const key = format(date, "yyyy-MM-dd");
+        if (!mealsMap[key]) mealsMap[key] = [];
+        mealsMap[key].push({
+          id: item.id,
+          mealType: item.meal_type as MealType,
+          recipeName: item.recipe_name,
+          recipeData: item.recipe_data as unknown as Recipe,
+        });
+      });
+      setAllMeals(mealsMap);
+    } catch (err) {
+      console.error("Error fetching meals:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchFavoriteRecipes = async () => {
+    if (!user) return;
+    try {
+      const { data } = await supabase
+        .from("favorite_recipes")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(30);
+      setFavoriteRecipes((data || []).map((r) => r.recipe_data as unknown as Recipe));
+    } catch {}
+  };
+
+  const fetchRecentRecipes = async () => {
+    if (!user) return;
+    try {
+      const { data } = await supabase
+        .from("cooked_recipes")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("cooked_at", { ascending: false })
+        .limit(20);
+      setRecentRecipes((data || []).map((r) => r.recipe_data as unknown as Recipe));
+    } catch {}
+  };
+
+  const getMealsForDate = (date: Date): DayMeal[] => {
+    return allMeals[format(date, "yyyy-MM-dd")] || [];
+  };
+
+  const handleAddRecipe = async (recipe: Recipe, mealType: MealType) => {
+    if (!user || !selectedDate) return;
+
+    const { weekStart, dayOfWeek } = getWeekStartAndDay(selectedDate);
+
+    try {
+      // Check if slot already has a meal
+      const existing = getMealsForDate(selectedDate).find((m) => m.mealType === mealType);
+      if (existing) {
+        const { error } = await supabase
+          .from("meal_plans")
+          .update({
+            recipe_data: JSON.parse(JSON.stringify(recipe)),
+            recipe_name: recipe.name,
+          })
+          .eq("id", existing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("meal_plans").insert({
+          user_id: user.id,
+          week_start: weekStart,
+          day_of_week: dayOfWeek,
+          meal_type: mealType,
+          recipe_data: JSON.parse(JSON.stringify(recipe)),
+          recipe_name: recipe.name,
+        });
+        if (error) throw error;
+      }
+
+      await fetchMealsForRange();
+      setShowRecipeSelector(null);
+      toast({ title: "¡Receta agregada!", description: `${recipe.name} para el ${format(selectedDate, "EEEE d", { locale: es })}` });
+    } catch {
+      toast({ title: "Error", description: "No se pudo agregar la receta", variant: "destructive" });
+    }
+  };
+
+  const handleRemoveMeal = async (mealId: string) => {
+    try {
+      const { error } = await supabase.from("meal_plans").delete().eq("id", mealId);
+      if (error) throw error;
+      await fetchMealsForRange();
+      toast({ title: "Receta eliminada" });
+    } catch {
+      toast({ title: "Error", description: "No se pudo eliminar", variant: "destructive" });
+    }
+  };
+
+  const dayMeals = selectedDate ? getMealsForDate(selectedDate) : [];
+
+  return (
+    <div className="space-y-4">
+      {/* Month navigation */}
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" size="icon" onClick={() => setCurrentMonth((m) => subMonths(m, 1))}>
+          <ChevronLeft className="w-5 h-5" />
+        </Button>
+        <h3 className="text-lg font-bold capitalize">
+          {format(currentMonth, "MMMM yyyy", { locale: es })}
+        </h3>
+        <Button variant="ghost" size="icon" onClick={() => setCurrentMonth((m) => addMonths(m, 1))}>
+          <ChevronRight className="w-5 h-5" />
+        </Button>
+      </div>
+
+      {/* Calendar grid */}
+      <div className="bg-card rounded-2xl border border-border/50 overflow-hidden">
+        {/* Week day headers */}
+        <div className="grid grid-cols-7 bg-muted/50">
+          {weekDays.map((d) => (
+            <div key={d} className="text-center text-xs font-medium text-muted-foreground py-2">
+              {d}
+            </div>
+          ))}
+        </div>
+
+        {/* Days */}
+        <div className="grid grid-cols-7">
+          {calendarDays.map((day, i) => {
+            const inMonth = day.getMonth() === currentMonth.getMonth();
+            const meals = getMealsForDate(day);
+            const hasMeals = meals.length > 0;
+            const today = isToday(day);
+
+            return (
+              <button
+                key={i}
+                onClick={() => setSelectedDate(day)}
+                className={cn(
+                  "relative flex flex-col items-center justify-start p-1 min-h-[52px] sm:min-h-[64px] border-b border-r border-border/20 transition-colors",
+                  inMonth ? "bg-background" : "bg-muted/30",
+                  today && "ring-2 ring-primary ring-inset",
+                  selectedDate && isSameDay(day, selectedDate) && "bg-primary/10",
+                  "hover:bg-accent/50 active:scale-95"
+                )}
+              >
+                <span
+                  className={cn(
+                    "text-xs sm:text-sm font-medium",
+                    !inMonth && "text-muted-foreground/40",
+                    today && "text-primary font-bold"
+                  )}
+                >
+                  {format(day, "d")}
+                </span>
+                {hasMeals && (
+                  <div className="flex gap-0.5 mt-0.5 flex-wrap justify-center">
+                    {meals.length <= 2 ? (
+                      meals.map((m, j) => (
+                        <span key={j} className="text-[8px] sm:text-[9px] text-muted-foreground leading-tight line-clamp-1 max-w-full text-center">
+                          {m.recipeName.length > 8 ? m.recipeName.slice(0, 8) + "…" : m.recipeName}
+                        </span>
+                      ))
+                    ) : (
+                      <div className="flex gap-0.5">
+                        {meals.map((_, j) => (
+                          <div key={j} className="w-1.5 h-1.5 rounded-full bg-primary" />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Day detail modal */}
+      <Dialog open={!!selectedDate} onOpenChange={(open) => !open && setSelectedDate(null)}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="capitalize">
+              📅 {selectedDate && format(selectedDate, "EEEE d 'de' MMMM", { locale: es })}
+            </DialogTitle>
+            <DialogDescription>Organizá tus comidas del día</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            {MEAL_TYPES.map((mt) => {
+              const Icon = mt.icon;
+              const meal = dayMeals.find((m) => m.mealType === mt.id);
+
+              return (
+                <div
+                  key={mt.id}
+                  className="flex items-center gap-3 p-3 rounded-xl border border-border/50 bg-muted/30"
+                >
+                  <Icon className={cn("w-5 h-5 flex-shrink-0", mt.color)} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-muted-foreground">{mt.label}</p>
+                    {meal ? (
+                      <p className="text-sm font-semibold truncate">{meal.recipeName}</p>
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic">Sin asignar</p>
+                    )}
+                  </div>
+                  <div className="flex gap-1 flex-shrink-0">
+                    {meal ? (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        onClick={() => handleRemoveMeal(meal.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    ) : null}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setShowRecipeSelector(mt.id)}
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex gap-2 pt-2">
+            <Button
+              variant="outline"
+              className="flex-1 text-sm"
+              onClick={() => {
+                setSelectedDate(null);
+                onNavigateToCooking();
+              }}
+            >
+              <Sparkles className="w-4 h-4 mr-1" />
+              Generar receta
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Recipe selector modal */}
+      <Dialog open={!!showRecipeSelector} onOpenChange={(open) => !open && setShowRecipeSelector(null)}>
+        <DialogContent className="max-w-md max-h-[85vh]">
+          <DialogHeader>
+            <DialogTitle>Elegir receta</DialogTitle>
+            <DialogDescription>
+              {showRecipeSelector && `Para ${MEAL_TYPES.find((m) => m.id === showRecipeSelector)?.label}`}
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Tabs */}
+          <div className="flex gap-2 mb-3">
+            <Button
+              variant={recipeTab === "favoritos" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setRecipeTab("favoritos")}
+            >
+              ❤️ Favoritos
+            </Button>
+            <Button
+              variant={recipeTab === "recientes" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setRecipeTab("recientes")}
+            >
+              🕐 Recientes
+            </Button>
+          </div>
+
+          <ScrollArea className="max-h-[50vh]">
+            <div className="space-y-2 pr-2">
+              {(recipeTab === "favoritos" ? favoriteRecipes : recentRecipes).length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  {recipeTab === "favoritos"
+                    ? "No tenés recetas favoritas todavía"
+                    : "No cocinaste recetas todavía"}
+                </p>
+              ) : (
+                (recipeTab === "favoritos" ? favoriteRecipes : recentRecipes).map((recipe, i) => (
+                  <button
+                    key={i}
+                    onClick={() => showRecipeSelector && handleAddRecipe(recipe, showRecipeSelector)}
+                    className="w-full text-left p-3 rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
+                  >
+                    <p className="font-medium text-sm">{recipe.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {recipe.time} min · {recipe.difficulty}
+                    </p>
+                  </button>
+                ))
+              )}
+            </div>
+          </ScrollArea>
+
+          {/* Generate new */}
+          <Button
+            variant="outline"
+            className="w-full mt-2"
+            onClick={() => {
+              setShowRecipeSelector(null);
+              setSelectedDate(null);
+              onNavigateToCooking();
+            }}
+          >
+            <Sparkles className="w-4 h-4 mr-1" />
+            Generar nueva receta
+          </Button>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
