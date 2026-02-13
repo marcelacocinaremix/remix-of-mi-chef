@@ -56,9 +56,10 @@ const dateFromWeekStartAndDay = (weekStart: string, dayOfWeek: number): Date => 
 
 interface MonthlyCalendarProps {
   onNavigateToCooking: () => void;
+  onBlockedAction?: () => void;
 }
 
-export function MonthlyCalendar({ onNavigateToCooking }: MonthlyCalendarProps) {
+export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: MonthlyCalendarProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -343,7 +344,10 @@ export function MonthlyCalendar({ onNavigateToCooking }: MonthlyCalendarProps) {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-destructive hover:text-destructive"
-                        onClick={() => handleRemoveMeal(meal.id)}
+                        onClick={() => {
+                          if (onBlockedAction) { onBlockedAction(); return; }
+                          handleRemoveMeal(meal.id);
+                        }}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -352,7 +356,10 @@ export function MonthlyCalendar({ onNavigateToCooking }: MonthlyCalendarProps) {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8"
-                      onClick={() => setShowRecipeSelector(mt.id)}
+                      onClick={() => {
+                        if (onBlockedAction) { onBlockedAction(); return; }
+                        setShowRecipeSelector(mt.id);
+                      }}
                     >
                       <Plus className="w-4 h-4" />
                     </Button>

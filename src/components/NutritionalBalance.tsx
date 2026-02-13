@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { cn } from "@/lib/utils";
@@ -36,6 +35,10 @@ import { SmartBalanceAnalysis } from "@/components/balance/SmartBalanceAnalysis"
 import { BalanceEvolutionChart } from "@/components/balance/BalanceEvolutionChart";
 import { DailyMealLog } from "@/components/nutrition/DailyMealLog";
 import { NutritionRecommendations } from "@/components/nutrition/NutritionRecommendations";
+import { usePremium } from "@/hooks/usePremium";
+import { PaywallModal } from "@/components/PaywallModal";
+import { Lock } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface NutritionalBalanceProps {
   onRecommendRecipes?: () => void;
@@ -45,6 +48,9 @@ interface NutritionalBalanceProps {
 
 export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, onSubTabChange }: NutritionalBalanceProps) {
   const { meals, getTotalsForPeriod, getMealsForPeriod, refetch: refetchMeals } = useMealLogs();
+  const { canUseFeature, isTrialExpired, trialDaysRemaining, isTrialActive, isPremium } = usePremium();
+  const [showPaywall, setShowPaywall] = useState(false);
+  const balanceBlocked = !canUseFeature('balance_add');
   const {
     goal,
     stats: activityStats,
@@ -341,7 +347,19 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
             {/* Registro - Daily meal log (main view) */}
             {balanceSubTab === "registro" && (
               <div className="space-y-6">
-                <DailyMealLog onMealsChanged={refetchMeals} fitnessGoal={goal?.goal} />
+                {balanceBlocked && (
+                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center gap-3">
+                    <Lock className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">Tu prueba gratuita terminó</p>
+                      <p className="text-xs text-muted-foreground">Podés ver tus datos pero no agregar nuevos registros</p>
+                    </div>
+                    <Button size="sm" onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs">
+                      Premium
+                    </Button>
+                  </div>
+                )}
+                <DailyMealLog onMealsChanged={refetchMeals} fitnessGoal={goal?.goal} onBlockedAction={balanceBlocked ? () => setShowPaywall(true) : undefined} />
 
                 {/* Recommendations based on today's meals */}
                 <NutritionRecommendations
@@ -619,6 +637,17 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
           </div>
         )}
       </div>
+
+      {/* Trial info badge */}
+      {!isPremium && isTrialActive && (
+        <div className="text-center py-2">
+          <span className="text-xs text-muted-foreground">
+            🎁 Prueba gratuita: {trialDaysRemaining} días restantes
+          </span>
+        </div>
+      )}
+
+      <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
     </div>
   );
 }

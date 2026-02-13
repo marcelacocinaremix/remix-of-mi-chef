@@ -2,10 +2,13 @@ import { useState } from "react";
 import { MonthlyCalendar } from "./MonthlyCalendar";
 import { Pantry } from "./Pantry";
 import { ShoppingListDirect } from "./ShoppingListDirect";
-import { CalendarDays, Package, ShoppingCart } from "lucide-react";
+import { CalendarDays, Package, ShoppingCart, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePremium } from "@/hooks/usePremium";
+import { PaywallModal } from "@/components/PaywallModal";
+import { Button } from "@/components/ui/button";
 import calendarBanner from "@/assets/calendar-banner.jpg";
 import pantryBanner from "@/assets/pantry-banner-fixed.jpg";
 import superBanner from "@/assets/super-banner.jpg";
@@ -39,6 +42,9 @@ export const PlanificarSection = ({
   const [activeSubTab, setActiveSubTab] = useState<SubTab>("calendario");
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { canUseFeature, isTrialActive, trialDaysRemaining, isPremium } = usePremium();
+  const [showPaywall, setShowPaywall] = useState(false);
+  const planBlocked = !canUseFeature('planificador_modify');
 
   const subTabs = [
     { id: "calendario" as SubTab, label: t("subTabCalendar"), icon: CalendarDays },
@@ -96,11 +102,26 @@ export const PlanificarSection = ({
         </div>
       </div>
 
+      {/* Blocked banner */}
+      {planBlocked && activeSubTab === "calendario" && (
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center gap-3">
+          <Lock className="w-5 h-5 text-amber-600 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-medium">Tu prueba gratuita terminó</p>
+            <p className="text-xs text-muted-foreground">Podés ver tu planificación pero no agregar o modificar</p>
+          </div>
+          <Button size="sm" onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs">
+            Premium
+          </Button>
+        </div>
+      )}
+
       {/* Content */}
       <div className="animate-fade-in">
         {activeSubTab === "calendario" && (
           <MonthlyCalendar
             onNavigateToCooking={onNavigateToCooking || (() => {})}
+            onBlockedAction={planBlocked ? () => setShowPaywall(true) : undefined}
           />
         )}
 
@@ -115,8 +136,18 @@ export const PlanificarSection = ({
             <ShoppingListDirect />
           </div>
         )}
-
       </div>
+
+      {/* Trial info */}
+      {!isPremium && isTrialActive && (
+        <div className="text-center py-2">
+          <span className="text-xs text-muted-foreground">
+            🎁 Prueba gratuita: {trialDaysRemaining} días restantes
+          </span>
+        </div>
+      )}
+
+      <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
     </div>
   );
 };
