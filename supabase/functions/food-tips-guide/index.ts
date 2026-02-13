@@ -1,9 +1,16 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+function normalize(name: string): string {
+  return name.trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ');
+}
 
 const categoryPrompts: Record<string, string> = {
   conservacion: `Proporciona información sobre CONSERVACIÓN del alimento:
@@ -11,69 +18,58 @@ const categoryPrompts: Record<string, string> = {
 - Cuánto dura en cada lugar
 - Temperatura ideal de almacenamiento
 - Señales de que está en mal estado`,
-
   congelacion: `Proporciona información sobre CONGELACIÓN del alimento:
 - Si se puede congelar y cómo hacerlo correctamente
 - Cuánto dura congelado
 - Cómo descongelar correctamente
 - Si pierde propiedades al congelar
 - Tips para congelar porciones`,
-
   compra: `Proporciona información sobre CÓMO COMPRAR/ELEGIR el alimento fresco:
 - Qué mirar para saber si está fresco
 - Señales de buena calidad
 - Qué evitar al comprarlo
 - Mejor época del año para comprarlo (si aplica)
 - Tips para elegir el mejor`,
-
   temperaturas: `Proporciona información sobre TEMPERATURAS DE COCCIÓN del alimento:
 - Temperatura interna segura
 - Temperatura del horno/sartén recomendada
 - Puntos de cocción (jugoso, a punto, bien cocido)
 - Cómo verificar si está cocido`,
-
   tiempos: `Proporciona información sobre TIEMPOS DE COCCIÓN del alimento:
 - Tiempo según método (hervido, horno, sartén, etc.)
 - Tiempo según tamaño o corte
 - Tiempo de reposo si aplica
 - Tiempos para diferentes puntos de cocción`,
-
   preparacion: `Proporciona información sobre PREPARACIÓN Y CORTES del alimento:
 - Cómo limpiarlo correctamente
 - Tipos de cortes recomendados
 - Cómo pelar o limpiar según el uso
 - Preparación previa a la cocción`,
-
   coccion: `Proporciona información sobre MÉTODOS DE COCCIÓN del alimento:
 - Mejores métodos de cocción
 - Cómo lograr mejores resultados
 - Errores comunes al cocinar
 - Técnicas profesionales`,
-
   sustitutos: `Proporciona información sobre SUSTITUTOS del alimento:
 - Con qué ingredientes se puede reemplazar
 - Proporciones de sustitución
 - En qué recetas funciona cada sustituto
 - Diferencias de sabor o textura con cada sustituto`,
-
   combinaciones: `Proporciona información sobre COMBINACIONES Y MARIDAJES del alimento:
 - Con qué ingredientes combina bien
 - Hierbas y especias que lo complementan
 - Con qué bebidas marida
 - Combinaciones clásicas de la gastronomía`,
-
   nutricion: `Proporciona información sobre NUTRICIÓN del alimento:
 - Principales nutrientes que aporta
 - Beneficios para la salud
 - Calorías aproximadas por porción
 - Para quién es especialmente beneficioso`,
-
   ahorro: `Proporciona información sobre AHORRO Y APROVECHAMIENTO del alimento:
 - Cómo aprovechar al máximo (partes que normalmente se descartan)
 - Tips para evitar desperdicio
 - Cómo usar restos o sobras
 - Alternativas económicas`,
-
   seguridad: `Proporciona información sobre SEGURIDAD ALIMENTARIA del alimento:
 - Manipulación segura
 - Contaminación cruzada a evitar
@@ -97,8 +93,36 @@ serve(async (req) => {
     }
 
     const selectedCategory = category || "conservacion";
-    const categoryPrompt = categoryPrompts[selectedCategory] || categoryPrompts.conservacion;
+    const normalized = normalize(foodName);
 
+    // 1. Check cache first
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    const { data: cached } = await supabase
+      .from('cached_food_guides')
+      .select('*')
+      .eq('food_name_normalized', normalized)
+      .eq('category', selectedCategory)
+      .maybeSingle();
+
+    if (cached) {
+      console.log(`Food guide cache HIT for "${foodName}" + "${selectedCategory}"`);
+      await supabase
+        .from('cached_food_guides')
+        .update({ usage_count: (cached.usage_count || 1) + 1, updated_at: new Date().toISOString() })
+        .eq('id', cached.id);
+
+      return new Response(JSON.stringify(cached.response_data), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    console.log(`Food guide cache MISS for "${foodName}" + "${selectedCategory}", calling AI`);
+
+    // 2. No cache → call AI
+    const categoryPrompt = categoryPrompts[selectedCategory] || categoryPrompts.conservacion;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
@@ -121,19 +145,11 @@ Responde SIEMPRE en formato JSON con esta estructura exacta:
   "mainInfo": "información principal resumida en 1-2 oraciones",
   "details": ["detalle específico 1", "detalle específico 2", "detalle específico 3", "detalle específico 4"],
   "tips": ["tip práctico 1", "tip práctico 2", "tip práctico 3"],
-  "warnings": ["precaución 1", "precaución 2"] // solo si hay advertencias importantes
+  "warnings": ["precaución 1", "precaución 2"]
 }
 
 Si no es un alimento, responde:
-{
-  "isFood": false,
-  "name": "",
-  "category": "",
-  "mainInfo": "",
-  "details": [],
-  "tips": [],
-  "warnings": []
-}
+{"isFood": false, "name": "", "category": "", "mainInfo": "", "details": [], "tips": [], "warnings": []}
 
 Responde en español argentino, de forma clara, práctica y concisa.`;
 
@@ -178,7 +194,6 @@ Responde en español argentino, de forma clara, práctica y concisa.`;
       throw new Error("No content in AI response");
     }
 
-    // Parse the JSON from AI response
     let foodInfo;
     try {
       const jsonMatch = content.match(/\{[\s\S]*\}/);
@@ -190,6 +205,21 @@ Responde en español argentino, de forma clara, práctica y concisa.`;
     } catch (parseError) {
       console.error("Parse error:", parseError, "Content:", content);
       throw new Error("Failed to parse AI response");
+    }
+
+    // 3. Cache the result if it's a valid food
+    if (foodInfo.isFood) {
+      try {
+        await supabase.from('cached_food_guides').insert({
+          food_name: foodName.trim(),
+          food_name_normalized: normalized,
+          category: selectedCategory,
+          response_data: foodInfo,
+        });
+        console.log(`Cached food guide for "${foodName}" + "${selectedCategory}"`);
+      } catch (cacheErr) {
+        console.error('Error caching food guide:', cacheErr);
+      }
     }
 
     return new Response(JSON.stringify(foodInfo), {
