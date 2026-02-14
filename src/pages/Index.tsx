@@ -639,7 +639,7 @@ export default function Index() {
             {/* Navigation Tabs */}
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
               {/* Two row navigation - 4 items per row */}
-              <div className="mb-6 space-y-2">
+              <div className="mb-6 space-y-2 pb-6 -mx-3 sm:-mx-4 px-3 sm:px-4 bg-background/80 backdrop-blur-sm">
                 {/* Row 1 */}
                 <div className="grid grid-cols-4 gap-1 sm:gap-1.5 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-1.5 sm:p-2 overflow-hidden">
                 {menuItems.slice(0, 4).map((item) => {
