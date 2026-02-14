@@ -567,9 +567,9 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen gradient-hero relative overflow-hidden w-screen max-w-[100vw]">
+    <div className="h-[100dvh] gradient-hero relative overflow-hidden w-screen max-w-[100vw] flex flex-col">
       <FuturisticBackground />
-      <div className="w-full max-w-4xl mx-auto py-6 md:py-10 px-3 sm:px-4 relative z-10 overflow-hidden box-border">
+      <div className="w-full max-w-4xl mx-auto py-6 md:py-10 px-3 sm:px-4 relative z-10 flex-1 overflow-y-auto overflow-x-hidden box-border">
         {/* Top bar with social links and user menu */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-3">
