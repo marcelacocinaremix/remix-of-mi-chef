@@ -9,7 +9,7 @@ import {
 import { IngredientInput } from "@/components/IngredientInput";
 import { IngredientCategorySelector } from "@/components/IngredientCategorySelector";
 import { MarcelaReactiveTips } from "@/components/MarcelaReactiveTips";
-import { RecipePrediction } from "@/components/RecipePrediction";
+
 import { QuickFilters } from "@/components/QuickFilters";
 import { TimeSelector } from "@/components/TimeSelector";
 import { MealTypeSelector } from "@/components/MealTypeSelector";
@@ -145,15 +145,6 @@ export function CookingSection({
           </CardContent>
         </Card>
 
-        {/* Recipe Prediction - Real-time suggestions */}
-        {ingredients.length >= 2 && (
-          <div className="animate-pop">
-            <RecipePrediction 
-              ingredients={ingredients}
-              onSelectRecipe={onSelectRecipe}
-            />
-          </div>
-        )}
 
         {/* STEP 2: Quick Filters */}
         <Card className="border-2 border-secondary/30 bg-gradient-to-br from-secondary/5 to-transparent">
