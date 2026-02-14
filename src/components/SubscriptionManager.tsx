@@ -100,7 +100,18 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
             {/* Upgrade CTA */}
             {!isPremium && (
               <Button 
-                onClick={() => { onOpenChange(false); setShowPaywall(true); }}
+                onClick={() => {
+                  if ((window as any).AndroidInterface) {
+                    try {
+                      (window as any).AndroidInterface.iniciarCompra();
+                    } catch (error) {
+                      console.error("Error al llamar a la interfaz nativa:", error);
+                    }
+                  } else {
+                    alert("La pasarela de pago solo está disponible en la App instalada en Android.");
+                  }
+                  onOpenChange(false);
+                }}
                 className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold py-5"
               >
                 <Crown className="mr-2 h-4 w-4" />
