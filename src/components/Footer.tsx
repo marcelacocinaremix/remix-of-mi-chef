@@ -13,24 +13,20 @@ export const Footer = forwardRef<HTMLElement>(function Footer(_, ref) {
       <div className="flex flex-col items-center gap-4">
         <p className="text-sm text-muted-foreground">{t("followMe")}</p>
         <div className="flex items-center justify-center gap-6">
-          <a
-            href={YOUTUBE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-muted-foreground hover:text-red-500 transition-colors"
+          <button
+            onClick={() => window.open(YOUTUBE_URL, "_blank")}
+            className="flex items-center gap-2 text-muted-foreground hover:text-red-500 transition-colors cursor-pointer"
           >
             <Youtube className="h-6 w-6" />
             <span>@marcelacocina</span>
-          </a>
-          <a
-            href={INSTAGRAM_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-muted-foreground hover:text-pink-500 transition-colors"
+          </button>
+          <button
+            onClick={() => window.open(INSTAGRAM_URL, "_blank")}
+            className="flex items-center gap-2 text-muted-foreground hover:text-pink-500 transition-colors cursor-pointer"
           >
             <Instagram className="h-6 w-6" />
             <span>@marcelacocina_ok</span>
-          </a>
+          </button>
         </div>
         <p className="text-xs text-muted-foreground/60 mt-2">
           © {new Date().getFullYear()} {t("appName")} - {t("allRightsReserved")}
