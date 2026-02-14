@@ -47,7 +47,7 @@ import { usePremium } from "@/hooks/usePremium";
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
   const { user } = useAuth();
-  const { dailyUsage, checkDailyUsage, refetch: refetchPremium } = usePremium();
+  const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium } = usePremium();
   const isMobile = useIsMobile();
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [time, setTime] = useState<number>(30);
@@ -201,7 +201,7 @@ export default function Index() {
       if (!usageResult.allowed) {
         toast({
           title: "🍳 ¡Se acabaron tus recetas de hoy!",
-          description: usageResult.message || "Ya usaste tus 3 recetas del día. ¡Volvé mañana para seguir cocinando!",
+          description: usageResult.message || `Ya usaste tus ${isPremium ? '10' : '3'} recetas del día. ¡Volvé mañana para seguir cocinando!`,
           variant: "destructive",
         });
         return;
