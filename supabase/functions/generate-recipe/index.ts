@@ -610,6 +610,33 @@ function getEmergencyRecipes(ingredients: string[], time: number, language: stri
 }
 
 // ============================================================
+// POST-VALIDATION: Verify recipes use user's ingredients
+// ============================================================
+
+function validateRecipeIngredients(recipe: any, userIngredients: string[]): boolean {
+  if (!recipe || !recipe.ingredients || !userIngredients || userIngredients.length === 0) return true;
+  
+  const userCanonicals = userIngredients.map(i => getCanonicalIngredient(i));
+  const recipeText = (recipe.ingredients || []).join(' ').toLowerCase();
+  const recipeNameLower = (recipe.name || '').toLowerCase();
+  const fullText = removeAccents(recipeText + ' ' + recipeNameLower);
+  
+  // Check how many of the user's ingredients appear in the recipe
+  let matchCount = 0;
+  for (const canonical of userCanonicals) {
+    const variants = getIngredientVariants(canonical);
+    const found = variants.some(v => fullText.includes(removeAccents(v)));
+    if (found) matchCount++;
+  }
+  
+  // At least 50% of user ingredients must be present in the recipe
+  const matchRatio = matchCount / userCanonicals.length;
+  console.log(`Validation "${recipe.name}": ${matchCount}/${userCanonicals.length} ingredients match (${(matchRatio * 100).toFixed(0)}%)`);
+  
+  return matchRatio >= 0.5;
+}
+
+// ============================================================
 // SYSTEM PROMPT & MAIN HANDLER
 // ============================================================
 
@@ -624,16 +651,17 @@ const getSystemPrompt = (language: string = 'es') => {
 ${langInstructions[language] || langInstructions.es}
 Tu objetivo es ayudar a personas reales a cocinar bien, sin estrés y con lo que tienen en casa.
 
-INSTRUCCIONES:
+INSTRUCCIONES ESTRICTAS:
 1. PRIMERO: Verificá que los ingredientes sean alimentos reales. Si el usuario ingresa cosas que NO son comestibles, respondé con:
    {"recipes": [], "error": "no_food_ingredients"}
 2. Sugerí EXACTAMENTE 2 recetas diferentes (solo si hay ingredientes válidos).
 3. Cada receta debe poder realizarse dentro del tiempo indicado.
-4. Utilizá principalmente los ingredientes indicados. Se permiten ingredientes básicos: sal, aceite, pimienta, condimentos comunes.
-5. Priorizá recetas caseras, económicas, simples y realistas.
-6. Evitá recetas gourmet o complejas.
-7. Incluí información nutricional estimada por porción para cada receta.
-8. MUY IMPORTANTE: En los textos NO uses comillas dobles. Si necesitas enfatizar algo, usa comillas simples.
+4. **REGLA CRÍTICA**: Cada receta DEBE usar como ingredientes principales los ingredientes que el usuario proporcionó. NO inventes recetas con otros ingredientes principales que el usuario NO mencionó. Se permiten SOLO ingredientes complementarios básicos: sal, aceite, pimienta, agua, condimentos comunes.
+5. Si el usuario dice 'pollo y arroz', las recetas DEBEN contener pollo Y arroz como ingredientes principales. NUNCA sugieras una receta de carne si el usuario dijo pollo.
+6. Priorizá recetas caseras, económicas, simples y realistas.
+7. Evitá recetas gourmet o complejas.
+8. Incluí información nutricional estimada por porción para cada receta.
+9. MUY IMPORTANTE: En los textos NO uses comillas dobles. Si necesitas enfatizar algo, usa comillas simples.
 
 FORMATO DE RESPUESTA (JSON válido estricto):
 {
@@ -774,6 +802,7 @@ Generá UNA SOLA receta sorpresa con estas características:
       userPrompt += `\n\nSorprendé con algo creativo pero realizable!`;
     } else {
       userPrompt = `Ingredientes disponibles: ${ingredients?.join(', ') || 'ninguno especificado'}\n`;
+      userPrompt += `RECORDÁ: Las recetas DEBEN usar estos ingredientes como base principal. NO sugieras recetas con proteínas o ingredientes principales diferentes.\n`;
       userPrompt += `Tiempo máximo para cocinar: ${time} minutos\n`;
 
       if (mealType) {
@@ -958,7 +987,32 @@ Generá UNA SOLA receta sorpresa con estas características:
 
     console.log('Parsed recipes:', result.recipes?.length);
 
-    // STEP 3: Cache AI results with normalized ingredients (async)
+    // STEP 3: POST-VALIDATION - verify recipes actually use user's ingredients
+    if (result.recipes && result.recipes.length > 0 && ingredients && ingredients.length > 0 && !surpriseMode) {
+      const validatedRecipes = result.recipes.filter((recipe: any) => 
+        validateRecipeIngredients(recipe, ingredients)
+      );
+      
+      console.log(`Post-validation: ${validatedRecipes.length}/${result.recipes.length} recipes passed`);
+      
+      if (validatedRecipes.length === 0) {
+        // None passed validation - use emergency recipes with actual ingredients
+        console.log('⚠️ AI recipes rejected: none use the provided ingredients');
+        const emergencyRecipes = getEmergencyRecipes(ingredients, time || 30, language || 'es');
+        return new Response(JSON.stringify({
+          recipes: emergencyRecipes.slice(0, 1),
+          source: 'emergency',
+          isInstant: true,
+          fallbackReason: 'ingredient_mismatch'
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      result.recipes = validatedRecipes;
+    }
+
+    // STEP 4: Cache validated AI results with normalized ingredients (async)
     if (result.recipes && result.recipes.length > 0 && !surpriseMode) {
       cacheRecipes(result.recipes, ingredients, time || 30, mealType, language || 'es')
         .catch(err => console.error('Error caching recipes:', err));
