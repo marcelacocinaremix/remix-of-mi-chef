@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { IngredientInput } from "@/components/IngredientInput";
 import { IngredientCategorySelector } from "@/components/IngredientCategorySelector";
-import { MarcelaReactiveTips } from "@/components/MarcelaReactiveTips";
+
 
 import { QuickFilters } from "@/components/QuickFilters";
 import { TimeSelector } from "@/components/TimeSelector";
@@ -114,11 +114,6 @@ export function CookingSection({
 
       {/* Recipe Generation Content - Step by Step */}
       <div className="space-y-6 animate-fade-in">
-        {/* Marcela Reactive Tips */}
-        <MarcelaReactiveTips 
-          ingredients={ingredients}
-          lastAddedIngredient={ingredients[ingredients.length - 1]}
-        />
 
         {/* STEP 1: Ingredients */}
         <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
