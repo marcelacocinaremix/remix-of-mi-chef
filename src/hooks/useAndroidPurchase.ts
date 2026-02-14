@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
 import { toast } from "sonner";
+import confetti from "canvas-confetti";
 
 /**
  * Hook that listens for Android Google Play purchase callbacks.
@@ -41,6 +42,30 @@ export function useAndroidPurchase() {
 
         // Refresh the premium context
         await refetch();
+
+        // 🎉 Confetti celebration!
+        const duration = 3000;
+        const end = Date.now() + duration;
+        const colors = ["#f59e0b", "#f97316", "#eab308", "#fbbf24", "#ffffff"];
+
+        const frame = () => {
+          confetti({
+            particleCount: 3,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0, y: 0.6 },
+            colors,
+          });
+          confetti({
+            particleCount: 3,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1, y: 0.6 },
+            colors,
+          });
+          if (Date.now() < end) requestAnimationFrame(frame);
+        };
+        frame();
 
         toast.success("🎉 ¡Premium activado! Disfrutá de todas las funciones.", {
           duration: 5000,
