@@ -18,7 +18,15 @@ const benefits = [
 
 export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const handleSubscribe = () => {
-    toast.info("Próximamente: la suscripción estará disponible a través de Google Play");
+    if ((window as any).AndroidInterface) {
+      try {
+        (window as any).AndroidInterface.iniciarCompra();
+      } catch (error) {
+        console.error("Error al llamar a la interfaz nativa:", error);
+      }
+    } else {
+      alert("La pasarela de pago solo está disponible en la App instalada en Android.");
+    }
     onOpenChange(false);
   };
 
