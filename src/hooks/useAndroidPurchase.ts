@@ -9,7 +9,7 @@ import confetti from "canvas-confetti";
  * Hook that listens for Android Google Play purchase callbacks.
  * When the Android native bridge confirms a successful purchase,
  * it calls window.onPurchaseSuccess() which this hook intercepts
- * to update the database and refresh the UI.
+ * to update the database via a secure edge function and refresh the UI.
  */
 export function useAndroidPurchase() {
   const { user } = useAuth();
@@ -23,24 +23,24 @@ export function useAndroidPurchase() {
       }
 
       try {
-        const { error } = await supabase
-          .from("user_subscriptions")
-          .update({
-            is_premium: true,
-            plan_type: "premium",
-            subscription_status: "active",
-            subscription_start: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-          .eq("user_id", user.id);
+        // Call secure edge function to update subscription (bypasses RLS)
+        const { data, error } = await supabase.functions.invoke("confirm-purchase", {
+          body: { purchaseToken: purchaseToken || null },
+        });
 
         if (error) {
-          console.error("Error updating premium status:", error);
+          console.error("Error confirming purchase:", error);
           toast.error("Error al activar Premium. Contactá soporte.");
           return;
         }
 
-        // Refresh the premium context
+        if (!data?.success) {
+          console.error("Purchase confirmation failed:", data);
+          toast.error("Error al activar Premium. Contactá soporte.");
+          return;
+        }
+
+        // Immediately refresh premium context from DB
         await refetch();
 
         // 🎉 Confetti celebration!
