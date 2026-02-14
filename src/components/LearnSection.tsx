@@ -1626,22 +1626,8 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
         </div>
       </div>
 
-      {/* Blocked banner */}
-      {learnBlocked && (
-        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center gap-3">
-          <Lock className="w-5 h-5 text-amber-600 flex-shrink-0" />
-          <div className="flex-1">
-            <p className="text-sm font-medium">Tu prueba gratuita terminó</p>
-            <p className="text-xs text-muted-foreground">Necesitás Premium para acceder a Aprender y la Guía de Alimentos</p>
-          </div>
-          <Button size="sm" onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs">
-            Premium
-          </Button>
-        </div>
-      )}
-
       {/* Aprender a Cocinar Content */}
-      {activeSubMenu === "aprender" && !learnBlocked && (
+      {activeSubMenu === "aprender" && (
         <div className="space-y-6 animate-fade-in relative">
 
       {/* Confetti Animation */}
@@ -1866,6 +1852,22 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
       {/* Guía de Alimentos Content */}
       {activeSubMenu === "guia" && !learnBlocked && (
         <FoodStorageGuide />
+      )}
+
+      {/* Blocked banner for Guía */}
+      {activeSubMenu === "guia" && learnBlocked && (
+        <div className="space-y-4 animate-fade-in">
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center gap-3">
+            <Lock className="w-5 h-5 text-amber-600 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-medium">Tu prueba gratuita terminó</p>
+              <p className="text-xs text-muted-foreground">Necesitás Premium para acceder a la Guía de Alimentos</p>
+            </div>
+            <Button size="sm" onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs">
+              Premium
+            </Button>
+          </div>
+        </div>
       )}
 
       {/* Trial info */}
