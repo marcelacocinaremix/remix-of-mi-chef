@@ -94,7 +94,11 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
                 </li>
                 <li className="flex items-center gap-2">
                   <span className={isPremium ? "text-amber-500" : "text-green-500"}>✓</span>
-                  Curso de cocina y tips {isPremium ? "exclusivos" : ""} {!isPremium && isTrialExpired && <Badge variant="outline" className="text-[10px] px-1">Solo lectura</Badge>}
+                  Curso de cocina y tips
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className={isPremium ? "text-amber-500" : "text-green-500"}>✓</span>
+                  Guía de Alimentos {isPremium ? "completa" : ""} {!isPremium && isTrialExpired && <Badge variant="outline" className="text-[10px] px-1">Solo lectura</Badge>}
                 </li>
                 {isPremium && (
                   <li className="flex items-center gap-2">
