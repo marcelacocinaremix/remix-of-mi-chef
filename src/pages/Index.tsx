@@ -572,24 +572,20 @@ export default function Index() {
         {/* Top bar with social links and user menu */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-3">
-            <a
-              href="https://www.youtube.com/@marcelacocina"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-muted-foreground hover:text-red-500 transition-colors text-sm"
+            <button
+              onClick={() => window.open("https://www.youtube.com/@marcelacocina", "_blank")}
+              className="flex items-center gap-1.5 text-muted-foreground hover:text-red-500 transition-colors text-sm cursor-pointer"
             >
               <Youtube className="h-4 w-4" />
               <span className="hidden sm:inline text-xs">YouTube</span>
-            </a>
-            <a
-              href="https://www.instagram.com/marcelacocina_ok/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors text-sm"
+            </button>
+            <button
+              onClick={() => window.open("https://www.instagram.com/marcelacocina_ok/", "_blank")}
+              className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors text-sm cursor-pointer"
             >
               <Instagram className="h-4 w-4" />
               <span className="hidden sm:inline text-xs">Instagram</span>
-            </a>
+            </button>
           </div>
           <UserMenu />
         </div>
