@@ -50,19 +50,19 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
                     <Sparkles className="w-6 h-6 text-muted-foreground" />
                   )}
                   <span className="font-semibold text-lg">
-                    {isPremium ? "Premium" : isTrialActive ? "Prueba gratuita" : "Plan Free"}
+                    {isPremium ? "Premium Activo" : isTrialActive ? "Prueba gratuita" : "Plan Free"}
                   </span>
                 </div>
                 <Badge variant="default" className={
                   isPremium ? "bg-amber-500" : isTrialActive ? "bg-emerald-500" : "bg-muted-foreground"
                 }>
-                  {isPremium ? "Premium" : isTrialActive ? `${trialDaysRemaining} días` : "Expirada"}
+                  {isPremium ? "✨ Activo" : isTrialActive ? `${trialDaysRemaining} días` : "Expirada"}
                 </Badge>
               </div>
 
               <p className="text-sm text-muted-foreground">
                 {isPremium 
-                  ? "Disfrutás de todas las funciones sin límites."
+                  ? "¡Felicidades! Disfrutás de todas las funciones de Mi Chef sin límites ni publicidad."
                   : isTrialActive 
                     ? `Te quedan ${trialDaysRemaining} días de prueba gratuita con acceso completo.`
                     : "Tu prueba terminó. Algunas funciones están limitadas."
@@ -72,28 +72,36 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
 
             {/* Benefits */}
             <div className="space-y-3">
-              <h4 className="font-semibold">✨ {isPremium ? "Tus beneficios:" : "Funciones incluidas:"}</h4>
+              <h4 className="font-semibold">
+                {isPremium ? "🎉 Tus beneficios Premium:" : "✨ Funciones incluidas:"}
+              </h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
-                  <span className="text-green-500">✓</span>
-                  {isPremium ? "8 recetas por día" : "3 recetas por día"}
+                  <span className={isPremium ? "text-amber-500" : "text-green-500"}>✓</span>
+                  {isPremium ? "8 recetas por día (sin límites de uso)" : "3 recetas por día"}
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-green-500">✓</span>
-                  Calendario semanal {!isPremium && isTrialExpired && <Badge variant="outline" className="text-[10px] px-1">Solo lectura</Badge>}
+                  <span className={isPremium ? "text-amber-500" : "text-green-500"}>✓</span>
+                  Calendario semanal {isPremium ? "completo" : ""} {!isPremium && isTrialExpired && <Badge variant="outline" className="text-[10px] px-1">Solo lectura</Badge>}
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-green-500">✓</span>
+                  <span className={isPremium ? "text-amber-500" : "text-green-500"}>✓</span>
                   Lista de supermercado
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-green-500">✓</span>
-                  Balance nutricional {!isPremium && isTrialExpired && <Badge variant="outline" className="text-[10px] px-1">Solo lectura</Badge>}
+                  <span className={isPremium ? "text-amber-500" : "text-green-500"}>✓</span>
+                  Balance nutricional {isPremium ? "completo" : ""} {!isPremium && isTrialExpired && <Badge variant="outline" className="text-[10px] px-1">Solo lectura</Badge>}
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-green-500">✓</span>
-                  Curso de cocina y tips
+                  <span className={isPremium ? "text-amber-500" : "text-green-500"}>✓</span>
+                  Curso de cocina y tips {isPremium ? "exclusivos" : ""}
                 </li>
+                {isPremium && (
+                  <li className="flex items-center gap-2">
+                    <span className="text-amber-500">✓</span>
+                    Sin publicidad
+                  </li>
+                )}
               </ul>
             </div>
 
