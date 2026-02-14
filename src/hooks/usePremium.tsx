@@ -23,7 +23,7 @@ interface PremiumContextType {
   isTrialActive: boolean;
   isTrialExpired: boolean;
   trialDaysRemaining: number;
-  canUseFeature: (feature: 'balance_add' | 'planificador_modify' | 'general') => boolean;
+  canUseFeature: (feature: 'balance_add' | 'planificador_modify' | 'learn' | 'general') => boolean;
   showPaywall: boolean;
   setShowPaywall: (show: boolean) => void;
 }
@@ -66,11 +66,11 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
   })();
 
-  const canUseFeature = useCallback((feature: 'balance_add' | 'planificador_modify' | 'general') => {
+  const canUseFeature = useCallback((feature: 'balance_add' | 'planificador_modify' | 'learn' | 'general') => {
     if (isPremium) return true;
     if (isTrialActive) return true;
     // Trial expired, block certain features
-    if (feature === 'balance_add' || feature === 'planificador_modify') return false;
+    if (feature === 'balance_add' || feature === 'planificador_modify' || feature === 'learn') return false;
     return true; // General viewing is still allowed
   }, [isPremium, isTrialActive]);
 

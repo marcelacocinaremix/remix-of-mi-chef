@@ -61,6 +61,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useSound } from "@/hooks/useSound";
+import { usePremium } from "@/hooks/usePremium";
+import { PaywallModal } from "@/components/PaywallModal";
 
 interface Lesson {
   id: string;
@@ -1271,6 +1273,9 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
   const { user } = useAuth();
   const { toast } = useToast();
   const { play } = useSound();
+  const { canUseFeature, isTrialActive, trialDaysRemaining, isPremium } = usePremium();
+  const [showPaywall, setShowPaywall] = useState(false);
+  const learnBlocked = !canUseFeature('learn');
   const [activeSubMenu, setActiveSubMenu] = useState<"aprender" | "guia">("aprender");
   const [activeLevel, setActiveLevel] = useState("principiante");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -1621,8 +1626,22 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
         </div>
       </div>
 
+      {/* Blocked banner */}
+      {learnBlocked && (
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center gap-3">
+          <Lock className="w-5 h-5 text-amber-600 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-medium">Tu prueba gratuita terminó</p>
+            <p className="text-xs text-muted-foreground">Necesitás Premium para acceder a Aprender y la Guía de Alimentos</p>
+          </div>
+          <Button size="sm" onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs">
+            Premium
+          </Button>
+        </div>
+      )}
+
       {/* Aprender a Cocinar Content */}
-      {activeSubMenu === "aprender" && (
+      {activeSubMenu === "aprender" && !learnBlocked && (
         <div className="space-y-6 animate-fade-in relative">
 
       {/* Confetti Animation */}
@@ -1845,9 +1864,20 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
       )}
 
       {/* Guía de Alimentos Content */}
-      {activeSubMenu === "guia" && (
+      {activeSubMenu === "guia" && !learnBlocked && (
         <FoodStorageGuide />
       )}
+
+      {/* Trial info */}
+      {!isPremium && isTrialActive && (
+        <div className="text-center py-2">
+          <span className="text-xs text-muted-foreground">
+            🎁 Prueba gratuita: {trialDaysRemaining} días restantes
+          </span>
+        </div>
+      )}
+
+      <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
     </div>
   );
 };
