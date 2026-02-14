@@ -12,7 +12,7 @@ export function Header() {
   };
 
   return (
-    <header className="text-center mb-10 md:mb-14 animate-fade-in relative">
+    <header className="text-center mb-10 md:mb-14 animate-fade-in relative pt-8">
       {/* Header Actions */}
       <div className="absolute right-0 top-0 flex flex-col items-center gap-2">
         <Button
