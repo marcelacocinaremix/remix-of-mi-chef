@@ -42,6 +42,11 @@ Deno.serve(async (req) => {
     // Use service role to bypass RLS
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Calculate subscription end (1 month from now, or use period from Android)
+    const subscriptionEnd = body.subscriptionEnd 
+      ? new Date(body.subscriptionEnd).toISOString()
+      : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
     const { error: updateError } = await adminClient
       .from("user_subscriptions")
       .update({
@@ -49,6 +54,7 @@ Deno.serve(async (req) => {
         plan_type: "premium",
         subscription_status: "active",
         subscription_start: new Date().toISOString(),
+        subscription_end: subscriptionEnd,
         updated_at: new Date().toISOString(),
       })
       .eq("user_id", user.id);

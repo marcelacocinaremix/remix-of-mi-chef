@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext, ReactNode, useCallback } from "react";
+import { useState, useEffect, createContext, useContext, ReactNode, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -19,13 +19,13 @@ interface PremiumContextType {
   refetch: () => Promise<void>;
   dailyUsage: DailyUsageInfo | null;
   checkDailyUsage: () => Promise<{ allowed: boolean; message?: string }>;
-  // Trial system
   isTrialActive: boolean;
   isTrialExpired: boolean;
   trialDaysRemaining: number;
   canUseFeature: (feature: 'balance_add' | 'planificador_modify' | 'learn' | 'general') => boolean;
   showPaywall: boolean;
   setShowPaywall: (show: boolean) => void;
+  isCancelled: boolean;
 }
 
 const PremiumContext = createContext<PremiumContextType | undefined>(undefined);
@@ -39,45 +39,79 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [dailyUsage, setDailyUsage] = useState<DailyUsageInfo | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
-  
-  // Trial & premium state
-  const [isPremium, setIsPremium] = useState(false);
+
+  // Raw DB state
+  const [dbIsPremium, setDbIsPremium] = useState(false);
   const [planType, setPlanType] = useState<string | null>('free');
+  const [subscriptionStatus, setSubscriptionStatus] = useState('free');
+  const [subscriptionEnd, setSubscriptionEnd] = useState<Date | null>(null);
   const [trialStartDate, setTrialStartDate] = useState<Date | null>(null);
   const [trialEndDate, setTrialEndDate] = useState<Date | null>(null);
-  const [subscriptionStatus, setSubscriptionStatus] = useState('free');
 
-  const isTrialActive = (() => {
-    if (isPremium) return false;
+  // Derived: is the paid period still valid?
+  const paidPeriodActive = useMemo(() => {
+    if (!dbIsPremium) return false;
+    // If no end date, premium is indefinite (lifetime or no expiry set)
+    if (!subscriptionEnd) return true;
+    return new Date() < subscriptionEnd;
+  }, [dbIsPremium, subscriptionEnd]);
+
+  // Derived: cancelled but still within paid period
+  const isCancelled = useMemo(() => {
+    return subscriptionStatus === 'cancelled' && paidPeriodActive;
+  }, [subscriptionStatus, paidPeriodActive]);
+
+  // Derived: trial status (fallback when premium expires)
+  const isTrialActive = useMemo(() => {
+    if (paidPeriodActive) return false;
     if (!trialEndDate) return true; // No trial data yet, assume active
     return new Date() < trialEndDate;
-  })();
+  }, [paidPeriodActive, trialEndDate]);
 
-  const isTrialExpired = (() => {
-    if (isPremium) return false;
+  const isTrialExpired = useMemo(() => {
+    if (paidPeriodActive) return false;
     if (!trialEndDate) return false;
     return new Date() >= trialEndDate;
-  })();
+  }, [paidPeriodActive, trialEndDate]);
 
-  const trialDaysRemaining = (() => {
+  const trialDaysRemaining = useMemo(() => {
     if (!trialEndDate) return TRIAL_DAYS;
-    const now = new Date();
-    const diff = trialEndDate.getTime() - now.getTime();
+    const diff = trialEndDate.getTime() - Date.now();
     return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-  })();
+  }, [trialEndDate]);
+
+  // Effective premium: paid period active OR trial still active
+  const isPremium = paidPeriodActive;
+
+  // Has access to premium sections? Either paid or within trial
+  const hasAccess = paidPeriodActive || isTrialActive;
+
+  // Daily limit depends on paid status
+  const effectiveLimit = paidPeriodActive ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
 
   const canUseFeature = useCallback((feature: 'balance_add' | 'planificador_modify' | 'learn' | 'general') => {
-    if (isPremium) return true;
+    if (paidPeriodActive) return true;
     if (isTrialActive) return true;
-    // Trial expired, block certain features
+    // Trial expired and no active paid period — block premium features
     if (feature === 'balance_add' || feature === 'planificador_modify' || feature === 'learn') return false;
-    return true; // General viewing is still allowed
-  }, [isPremium, isTrialActive]);
+    return true; // General viewing still allowed
+  }, [paidPeriodActive, isTrialActive]);
+
+  const daysRemaining = useMemo(() => {
+    if (paidPeriodActive && subscriptionEnd) {
+      const diff = subscriptionEnd.getTime() - Date.now();
+      return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+    }
+    if (isTrialActive) return trialDaysRemaining;
+    return null;
+  }, [paidPeriodActive, subscriptionEnd, isTrialActive, trialDaysRemaining]);
 
   const fetchSubscription = useCallback(async () => {
     if (!user) {
-      setIsPremium(false);
+      setDbIsPremium(false);
       setPlanType('free');
+      setSubscriptionStatus('free');
+      setSubscriptionEnd(null);
       setTrialStartDate(null);
       setTrialEndDate(null);
       setDailyUsage(null);
@@ -97,10 +131,10 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       }
 
       if (data) {
-        setIsPremium(data.is_premium || false);
+        setDbIsPremium(data.is_premium || false);
         setPlanType(data.plan_type || 'free');
         setSubscriptionStatus(data.subscription_status || 'free');
-        
+        setSubscriptionEnd(data.subscription_end ? new Date(data.subscription_end) : null);
         if (data.trial_start_date) setTrialStartDate(new Date(data.trial_start_date));
         if (data.trial_end_date) setTrialEndDate(new Date(data.trial_end_date));
 
@@ -108,7 +142,9 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         const today = new Date().toISOString().split('T')[0];
         const lastUseDate = data.last_use_date;
         const usesToday = (lastUseDate === today) ? (data.daily_uses || 0) : 0;
-        const userLimit = (data.is_premium) ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
+        // Use effective limit based on paid period
+        const isPaid = data.is_premium && (!data.subscription_end || new Date() < new Date(data.subscription_end));
+        const userLimit = isPaid ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
         setDailyUsage({
           usesToday,
           remaining: Math.max(0, userLimit - usesToday),
@@ -127,10 +163,9 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
 
     try {
       setIsLoading(true);
-      const userLimit = isPremium ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
       const { data, error } = await supabase.rpc('check_and_increment_daily_uses', {
         p_user_id: user.id,
-        p_daily_limit: userLimit
+        p_daily_limit: effectiveLimit
       });
 
       if (error) {
@@ -140,11 +175,11 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
 
       if (data && typeof data === 'object' && !Array.isArray(data)) {
         const result = data as { allowed: boolean; uses_today: number; remaining: number; message?: string };
-        
+
         setDailyUsage({
           usesToday: result.uses_today,
           remaining: result.remaining,
-          limit: userLimit
+          limit: effectiveLimit
         });
 
         return {
@@ -160,7 +195,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, effectiveLimit]);
 
   useEffect(() => {
     fetchSubscription();
@@ -171,10 +206,10 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       isPremium,
       isLoading,
       subscriptionStatus,
-      subscriptionEnd: null,
+      subscriptionEnd,
       planType,
       trialUsed: false,
-      daysRemaining: trialDaysRemaining,
+      daysRemaining,
       refetch: fetchSubscription,
       dailyUsage,
       checkDailyUsage,
@@ -184,6 +219,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       canUseFeature,
       showPaywall,
       setShowPaywall,
+      isCancelled,
     }}>
       {children}
     </PremiumContext.Provider>
@@ -210,6 +246,7 @@ export function usePremium() {
       canUseFeature: () => true,
       showPaywall: false,
       setShowPaywall: () => {},
+      isCancelled: false,
     } as PremiumContextType;
   }
   return context;
