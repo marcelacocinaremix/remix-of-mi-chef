@@ -17,7 +17,7 @@ interface SubscriptionManagerProps {
 }
 
 export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerProps) {
-  const { isPremium, isTrialActive, isTrialExpired, trialDaysRemaining } = usePremium();
+  const { isPremium, isTrialActive, isTrialExpired, trialDaysRemaining, isCancelled, daysRemaining } = usePremium();
   const [showPaywall, setShowPaywall] = useState(false);
 
   return (
@@ -56,13 +56,15 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
                 <Badge variant="default" className={
                   isPremium ? "bg-amber-500" : isTrialActive ? "bg-emerald-500" : "bg-muted-foreground"
                 }>
-                  {isPremium ? "✨ Activo" : isTrialActive ? `${trialDaysRemaining} días` : "Expirada"}
+                  {isPremium ? (isCancelled ? `${daysRemaining} días restantes` : "✨ Activo") : isTrialActive ? `${trialDaysRemaining} días` : "Expirada"}
                 </Badge>
               </div>
 
               <p className="text-sm text-muted-foreground">
                 {isPremium 
-                  ? "¡Felicidades! Disfrutás de todas las funciones de Mi Chef sin límites ni publicidad."
+                  ? isCancelled
+                    ? `Cancelaste la renovación. Seguís con Premium hasta que se cumplan tus ${daysRemaining} días restantes.`
+                    : "¡Felicidades! Disfrutás de todas las funciones de Mi Chef sin límites ni publicidad."
                   : isTrialActive 
                     ? `Te quedan ${trialDaysRemaining} días de prueba gratuita con acceso completo.`
                     : "Tu prueba terminó. Algunas funciones están limitadas."
