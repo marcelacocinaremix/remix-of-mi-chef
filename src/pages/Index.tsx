@@ -390,8 +390,8 @@ export default function Index() {
        }
 
        if (data?.recipes && data.recipes.length > 0) {
-        // Always show all recipes (up to 2)
-        const recipesToShow = data.recipes.slice(0, 2);
+        // Show only 1 recipe per click
+        const recipesToShow = data.recipes.slice(0, 1);
         setRecipes(recipesToShow);
         setInstantRecipe(null); // Clear instant recipe as we have AI recipes now
         
@@ -401,8 +401,8 @@ export default function Index() {
         }
         
         toast({
-          title: "¡Recetas listas!",
-          description: `Preparé ${recipesToShow.length} opciones para vos.`,
+          title: "¡Receta lista!",
+          description: "¡Preparé una receta para vos!",
         });
       } else if (!instantRecipe) {
         throw new Error('No se pudieron generar recetas');

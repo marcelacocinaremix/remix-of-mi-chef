@@ -31,7 +31,7 @@ interface PremiumContextType {
 const PremiumContext = createContext<PremiumContextType | undefined>(undefined);
 
 const DAILY_LIMIT_FREE = 3;
-const DAILY_LIMIT_PREMIUM = 8;
+const DAILY_LIMIT_PREMIUM = 10;
 const TRIAL_DAYS = 15;
 
 export function PremiumProvider({ children }: { children: ReactNode }) {
