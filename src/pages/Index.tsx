@@ -8,6 +8,7 @@ import { SupermarketListModal } from "@/components/SupermarketListModal";
 import { UserMenu } from "@/components/UserMenu";
 import { MarcelaAssistant } from "@/components/MarcelaAssistant";
 import { FloatingTimer } from "@/components/FloatingTimer";
+import { FloatingTimerButton } from "@/components/FloatingTimerButton";
 import { Footer } from "@/components/Footer";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import MySummary from "@/components/MySummary";
@@ -839,6 +840,9 @@ export default function Index() {
           activeTab={activeTab} 
           onNavigateToTimer={() => setActiveTab("cocinar")} 
         />
+
+        {/* Floating Timer Button - always visible above Marcela orb */}
+        <FloatingTimerButton />
 
         {/* Floating Login Message */}
         {showLoginFloatingMessage && (
