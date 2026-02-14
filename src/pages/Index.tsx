@@ -580,7 +580,7 @@ export default function Index() {
               <span className="hidden sm:inline text-xs">YouTube</span>
             </button>
             <button
-              onClick={() => window.open("https://www.instagram.com/marcelacocina_ok/", "_blank")}
+              onClick={() => window.open("https://instagram.com/marcelacocina_ok", "_blank", "noopener,noreferrer")}
               className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors text-sm cursor-pointer"
             >
               <Instagram className="h-4 w-4" />
