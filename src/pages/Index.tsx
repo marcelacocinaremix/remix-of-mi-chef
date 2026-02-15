@@ -253,17 +253,19 @@ export default function Index() {
       }
 
       if (cachedData?.recipes && cachedData.recipes.length > 0 && cachedData.source === 'cache') {
-        // Show instant recipe while AI generates
-        setInstantRecipe(cachedData.recipes[0]);
+        // Cache hit — show recipe immediately and stop (no AI call, no daily use consumed)
         setRecipes(cachedData.recipes);
+        addCookedRecipe(cachedData.recipes[0]);
         toast({
-          title: "¡Receta instantánea!",
-          description: "Te muestro una receta mientras Marcela prepara más opciones...",
+          title: "¡Receta lista!",
+          description: "¡Encontré una receta perfecta para vos!",
         });
+        setIsLoading(false);
+        refetchPremium();
+        return;
       }
     } catch (cacheError: any) {
       console.log('Cache lookup failed:', cacheError);
-      // Check if it's a 429 error in the catch block
       const errorStr = JSON.stringify(cacheError || {}).toLowerCase();
       const errorMessage = cacheError?.message?.toLowerCase() || '';
       const is429 = errorStr.includes('429') || errorStr.includes('límite') || 
