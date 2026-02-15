@@ -28,7 +28,7 @@ export function RecentRecipesHistory({ onSelectRecipe }: RecentRecipesHistoryPro
   }
 
   return (
-    <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+    <Card className="border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden">
       <CardContent className="p-0">
         {/* Header - Always visible */}
         <button
@@ -74,7 +74,7 @@ export function RecentRecipesHistory({ onSelectRecipe }: RecentRecipesHistoryPro
                       key={item.id}
                       onClick={() => onSelectRecipe(recipe)}
                       className={cn(
-                        "w-full text-left p-3 rounded-xl transition-all duration-200",
+                        "w-full text-left p-3 rounded-xl transition-all duration-200 overflow-hidden",
                         "bg-background hover:bg-accent/50 border border-transparent hover:border-primary/20",
                         "hover:shadow-md hover:scale-[1.01]"
                       )}
