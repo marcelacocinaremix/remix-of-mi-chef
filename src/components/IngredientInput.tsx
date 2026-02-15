@@ -190,16 +190,18 @@ export function IngredientInput({ ingredients, onIngredientsChange }: Ingredient
             ))}
           </div>
           {ingredients.length > 1 && (
-            <button
-              onClick={() => onIngredientsChange([])}
-              className={cn(
-                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium",
-                "text-destructive hover:bg-destructive/10 transition-all duration-200"
-              )}
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              Borrar todo
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => onIngredientsChange([])}
+                className={cn(
+                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium",
+                  "text-destructive hover:bg-destructive/10 transition-all duration-200"
+                )}
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Borrar ingredientes
+              </button>
+            </div>
           )}
         </div>
       )}
