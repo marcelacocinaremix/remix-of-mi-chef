@@ -9,12 +9,13 @@ const corsHeaders = {
 const DAILY_LIMIT_FREE = 3;
 const DAILY_LIMIT_PREMIUM = 10;
 
-// Check daily usage limit for users
+// Check daily usage limit for users (READ ONLY - does NOT increment)
 async function checkUserLimits(req: Request): Promise<{ 
   allowed: boolean; 
   userId: string | null; 
   usesToday: number; 
   remaining: number;
+  isPremium: boolean;
   message?: string;
 }> {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -24,7 +25,7 @@ async function checkUserLimits(req: Request): Promise<{
   const authHeader = req.headers.get('Authorization');
   
   if (!authHeader) {
-    return { allowed: true, userId: null, usesToday: 0, remaining: DAILY_LIMIT_FREE };
+    return { allowed: true, userId: null, usesToday: 0, remaining: DAILY_LIMIT_FREE, isPremium: false };
   }
 
   const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
@@ -34,7 +35,7 @@ async function checkUserLimits(req: Request): Promise<{
   const { data: { user } } = await supabaseClient.auth.getUser();
   
   if (!user) {
-    return { allowed: true, userId: null, usesToday: 0, remaining: DAILY_LIMIT_FREE };
+    return { allowed: true, userId: null, usesToday: 0, remaining: DAILY_LIMIT_FREE, isPremium: false };
   }
 
   const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
@@ -42,29 +43,56 @@ async function checkUserLimits(req: Request): Promise<{
   // Check if user is premium to set proper limit
   const { data: subData } = await supabaseAdmin
     .from('user_subscriptions')
-    .select('is_premium')
+    .select('is_premium, daily_uses, last_use_date')
     .eq('user_id', user.id)
     .maybeSingle();
 
-  const userLimit = subData?.is_premium ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
+  const isPremium = subData?.is_premium || false;
+  const userLimit = isPremium ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
   
-  const { data, error } = await supabaseAdmin.rpc('check_and_increment_daily_uses', {
-    p_user_id: user.id,
-    p_daily_limit: userLimit
-  });
-
-  if (error) {
-    console.error('Error checking daily limit:', error);
-    return { allowed: true, userId: user.id, usesToday: 0, remaining: userLimit };
+  // Calculate current uses (reset if new day)
+  const today = new Date().toISOString().split('T')[0];
+  const lastUseDate = subData?.last_use_date;
+  const currentUses = (!lastUseDate || lastUseDate < today) ? 0 : (subData?.daily_uses || 0);
+  
+  if (currentUses >= userLimit) {
+    return {
+      allowed: false,
+      userId: user.id,
+      usesToday: currentUses,
+      remaining: 0,
+      isPremium,
+      message: '¡Se acabaron tus recetas de hoy! Volvé mañana para seguir cocinando 🍳'
+    };
   }
 
   return {
-    allowed: data.allowed,
+    allowed: true,
     userId: user.id,
-    usesToday: data.uses_today,
-    remaining: data.remaining,
-    message: data.message
+    usesToday: currentUses,
+    remaining: userLimit - currentUses,
+    isPremium
   };
+}
+
+// Consume one daily credit AFTER a successful recipe generation
+async function consumeDailyCredit(userId: string, isPremium: boolean): Promise<void> {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+  
+  const userLimit = isPremium ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
+  
+  const { data, error } = await supabaseAdmin.rpc('check_and_increment_daily_uses', {
+    p_user_id: userId,
+    p_daily_limit: userLimit
+  });
+  
+  if (error) {
+    console.error('Error consuming daily credit:', error);
+  } else {
+    console.log(`💰 Credit consumed. Uses today: ${data?.uses_today}, remaining: ${data?.remaining}`);
+  }
 }
 
 // ============================================================
@@ -827,25 +855,22 @@ serve(async (req) => {
     
     console.log('Request:', { ingredients, time, mealType, language, surpriseMode, useCacheOnly, hybridMode });
 
-    // STEP 1: Check daily limit ALWAYS (but NOT for cache-only lookups)
-    // Cache-only requests are just lookups, the credit is consumed on the actual generation call
-    if (!useCacheOnly) {
-      const limitCheck = await checkUserLimits(req);
-      
-      if (!limitCheck.allowed) {
-        return new Response(JSON.stringify({
-          error: limitCheck.message || '¡Llegaste al límite de recetas por hoy! Volvé mañana 🍳',
-          dailyLimitReached: true,
-          usesToday: limitCheck.usesToday,
-          remaining: limitCheck.remaining
-        }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      
-      console.log(`User ${limitCheck.userId} usage: ${limitCheck.usesToday}/${limitCheck.remaining + limitCheck.usesToday}`);
+    // STEP 1: Check daily limit (READ ONLY - no credit consumed yet)
+    const limitCheck = await checkUserLimits(req);
+    
+    if (!useCacheOnly && !limitCheck.allowed) {
+      return new Response(JSON.stringify({
+        error: limitCheck.message || '¡Llegaste al límite de recetas por hoy! Volvé mañana 🍳',
+        dailyLimitReached: true,
+        usesToday: limitCheck.usesToday,
+        remaining: limitCheck.remaining
+      }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
+    
+    console.log(`User ${limitCheck.userId} usage: ${limitCheck.usesToday}/${limitCheck.remaining + limitCheck.usesToday}`);
 
     // STEP 2: Try cache first (95% match)
     if (ingredients && ingredients.length > 0 && !surpriseMode) {
@@ -863,22 +888,11 @@ serve(async (req) => {
       if (cacheResult.recipes.length > 0) {
         const validCached = cacheResult.recipes.filter((r: any) => validateRecipeIngredients(r, ingredients, [...(quickFilters || []), ...(diet || [])], excludeIngredients || []));
         if (validCached.length > 0) {
-          // Consume 1 daily credit for cache hits too (if this is a cache-only lookup that will return)
-          if (useCacheOnly) {
-            const limitCheck = await checkUserLimits(req);
-            if (!limitCheck.allowed) {
-              return new Response(JSON.stringify({
-                error: limitCheck.message || '¡Llegaste al límite de recetas por hoy! Volvé mañana 🍳',
-                dailyLimitReached: true,
-                usesToday: limitCheck.usesToday,
-                remaining: limitCheck.remaining
-              }), {
-                status: 429,
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-              });
-            }
+          // Consume credit ONLY now that we have a valid recipe
+          if (limitCheck.userId) {
+            await consumeDailyCredit(limitCheck.userId, limitCheck.isPremium);
           }
-          console.log(`✅ Serving ${validCached.length} validated cached recipes (score: ${cacheResult.matchScore.toFixed(2)}) — 1 daily use consumed`);
+          console.log(`✅ Serving ${validCached.length} validated cached recipes (score: ${cacheResult.matchScore.toFixed(2)})`);
           return new Response(JSON.stringify({ 
             recipes: validCached.slice(0, 1),
             source: 'cache',
@@ -1215,6 +1229,11 @@ Generá EXACTAMENTE 1 receta que use TODOS estos ingredientes. Respondé SOLO co
     if (result.recipes && result.recipes.length > 0 && !surpriseMode) {
       cacheRecipes(result.recipes, ingredients, time || 30, mealType, language || 'es')
         .catch(err => console.error('Error caching recipes:', err));
+    }
+
+    // STEP 5: Consume credit ONLY on successful recipe generation
+    if (result.recipes && result.recipes.length > 0 && limitCheck.userId) {
+      await consumeDailyCredit(limitCheck.userId, limitCheck.isPremium);
     }
 
     return new Response(JSON.stringify({ 
