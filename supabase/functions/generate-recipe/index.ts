@@ -276,7 +276,7 @@ async function searchCachedRecipes(
   const matched = scoredRecipes
     .filter(r => r.matchScore >= minMatchScore && r.recipeCoverage >= 0.5)
     .sort((a, b) => b.matchScore - a.matchScore)
-    .slice(0, 2);
+    .slice(0, 1);
   
   if (matched.length > 0) {
     console.log(`Cache HIT: ${matched.length} recipes`, 
@@ -606,7 +606,7 @@ function getEmergencyRecipes(ingredients: string[], time: number, language: stri
     });
   }
 
-  return recipes.slice(0, 2);
+  return recipes.slice(0, 1);
 }
 
 // ============================================================
@@ -629,11 +629,11 @@ function validateRecipeIngredients(recipe: any, userIngredients: string[]): bool
     if (found) matchCount++;
   }
   
-  // At least 50% of user ingredients must be present in the recipe
+  // At least 60% of user ingredients must be present in the recipe
   const matchRatio = matchCount / userCanonicals.length;
   console.log(`Validation "${recipe.name}": ${matchCount}/${userCanonicals.length} ingredients match (${(matchRatio * 100).toFixed(0)}%)`);
   
-  return matchRatio >= 0.5;
+  return matchRatio >= 0.6;
 }
 
 // ============================================================
@@ -654,13 +654,18 @@ Tu objetivo es ayudar a personas reales a cocinar bien, sin estrés y con lo que
 INSTRUCCIONES ESTRICTAS:
 1. PRIMERO: Verificá que los ingredientes sean alimentos reales. Si el usuario ingresa cosas que NO son comestibles, respondé con:
    {"recipes": [], "error": "no_food_ingredients"}
-2. Sugerí EXACTAMENTE 2 recetas diferentes (solo si hay ingredientes válidos).
-3. Cada receta debe poder realizarse dentro del tiempo indicado.
-4. **REGLA CRÍTICA**: Cada receta DEBE usar como ingredientes principales los ingredientes que el usuario proporcionó. NO inventes recetas con otros ingredientes principales que el usuario NO mencionó. Se permiten SOLO ingredientes complementarios básicos: sal, aceite, pimienta, agua, condimentos comunes.
-5. Si el usuario dice 'pollo y arroz', las recetas DEBEN contener pollo Y arroz como ingredientes principales. NUNCA sugieras una receta de carne si el usuario dijo pollo.
+2. Sugerí EXACTAMENTE 1 sola receta (solo si hay ingredientes válidos). UNA SOLA, no dos ni más.
+3. La receta DEBE poder realizarse dentro del tiempo máximo indicado por el usuario.
+4. **REGLA CRÍTICA DE INGREDIENTES**: 
+   - La receta DEBE usar TODOS los ingredientes que el usuario proporcionó como ingredientes principales.
+   - Si el usuario dice 'pollo y arroz', la receta DEBE contener pollo Y arroz. NUNCA sugieras carne si dijo pollo, NUNCA sugieras pasta si dijo arroz.
+   - NO sustituyas ni cambies las proteínas o ingredientes principales por otros.
+   - Se permiten SOLO ingredientes complementarios básicos: sal, aceite, pimienta, agua, condimentos comunes, ajo, cebolla.
+   - Si el usuario pone 3 ingredientes, los 3 deben aparecer en la receta.
+5. **REGLA DE FILTROS**: Si el usuario indica filtros dietéticos (vegetariano, sin gluten, etc.), la receta DEBE cumplirlos sin excepción.
 6. Priorizá recetas caseras, económicas, simples y realistas.
 7. Evitá recetas gourmet o complejas.
-8. Incluí información nutricional estimada por porción para cada receta.
+8. Incluí información nutricional estimada por porción.
 9. MUY IMPORTANTE: En los textos NO uses comillas dobles. Si necesitas enfatizar algo, usa comillas simples.
 
 FORMATO DE RESPUESTA (JSON válido estricto):
@@ -687,7 +692,7 @@ FORMATO DE RESPUESTA (JSON válido estricto):
   ]
 }
 
-IMPORTANTE: Respondé ÚNICAMENTE con el JSON válido, sin texto adicional, sin markdown, sin comillas dobles dentro de los strings.`;
+IMPORTANTE: Respondé ÚNICAMENTE con el JSON válido, sin texto adicional, sin markdown, sin comillas dobles dentro de los strings. SOLO 1 RECETA en el array.`;
 };
 
 serve(async (req) => {
@@ -802,7 +807,7 @@ Generá UNA SOLA receta sorpresa con estas características:
       userPrompt += `\n\nSorprendé con algo creativo pero realizable!`;
     } else {
       userPrompt = `Ingredientes disponibles: ${ingredients?.join(', ') || 'ninguno especificado'}\n`;
-      userPrompt += `RECORDÁ: Las recetas DEBEN usar estos ingredientes como base principal. NO sugieras recetas con proteínas o ingredientes principales diferentes.\n`;
+      userPrompt += `REGLA OBLIGATORIA: Generá EXACTAMENTE 1 SOLA receta. La receta DEBE usar TODOS estos ingredientes como base principal: ${ingredients?.join(', ')}. NO sustituyas ninguno por otro. NO inventes recetas con ingredientes que el usuario NO mencionó.\n`;
       userPrompt += `Tiempo máximo para cocinar: ${time} minutos\n`;
 
       if (mealType) {
