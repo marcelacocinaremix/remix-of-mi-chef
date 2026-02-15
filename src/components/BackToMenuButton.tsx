@@ -1,16 +1,22 @@
 import { ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { RefObject } from "react";
 
 interface BackToMenuButtonProps {
   className?: string;
+  scrollContainerRef?: RefObject<HTMLDivElement>;
 }
 
-export function BackToMenuButton({ className }: BackToMenuButtonProps) {
+export function BackToMenuButton({ className, scrollContainerRef }: BackToMenuButtonProps) {
   const { t } = useLanguage();
 
   const scrollToMenu = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (scrollContainerRef?.current) {
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   return (

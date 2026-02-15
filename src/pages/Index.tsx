@@ -714,7 +714,7 @@ export default function Index() {
                 <MySummary
                   onOpenRecipe={handleSelectRecipe}
                 />
-                <BackToMenuButton />
+                <BackToMenuButton scrollContainerRef={scrollContainerRef} />
               </TabsContent>
 
               {/* Tab: Cocinar (con Timer) */}
@@ -740,7 +740,7 @@ export default function Index() {
                   pendingSuggestion={pendingSuggestion}
                   onClearSuggestion={() => setPendingSuggestion(null)}
                 />
-                <BackToMenuButton />
+                <BackToMenuButton scrollContainerRef={scrollContainerRef} />
               </TabsContent>
 
               {/* Tab: Jugar */}
@@ -754,7 +754,7 @@ export default function Index() {
                     });
                   }} />
                 </div>
-                <BackToMenuButton />
+                <BackToMenuButton scrollContainerRef={scrollContainerRef} />
               </TabsContent>
 
               {/* Tab: Aprender */}
@@ -764,7 +764,7 @@ export default function Index() {
                   onNavigateToGame={() => setActiveTab("jugar")}
                   onSubTabChange={setActiveSubTab}
                 />
-                <BackToMenuButton />
+                <BackToMenuButton scrollContainerRef={scrollContainerRef} />
               </TabsContent>
 
               {/* Tab: Planificar (Calendario + Despensa + Super) */}
@@ -777,7 +777,7 @@ export default function Index() {
                   onSubTabChange={setActiveSubTab}
                   onNavigateToCooking={() => setActiveTab("cocinar")}
                 />
-                <BackToMenuButton />
+                <BackToMenuButton scrollContainerRef={scrollContainerRef} />
               </TabsContent>
 
               {/* Tab: Mi Cocina (Favoritos + Historial + Logros + Escaneo) */}
@@ -796,13 +796,13 @@ export default function Index() {
                   }}
                   onSubTabChange={setActiveSubTab}
                 />
-                <BackToMenuButton />
+                <BackToMenuButton scrollContainerRef={scrollContainerRef} />
               </TabsContent>
 
               {/* Tab: Marcela (YouTube + Canal) */}
               <TabsContent value="marcela" className="space-y-6 animate-fade-in">
                 <MarcelaSection />
-                <BackToMenuButton />
+                <BackToMenuButton scrollContainerRef={scrollContainerRef} />
               </TabsContent>
 
               {/* Tab: Salud */}
@@ -834,7 +834,7 @@ export default function Index() {
                     onSubTabChange={setActiveSubTab}
                   />
                 </div>
-                <BackToMenuButton />
+                <BackToMenuButton scrollContainerRef={scrollContainerRef} />
               </TabsContent>
             </Tabs>
 
