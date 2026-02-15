@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
 import { ChefHat, Flame } from "lucide-react";
@@ -6,8 +7,15 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 export function DailyUsageIndicator() {
   const { user } = useAuth();
-  const { dailyUsage, isPremium } = usePremium();
+  const { dailyUsage, isPremium, refetch } = usePremium();
   const { t } = useLanguage();
+
+  // Refetch usage every time the component mounts (e.g. user returns to section)
+  useEffect(() => {
+    if (user) {
+      refetch();
+    }
+  }, [user, refetch]);
 
   if (!user || !dailyUsage) return null;
 
