@@ -147,7 +147,7 @@ export default function Index() {
     if (code === 'FREE_LIMIT_EXCEEDED' || code === 'PAYWALL_REQUIRED' || status === 402 || status === 403) {
       toast({
         title: 'Límite diario alcanzado',
-        description: '¡Volvé mañana para más recetas! (3 por día)',
+        description: `¡Volvé mañana para más recetas! (${isPremium ? 10 : 3} por día)`,
         variant: 'destructive',
       });
       return true;
@@ -159,7 +159,7 @@ export default function Index() {
       if (isDailyLimit) {
         toast({
           title: '🍳 ¡Se acabaron tus recetas de hoy!',
-          description: 'Ya usaste tus 3 recetas del día. ¡Volvé mañana para seguir cocinando!',
+          description: `Ya usaste tus ${isPremium ? 10 : 3} recetas del día. ¡Volvé mañana para seguir cocinando!`,
           variant: 'destructive',
         });
         refetchPremium();
@@ -232,7 +232,7 @@ export default function Index() {
           mealType,
           quickFilters,
           language: language,
-          hybridMode: true
+          useCacheOnly: true
         }
       });
 
@@ -244,7 +244,7 @@ export default function Index() {
         if (is429) {
           toast({
             title: "🍳 ¡Se acabaron tus recetas de hoy!",
-            description: "Ya usaste tus 3 recetas del día. ¡Volvé mañana para seguir cocinando!",
+            description: `Ya usaste tus ${isPremium ? 10 : 3} recetas del día. ¡Volvé mañana para seguir cocinando!`,
             variant: "destructive",
           });
           setIsLoading(false);
@@ -272,8 +272,8 @@ export default function Index() {
       if (is429) {
         toast({
             title: "🍳 ¡Se acabaron tus recetas de hoy!",
-            description: "Ya usaste tus 3 recetas del día. ¡Volvé mañana para seguir cocinando!",
-          variant: "destructive",
+            description: `Ya usaste tus ${isPremium ? 10 : 3} recetas del día. ¡Volvé mañana para seguir cocinando!`,
+            variant: "destructive",
         });
         setIsLoading(false);
         return;
@@ -313,7 +313,7 @@ export default function Index() {
         if (is429) {
           toast({
             title: "🍳 ¡Se acabaron tus recetas de hoy!",
-            description: "Ya usaste tus 3 recetas del día. ¡Volvé mañana para seguir cocinando!",
+            description: `Ya usaste tus ${isPremium ? 10 : 3} recetas del día. ¡Volvé mañana para seguir cocinando!`,
             variant: "destructive",
           });
           setIsLoading(false);
@@ -325,10 +325,10 @@ export default function Index() {
 
       // Check for daily limit in response
       if (data?.dailyLimitReached) {
-        toast({
+          toast({
             title: "🍳 ¡Se acabaron tus recetas de hoy!",
-            description: "Ya usaste tus 3 recetas del día. ¡Volvé mañana para seguir cocinando!",
-          variant: "destructive",
+            description: `Ya usaste tus ${isPremium ? 10 : 3} recetas del día. ¡Volvé mañana para seguir cocinando!`,
+            variant: "destructive",
         });
         setIsLoading(false);
         setIsGeneratingAI(false);
@@ -428,6 +428,7 @@ export default function Index() {
     } finally {
       setIsLoading(false);
       setIsGeneratingAI(false);
+      refetchPremium();
     }
   };
 
