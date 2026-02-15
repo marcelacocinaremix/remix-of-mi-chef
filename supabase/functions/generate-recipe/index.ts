@@ -789,22 +789,25 @@ serve(async (req) => {
     
     console.log('Request:', { ingredients, time, mealType, language, surpriseMode, useCacheOnly, hybridMode });
 
-    // STEP 1: Check daily limit ALWAYS (cache or AI, every generation costs 1)
-    const limitCheck = await checkUserLimits(req);
-    
-    if (!limitCheck.allowed) {
-      return new Response(JSON.stringify({
-        error: limitCheck.message || '¡Llegaste al límite de recetas por hoy! Volvé mañana 🍳',
-        dailyLimitReached: true,
-        usesToday: limitCheck.usesToday,
-        remaining: limitCheck.remaining
-      }), {
-        status: 429,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    // STEP 1: Check daily limit ALWAYS (but NOT for cache-only lookups)
+    // Cache-only requests are just lookups, the credit is consumed on the actual generation call
+    if (!useCacheOnly) {
+      const limitCheck = await checkUserLimits(req);
+      
+      if (!limitCheck.allowed) {
+        return new Response(JSON.stringify({
+          error: limitCheck.message || '¡Llegaste al límite de recetas por hoy! Volvé mañana 🍳',
+          dailyLimitReached: true,
+          usesToday: limitCheck.usesToday,
+          remaining: limitCheck.remaining
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      console.log(`User ${limitCheck.userId} usage: ${limitCheck.usesToday}/${limitCheck.remaining + limitCheck.usesToday}`);
     }
-    
-    console.log(`User ${limitCheck.userId} usage: ${limitCheck.usesToday}/${limitCheck.remaining + limitCheck.usesToday}`);
 
     // STEP 2: Try cache first (95% match)
     if (ingredients && ingredients.length > 0 && !surpriseMode) {
@@ -821,6 +824,21 @@ serve(async (req) => {
       if (cacheResult.recipes.length > 0) {
         const validCached = cacheResult.recipes.filter((r: any) => validateRecipeIngredients(r, ingredients, [...(quickFilters || []), ...(diet || [])]));
         if (validCached.length > 0) {
+          // Consume 1 daily credit for cache hits too (if this is a cache-only lookup that will return)
+          if (useCacheOnly) {
+            const limitCheck = await checkUserLimits(req);
+            if (!limitCheck.allowed) {
+              return new Response(JSON.stringify({
+                error: limitCheck.message || '¡Llegaste al límite de recetas por hoy! Volvé mañana 🍳',
+                dailyLimitReached: true,
+                usesToday: limitCheck.usesToday,
+                remaining: limitCheck.remaining
+              }), {
+                status: 429,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              });
+            }
+          }
           console.log(`✅ Serving ${validCached.length} validated cached recipes (score: ${cacheResult.matchScore.toFixed(2)}) — 1 daily use consumed`);
           return new Response(JSON.stringify({ 
             recipes: validCached.slice(0, 1),
