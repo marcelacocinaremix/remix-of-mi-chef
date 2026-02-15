@@ -363,8 +363,8 @@ export default function Index() {
         return;
       }
       
-       // Handle fallback recipes (from cache or emergency)
-       if (data?.recipes && data.recipes.length > 0 && (data.source === 'cache' || data.source === 'emergency')) {
+       // Handle fallback recipes from cache (no more emergency recipes)
+       if (data?.recipes && data.recipes.length > 0 && data.source === 'cache') {
          setRecipes(data.recipes);
          setInstantRecipe(data.recipes[0]);
          
@@ -374,10 +374,20 @@ export default function Index() {
          }
          
          toast({
-           title: data.source === 'emergency' ? "🍳 Recetas de emergencia" : "Usando recetas guardadas",
-           description: data.source === 'emergency' 
-             ? "La IA está ocupada, pero te preparé opciones clásicas."
-             : "La IA está con mucha demanda, pero te dejo opciones instantáneas.",
+           title: "Usando recetas guardadas",
+           description: "La IA está con mucha demanda, pero te dejo opciones instantáneas.",
+         });
+         setIsLoading(false);
+         setIsGeneratingAI(false);
+         return;
+       }
+
+       // Handle errors (no_matching_recipe, ai_unavailable, etc.)
+       if (data?.error && (!data?.recipes || data.recipes.length === 0)) {
+         toast({
+           title: "No se pudo generar la receta",
+           description: data.message || "Intentá de nuevo en unos segundos.",
+           variant: "destructive",
          });
          setIsLoading(false);
          setIsGeneratingAI(false);

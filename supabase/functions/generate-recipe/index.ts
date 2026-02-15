@@ -1084,12 +1084,11 @@ Generá UNA SOLA receta sorpresa con estas características:
         }
       }
 
-      const emergencyRecipes = getEmergencyRecipes(ingredients, time || 30, language || 'es');
+      // Return error instead of emergency recipes
       return new Response(JSON.stringify({
-        recipes: emergencyRecipes,
-        source: 'emergency',
-        isInstant: true,
-        fallbackReason: 'ai_unavailable'
+        recipes: [],
+        error: 'ai_unavailable',
+        message: 'La IA no está disponible en este momento. Intentá de nuevo en unos segundos.'
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -1131,20 +1130,85 @@ Generá UNA SOLA receta sorpresa con estas características:
       console.log(`Post-validation: ${validatedRecipes.length}/${result.recipes.length} recipes passed`);
       
       if (validatedRecipes.length === 0) {
-        // None passed validation - use emergency recipes with actual ingredients
-        console.log('⚠️ AI recipes rejected: none use the provided ingredients');
-        const emergencyRecipes = getEmergencyRecipes(ingredients, time || 30, language || 'es');
-        return new Response(JSON.stringify({
-          recipes: emergencyRecipes.slice(0, 1),
-          source: 'emergency',
-          isInstant: true,
-          fallbackReason: 'ingredient_mismatch'
-        }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+        // RETRY: Try once more with a stronger prompt before giving up
+        console.log('⚠️ AI recipes rejected, retrying with stronger prompt...');
+        
+        const retryPrompt = `ATENCIÓN: Tu respuesta anterior fue RECHAZADA porque NO usaba los ingredientes del usuario.
+INGREDIENTES OBLIGATORIOS QUE DEBEN APARECER EN LA RECETA: ${ingredients.join(', ')}
+Cada uno de estos ingredientes DEBE ser un ingrediente principal de la receta. NO los reemplaces por otros.
+Tiempo máximo: ${time || 30} minutos.
+${mealType ? `Tipo de comida: ${mealType}` : ''}
+Generá EXACTAMENTE 1 receta que use TODOS estos ingredientes. Respondé SOLO con JSON válido.`;
+        
+        let retryResult = null;
+        for (const retryModel of models.slice(0, 3)) {
+          try {
+            console.log(`Retry with model: ${retryModel}`);
+            const retryController = new AbortController();
+            const retryTimeoutId = setTimeout(() => retryController.abort(), 20000);
+            
+            const retryResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: retryModel,
+                messages: [
+                  { role: 'system', content: systemPrompt },
+                  { role: 'user', content: retryPrompt }
+                ],
+              }),
+              signal: retryController.signal,
+            });
+            
+            clearTimeout(retryTimeoutId);
+            
+            if (retryResponse.ok) {
+              const retryData = await retryResponse.json();
+              const retryContent = retryData.choices?.[0]?.message?.content;
+              if (retryContent) {
+                let cleanRetry = retryContent.replace(/```json\n?|\\n?```/g, '').trim();
+                const jsonStart = cleanRetry.indexOf('{');
+                const jsonEnd = cleanRetry.lastIndexOf('}');
+                if (jsonStart !== -1 && jsonEnd !== -1) {
+                  cleanRetry = cleanRetry.substring(jsonStart, jsonEnd + 1);
+                }
+                const retryParsed = JSON.parse(cleanRetry);
+                if (retryParsed.recipes && retryParsed.recipes.length > 0) {
+                  const retryValidated = retryParsed.recipes.filter((recipe: any) => 
+                    validateRecipeIngredients(recipe, ingredients, allUserFilters, excludeIngredients || [])
+                  );
+                  if (retryValidated.length > 0) {
+                    console.log('✅ Retry succeeded!');
+                    retryResult = retryValidated;
+                    break;
+                  }
+                }
+              }
+            }
+          } catch (retryErr) {
+            console.error('Retry error:', retryErr);
+          }
+        }
+        
+        if (retryResult && retryResult.length > 0) {
+          result.recipes = retryResult;
+        } else {
+          // All retries failed - return error, NOT emergency recipes
+          console.log('❌ All retries failed, returning error to user');
+          return new Response(JSON.stringify({
+            recipes: [],
+            error: 'no_matching_recipe',
+            message: 'No pude generar una receta con esos ingredientes. Intentá de nuevo.'
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      } else {
+        result.recipes = validatedRecipes;
       }
-      
-      result.recipes = validatedRecipes;
     }
 
     // STEP 4: Cache validated AI results with normalized ingredients (async)
@@ -1164,31 +1228,12 @@ Generá UNA SOLA receta sorpresa con estas características:
   } catch (error) {
     console.error('Error in generate-recipe:', error);
     
-    try {
-      const emergencyRecipes = getEmergencyRecipes(['huevo', 'cebolla', 'papa'], 30, 'es');
-      return new Response(JSON.stringify({
-        recipes: emergencyRecipes,
-        source: 'emergency',
-        isInstant: true,
-        fallbackReason: 'unexpected_error'
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    } catch (emergencyError) {
-      return new Response(JSON.stringify({
-        recipes: [{
-          name: "Huevos revueltos clásicos",
-          time: 10, difficulty: "muy fácil", servings: 2,
-          ingredients: ["3 huevos", "1 cda de manteca", "Sal y pimienta", "Queso rallado (opcional)"],
-          steps: ["Batí los huevos con sal y pimienta", "Derretí la manteca en sartén a fuego medio-bajo", "Agregá los huevos y revolvé suavemente", "Retirá cuando estén cremosos", "Serví de inmediato"],
-          tip: "El secreto es sacarlos antes de que estén totalmente cocidos",
-          nutrition: { calories: 220, protein: 14, carbs: 2, fat: 16, fiber: 0 },
-          tags: ["rápido", "clásico", "proteico"]
-        }],
-        source: 'emergency', isInstant: true, fallbackReason: 'critical_error'
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    return new Response(JSON.stringify({
+      recipes: [],
+      error: 'unexpected_error',
+      message: 'Ocurrió un error inesperado. Intentá de nuevo.'
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
