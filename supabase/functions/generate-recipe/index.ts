@@ -6,8 +6,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const DAILY_LIMIT_FREE = 3;
-const DAILY_LIMIT_PREMIUM = 8;
+const DAILY_LIMIT_FREE = 5;
+const DAILY_LIMIT_PREMIUM = 30;
 
 // Check daily usage limit for users
 async function checkUserLimits(req: Request): Promise<{ 
@@ -743,26 +743,7 @@ serve(async (req) => {
     
     console.log('Request:', { ingredients, time, mealType, language, surpriseMode, useCacheOnly, hybridMode });
 
-    // Check daily limit BEFORE processing (except for cache-only requests)
-    if (!useCacheOnly) {
-      const limitCheck = await checkUserLimits(req);
-      
-      if (!limitCheck.allowed) {
-        return new Response(JSON.stringify({
-          error: limitCheck.message || '¡Llegaste al límite de recetas por hoy! Volvé mañana 🍳',
-          dailyLimitReached: true,
-          usesToday: limitCheck.usesToday,
-          remaining: limitCheck.remaining
-        }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      
-      console.log(`User ${limitCheck.userId} usage: ${limitCheck.usesToday}/${limitCheck.remaining + limitCheck.usesToday}`);
-    }
-    
-    // STEP 1: Always try cache first (≥50% match) for non-surprise requests
+    // STEP 1: Always try cache first (≥50% match) — NO daily limit consumed
     if (ingredients && ingredients.length > 0 && !surpriseMode) {
       const cacheResult = await searchCachedRecipes(
         ingredients, 
@@ -773,7 +754,7 @@ serve(async (req) => {
       );
       
       if (cacheResult.recipes.length > 0) {
-        console.log(`✅ Serving ${cacheResult.recipes.length} cached recipes (score: ${cacheResult.matchScore.toFixed(2)})`);
+        console.log(`✅ Serving ${cacheResult.recipes.length} cached recipes (score: ${cacheResult.matchScore.toFixed(2)}) — NO daily use consumed`);
         return new Response(JSON.stringify({ 
           recipes: cacheResult.recipes,
           source: 'cache',
@@ -796,8 +777,27 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    // STEP 2: Cache miss → check daily limit ONLY before AI call
+    if (!useCacheOnly) {
+      const limitCheck = await checkUserLimits(req);
+      
+      if (!limitCheck.allowed) {
+        return new Response(JSON.stringify({
+          error: limitCheck.message || '¡Llegaste al límite de recetas por hoy! Volvé mañana 🍳',
+          dailyLimitReached: true,
+          usesToday: limitCheck.usesToday,
+          remaining: limitCheck.remaining
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      console.log(`User ${limitCheck.userId} usage: ${limitCheck.usesToday}/${limitCheck.remaining + limitCheck.usesToday}`);
+    }
     
-    // STEP 2: No cache hit → call AI
+    // STEP 3: No cache hit → call AI
     console.log('🤖 Cache miss, calling AI...');
     
     const systemPrompt = getSystemPrompt(language || 'es');
