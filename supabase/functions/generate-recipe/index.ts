@@ -79,15 +79,19 @@ const stopwords = new Set([
   'fresco', 'fresca', 'frescos', 'frescas',
   'grande', 'grandes', 'chico', 'chica', 'chicos', 'chicas',
   'medio', 'media', 'mediano', 'mediana',
-  'cantidad', 'necesaria', 'gusto', 'pizca', 'chorrito',
-  'cucharada', 'cucharadas', 'cucharadita', 'cucharaditas',
+  'cantidad', 'necesaria', 'necesario', 'gusto', 'pizca', 'chorrito', 'aproximadamente', 'aprox',
+  'cucharada', 'cucharadas', 'cucharadita', 'cucharaditas', 'cda', 'cdta',
   'taza', 'tazas', 'vaso', 'vasos',
-  'gramo', 'gramos', 'kilo', 'kilos', 'litro', 'litros', 'ml',
-  'picado', 'picada', 'picados', 'picadas',
+  'gramo', 'gramos', 'kilo', 'kilos', 'litro', 'litros', 'ml', 'cc',
+  'picado', 'picada', 'picados', 'picadas', 'fino', 'fina', 'finos', 'finas',
   'cortado', 'cortada', 'cortados', 'cortadas',
   'rallado', 'rallada', 'rallados', 'ralladas',
   'trozo', 'trozos', 'rodaja', 'rodajas', 'rebanada', 'rebanadas',
   'diente', 'dientes', 'ramita', 'ramitas', 'hoja', 'hojas',
+  'unidad', 'unidades', 'puñado', 'puñados',
+  'opcional', 'necesario', 'suficiente',
+  'cubos', 'tiritas', 'tiras', 'julianas', 'juliana', 'aros', 'fetas', 'feta',
+  'rodajas', 'rebanadas', 'láminas', 'laminas',
 ]);
 
 // Expanded synonym map: canonical → variants
@@ -179,16 +183,11 @@ async function searchCachedRecipes(
   time: number,
   mealType: string | null,
   language: string,
-  minMatchScore: number = 0.7 // 70% threshold
+  minMatchScore: number = 0.5 // 50% threshold - more permissive to maximize cache hits
 ): Promise<{ recipes: any[]; fromCache: boolean; matchScore: number }> {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
-  
-  // Determine time range
-  let timeRange = 'medium';
-  if (time <= 20) timeRange = 'quick';
-  else if (time > 45) timeRange = 'long';
   
   // Normalize all user ingredients to canonical forms
   const userCanonicals = ingredients.map(i => getCanonicalIngredient(i));
@@ -197,29 +196,21 @@ async function searchCachedRecipes(
   console.log('Smart search:', { 
     raw: ingredients, 
     canonicals: userCanonicals,
-    timeRange, 
+    time, 
     mealType,
     threshold: minMatchScore 
   });
   
-  // Build query
+  // Build query - don't filter by time_range (data is inconsistent), filter by time in recipe_data instead
   let query = supabase
     .from('cached_recipes')
     .select('*')
     .eq('language', language)
     .order('usage_count', { ascending: false });
   
-  if (timeRange === 'quick') {
-    query = query.eq('time_range', 'quick');
-  } else if (timeRange === 'medium') {
-    query = query.in('time_range', ['quick', 'medium']);
-  }
+  // Don't filter by meal_type either if it would be too restrictive - check in scoring
   
-  if (mealType) {
-    query = query.eq('meal_type', mealType);
-  }
-  
-  const { data: recipes, error } = await query.limit(80);
+  const { data: recipes, error } = await query.limit(150);
   
   if (error || !recipes || recipes.length === 0) {
     if (error) console.error('Cache search error:', error);
@@ -234,6 +225,12 @@ async function searchCachedRecipes(
     const recipeVariants = (recipe.main_ingredients || []).flatMap((i: string) => 
       getIngredientVariants(i)
     );
+    
+    // Check recipe time fits user's time constraint
+    const recipeTime = (recipe.recipe_data as any)?.time || 30;
+    if (recipeTime > time * 1.2) {
+      return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0 };
+    }
     
     // How many of the USER's ingredients does this recipe use?
     let matchedUserCount = 0;
@@ -258,15 +255,22 @@ async function searchCachedRecipes(
     const userCoverage = userCanonicals.length > 0 ? matchedUserCount / userCanonicals.length : 0;
     const recipeCoverage = recipeKeys.length > 0 ? matchedRecipeCount / recipeKeys.length : 0;
     
-    // Combined: weight recipe coverage more (can the user actually make it?)
-    const combinedScore = (userCoverage * 0.35) + (recipeCoverage * 0.65);
+    // Combined: weight user coverage more (does the recipe use what the user asked for?)
+    const combinedScore = (userCoverage * 0.5) + (recipeCoverage * 0.5);
+    
+    // Meal type bonus
+    let mealBonus = 0;
+    if (mealType && recipe.meal_type) {
+      const recipeMealTypes = (recipe.meal_type || '').split(',').map((m: string) => m.trim());
+      if (recipeMealTypes.includes(mealType)) mealBonus = 0.05;
+    }
     
     // Small popularity bonus
-    const popularityBonus = Math.min((recipe.usage_count || 0) / 200, 0.05);
+    const popularityBonus = Math.min((recipe.usage_count || 0) / 200, 0.03);
     
     return {
       ...recipe,
-      matchScore: combinedScore + popularityBonus,
+      matchScore: combinedScore + mealBonus + popularityBonus,
       recipeCoverage,
       userCoverage
     };
@@ -312,19 +316,34 @@ function extractKeyIngredients(ingredientLines: string[]): string[] {
   const pantryBasics = new Set([
     'sal', 'pimienta', 'aceite', 'agua', 'vinagre', 'azucar',
     'oregano', 'perejil', 'cilantro', 'laurel', 'comino', 'pimenton',
-    'aji molido', 'provenzal', 'nuez moscada',
+    'aji molido', 'provenzal', 'nuez moscada', 'soja',
   ]);
+  
+  // Junk results to skip entirely
+  const junkPatterns = ['gusto', 'necesaria', 'necesario', 'opcional', 'suficiente', 'c/n'];
   
   const keys: string[] = [];
   
   for (const line of ingredientLines) {
     const canonical = getCanonicalIngredient(line);
-    if (canonical.length > 1 && !pantryBasics.has(canonical) && !keys.includes(canonical)) {
-      keys.push(canonical);
-    }
+    
+    // Skip if it's too short, is a pantry basic, or is junk
+    if (canonical.length <= 1) continue;
+    if (pantryBasics.has(canonical)) continue;
+    if (junkPatterns.some(j => canonical.includes(j))) continue;
+    if (keys.includes(canonical)) continue;
+    
+    // Only add if it maps to a known ingredient OR is a meaningful word
+    const isKnown = Object.keys(ingredientSynonyms).includes(canonical) || 
+                    Object.values(ingredientSynonyms).some(variants => variants.some(v => removeAccents(v.toLowerCase()) === canonical));
+    
+    // If not a known synonym, check it's at least 3 chars and not just stopword leftovers
+    if (!isKnown && canonical.length < 3) continue;
+    
+    keys.push(canonical);
   }
   
-  return keys.slice(0, 8); // Max 8 key ingredients
+  return keys.slice(0, 6); // Max 6 key ingredients (fewer = better matching)
 }
 
 // Check if a new recipe is too similar to an existing one
@@ -358,53 +377,55 @@ async function cacheRecipes(
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
   
+  // Use consistent time_range values
   let timeRange = 'medium';
-  if (time <= 20) timeRange = 'quick';
-  else if (time > 45) timeRange = 'long';
+  if (time <= 15) timeRange = 'quick';
+  else if (time <= 30) timeRange = 'medium';
+  else if (time <= 45) timeRange = 'long';
+  else timeRange = 'extra-long';
+  
+  // Use the USER's canonical ingredients as main_ingredients (much more reliable than extracting from recipe text)
+  const userCanonicals = [...new Set(ingredients.map(i => getCanonicalIngredient(i)))];
   
   for (const recipe of recipes) {
-    // Extract normalized key ingredients from the recipe
-    const keyIngredients = extractKeyIngredients(recipe.ingredients || []);
+    // Also extract from recipe for extra coverage, merge with user's
+    const extractedKeys = extractKeyIngredients(recipe.ingredients || []);
+    const mergedKeys = [...new Set([...userCanonicals, ...extractedKeys])].slice(0, 8);
     
-    if (keyIngredients.length === 0) {
-      console.log(`Skipping cache for "${recipe.name}": no key ingredients extracted`);
+    if (mergedKeys.length === 0) {
+      console.log(`Skipping cache for "${recipe.name}": no key ingredients`);
       continue;
     }
     
-    // Check for duplicates: exact name OR similar ingredients
+    // Check for duplicates: exact name only (ingredient dedup was too aggressive)
+    const normalizedName = removeAccents(recipe.name.toLowerCase().trim());
     const { data: existing } = await supabase
       .from('cached_recipes')
-      .select('id, recipe_name, main_ingredients')
+      .select('id, recipe_name')
       .eq('language', language);
     
     let isDuplicate = false;
     if (existing) {
-      const normalizedName = removeAccents(recipe.name.toLowerCase().trim());
       for (const ex of existing) {
-        // Check name similarity
         const exName = removeAccents(ex.recipe_name.toLowerCase().trim());
         if (exName === normalizedName) {
           isDuplicate = true;
-          console.log(`Duplicate by name: "${recipe.name}"`);
-          break;
-        }
-        // Check ingredient similarity
-        if (areSimilarRecipes(ex.main_ingredients || [], keyIngredients)) {
-          isDuplicate = true;
-          console.log(`Duplicate by ingredients: "${recipe.name}" ≈ "${ex.recipe_name}"`);
           break;
         }
       }
     }
     
-    if (isDuplicate) continue;
+    if (isDuplicate) {
+      console.log(`Duplicate by name: "${recipe.name}"`);
+      continue;
+    }
     
     const { error } = await supabase
       .from('cached_recipes')
       .insert({
         recipe_name: recipe.name,
         recipe_data: recipe,
-        main_ingredients: keyIngredients,
+        main_ingredients: mergedKeys,
         time_range: timeRange,
         meal_type: mealType,
         language: language || 'es',
@@ -416,7 +437,7 @@ async function cacheRecipes(
     if (error) {
       console.error(`Error caching "${recipe.name}":`, error);
     } else {
-      console.log(`Cached: "${recipe.name}" keys=[${keyIngredients.join(', ')}]`);
+      console.log(`Cached: "${recipe.name}" keys=[${mergedKeys.join(', ')}]`);
     }
   }
 }
@@ -741,14 +762,14 @@ serve(async (req) => {
       console.log(`User ${limitCheck.userId} usage: ${limitCheck.usesToday}/${limitCheck.remaining + limitCheck.usesToday}`);
     }
     
-    // STEP 1: Always try cache first (≥70% match) for non-surprise requests
+    // STEP 1: Always try cache first (≥50% match) for non-surprise requests
     if (ingredients && ingredients.length > 0 && !surpriseMode) {
       const cacheResult = await searchCachedRecipes(
         ingredients, 
         time || 30, 
         mealType, 
         language || 'es',
-        0.7 // 70% threshold
+        0.5 // 50% threshold
       );
       
       if (cacheResult.recipes.length > 0) {
