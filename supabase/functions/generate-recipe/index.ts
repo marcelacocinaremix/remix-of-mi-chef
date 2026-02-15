@@ -183,7 +183,7 @@ async function searchCachedRecipes(
   time: number,
   mealType: string | null,
   language: string,
-  minMatchScore: number = 0.6, // 60% threshold - stricter to ensure relevance
+  minMatchScore: number = 0.95, // 95% threshold
   quickFilters: string[] = [],
   diet: string[] = []
 ): Promise<{ recipes: any[]; fromCache: boolean; matchScore: number }> {
@@ -696,11 +696,11 @@ function validateRecipeIngredients(recipe: any, userIngredients: string[], filte
     if (found) matchCount++;
   }
   
-  // At least 70% of user ingredients must be present in the recipe
+  // At least 95% of user ingredients must be present in the recipe
   const matchRatio = matchCount / userCanonicals.length;
   console.log(`Validation "${recipe.name}": ${matchCount}/${userCanonicals.length} ingredients match (${(matchRatio * 100).toFixed(0)}%)`);
   
-  return matchRatio >= 0.7;
+  return matchRatio >= 0.95;
 }
 
 // ============================================================
@@ -796,7 +796,7 @@ serve(async (req) => {
         time || 30, 
         mealType, 
         language || 'es',
-        0.6, // 60% threshold - stricter
+        0.95, // 95% threshold
         quickFilters || [],
         diet || []
       );
@@ -1016,7 +1016,7 @@ Generá UNA SOLA receta sorpresa con estas características:
 
       // Fallback to cache with very low threshold
       if (!surpriseMode && ingredients && ingredients.length > 0) {
-        const cacheResult = await searchCachedRecipes(ingredients, time || 30, mealType, language || 'es', 0.3, quickFilters || [], diet || []);
+        const cacheResult = await searchCachedRecipes(ingredients, time || 30, mealType, language || 'es', 0.7, quickFilters || [], diet || []);
         if (cacheResult.recipes.length > 0) {
           return new Response(JSON.stringify({
             recipes: cacheResult.recipes,
