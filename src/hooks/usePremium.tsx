@@ -163,28 +163,33 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
 
     try {
       setIsLoading(true);
-      const { data, error } = await supabase.rpc('check_and_increment_daily_uses', {
-        p_user_id: user.id,
-        p_daily_limit: effectiveLimit
-      });
+      // READ-ONLY check: just read current usage without incrementing
+      // The edge function is the ONLY place that increments daily_uses
+      const { data: subData, error } = await supabase
+        .from('user_subscriptions')
+        .select('daily_uses, last_use_date')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
       if (error) {
         console.error('Error checking daily usage:', error);
         return { allowed: false, message: 'Error al verificar el uso diario' };
       }
 
-      if (data && typeof data === 'object' && !Array.isArray(data)) {
-        const result = data as { allowed: boolean; uses_today: number; remaining: number; message?: string };
+      const today = new Date().toISOString().split('T')[0];
+      const usesToday = (subData?.last_use_date === today) ? (subData?.daily_uses || 0) : 0;
+      const remaining = effectiveLimit - usesToday;
 
-        setDailyUsage({
-          usesToday: result.uses_today,
-          remaining: result.remaining,
-          limit: effectiveLimit
-        });
+      setDailyUsage({
+        usesToday,
+        remaining,
+        limit: effectiveLimit
+      });
 
+      if (usesToday >= effectiveLimit) {
         return {
-          allowed: result.allowed,
-          message: result.message
+          allowed: false,
+          message: `¡Se acabaron tus recetas de hoy! Volvé mañana para seguir cocinando 🍳`
         };
       }
 
