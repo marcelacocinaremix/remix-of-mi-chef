@@ -1,5 +1,5 @@
 import { useState, KeyboardEvent, useEffect } from "react";
-import { X, Plus, Package, Check } from "lucide-react";
+import { X, Plus, Package, Check, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -167,26 +167,40 @@ export function IngredientInput({ ingredients, onIngredientsChange }: Ingredient
       </div>
 
       {ingredients.length > 0 && (
-        <div className="flex flex-wrap gap-2 animate-fade-in">
-          {ingredients.map((ingredient) => (
-            <span
-              key={ingredient}
+        <div className="space-y-2 animate-fade-in">
+          <div className="flex flex-wrap gap-2">
+            {ingredients.map((ingredient) => (
+              <span
+                key={ingredient}
+                className={cn(
+                  "inline-flex items-center gap-2 px-4 py-2 rounded-full",
+                  "bg-secondary text-secondary-foreground",
+                  "text-sm font-medium capitalize",
+                  "transition-all duration-200 hover:bg-secondary/80"
+                )}
+              >
+                {ingredient}
+                <button
+                  onClick={() => removeIngredient(ingredient)}
+                  className="hover:text-destructive transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </span>
+            ))}
+          </div>
+          {ingredients.length > 1 && (
+            <button
+              onClick={() => onIngredientsChange([])}
               className={cn(
-                "inline-flex items-center gap-2 px-4 py-2 rounded-full",
-                "bg-secondary text-secondary-foreground",
-                "text-sm font-medium capitalize",
-                "transition-all duration-200 hover:bg-secondary/80"
+                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium",
+                "text-destructive hover:bg-destructive/10 transition-all duration-200"
               )}
             >
-              {ingredient}
-              <button
-                onClick={() => removeIngredient(ingredient)}
-                className="hover:text-destructive transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </span>
-          ))}
+              <Trash2 className="w-3.5 h-3.5" />
+              Borrar todo
+            </button>
+          )}
         </div>
       )}
 
