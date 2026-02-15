@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Clock, ChefHat, Users, Heart, ChevronDown, ChevronUp, Flame, Dumbbell, Wheat } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -34,8 +34,25 @@ export function RecipeList({ recipes, onSelectRecipe }: RecipeListProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [favoriteNames, setFavoriteNames] = useState<Set<string>>(new Set());
 
-  const handleSaveRecipe = async (recipe: Recipe, e: React.MouseEvent) => {
+  // Load which recipes are already favorites
+  useEffect(() => {
+    if (!user || recipes.length === 0) return;
+    const names = recipes.map(r => r.name);
+    supabase
+      .from("favorite_recipes")
+      .select("recipe_name")
+      .eq("user_id", user.id)
+      .in("recipe_name", names)
+      .then(({ data }) => {
+        if (data) {
+          setFavoriteNames(new Set(data.map(d => d.recipe_name)));
+        }
+      });
+  }, [user, recipes]);
+
+  const handleToggleFavorite = async (recipe: Recipe, e: React.MouseEvent) => {
     e.stopPropagation();
     
     if (!user) {
@@ -48,23 +65,44 @@ export function RecipeList({ recipes, onSelectRecipe }: RecipeListProps) {
     }
 
     setSavingId(recipe.name);
+    const isFav = favoriteNames.has(recipe.name);
+
     try {
-      const { error } = await supabase.from("favorite_recipes").insert([{
-        user_id: user.id,
-        recipe_name: recipe.name,
-        recipe_data: JSON.parse(JSON.stringify(recipe)),
-      }]);
-
-      if (error) throw error;
-
-      toast({
-        title: "¡Receta guardada!",
-        description: `${recipe.name} se agregó a tus favoritas.`,
-      });
+      if (isFav) {
+        // Remove from favorites
+        const { error } = await supabase
+          .from("favorite_recipes")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("recipe_name", recipe.name);
+        if (error) throw error;
+        setFavoriteNames(prev => {
+          const next = new Set(prev);
+          next.delete(recipe.name);
+          return next;
+        });
+        toast({
+          title: "Receta eliminada",
+          description: `${recipe.name} se quitó de tus favoritas.`,
+        });
+      } else {
+        // Add to favorites
+        const { error } = await supabase.from("favorite_recipes").insert([{
+          user_id: user.id,
+          recipe_name: recipe.name,
+          recipe_data: JSON.parse(JSON.stringify(recipe)),
+        }]);
+        if (error) throw error;
+        setFavoriteNames(prev => new Set(prev).add(recipe.name));
+        toast({
+          title: "¡Receta guardada!",
+          description: `${recipe.name} se agregó a tus favoritas.`,
+        });
+      }
     } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudo guardar la receta.",
+        description: isFav ? "No se pudo quitar la receta." : "No se pudo guardar la receta.",
         variant: "destructive",
       });
     } finally {
@@ -153,13 +191,15 @@ export function RecipeList({ recipes, onSelectRecipe }: RecipeListProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={(e) => handleSaveRecipe(recipe, e)}
+                onClick={(e) => handleToggleFavorite(recipe, e)}
                 disabled={savingId === recipe.name}
                 className="flex-shrink-0"
               >
                 <Heart className={cn(
-                  "w-5 h-5",
-                  savingId === recipe.name ? "fill-primary text-primary" : "text-muted-foreground"
+                  "w-5 h-5 transition-colors duration-200",
+                  favoriteNames.has(recipe.name) || savingId === recipe.name
+                    ? "fill-red-500 text-red-500"
+                    : "text-muted-foreground"
                 )} />
               </Button>
             </div>
