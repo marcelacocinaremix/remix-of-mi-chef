@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Header } from "@/components/Header";
 import { FuturisticBackground } from "@/components/FuturisticBackground";
 import { FiltersState } from "@/components/AdvancedFilters";
@@ -63,6 +63,7 @@ export default function Index() {
   });
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [instantRecipe, setInstantRecipe] = useState<Recipe | null>(null);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
@@ -443,12 +444,12 @@ export default function Index() {
     setSelectedRecipe(null);
   };
 
-  // Helper to select recipe and scroll to top
   const handleSelectRecipe = (recipe: Recipe | null) => {
     setSelectedRecipe(recipe);
     if (recipe) {
-      window.scrollTo({ top: 0, behavior: 'instant' });
-      setTimeout(() => window.scrollTo({ top: 0, behavior: 'instant' }), 50);
+      setTimeout(() => {
+        scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+      }, 0);
     }
   };
 
@@ -573,7 +574,7 @@ export default function Index() {
   return (
     <div className="h-[100dvh] gradient-hero relative overflow-hidden w-screen max-w-[100vw] flex flex-col">
       <FuturisticBackground />
-      <div className="w-full max-w-4xl mx-auto py-6 md:py-10 px-3 sm:px-4 relative z-10 flex-1 overflow-y-auto overflow-x-hidden box-border">
+      <div ref={scrollContainerRef} className="w-full max-w-4xl mx-auto py-6 md:py-10 px-3 sm:px-4 relative z-10 flex-1 overflow-y-auto overflow-x-hidden box-border">
         {/* Top bar with social links and user menu */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-3">
