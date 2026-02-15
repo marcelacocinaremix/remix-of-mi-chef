@@ -137,6 +137,21 @@ export function CookingSection({
               selectedIngredients={ingredients}
               onIngredientsChange={setIngredients}
             />
+
+            {(quickFilters.length > 0 || mealType || time !== 30) && (
+              <button
+                onClick={() => {
+                  setQuickFilters([]);
+                  setFilters({ diet: [], difficulty: null, excludeIngredients: [], servings: null, cookingMethod: null, budget: null, maxTime: null });
+                  setMealType(null);
+                  setTime(30);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-destructive hover:bg-destructive/10 transition-all duration-200"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Borrar filtros
+              </button>
+            )}
           </CardContent>
         </Card>
 
