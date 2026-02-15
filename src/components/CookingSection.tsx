@@ -70,7 +70,7 @@ export function CookingSection({
   const { t } = useLanguage();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-hidden">
 
       {/* Pending Suggestion Banner */}
       {pendingSuggestion && (
