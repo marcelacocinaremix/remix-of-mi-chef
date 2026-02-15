@@ -62,9 +62,9 @@ export function RecentRecipesHistory({ onSelectRecipe }: RecentRecipesHistoryPro
 
         {/* Expanded Content */}
         {isExpanded && (
-          <div className="border-t border-border/50 animate-fade-in">
+          <div className="border-t border-border/50 animate-fade-in overflow-hidden">
             <ScrollArea className="max-h-[400px]">
-              <div className="p-3 space-y-2">
+              <div className="p-3 space-y-2 overflow-hidden">
                 {recentRecipes.map((item, index) => {
                   const recipe = item.recipe_data as Recipe;
                   const cookedDate = new Date(item.cooked_at);
@@ -79,7 +79,7 @@ export function RecentRecipesHistory({ onSelectRecipe }: RecentRecipesHistoryPro
                         "hover:shadow-md hover:scale-[1.01]"
                       )}
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-3 min-w-0">
                         {/* Recipe Number */}
                         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                           <span className="text-sm font-bold text-primary">
