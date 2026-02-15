@@ -232,6 +232,12 @@ export default function Index() {
           time, 
           mealType,
           quickFilters,
+          difficulty: filters.difficulty,
+          diet: filters.diet,
+          excludeIngredients: filters.excludeIngredients,
+          servings: filters.servings,
+          cookingMethod: filters.cookingMethod,
+          budget: filters.budget,
           language: language,
           useCacheOnly: true
         }

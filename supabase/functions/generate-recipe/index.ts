@@ -183,9 +183,10 @@ async function searchCachedRecipes(
   time: number,
   mealType: string | null,
   language: string,
-  minMatchScore: number = 0.95, // 95% threshold
+  minMatchScore: number = 0.95,
   quickFilters: string[] = [],
-  diet: string[] = []
+  diet: string[] = [],
+  excludeIngredients: string[] = []
 ): Promise<{ recipes: any[]; fromCache: boolean; matchScore: number }> {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -267,31 +268,47 @@ async function searchCachedRecipes(
       if (recipeMealTypes.includes(mealType)) mealBonus = 0.05;
     }
     
-    // FILTER VALIDATION: Check dietary filters against recipe tags
-    const recipeTags = ((recipe.recipe_data as any)?.tags || recipe.tags || []).map((t: string) => t.toLowerCase());
-    const recipeIngText = ((recipe.recipe_data as any)?.ingredients || []).join(' ').toLowerCase();
+    // FILTER VALIDATION: Check dietary filters against recipe tags & ingredients
+    const recipeTags = ((recipe.recipe_data as any)?.tags || recipe.tags || []).map((t: string) => removeAccents(t.toLowerCase()));
+    const recipeIngText = removeAccents(((recipe.recipe_data as any)?.ingredients || []).join(' ').toLowerCase());
+    const recipeNameText = removeAccents(((recipe.recipe_data as any)?.name || recipe.recipe_name || '').toLowerCase());
+    const recipeNutrition = (recipe.recipe_data as any)?.nutrition || {};
     
-    // Check quickFilters compliance
-    const allFilters = [...(quickFilters || []), ...(diet || [])];
+    // Check all filters compliance
+    const allFilters = [...new Set([...(quickFilters || []), ...(diet || [])])];
     let filterPenalty = 0;
     for (const filter of allFilters) {
       const f = filter.toLowerCase();
-      if (f === 'vegetariano' && (recipeIngText.includes('pollo') || recipeIngText.includes('carne') || recipeIngText.includes('pescado') || recipeIngText.includes('cerdo'))) {
-        filterPenalty = 1; // Disqualify
-        break;
+      if (f === 'vegetariano' && (recipeIngText.includes('pollo') || recipeIngText.includes('carne') || recipeIngText.includes('pescado') || recipeIngText.includes('cerdo') || recipeIngText.includes('bife') || recipeIngText.includes('milanesa') || recipeIngText.includes('jamon') || recipeIngText.includes('panceta') || recipeIngText.includes('bondiola') || recipeIngText.includes('chorizo') || recipeIngText.includes('rabas') || recipeIngText.includes('mariscos'))) {
+        filterPenalty = 1; break;
       }
-      if (f === 'sin-gluten' && (recipeIngText.includes('harina') || recipeIngText.includes('pan ') || recipeIngText.includes('fideos') || recipeIngText.includes('pasta'))) {
-        filterPenalty = 1;
-        break;
+      if (f === 'sin-gluten' && (recipeIngText.includes('harina') || recipeIngText.includes('pan ') || recipeIngText.includes('pan,') || recipeIngText.includes('fideos') || recipeIngText.includes('pasta') || recipeIngText.includes('spaghetti') || recipeIngText.includes('tallarines') || recipeIngText.includes('galletitas'))) {
+        filterPenalty = 1; break;
       }
-      if (f === 'sin-lactosa' && (recipeIngText.includes('leche') || recipeIngText.includes('queso') || recipeIngText.includes('crema') || recipeIngText.includes('manteca'))) {
-        filterPenalty = 1;
-        break;
+      if (f === 'sin-lactosa' && (recipeIngText.includes('leche') || recipeIngText.includes('queso') || recipeIngText.includes('crema') || recipeIngText.includes('manteca') || recipeIngText.includes('muzzarella') || recipeIngText.includes('mozzarella') || recipeIngText.includes('yogur') || recipeIngText.includes('ricota'))) {
+        filterPenalty = 1; break;
+      }
+      if (f === 'alto-proteina' && recipeNutrition.protein && recipeNutrition.protein < 20) {
+        filterPenalty = 1; break;
+      }
+      if (f === 'bajo-calorias' && recipeNutrition.calories && recipeNutrition.calories > 400) {
+        filterPenalty = 1; break;
       }
     }
     
     if (filterPenalty >= 1) {
       return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0 };
+    }
+    
+    // EXCLUDE INGREDIENTS: Disqualify if recipe contains excluded ingredients
+    if (excludeIngredients && excludeIngredients.length > 0) {
+      for (const excluded of excludeIngredients) {
+        const excCanonical = getCanonicalIngredient(excluded);
+        const excVariants = getIngredientVariants(excCanonical);
+        if (excVariants.some(v => recipeIngText.includes(removeAccents(v)))) {
+          return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0 };
+        }
+      }
     }
     
     // Small popularity bonus
@@ -663,28 +680,49 @@ function getEmergencyRecipes(ingredients: string[], time: number, language: stri
 // POST-VALIDATION: Verify recipes use user's ingredients
 // ============================================================
 
-function validateRecipeIngredients(recipe: any, userIngredients: string[], filters: string[] = []): boolean {
+function validateRecipeIngredients(recipe: any, userIngredients: string[], filters: string[] = [], excludeIngredients: string[] = []): boolean {
   if (!recipe || !recipe.ingredients || !userIngredients || userIngredients.length === 0) return true;
   
   const userCanonicals = userIngredients.map(i => getCanonicalIngredient(i));
   const recipeText = (recipe.ingredients || []).join(' ').toLowerCase();
   const recipeNameLower = (recipe.name || '').toLowerCase();
   const fullText = removeAccents(recipeText + ' ' + recipeNameLower);
+  const recipeNutrition = recipe.nutrition || {};
   
   // FILTER VALIDATION: Reject recipes that violate dietary filters
   for (const filter of filters) {
     const f = filter.toLowerCase();
-    if (f === 'vegetariano' && (fullText.includes('pollo') || fullText.includes('carne') || fullText.includes('pescado') || fullText.includes('cerdo') || fullText.includes('bife') || fullText.includes('milanesa'))) {
-      console.log(`Validation "${recipe.name}": REJECTED - contains meat but filter is vegetariano`);
+    if (f === 'vegetariano' && (fullText.includes('pollo') || fullText.includes('carne') || fullText.includes('pescado') || fullText.includes('cerdo') || fullText.includes('bife') || fullText.includes('milanesa') || fullText.includes('jamon') || fullText.includes('panceta') || fullText.includes('bondiola') || fullText.includes('chorizo') || fullText.includes('rabas') || fullText.includes('mariscos'))) {
+      console.log(`Validation "${recipe.name}": REJECTED - contains meat/fish but filter is vegetariano`);
       return false;
     }
-    if (f === 'sin-gluten' && (fullText.includes('harina') || fullText.includes('pan ') || fullText.includes('fideos') || fullText.includes('pasta') || fullText.includes('spaghetti'))) {
+    if (f === 'sin-gluten' && (fullText.includes('harina') || fullText.includes('pan ') || fullText.includes('pan,') || fullText.includes('fideos') || fullText.includes('pasta') || fullText.includes('spaghetti') || fullText.includes('tallarines') || fullText.includes('galletitas'))) {
       console.log(`Validation "${recipe.name}": REJECTED - contains gluten but filter is sin-gluten`);
       return false;
     }
-    if (f === 'sin-lactosa' && (fullText.includes('leche') || fullText.includes('queso') || fullText.includes('crema') || fullText.includes('manteca') || fullText.includes('muzzarella'))) {
+    if (f === 'sin-lactosa' && (fullText.includes('leche') || fullText.includes('queso') || fullText.includes('crema') || fullText.includes('manteca') || fullText.includes('muzzarella') || fullText.includes('mozzarella') || fullText.includes('yogur') || fullText.includes('ricota'))) {
       console.log(`Validation "${recipe.name}": REJECTED - contains dairy but filter is sin-lactosa`);
       return false;
+    }
+    if (f === 'alto-proteina' && recipeNutrition.protein && recipeNutrition.protein < 20) {
+      console.log(`Validation "${recipe.name}": REJECTED - low protein (${recipeNutrition.protein}g) but filter is alto-proteina`);
+      return false;
+    }
+    if (f === 'bajo-calorias' && recipeNutrition.calories && recipeNutrition.calories > 400) {
+      console.log(`Validation "${recipe.name}": REJECTED - high calories (${recipeNutrition.calories}) but filter is bajo-calorias`);
+      return false;
+    }
+  }
+  
+  // EXCLUDE INGREDIENTS: Reject if recipe contains excluded ingredients
+  if (excludeIngredients && excludeIngredients.length > 0) {
+    for (const excluded of excludeIngredients) {
+      const excCanonical = getCanonicalIngredient(excluded);
+      const excVariants = getIngredientVariants(excCanonical);
+      if (excVariants.some(v => fullText.includes(removeAccents(v)))) {
+        console.log(`Validation "${recipe.name}": REJECTED - contains excluded ingredient "${excluded}"`);
+        return false;
+      }
     }
   }
   
@@ -816,13 +854,14 @@ serve(async (req) => {
         time || 30, 
         mealType, 
         language || 'es',
-        0.95, // 95% threshold
+        0.95,
         quickFilters || [],
-        diet || []
+        diet || [],
+        excludeIngredients || []
       );
       
       if (cacheResult.recipes.length > 0) {
-        const validCached = cacheResult.recipes.filter((r: any) => validateRecipeIngredients(r, ingredients, [...(quickFilters || []), ...(diet || [])]));
+        const validCached = cacheResult.recipes.filter((r: any) => validateRecipeIngredients(r, ingredients, [...(quickFilters || []), ...(diet || [])], excludeIngredients || []));
         if (validCached.length > 0) {
           // Consume 1 daily credit for cache hits too (if this is a cache-only lookup that will return)
           if (useCacheOnly) {
@@ -1031,7 +1070,7 @@ Generá UNA SOLA receta sorpresa con estas características:
 
       // Fallback to cache with very low threshold
       if (!surpriseMode && ingredients && ingredients.length > 0) {
-        const cacheResult = await searchCachedRecipes(ingredients, time || 30, mealType, language || 'es', 0.7, quickFilters || [], diet || []);
+        const cacheResult = await searchCachedRecipes(ingredients, time || 30, mealType, language || 'es', 0.7, quickFilters || [], diet || [], excludeIngredients || []);
         if (cacheResult.recipes.length > 0) {
           return new Response(JSON.stringify({
             recipes: cacheResult.recipes,
@@ -1086,7 +1125,7 @@ Generá UNA SOLA receta sorpresa con estas características:
     if (result.recipes && result.recipes.length > 0 && ingredients && ingredients.length > 0 && !surpriseMode) {
       const allUserFilters = [...(quickFilters || []), ...(diet || [])];
       const validatedRecipes = result.recipes.filter((recipe: any) => 
-        validateRecipeIngredients(recipe, ingredients, allUserFilters)
+        validateRecipeIngredients(recipe, ingredients, allUserFilters, excludeIngredients || [])
       );
       
       console.log(`Post-validation: ${validatedRecipes.length}/${result.recipes.length} recipes passed`);
