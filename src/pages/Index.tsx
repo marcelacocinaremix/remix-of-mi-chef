@@ -447,7 +447,8 @@ export default function Index() {
   const handleSelectRecipe = (recipe: Recipe | null) => {
     setSelectedRecipe(recipe);
     if (recipe) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      setTimeout(() => window.scrollTo({ top: 0, behavior: 'instant' }), 50);
     }
   };
 
