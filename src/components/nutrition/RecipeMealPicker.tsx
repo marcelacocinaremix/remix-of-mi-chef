@@ -94,7 +94,7 @@ export function RecipeMealPicker({ onAdd }: RecipeMealPickerProps) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 overflow-hidden">
       <p className="text-sm text-muted-foreground">
         Elegí una receta que hayas cocinado para agregarla a tu registro:
       </p>
