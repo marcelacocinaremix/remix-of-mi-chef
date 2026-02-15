@@ -183,7 +183,9 @@ async function searchCachedRecipes(
   time: number,
   mealType: string | null,
   language: string,
-  minMatchScore: number = 0.5 // 50% threshold - more permissive to maximize cache hits
+  minMatchScore: number = 0.6, // 60% threshold - stricter to ensure relevance
+  quickFilters: string[] = [],
+  diet: string[] = []
 ): Promise<{ recipes: any[]; fromCache: boolean; matchScore: number }> {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -256,13 +258,40 @@ async function searchCachedRecipes(
     const recipeCoverage = recipeKeys.length > 0 ? matchedRecipeCount / recipeKeys.length : 0;
     
     // Combined: weight user coverage more (does the recipe use what the user asked for?)
-    const combinedScore = (userCoverage * 0.5) + (recipeCoverage * 0.5);
+    const combinedScore = (userCoverage * 0.6) + (recipeCoverage * 0.4);
     
     // Meal type bonus
     let mealBonus = 0;
     if (mealType && recipe.meal_type) {
       const recipeMealTypes = (recipe.meal_type || '').split(',').map((m: string) => m.trim());
       if (recipeMealTypes.includes(mealType)) mealBonus = 0.05;
+    }
+    
+    // FILTER VALIDATION: Check dietary filters against recipe tags
+    const recipeTags = ((recipe.recipe_data as any)?.tags || recipe.tags || []).map((t: string) => t.toLowerCase());
+    const recipeIngText = ((recipe.recipe_data as any)?.ingredients || []).join(' ').toLowerCase();
+    
+    // Check quickFilters compliance
+    const allFilters = [...(quickFilters || []), ...(diet || [])];
+    let filterPenalty = 0;
+    for (const filter of allFilters) {
+      const f = filter.toLowerCase();
+      if (f === 'vegetariano' && (recipeIngText.includes('pollo') || recipeIngText.includes('carne') || recipeIngText.includes('pescado') || recipeIngText.includes('cerdo'))) {
+        filterPenalty = 1; // Disqualify
+        break;
+      }
+      if (f === 'sin-gluten' && (recipeIngText.includes('harina') || recipeIngText.includes('pan ') || recipeIngText.includes('fideos') || recipeIngText.includes('pasta'))) {
+        filterPenalty = 1;
+        break;
+      }
+      if (f === 'sin-lactosa' && (recipeIngText.includes('leche') || recipeIngText.includes('queso') || recipeIngText.includes('crema') || recipeIngText.includes('manteca'))) {
+        filterPenalty = 1;
+        break;
+      }
+    }
+    
+    if (filterPenalty >= 1) {
+      return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0 };
     }
     
     // Small popularity bonus
@@ -278,7 +307,7 @@ async function searchCachedRecipes(
   
   // Filter and sort
   const matched = scoredRecipes
-    .filter(r => r.matchScore >= minMatchScore && r.recipeCoverage >= 0.5)
+    .filter(r => r.matchScore >= minMatchScore && r.recipeCoverage >= 0.5 && r.userCoverage >= 0.5)
     .sort((a, b) => b.matchScore - a.matchScore)
     .slice(0, 1);
   
@@ -634,13 +663,30 @@ function getEmergencyRecipes(ingredients: string[], time: number, language: stri
 // POST-VALIDATION: Verify recipes use user's ingredients
 // ============================================================
 
-function validateRecipeIngredients(recipe: any, userIngredients: string[]): boolean {
+function validateRecipeIngredients(recipe: any, userIngredients: string[], filters: string[] = []): boolean {
   if (!recipe || !recipe.ingredients || !userIngredients || userIngredients.length === 0) return true;
   
   const userCanonicals = userIngredients.map(i => getCanonicalIngredient(i));
   const recipeText = (recipe.ingredients || []).join(' ').toLowerCase();
   const recipeNameLower = (recipe.name || '').toLowerCase();
   const fullText = removeAccents(recipeText + ' ' + recipeNameLower);
+  
+  // FILTER VALIDATION: Reject recipes that violate dietary filters
+  for (const filter of filters) {
+    const f = filter.toLowerCase();
+    if (f === 'vegetariano' && (fullText.includes('pollo') || fullText.includes('carne') || fullText.includes('pescado') || fullText.includes('cerdo') || fullText.includes('bife') || fullText.includes('milanesa'))) {
+      console.log(`Validation "${recipe.name}": REJECTED - contains meat but filter is vegetariano`);
+      return false;
+    }
+    if (f === 'sin-gluten' && (fullText.includes('harina') || fullText.includes('pan ') || fullText.includes('fideos') || fullText.includes('pasta') || fullText.includes('spaghetti'))) {
+      console.log(`Validation "${recipe.name}": REJECTED - contains gluten but filter is sin-gluten`);
+      return false;
+    }
+    if (f === 'sin-lactosa' && (fullText.includes('leche') || fullText.includes('queso') || fullText.includes('crema') || fullText.includes('manteca') || fullText.includes('muzzarella'))) {
+      console.log(`Validation "${recipe.name}": REJECTED - contains dairy but filter is sin-lactosa`);
+      return false;
+    }
+  }
   
   // Check how many of the user's ingredients appear in the recipe
   let matchCount = 0;
@@ -650,11 +696,11 @@ function validateRecipeIngredients(recipe: any, userIngredients: string[]): bool
     if (found) matchCount++;
   }
   
-  // At least 60% of user ingredients must be present in the recipe
+  // At least 70% of user ingredients must be present in the recipe
   const matchRatio = matchCount / userCanonicals.length;
   console.log(`Validation "${recipe.name}": ${matchCount}/${userCanonicals.length} ingredients match (${(matchRatio * 100).toFixed(0)}%)`);
   
-  return matchRatio >= 0.6;
+  return matchRatio >= 0.7;
 }
 
 // ============================================================
@@ -750,12 +796,14 @@ serve(async (req) => {
         time || 30, 
         mealType, 
         language || 'es',
-        0.5 // 50% threshold
+        0.6, // 60% threshold - stricter
+        quickFilters || [],
+        diet || []
       );
       
       if (cacheResult.recipes.length > 0) {
         // Re-validate cached recipes against user's actual ingredients
-        const validCached = cacheResult.recipes.filter((r: any) => validateRecipeIngredients(r, ingredients));
+        const validCached = cacheResult.recipes.filter((r: any) => validateRecipeIngredients(r, ingredients, [...(quickFilters || []), ...(diet || [])]));
         if (validCached.length > 0) {
           console.log(`✅ Serving ${validCached.length} validated cached recipes (score: ${cacheResult.matchScore.toFixed(2)}) — NO daily use consumed`);
           return new Response(JSON.stringify({ 
@@ -968,7 +1016,7 @@ Generá UNA SOLA receta sorpresa con estas características:
 
       // Fallback to cache with very low threshold
       if (!surpriseMode && ingredients && ingredients.length > 0) {
-        const cacheResult = await searchCachedRecipes(ingredients, time || 30, mealType, language || 'es', 0.2);
+        const cacheResult = await searchCachedRecipes(ingredients, time || 30, mealType, language || 'es', 0.3, quickFilters || [], diet || []);
         if (cacheResult.recipes.length > 0) {
           return new Response(JSON.stringify({
             recipes: cacheResult.recipes,
@@ -1021,8 +1069,9 @@ Generá UNA SOLA receta sorpresa con estas características:
 
     // STEP 3: POST-VALIDATION - verify recipes actually use user's ingredients
     if (result.recipes && result.recipes.length > 0 && ingredients && ingredients.length > 0 && !surpriseMode) {
+      const allUserFilters = [...(quickFilters || []), ...(diet || [])];
       const validatedRecipes = result.recipes.filter((recipe: any) => 
-        validateRecipeIngredients(recipe, ingredients)
+        validateRecipeIngredients(recipe, ingredients, allUserFilters)
       );
       
       console.log(`Post-validation: ${validatedRecipes.length}/${result.recipes.length} recipes passed`);

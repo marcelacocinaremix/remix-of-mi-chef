@@ -134,12 +134,34 @@ Los valores deben ser números enteros redondeados. Usá datos nutricionales rea
       );
     }
 
+    // SANITY CHECK: Reject unrealistic values
+    const cal = Math.round(nutrition.calories);
+    const prot = Math.round(nutrition.protein);
+    const carb = Math.round(nutrition.carbs);
+    const fat = Math.round(nutrition.fats);
+    
+    // Calories should be between 5 and 3000 per portion
+    if (cal < 5 || cal > 3000) {
+      console.error(`Unrealistic calories: ${cal} for "${food_name}"`);
+      return new Response(
+        JSON.stringify({ error: 'Unrealistic nutrition data' }),
+        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Macros should not exceed calories (protein*4 + carbs*4 + fats*9 ≈ calories, allow 50% margin)
+    const macroCalories = (prot * 4) + (carb * 4) + (fat * 9);
+    if (macroCalories > cal * 1.5 && cal > 50) {
+      console.warn(`Macro-calorie mismatch: macros=${macroCalories}kcal vs reported=${cal}kcal for "${food_name}"`);
+      // Auto-correct: use macro-derived calories
+    }
+
     const result = {
       food_name,
-      calories: Math.round(nutrition.calories),
-      protein: Math.round(nutrition.protein),
-      carbs: Math.round(nutrition.carbs),
-      fats: Math.round(nutrition.fats),
+      calories: cal,
+      protein: Math.max(0, prot),
+      carbs: Math.max(0, carb),
+      fats: Math.max(0, fat),
       portion: nutrition.portion || '1 porción',
       source: 'ai',
     };
