@@ -754,15 +754,20 @@ serve(async (req) => {
       );
       
       if (cacheResult.recipes.length > 0) {
-        console.log(`✅ Serving ${cacheResult.recipes.length} cached recipes (score: ${cacheResult.matchScore.toFixed(2)}) — NO daily use consumed`);
-        return new Response(JSON.stringify({ 
-          recipes: cacheResult.recipes,
-          source: 'cache',
-          isInstant: true,
-          matchScore: cacheResult.matchScore
-        }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+        // Re-validate cached recipes against user's actual ingredients
+        const validCached = cacheResult.recipes.filter((r: any) => validateRecipeIngredients(r, ingredients));
+        if (validCached.length > 0) {
+          console.log(`✅ Serving ${validCached.length} validated cached recipes (score: ${cacheResult.matchScore.toFixed(2)}) — NO daily use consumed`);
+          return new Response(JSON.stringify({ 
+            recipes: validCached.slice(0, 1),
+            source: 'cache',
+            isInstant: true,
+            matchScore: cacheResult.matchScore
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        console.log('⚠️ Cached recipes failed ingredient validation, proceeding to AI');
       }
     }
     
@@ -827,8 +832,9 @@ Generá UNA SOLA receta sorpresa con estas características:
       }
       userPrompt += `\n\nSorprendé con algo creativo pero realizable!`;
     } else {
-      userPrompt = `Ingredientes disponibles: ${ingredients?.join(', ') || 'ninguno especificado'}\n`;
-      userPrompt += `REGLA OBLIGATORIA: Generá EXACTAMENTE 1 SOLA receta. La receta DEBE usar TODOS estos ingredientes como base principal: ${ingredients?.join(', ')}. NO sustituyas ninguno por otro. NO inventes recetas con ingredientes que el usuario NO mencionó.\n`;
+      userPrompt = `INGREDIENTES DEL USUARIO (OBLIGATORIOS): ${ingredients?.join(', ') || 'ninguno especificado'}\n`;
+      userPrompt += `⚠️ REGLA ABSOLUTA: La receta DEBE contener CADA UNO de estos ingredientes: [${ingredients?.join(', ')}]. Si el usuario puso "pollo", la receta lleva pollo. Si puso "arroz", la receta lleva arroz. NO reemplaces NINGUNO. NO agregues proteínas, carnes, pastas u otros ingredientes principales que el usuario NO mencionó. Solo podés agregar condimentos básicos (sal, aceite, pimienta, ajo, cebolla).\n`;
+      userPrompt += `Generá EXACTAMENTE 1 SOLA receta.\n`;
       userPrompt += `Tiempo máximo para cocinar: ${time} minutos\n`;
 
       if (mealType) {
