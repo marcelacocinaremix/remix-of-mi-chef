@@ -20,6 +20,7 @@ import {
   BarChart3,
   Dumbbell,
   LayoutDashboard,
+  Crown,
 } from "lucide-react";
 import actividadBanner from "@/assets/actividad-banner.jpg";
 import balanceBanner from "@/assets/balance-banner.jpg";
@@ -155,6 +156,29 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
 
   return (
     <div className="space-y-6">
+      {/* Trial ended banner - shown at the very top */}
+      {balanceBlocked && (
+        <Card className="border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 shadow-md">
+          <CardContent className="py-5 px-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                <Lock className="w-5 h-5 text-amber-600" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-foreground">Tu prueba gratuita terminó</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Las secciones <span className="font-medium">Tu Objetivo</span>, <span className="font-medium">Nutrición</span>, <span className="font-medium">Actividad</span> y <span className="font-medium">Resumen</span> son de solo lectura. Pasate a Premium para desbloquear todo.
+                </p>
+              </div>
+              <Button size="sm" onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs flex-shrink-0">
+                <Crown className="w-3.5 h-3.5 mr-1" />
+                Premium
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* How it works */}
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
         <CardContent className="py-4 px-4">
@@ -192,12 +216,14 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
       </Card>
 
       {/* Health Profile Setup */}
-      <HealthProfileSetup
-        currentProfile={currentHealthProfile}
-        onSave={handleSaveHealthProfile}
-        isSaving={isSaving}
-        isComplete={isHealthProfileComplete}
-      />
+      <div className={cn(balanceBlocked && "opacity-60 pointer-events-none")}>
+        <HealthProfileSetup
+          currentProfile={currentHealthProfile}
+          onSave={handleSaveHealthProfile}
+          isSaving={isSaving}
+          isComplete={isHealthProfileComplete}
+        />
+      </div>
 
       {/* Active goal indicator */}
       {goal?.goal && (
@@ -254,6 +280,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
       {/* Content */}
       <div className="animate-fade-in">
         {activeTab === "resumen" && (
+          <div className={cn(balanceBlocked && "opacity-60 pointer-events-none")}>
           <HealthSummary
             goal={goal}
             stats={activityStats}
@@ -281,6 +308,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
             }}
             getWorkoutsForPeriod={(period) => getWorkoutsByPeriod(period).length}
           />
+          </div>
         )}
 
         {activeTab === "balance" && (
@@ -347,18 +375,6 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
             {/* Registro - Daily meal log (main view) */}
             {balanceSubTab === "registro" && (
               <div className="space-y-6">
-                {balanceBlocked && (
-                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center gap-3">
-                    <Lock className="w-5 h-5 text-amber-600 flex-shrink-0" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">Tu prueba gratuita terminó</p>
-                      <p className="text-xs text-muted-foreground">Podés ver tus datos pero no agregar nuevos registros</p>
-                    </div>
-                    <Button size="sm" onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs">
-                      Premium
-                    </Button>
-                  </div>
-                )}
                 <DailyMealLog onMealsChanged={refetchMeals} fitnessGoal={goal?.goal} onBlockedAction={balanceBlocked ? () => setShowPaywall(true) : undefined} />
 
                 {/* Recommendations based on today's meals */}
@@ -623,7 +639,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
         )}
 
         {activeTab === "actividad" && (
-          <div className="space-y-6">
+          <div className={cn("space-y-6", balanceBlocked && "opacity-60 pointer-events-none")}>
             <div className="relative w-full h-32 rounded-xl overflow-hidden">
               <img src={actividadBanner} alt="Actividad física" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent flex items-center">
