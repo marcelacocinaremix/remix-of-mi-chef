@@ -52,13 +52,12 @@ serve(async (req) => {
   try {
     const { authenticated, userId } = await checkAuth(req);
     if (!authenticated || !userId) {
-      return new Response(JSON.stringify({ 
-        error: 'Necesitás iniciar sesión para ver tips personalizados',
-        code: 'AUTH_REQUIRED'
-      }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      // Not logged in → return a random fallback tip instead of blocking
+      const tip = FALLBACK_TIPS[Math.floor(Math.random() * FALLBACK_TIPS.length)];
+      return new Response(
+        JSON.stringify({ tip }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const { pantryIngredients, recentRecipes } = await req.json();
