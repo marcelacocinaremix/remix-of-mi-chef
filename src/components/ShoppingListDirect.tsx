@@ -547,7 +547,6 @@ export function ShoppingListDirect() {
                   onChange={(e) => setNewItemName(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleAddItem()}
                   className="h-12 text-base"
-                  autoFocus
                 />
               </div>
 
