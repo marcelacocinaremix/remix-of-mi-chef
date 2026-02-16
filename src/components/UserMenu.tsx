@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LogOut, User, Globe, Settings, Crown, Clock } from "lucide-react";
+import { LogOut, User, Globe, Settings, Crown, Clock, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
@@ -75,7 +75,8 @@ export function UserMenu() {
               Prueba – {trialDaysRemaining}d
             </Badge>
           ) : (
-            <Badge variant="secondary" className="gap-1 text-[10px] px-2 py-0.5">
+            <Badge className="bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 text-white gap-1 text-xs px-3 py-1 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5" />
               Plan gratuito
             </Badge>
           )}
