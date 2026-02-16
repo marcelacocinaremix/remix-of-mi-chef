@@ -101,6 +101,26 @@ export function AchievementsSection() {
 
   return (
     <div className="space-y-6">
+      {/* How achievements work */}
+      <div className="bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 rounded-xl p-4 border border-primary/20 flex items-start gap-3">
+        <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <Zap className="w-4 h-4 text-primary" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-foreground mb-1">¿Cómo sumo logros?</p>
+          <ul className="text-xs text-muted-foreground space-y-1">
+            <li className="flex items-center gap-1.5">
+              <ChefHat className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+              Completando el <span className="font-medium text-foreground">Modo Cocina</span> de una receta generada
+            </li>
+            <li className="flex items-center gap-1.5">
+              <Star className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+              Pulsando <span className="font-medium text-foreground">"Ya la cociné"</span> en el detalle de la receta
+            </li>
+          </ul>
+        </div>
+      </div>
+
       {/* Stats Overview with enhanced visuals */}
       <div className="relative bg-gradient-to-br from-card via-primary/5 to-accent/5 rounded-2xl p-5 border border-primary/20 shadow-xl overflow-hidden">
         {/* Background decorations */}
