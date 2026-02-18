@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronUp, Leaf, Wheat, Milk, Flame, Heart, X, Filter, Users, Thermometer, DollarSign, Clock, Lock, Crown } from "lucide-react";
+import { ChevronDown, ChevronUp, X, Filter, Users, Thermometer, Lock, Crown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -23,67 +23,26 @@ interface AdvancedFiltersProps {
   onUpgradeClick?: () => void;
 }
 
-interface DifficultyOption {
-  id: string;
-  label: string;
-  description: string;
-}
-
-interface DietOption {
-  id: string;
-  label: string;
-  icon: React.ElementType;
-}
-
-interface CookingMethodOption {
-  id: string;
-  label: string;
-  emoji: string;
-}
-
-interface BudgetOption {
-  id: string;
-  label: string;
-  description: string;
-}
-
 const servingsOptions = [1, 2, 4, 6, 8];
-
 
 export function AdvancedFilters({ filters, onChange, disabled = false, onUpgradeClick }: AdvancedFiltersProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [excludeInput, setExcludeInput] = useState("");
   const { t } = useLanguage();
 
-  // Translated options
-  const difficultyOptions: DifficultyOption[] = [
+  const difficultyOptions = [
     { id: "facil", label: t('easy'), description: t('beginner') },
     { id: "medio", label: t('medium'), description: t('intermediate') },
     { id: "dificil", label: t('hard'), description: t('advanced') },
   ];
 
-  const dietOptions: DietOption[] = [
-    { id: "vegetariano", label: t('vegetarian'), icon: Leaf },
-    { id: "vegano", label: t('vegan'), icon: Leaf },
-    { id: "sin-gluten", label: t('glutenFree'), icon: Wheat },
-    { id: "sin-lactosa", label: t('lactoseFree'), icon: Milk },
-    { id: "bajo-calorias", label: t('lowCalorie'), icon: Flame },
-    { id: "saludable", label: t('healthy'), icon: Heart },
-  ];
-
-  const cookingMethodOptions: CookingMethodOption[] = [
+  const cookingMethodOptions = [
     { id: "horno", label: t('oven'), emoji: "🔥" },
     { id: "sarten", label: t('pan'), emoji: "🍳" },
     { id: "olla", label: t('pot'), emoji: "🍲" },
     { id: "airfryer", label: t('airfryer'), emoji: "💨" },
     { id: "sin-coccion", label: t('noCooking'), emoji: "🥗" },
     { id: "microondas", label: t('microwave'), emoji: "📡" },
-  ];
-
-  const budgetOptions: BudgetOption[] = [
-    { id: "bajo", label: t('economicBudget'), description: t('lowBudget') },
-    { id: "medio", label: t('moderateBudget'), description: t('mediumPrice') },
-    { id: "alto", label: t('premiumBudget'), description: t('noLimit') },
   ];
 
   const handleToggleExpand = () => {
@@ -95,57 +54,27 @@ export function AdvancedFilters({ filters, onChange, disabled = false, onUpgrade
   };
 
   const handleDifficultyChange = (difficulty: string) => {
-    onChange({
-      ...filters,
-      difficulty: filters.difficulty === difficulty ? null : difficulty,
-    });
-  };
-
-  const handleDietToggle = (dietId: string) => {
-    const newDiet = filters.diet.includes(dietId)
-      ? filters.diet.filter((d) => d !== dietId)
-      : [...filters.diet, dietId];
-    onChange({ ...filters, diet: newDiet });
+    onChange({ ...filters, difficulty: filters.difficulty === difficulty ? null : difficulty });
   };
 
   const handleServingsChange = (servings: number) => {
-    onChange({
-      ...filters,
-      servings: filters.servings === servings ? null : servings,
-    });
+    onChange({ ...filters, servings: filters.servings === servings ? null : servings });
   };
 
   const handleCookingMethodChange = (method: string) => {
-    onChange({
-      ...filters,
-      cookingMethod: filters.cookingMethod === method ? null : method,
-    });
+    onChange({ ...filters, cookingMethod: filters.cookingMethod === method ? null : method });
   };
-
-  const handleBudgetChange = (budget: string) => {
-    onChange({
-      ...filters,
-      budget: filters.budget === budget ? null : budget,
-    });
-  };
-
 
   const handleAddExclude = () => {
     const trimmed = excludeInput.trim().toLowerCase();
     if (trimmed && !filters.excludeIngredients.includes(trimmed)) {
-      onChange({
-        ...filters,
-        excludeIngredients: [...filters.excludeIngredients, trimmed],
-      });
+      onChange({ ...filters, excludeIngredients: [...filters.excludeIngredients, trimmed] });
       setExcludeInput("");
     }
   };
 
   const handleRemoveExclude = (ingredient: string) => {
-    onChange({
-      ...filters,
-      excludeIngredients: filters.excludeIngredients.filter((i) => i !== ingredient),
-    });
+    onChange({ ...filters, excludeIngredients: filters.excludeIngredients.filter((i) => i !== ingredient) });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -157,16 +86,14 @@ export function AdvancedFilters({ filters, onChange, disabled = false, onUpgrade
 
   const activeFiltersCount =
     (filters.difficulty ? 1 : 0) +
-    filters.diet.length +
     filters.excludeIngredients.length +
     (filters.servings ? 1 : 0) +
-    (filters.cookingMethod ? 1 : 0) +
-    (filters.budget ? 1 : 0);
+    (filters.cookingMethod ? 1 : 0);
 
   const clearAllFilters = () => {
     onChange({
+      ...filters,
       difficulty: null,
-      diet: [],
       excludeIngredients: [],
       servings: null,
       cookingMethod: null,
@@ -177,7 +104,6 @@ export function AdvancedFilters({ filters, onChange, disabled = false, onUpgrade
 
   return (
     <div className="animate-slide-up">
-      {/* Toggle button */}
       <button
         onClick={handleToggleExpand}
         className={cn(
@@ -208,50 +134,16 @@ export function AdvancedFilters({ filters, onChange, disabled = false, onUpgrade
         )}
       </button>
 
-      {/* Expandable content */}
       {isExpanded && (
         <div className="mt-4 space-y-6 p-4 bg-card/50 rounded-xl border border-border">
-          {/* Clear filters */}
           {activeFiltersCount > 0 && (
             <div className="flex justify-end">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearAllFilters}
-                className="text-xs text-muted-foreground hover:text-foreground"
-              >
+              <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-xs text-muted-foreground hover:text-foreground">
                 <X className="w-3 h-3 mr-1" />
                 {t('clearFilters')}
               </Button>
             </div>
           )}
-
-          {/* Budget */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-3 flex items-center gap-2">
-              <DollarSign className="w-4 h-4" />
-              {t('budget')}
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {budgetOptions.map((option) => (
-                <button
-                  key={option.id}
-                  onClick={() => handleBudgetChange(option.id)}
-                  className={cn(
-                    "flex flex-col items-center gap-1 px-4 py-2 rounded-lg",
-                    "border-2 transition-all duration-300 min-w-[90px]",
-                    filters.budget === option.id
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border bg-background hover:border-primary/50"
-                  )}
-                >
-                  <span className="font-medium text-sm">{option.label}</span>
-                  <span className="text-xs text-muted-foreground">{option.description}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
 
           {/* Servings */}
           <div>
@@ -329,35 +221,6 @@ export function AdvancedFilters({ filters, onChange, disabled = false, onUpgrade
             </div>
           </div>
 
-          {/* Diet */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-3">
-              🥗 {t('dietaryPreferences')}
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {dietOptions.map((option) => {
-                const Icon = option.icon;
-                const isSelected = filters.diet.includes(option.id);
-                return (
-                  <button
-                    key={option.id}
-                    onClick={() => handleDietToggle(option.id)}
-                    className={cn(
-                      "flex items-center gap-2 px-3 py-2 rounded-full",
-                      "border-2 transition-all duration-300 text-sm",
-                      isSelected
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-background hover:border-primary/50"
-                    )}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                    {option.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
           {/* Exclude ingredients */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-3">
@@ -372,11 +235,7 @@ export function AdvancedFilters({ filters, onChange, disabled = false, onUpgrade
                 onKeyDown={handleKeyDown}
                 className="flex-1"
               />
-              <Button
-                variant="outline"
-                onClick={handleAddExclude}
-                disabled={!excludeInput.trim()}
-              >
+              <Button variant="outline" onClick={handleAddExclude} disabled={!excludeInput.trim()}>
                 {t('add')}
               </Button>
             </div>
