@@ -6,7 +6,7 @@ import marcelaMilestone from "@/assets/marcela-youtube-milestone.jpg";
 
 const CHANNEL_URL = "https://youtube.com/@marcelacocina";
 const CHANNEL_ID = "marcelacocina";
-const INSTAGRAM_URL = "https://instagram.com/marcelacocina_ok";
+const INSTAGRAM_URL = "https://www.instagram.com/marcelacocina_ok?igsh=MWZra2lrcGh6Mmp0Nw==";
 const PRESENTATION_VIDEO_ID = "KbcJ5AYgPIQ";
 
 export const MarcelacocinaSection = () => {
