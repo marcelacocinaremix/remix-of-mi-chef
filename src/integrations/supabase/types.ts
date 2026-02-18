@@ -962,6 +962,8 @@ export type Database = {
           shared_by_name: string
         }[]
       }
+      has_active_access: { Args: { p_user_id: string }; Returns: boolean }
+      has_write_access: { Args: { p_user_id: string }; Returns: boolean }
       increment_recipe_uses:
         | { Args: never; Returns: number }
         | { Args: { p_user_id: string }; Returns: number }
