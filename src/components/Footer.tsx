@@ -3,7 +3,7 @@ import { Youtube, Instagram } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const YOUTUBE_URL = "https://www.youtube.com/@marcelacocina";
-const INSTAGRAM_URL = "https://instagram.com/marcelacocina_ok";
+const INSTAGRAM_URL = "https://www.instagram.com/marcelacocina_ok?igsh=MWZra2lrcGh6Mmp0Nw==";
 
 export const Footer = forwardRef<HTMLElement>(function Footer(_, ref) {
   const { t } = useLanguage();
