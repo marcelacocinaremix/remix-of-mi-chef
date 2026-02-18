@@ -17,7 +17,7 @@ export const Footer = forwardRef<HTMLElement>(function Footer(_, ref) {
             onClick={() => window.open(YOUTUBE_URL, "_blank")}
             className="flex items-center gap-2 text-muted-foreground hover:text-red-500 transition-colors cursor-pointer"
           >
-            <Youtube className="h-6 w-6" />
+            <Youtube className="h-5 w-5" />
             <span>@marcelacocina</span>
           </button>
           <button
