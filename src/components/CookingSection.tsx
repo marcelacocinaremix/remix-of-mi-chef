@@ -174,7 +174,7 @@ export function CookingSection({
               onFiltersChange={(newFilters) => {
                 setQuickFilters(newFilters);
                 const newDiet = newFilters.filter(f => 
-                  ['vegetariano', 'sin-gluten', 'sin-lactosa', 'alto-proteina'].includes(f)
+                  ['vegetariano', 'vegano', 'sin-gluten', 'sin-lactosa', 'alto-proteina'].includes(f)
                 );
                 setFilters({ ...filters, diet: newDiet });
               }}
