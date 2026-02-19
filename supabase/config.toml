@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.estimate-nutrition]
 verify_jwt = false
+
+[functions.seed-recipes]
+verify_jwt = false
