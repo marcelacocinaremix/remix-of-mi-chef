@@ -57,6 +57,29 @@ export const PlanificarSection = ({
 
   return (
     <div className="space-y-6">
+      {/* Blocked banner - shown FIRST above tabs */}
+      {planBlocked && (
+        <Card className="border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 shadow-md">
+          <CardContent className="py-5 px-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                <Lock className="w-5 h-5 text-amber-600" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-foreground">Tu prueba gratuita terminó</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Las secciones <span className="font-medium">Calendario</span>, <span className="font-medium">Despensa</span> y <span className="font-medium">Super</span> son de solo lectura. Pasate a Premium para desbloquear todo.
+                </p>
+              </div>
+              <Button size="sm" onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs flex-shrink-0">
+                <Crown className="w-3.5 h-3.5 mr-1" />
+                Premium
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Sub-navigation */}
       <div className="bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5 rounded-2xl p-1.5 border border-border/50">
         <div className="grid grid-cols-3 gap-1.5">
@@ -102,29 +125,6 @@ export const PlanificarSection = ({
           </div>
         </div>
       </div>
-
-      {/* Blocked banner - shown for ALL sub-tabs */}
-      {planBlocked && (
-        <Card className="border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 shadow-md">
-          <CardContent className="py-5 px-4">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-                <Lock className="w-5 h-5 text-amber-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-foreground">Tu prueba gratuita terminó</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Las secciones <span className="font-medium">Calendario</span>, <span className="font-medium">Despensa</span> y <span className="font-medium">Super</span> son de solo lectura. Pasate a Premium para desbloquear todo.
-                </p>
-              </div>
-              <Button size="sm" onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs flex-shrink-0">
-                <Crown className="w-3.5 h-3.5 mr-1" />
-                Premium
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Content */}
       <div className={cn("animate-fade-in", planBlocked && "opacity-60 pointer-events-none")}>
