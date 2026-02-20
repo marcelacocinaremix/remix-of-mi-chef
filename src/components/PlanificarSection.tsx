@@ -126,25 +126,35 @@ export const PlanificarSection = ({
         </div>
       </div>
 
-      {/* Content */}
-      <div className={cn("animate-fade-in", planBlocked && "opacity-60 pointer-events-none")}>
-        {activeSubTab === "calendario" && (
-          <MonthlyCalendar
-            onNavigateToCooking={onNavigateToCooking || (() => {})}
-            onBlockedAction={planBlocked ? () => setShowPaywall(true) : undefined}
+      {/* Content with overlay when blocked */}
+      <div className="relative">
+        <div className={cn("animate-fade-in", planBlocked && "opacity-60")}>
+          {activeSubTab === "calendario" && (
+            <MonthlyCalendar
+              onNavigateToCooking={onNavigateToCooking || (() => {})}
+              onBlockedAction={planBlocked ? () => setShowPaywall(true) : undefined}
+            />
+          )}
+
+          {activeSubTab === "despensa" && (
+            <div className="max-w-xl mx-auto">
+              <Pantry onSelectIngredients={onSelectIngredients} />
+            </div>
+          )}
+
+          {activeSubTab === "super" && (
+            <div className="max-w-xl mx-auto">
+              <ShoppingListDirect />
+            </div>
+          )}
+        </div>
+
+        {/* Transparent clickable overlay */}
+        {planBlocked && (
+          <div
+            className="absolute inset-0 z-10 cursor-pointer"
+            onClick={() => setShowPaywall(true)}
           />
-        )}
-
-        {activeSubTab === "despensa" && (
-          <div className="max-w-xl mx-auto">
-            <Pantry onSelectIngredients={onSelectIngredients} />
-          </div>
-        )}
-
-        {activeSubTab === "super" && (
-          <div className="max-w-xl mx-auto">
-            <ShoppingListDirect />
-          </div>
         )}
       </div>
 
