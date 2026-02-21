@@ -232,16 +232,15 @@ async function searchCachedRecipes(
     threshold: minMatchScore 
   });
   
-  // Build query - don't filter by time_range (data is inconsistent), filter by time in recipe_data instead
+  // Build query - pre-filter by overlapping ingredients for better performance
   let query = supabase
     .from('cached_recipes')
     .select('*')
     .eq('language', language)
+    .overlaps('main_ingredients', userCanonicals)
     .order('usage_count', { ascending: false });
   
-  // Don't filter by meal_type either if it would be too restrictive - check in scoring
-  
-  const { data: recipes, error } = await query.limit(150);
+  const { data: recipes, error } = await query.limit(500);
   
   if (error || !recipes || recipes.length === 0) {
     if (error) console.error('Cache search error:', error);
@@ -286,8 +285,10 @@ async function searchCachedRecipes(
     const userCoverage = userCanonicals.length > 0 ? matchedUserCount / userCanonicals.length : 0;
     const recipeCoverage = recipeKeys.length > 0 ? matchedRecipeCount / recipeKeys.length : 0;
     
-    // Combined: weight user coverage more (does the recipe use what the user asked for?)
-    const combinedScore = (userCoverage * 0.6) + (recipeCoverage * 0.4);
+    // PRIMARY: Does the recipe use what the user asked for? (most important)
+    // SECONDARY: Does the user have what the recipe needs?
+    // userCoverage is the primary gate - we want recipes that USE the user's ingredients
+    const combinedScore = (userCoverage * 0.75) + (recipeCoverage * 0.25);
     
     // Meal type bonus
     let mealBonus = 0;
@@ -352,9 +353,9 @@ async function searchCachedRecipes(
   
   // Filter and sort
   const matched = scoredRecipes
-    .filter(r => r.matchScore >= minMatchScore && r.recipeCoverage >= 0.5 && r.userCoverage >= 0.5)
+    .filter(r => r.matchScore >= minMatchScore && r.userCoverage >= 0.95 && r.recipeCoverage >= 0.4)
     .sort((a, b) => b.matchScore - a.matchScore)
-    .slice(0, 1);
+    .slice(0, 3);
   
   if (matched.length > 0) {
     console.log(`Cache HIT: ${matched.length} recipes`, 
@@ -471,25 +472,15 @@ async function cacheRecipes(
       continue;
     }
     
-    // Check for duplicates: exact name only (ingredient dedup was too aggressive)
-    const normalizedName = removeAccents(recipe.name.toLowerCase().trim());
+    // Check for duplicates: search by similar name
     const { data: existing } = await supabase
       .from('cached_recipes')
-      .select('id, recipe_name')
-      .eq('language', language);
+      .select('id')
+      .eq('language', language)
+      .ilike('recipe_name', `%${recipe.name.slice(0, 25)}%`)
+      .limit(1);
     
-    let isDuplicate = false;
-    if (existing) {
-      for (const ex of existing) {
-        const exName = removeAccents(ex.recipe_name.toLowerCase().trim());
-        if (exName === normalizedName) {
-          isDuplicate = true;
-          break;
-        }
-      }
-    }
-    
-    if (isDuplicate) {
+    if (existing && existing.length > 0) {
       console.log(`Duplicate by name: "${recipe.name}"`);
       continue;
     }
