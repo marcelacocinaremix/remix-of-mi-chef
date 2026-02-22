@@ -437,14 +437,18 @@ async function searchCachedRecipes(
     }
     
     return { 
-      recipes: matched.map(r => ({
-        ...r.recipe_data as any,
-        _matchInfo: {
-          matched: r.matchedCount,
-          total: r.totalCount,
-          percentage: Math.round(r.userCoverage * 100),
-        }
-      })),
+      recipes: matched.map(r => {
+        const data = r.recipe_data as any;
+        data.name = sanitizeRecipeTitle(data.name || r.recipe_name);
+        return {
+          ...data,
+          _matchInfo: {
+            matched: r.matchedCount,
+            total: r.totalCount,
+            percentage: Math.round(r.userCoverage * 100),
+          }
+        };
+      }),
       fromCache: true,
       matchScore: matched[0].matchScore,
       matchInfo: {
@@ -519,6 +523,18 @@ function areSimilarRecipes(existingKeys: string[], newKeys: string[]): boolean {
   return similarity >= 0.8; // 80% ingredient overlap = duplicate
 }
 
+// Sanitize recipe title: remove decorative words, parenthetical notes, limit length
+function sanitizeRecipeTitle(name: string): string {
+  let clean = name;
+  clean = clean.replace(/\s*\([^)]+\)\s*/g, '');
+  clean = clean.replace(/\s+en\s+\d+\s+minutos?\s*$/gi, '');
+  const decorativeWords = /\b(Express|Rápido|Rápida|Caseras?|Mañanero|Revitalizante|Rústicas?|Cremoso|Cremosa|Glaseadas?|Sorpresa|Explosivo|Mágico|Mágica|Irresistible|Supremo|Suprema|Celestial|Divino|Divina|Espectacular|Exquisito|Exquisita|Sensacional|Tentador|Tentadora|Increíble|Fantástico|Fantástica|Delicioso|Deliciosa|Especial|Gourmet|Premium|Súper|Ultra)\b/gi;
+  clean = clean.replace(decorativeWords, '');
+  clean = clean.replace(/\s+(al|con|de|del|en|y|a la|el|la|los|las)\s*$/gi, '');
+  clean = clean.replace(/\s+/g, ' ').trim();
+  return clean;
+}
+
 async function cacheRecipes(
   recipes: any[],
   ingredients: string[],
@@ -541,6 +557,9 @@ async function cacheRecipes(
   const userCanonicals = [...new Set(ingredients.map(i => getCanonicalIngredient(i)))];
   
   for (const recipe of recipes) {
+    // Sanitize title before caching
+    recipe.name = sanitizeRecipeTitle(recipe.name);
+    
     // Also extract from recipe for extra coverage, merge with user's
     const extractedKeys = extractKeyIngredients(recipe.ingredients || []);
     const mergedKeys = [...new Set([...userCanonicals, ...extractedKeys])].slice(0, 8);
