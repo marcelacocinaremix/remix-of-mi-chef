@@ -222,78 +222,8 @@ export default function Index() {
     setIsGeneratingAI(false);
 
     const recentRecipes = getRecentRecipeNames(7);
-    const isLimitedMode = true; // App is now free with daily limit
 
-    // HYBRID MODE: First try to get instant cached recipes
-    try {
-      const { data: cachedData, error: cacheError } = await supabase.functions.invoke('generate-recipe', {
-        body: { 
-          ingredients, 
-          time, 
-          mealType,
-          quickFilters,
-          difficulty: filters.difficulty,
-          diet: filters.diet,
-          excludeIngredients: filters.excludeIngredients,
-          servings: filters.servings,
-          cookingMethod: filters.cookingMethod,
-          budget: filters.budget,
-          language: language,
-          useCacheOnly: true
-        }
-      });
-
-      // Check for daily limit in hybrid mode too
-      if (cacheError || cachedData?.dailyLimitReached) {
-        const errorStr = JSON.stringify(cacheError || {}).toLowerCase();
-        const is429 = errorStr.includes('429') || errorStr.includes('límite') || cachedData?.dailyLimitReached;
-        
-        if (is429) {
-          toast({
-            title: "🍳 ¡Se acabaron tus recetas de hoy!",
-            description: `Ya usaste tus ${isPremium ? 10 : 3} recetas del día. ¡Volvé mañana para seguir cocinando!`,
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        }
-      }
-
-      if (cachedData?.recipes && cachedData.recipes.length > 0 && cachedData.source === 'cache') {
-        // Cache hit — show recipe immediately
-        setRecipes(cachedData.recipes);
-        addCookedRecipe(cachedData.recipes[0]);
-        const matchInfo = cachedData.matchInfo;
-        const isPartial = matchInfo && matchInfo.percentage < 100;
-        toast({
-          title: isPartial ? `Receta con ${matchInfo.matched} de ${matchInfo.total} ingredientes` : "¡Receta lista!",
-          description: isPartial 
-            ? `Coincidencia del ${matchInfo.percentage}%. Probá quitando algún ingrediente para más opciones.`
-            : "¡Encontré una receta perfecta para vos!",
-        });
-        setIsLoading(false);
-        refetchPremium();
-        return;
-      }
-    } catch (cacheError: any) {
-      console.log('Cache lookup failed:', cacheError);
-      const errorStr = JSON.stringify(cacheError || {}).toLowerCase();
-      const errorMessage = cacheError?.message?.toLowerCase() || '';
-      const is429 = errorStr.includes('429') || errorStr.includes('límite') || 
-                    errorStr.includes('dailylimit') || errorMessage.includes('429');
-      
-      if (is429) {
-        toast({
-            title: "🍳 ¡Se acabaron tus recetas de hoy!",
-            description: `Ya usaste tus ${isPremium ? 10 : 3} recetas del día. ¡Volvé mañana para seguir cocinando!`,
-            variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-    }
-
-    // Generate with AI in parallel
+    // SINGLE CALL: Backend handles free (DB only) vs premium (DB + AI fallback)
     setIsGeneratingAI(true);
     try {
       const { data, error } = await supabase.functions.invoke('generate-recipe', {
@@ -310,12 +240,10 @@ export default function Index() {
           budget: filters.budget,
           excludeRecipes: recentRecipes,
           language: language,
-          limitedMode: isLimitedMode
         }
       });
 
       if (error) {
-        // Check if it's a daily limit error (429) - check multiple formats
         const errorStr = JSON.stringify(error).toLowerCase();
         const is429 = error.message?.includes('429') || 
                       error.status === 429 ||
@@ -366,22 +294,22 @@ export default function Index() {
         return;
       }
       
-       // Handle fallback recipes from cache (no more emergency recipes)
+       // Handle cache hit with match info
        if (data?.recipes && data.recipes.length > 0 && data.source === 'cache') {
          setRecipes(data.recipes);
-         setInstantRecipe(data.recipes[0]);
+         addCookedRecipe(data.recipes[0]);
          
-         // Save to history
-         if (data.recipes[0]) {
-           addCookedRecipe(data.recipes[0]);
-         }
-         
+         const matchInfo = data.matchInfo;
+         const isPartial = matchInfo && matchInfo.percentage < 100;
          toast({
-           title: "Usando recetas guardadas",
-           description: "La IA está con mucha demanda, pero te dejo opciones instantáneas.",
+           title: isPartial ? `Receta con ${matchInfo.matched} de ${matchInfo.total} ingredientes` : "¡Receta lista!",
+           description: isPartial 
+             ? `Coincidencia del ${matchInfo.percentage}%. Probá quitando algún ingrediente para más opciones.`
+             : "¡Encontré una receta perfecta para vos!",
          });
          setIsLoading(false);
          setIsGeneratingAI(false);
+         refetchPremium();
          return;
        }
 
