@@ -869,6 +869,11 @@ INSTRUCCIONES ESTRICTAS:
 7. Evitá recetas gourmet o complejas.
 8. Incluí información nutricional estimada por porción.
 9. MUY IMPORTANTE: En los textos NO uses comillas dobles. Si necesitas enfatizar algo, usa comillas simples.
+10. **REGLA DE TÍTULOS**: El nombre de la receta DEBE ser simple, genérico y descriptivo. Máximo 5 palabras.
+    - CORRECTO: "Pollo al horno", "Arroz con verduras", "Tortilla de papa", "Matambre con queso", "Milanesa de pollo"
+    - INCORRECTO: "Explosión de sabores del campo", "Irresistible pollo mágico", "Delicia criolla suprema"
+    - NO usar adjetivos exagerados como: explosivo, mágico, irresistible, supremo, celestial, divino, espectacular.
+    - El título debe describir exactamente qué es la receta, sin frases decorativas ni creativas.
 
 FORMATO DE RESPUESTA (JSON válido estricto):
 {
