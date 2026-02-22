@@ -1038,11 +1038,11 @@ serve(async (req) => {
     
     console.log(`User ${limitCheck.userId} usage: ${limitCheck.usesToday}/${limitCheck.remaining + limitCheck.usesToday}`);
 
-    // Determine thresholds based on premium status
+    // Both free and premium use same cache threshold; AI fallback for both when < 90%
     const isFreeUser = !limitCheck.isPremium;
-    const cacheThreshold = isFreeUser ? 0.80 : 0.95; // Free: 80% min, Premium: 95% min
+    const cacheThreshold = 0.90; // 90% min for both plans
     
-    console.log(`User mode: ${isFreeUser ? 'FREE (DB only)' : 'PREMIUM (DB + AI fallback)'}, cache threshold: ${cacheThreshold}`);
+    console.log(`User mode: ${isFreeUser ? 'FREE' : 'PREMIUM'}, cache threshold: ${cacheThreshold}, AI fallback enabled for both`);
 
     // STEP 2: Try cache first
     if (ingredients && ingredients.length > 0 && !surpriseMode) {
@@ -1080,9 +1080,9 @@ serve(async (req) => {
       }
     }
     
-    // FREE USER: Never call AI, return empty with clear message
-    if (isFreeUser || useCacheOnly) {
-      console.log(`🚫 ${isFreeUser ? 'Free user' : 'Cache-only mode'}: no cache hit, returning empty`);
+    // Cache-only mode (explicit flag only, NOT based on free/premium)
+    if (useCacheOnly) {
+      console.log(`🚫 Cache-only mode: no cache hit, returning empty`);
       return new Response(JSON.stringify({ 
         recipes: [],
         source: 'cache',
