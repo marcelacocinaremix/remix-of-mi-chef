@@ -523,13 +523,26 @@ function areSimilarRecipes(existingKeys: string[], newKeys: string[]): boolean {
   return similarity >= 0.8; // 80% ingredient overlap = duplicate
 }
 
-// Sanitize recipe title: remove decorative words, parenthetical notes, limit length
+// Sanitize recipe title: remove decorative words, diminutives, parenthetical notes
 function sanitizeRecipeTitle(name: string): string {
   let clean = name;
+  // Remove parenthetical notes and subtitles
   clean = clean.replace(/\s*\([^)]+\)\s*/g, '');
+  clean = clean.replace(/:\s+.*$/, '');
   clean = clean.replace(/\s+en\s+\d+\s+minutos?\s*$/gi, '');
-  const decorativeWords = /\b(Express|Rápido|Rápida|Caseras?|Mañanero|Revitalizante|Rústicas?|Cremoso|Cremosa|Glaseadas?|Sorpresa|Explosivo|Mágico|Mágica|Irresistible|Supremo|Suprema|Celestial|Divino|Divina|Espectacular|Exquisito|Exquisita|Sensacional|Tentador|Tentadora|Increíble|Fantástico|Fantástica|Delicioso|Deliciosa|Especial|Gourmet|Premium|Súper|Ultra)\b/gi;
+  // Replace diminutives with proper names
+  const diminutives: Record<string, string> = {
+    'pollito': 'pollo', 'pechuguitas': 'pechugas', 'salmoncito': 'salmón',
+    'verduritas': 'verduras', 'costillitas': 'costillas', 'pechito': 'pechuga',
+    'papitas': 'papas', 'cebollitas': 'cebollas', 'tomatitos': 'tomates',
+  };
+  for (const [dim, proper] of Object.entries(diminutives)) {
+    clean = clean.replace(new RegExp(`\\b${dim}\\b`, 'gi'), proper);
+  }
+  // Remove decorative adjectives
+  const decorativeWords = /\b(Express|Rápido|Rápida|Caseras?|Mañanero|Revitalizante|Rústicas?|Cremoso|Cremosa|Glaseadas?|Sorpresa|Explosivo|Mágico|Mágica|Irresistible|Supremo|Suprema|Celestial|Divino|Divina|Espectacular|Exquisito|Exquisita|Sensacional|Tentador|Tentadora|Increíble|Fantástico|Fantástica|Delicioso|Deliciosa|Especial|Gourmet|Premium|Súper|Ultra|Desestructurad[oa]|Patagónic[oa]|Reversionad[oa]|Fortificador|Ahumados?|Crocantes?)\b/gi;
   clean = clean.replace(decorativeWords, '');
+  // Remove orphaned trailing prepositions
   clean = clean.replace(/\s+(al|con|de|del|en|y|a la|el|la|los|las)\s*$/gi, '');
   clean = clean.replace(/\s+/g, ' ').trim();
   return clean;
