@@ -1000,7 +1000,7 @@ serve(async (req) => {
       if (cacheResult.recipes.length > 0) {
         const validCached = cacheResult.recipes.filter((r: any) => validateRecipeIngredients(r, ingredients, [...(quickFilters || []), ...(diet || [])], excludeIngredients || []));
         if (validCached.length > 0) {
-          // Consume credit ONLY now that we have a valid recipe
+          // Always consume credit on cache hit
           if (limitCheck.userId) {
             await consumeDailyCredit(limitCheck.userId, limitCheck.isPremium);
           }
