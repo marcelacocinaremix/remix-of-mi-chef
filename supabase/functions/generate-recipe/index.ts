@@ -124,7 +124,7 @@ const stopwords = new Set([
 
 // Expanded synonym map: canonical → variants
 const ingredientSynonyms: Record<string, string[]> = {
-  'pollo':    ['pechuga', 'muslo', 'ala', 'pata', 'pata muslo', 'suprema', 'pollo entero', 'trutro'],
+  'pollo':    ['pechuga', 'muslo', 'pata muslo', 'suprema', 'pollo entero', 'trutro', 'ala de pollo'],
   'carne':    ['bife', 'lomo', 'picada', 'milanesa', 'nalga', 'cuadril', 'asado', 'vacuno', 'ternera', 'vacio', 'entraña', 'tapa', 'paleta', 'osobuco', 'roast beef', 'carne molida'],
   'cerdo':    ['bondiola', 'matambre', 'costeleta', 'jamon', 'panceta', 'chorizo', 'lomo de cerdo', 'costilla', 'solomillo'],
   'pescado':  ['merluza', 'salmon', 'atun', 'trucha', 'lenguado', 'surubi', 'corvina', 'caballa', 'sardina', 'filet de pescado'],
@@ -269,7 +269,14 @@ async function searchCachedRecipes(
     for (const userCanonical of userCanonicals) {
       const userVars = getIngredientVariants(userCanonical);
       const hit = userVars.some(uv => 
-        recipeVariants.some(rv => rv.includes(uv) || uv.includes(rv))
+        recipeVariants.some(rv => {
+          // Use word-boundary matching to avoid partial matches like "ala" in "calabaza"
+          if (uv.length <= 3) {
+            // Short words must match exactly
+            return rv === uv;
+          }
+          return rv === uv || rv.includes(uv) || uv.includes(rv);
+        })
       );
       if (hit) matchedUserCount++;
     }
@@ -278,19 +285,26 @@ async function searchCachedRecipes(
     let matchedRecipeCount = 0;
     for (const rk of recipeKeys) {
       const rkVars = getIngredientVariants(rk);
-      const hit = rkVars.some(rv =>
-        userVariantsFlat.some(uv => uv.includes(rv) || rv.includes(uv))
-      );
+      const hit = rkVars.some(rv => {
+        if (rv.length <= 3) {
+          return userVariantsFlat.some(uv => uv === rv);
+        }
+        return userVariantsFlat.some(uv => uv.includes(rv) || rv.includes(uv));
+      });
       if (hit) matchedRecipeCount++;
     }
     
     const userCoverage = userCanonicals.length > 0 ? matchedUserCount / userCanonicals.length : 0;
     const recipeCoverage = recipeKeys.length > 0 ? matchedRecipeCount / recipeKeys.length : 0;
     
-    // PRIMARY: Does the recipe use what the user asked for? (most important)
-    // SECONDARY: Does the user have what the recipe needs?
-    // userCoverage is the primary gate - we want recipes that USE the user's ingredients
-    const combinedScore = (userCoverage * 0.75) + (recipeCoverage * 0.25);
+    // STRICT: ALL user ingredients must be in the recipe (99% match policy)
+    // If any user ingredient is missing from the recipe, disqualify it
+    if (userCoverage < 1.0) {
+      return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0 };
+    }
+    
+    // Score based on how well the recipe matches (recipeCoverage as secondary)
+    const combinedScore = 0.80 + (recipeCoverage * 0.20);
     
     // Meal type bonus
     let mealBonus = 0;
@@ -355,7 +369,7 @@ async function searchCachedRecipes(
   
   // Filter and sort
   const matched = scoredRecipes
-    .filter(r => r.matchScore >= minMatchScore && r.userCoverage >= 0.95 && r.recipeCoverage >= 0.4)
+    .filter(r => r.matchScore > 0 && r.userCoverage >= 1.0)
     .sort((a, b) => b.matchScore - a.matchScore)
     .slice(0, 3);
   
