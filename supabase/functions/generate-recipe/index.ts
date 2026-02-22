@@ -1038,9 +1038,9 @@ serve(async (req) => {
     
     console.log(`User ${limitCheck.userId} usage: ${limitCheck.usesToday}/${limitCheck.remaining + limitCheck.usesToday}`);
 
-    // Both free and premium use same cache threshold; AI fallback for both when < 90%
+    // Both free and premium use 98% threshold for maximum relevance; AI fills the gap
     const isFreeUser = !limitCheck.isPremium;
-    const cacheThreshold = 0.90; // 90% min for both plans
+    const cacheThreshold = 0.98; // 98% min for both plans — best user experience
     
     console.log(`User mode: ${isFreeUser ? 'FREE' : 'PREMIUM'}, cache threshold: ${cacheThreshold}, AI fallback enabled for both`);
 
