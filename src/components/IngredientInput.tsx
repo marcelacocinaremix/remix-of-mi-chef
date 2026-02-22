@@ -62,7 +62,7 @@ export function IngredientInput({ ingredients, onIngredientsChange }: Ingredient
   // Update suggestions when input changes
   useEffect(() => {
     if (inputValue.trim().length > 0 && !isAtMax) {
-      const results = searchIngredients(inputValue, 8)
+      const results = searchIngredients(inputValue, 20)
         .filter(ing => !ingredients.includes(ing.id));
       setSuggestions(results);
       setShowSuggestions(results.length > 0);
