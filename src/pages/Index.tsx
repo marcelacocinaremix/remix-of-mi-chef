@@ -43,12 +43,15 @@ import { useAchievements } from "@/hooks/useAchievements";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
+import { useAdMob } from "@/hooks/useAdMob";
 
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
   const { user } = useAuth();
   const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium } = usePremium();
+  const { showInterstitial, initialize: initAdMob } = useAdMob();
   const isMobile = useIsMobile();
+
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [time, setTime] = useState<number>(30);
   const [mealType, setMealType] = useState<string | null>(null);
@@ -106,6 +109,11 @@ export default function Index() {
       setActiveTab("inicio");
     }
   }, [user]);
+
+  // Initialize AdMob on mount
+  useEffect(() => {
+    initAdMob();
+  }, [initAdMob]);
 
   // Show onboarding if first visit OR if user is not logged in
   if (isFirstVisit || !user) {
@@ -209,6 +217,10 @@ export default function Index() {
         });
         return;
       }
+    }
+    // Show interstitial ad for free users before generating
+    if (!isPremium) {
+      await showInterstitial();
     }
 
     playSound('magic');
