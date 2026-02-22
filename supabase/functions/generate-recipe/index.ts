@@ -256,11 +256,13 @@ async function searchCachedRecipes(
       getIngredientVariants(i)
     );
     
-    // Check recipe time fits user's time constraint
+    // Check recipe time fits user's time constraint (flexible: allow up to 2x for cache)
     const recipeTime = (recipe.recipe_data as any)?.time || 30;
-    if (recipeTime > time * 1.2) {
+    if (recipeTime > time * 2) {
       return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0 };
     }
+    // Small penalty for recipes that exceed user's time
+    const timePenalty = recipeTime > time ? Math.min((recipeTime - time) / time * 0.05, 0.1) : 0;
     
     // How many of the USER's ingredients does this recipe use?
     let matchedUserCount = 0;
@@ -345,7 +347,7 @@ async function searchCachedRecipes(
     
     return {
       ...recipe,
-      matchScore: combinedScore + mealBonus + popularityBonus,
+      matchScore: combinedScore + mealBonus + popularityBonus - timePenalty,
       recipeCoverage,
       userCoverage
     };
@@ -1073,10 +1075,14 @@ Generá UNA SOLA receta sorpresa con estas características:
     if (!response || !response.ok) {
       console.error('All models failed');
 
-      // Fallback to cache with very low threshold
+      // Fallback to cache with lower threshold
       if (!surpriseMode && ingredients && ingredients.length > 0) {
         const cacheResult = await searchCachedRecipes(ingredients, time || 30, mealType, language || 'es', 0.7, quickFilters || [], diet || [], excludeIngredients || []);
         if (cacheResult.recipes.length > 0) {
+          // Consume credit for fallback cache hit too
+          if (limitCheck.userId) {
+            await consumeDailyCredit(limitCheck.userId, limitCheck.isPremium);
+          }
           return new Response(JSON.stringify({
             recipes: cacheResult.recipes,
             source: 'cache',
