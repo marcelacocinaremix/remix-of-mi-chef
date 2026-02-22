@@ -123,33 +123,45 @@ const stopwords = new Set([
 ]);
 
 // Expanded synonym map: canonical → variants
+// Includes normalized IDs from the frontend (e.g., carne_picada, muslo_pollo)
 const ingredientSynonyms: Record<string, string[]> = {
-  'pollo':    ['pechuga', 'muslo', 'pata muslo', 'suprema', 'pollo entero', 'trutro', 'ala de pollo'],
-  'carne':    ['bife', 'lomo', 'picada', 'milanesa', 'nalga', 'cuadril', 'asado', 'vacuno', 'ternera', 'vacio', 'entraña', 'tapa', 'paleta', 'osobuco', 'roast beef', 'carne molida'],
-  'cerdo':    ['bondiola', 'matambre', 'costeleta', 'jamon', 'panceta', 'chorizo', 'lomo de cerdo', 'costilla', 'solomillo'],
-  'pescado':  ['merluza', 'salmon', 'atun', 'trucha', 'lenguado', 'surubi', 'corvina', 'caballa', 'sardina', 'filet de pescado'],
-  'papa':     ['patata', 'papas', 'papines'],
-  'tomate':   ['tomates', 'cherry', 'perita', 'salsa de tomate', 'pure de tomate', 'tomate triturado'],
-  'cebolla':  ['cebollas', 'cebollita', 'verdeo', 'cebolla morada', 'cebolla blanca', 'echalote', 'chalota'],
-  'ajo':      ['ajos', 'diente de ajo', 'ajo en polvo'],
-  'queso':    ['muzzarella', 'mozzarella', 'parmesano', 'cremoso', 'cheddar', 'roquefort', 'provolone', 'reggianito', 'gruyere', 'fontina', 'brie', 'camembert', 'dambo', 'port salut', 'queso crema', 'ricota'],
-  'huevo':    ['huevos', 'clara', 'claras', 'yema', 'yemas'],
+  'pollo':    ['pechuga', 'muslo', 'pata muslo', 'suprema', 'pollo entero', 'trutro', 'ala de pollo', 'muslo_pollo', 'alitas', 'pechuga de pollo'],
+  'carne':    ['bife', 'lomo', 'picada', 'milanesa', 'nalga', 'cuadril', 'asado', 'vacuno', 'ternera', 'vacio', 'entraña', 'tapa', 'paleta', 'osobuco', 'roast beef', 'carne molida', 'carne picada', 'carne_picada', 'costilla', 'matambre', 'entrana', 'mondongo'],
+  'cerdo':    ['bondiola', 'costeleta', 'jamon', 'panceta', 'chorizo', 'lomo de cerdo', 'costilla de cerdo', 'costillas_cerdo', 'solomillo', 'carre', 'carré', 'carre de cerdo', 'tocino', 'bacon', 'salchicha', 'frankfurt'],
+  'pescado':  ['merluza', 'salmon', 'atun', 'trucha', 'lenguado', 'surubi', 'corvina', 'caballa', 'sardina', 'filet de pescado', 'filete de pescado', 'tilapia', 'mero', 'brotola', 'abadejo', 'pejerrey', 'dorado', 'pez espada', 'pez_espada'],
+  'papa':     ['patata', 'papas', 'papines', 'papas medianas'],
+  'tomate':   ['tomates', 'cherry', 'perita', 'salsa de tomate', 'pure de tomate', 'tomate triturado', 'tomate_triturado', 'tomate_perita', 'salsa_tomate', 'jitomate'],
+  'cebolla':  ['cebollas', 'cebollita', 'verdeo', 'cebolla morada', 'cebolla blanca', 'cebolla mediana', 'cebolla de verdeo', 'echalote', 'chalota'],
+  'ajo':      ['ajos', 'diente de ajo', 'ajo en polvo', 'ajo picado'],
+  'queso':    ['muzzarella', 'mozzarella', 'parmesano', 'cremoso', 'cheddar', 'roquefort', 'provolone', 'reggianito', 'gruyere', 'fontina', 'brie', 'camembert', 'dambo', 'port salut', 'queso crema', 'queso_crema', 'ricota', 'queso rallado', 'queso_rallado', 'queso_azul', 'mozzarella rallado', 'cheddar rallado'],
+  'huevo':    ['huevos', 'clara', 'claras', 'yema', 'yemas', '2 huevos', '4 huevos'],
   'leche':    ['crema', 'nata', 'crema de leche', 'leche entera', 'leche descremada'],
-  'arroz':    ['arroz integral', 'arroz blanco', 'arroz largo', 'arroz yamaní', 'arroz arborio'],
-  'pasta':    ['fideos', 'spaghetti', 'tallarines', 'mostachol', 'tirabuzon', 'penne', 'fusilli', 'rigatoni', 'lasagna', 'ravioles', 'ñoquis', 'canelones', 'fetuccini', 'noquis'],
-  'pan':      ['pan rallado', 'pan lactal', 'baguette', 'pan de molde', 'pan integral', 'tostada', 'miñon'],
-  'zapallo':  ['calabaza', 'anco', 'zapallito', 'zapallito largo', 'zucchini', 'calabacin'],
-  'morron':   ['pimiento', 'aji', 'aji rojo', 'aji verde', 'pimiento rojo', 'pimiento verde', 'pimiento amarillo'],
-  'batata':   ['boniato', 'camote', 'papa dulce'],
+  'arroz':    ['arroz integral', 'arroz blanco', 'arroz largo', 'arroz yamaní', 'arroz arborio', 'arroz_integral'],
+  'pasta':    ['fideos', 'spaghetti', 'tallarines', 'mostachol', 'tirabuzon', 'penne', 'fusilli', 'rigatoni', 'lasagna', 'ravioles', 'ñoquis', 'canelones', 'fetuccini', 'noquis', 'fideos secos', 'fideos de arroz'],
+  'pan':      ['pan rallado', 'pan_rallado', 'pan lactal', 'baguette', 'pan de molde', 'pan integral', 'tostada', 'miñon', 'pan pita'],
+  'zapallo':  ['calabaza', 'anco', 'zapallito', 'zapallito largo', 'zucchini', 'calabacin', 'calabaza mediana', 'zapallo_anco'],
+  'morron':   ['pimiento', 'aji', 'aji rojo', 'aji verde', 'pimiento rojo', 'pimiento verde', 'pimiento amarillo', 'morrón (pimiento)'],
+  'batata':   ['boniato', 'camote', 'papa dulce', 'batatas medianas'],
   'banana':   ['banano', 'platano'],
-  'choclo':   ['maiz', 'elote', 'mazorca'],
-  'poroto':   ['frijol', 'alubia', 'poroto negro', 'poroto colorado', 'poroto blanco', 'garbanzo', 'lenteja'],
+  'choclo':   ['maiz', 'maíz', 'elote', 'mazorca', 'choclo desgranado', 'choclo_lata'],
+  'poroto':   ['frijol', 'alubia', 'poroto negro', 'poroto colorado', 'poroto blanco', 'garbanzo', 'lenteja', 'porotos', 'garbanzos', 'lentejas', 'porotos_verdes'],
   'manteca':  ['mantequilla', 'margarina'],
-  'aceite':   ['aceite de oliva', 'aceite de girasol', 'aceite de maiz', 'aceite vegetal'],
-  'harina':   ['harina leudante', 'harina 000', 'harina 0000', 'harina integral', 'fecula', 'maicena', 'almidon'],
-  'azucar':   ['azucar impalpable', 'azucar mascabo', 'azucar rubia', 'edulcorante', 'stevia', 'miel'],
+  'aceite':   ['aceite de oliva', 'aceite de girasol', 'aceite de maiz', 'aceite vegetal', 'aceite_oliva'],
+  'harina':   ['harina leudante', 'harina 000', 'harina 0000', 'harina integral', 'fecula', 'maicena', 'almidon', 'almidón de mandioca'],
+  'azucar':   ['azucar impalpable', 'azucar mascabo', 'azucar rubia', 'edulcorante', 'stevia', 'miel', 'azúcar'],
   'espinaca': ['acelga', 'kale', 'berro', 'rucula'],
-  'lechuga':  ['radicheta', 'radicchio', 'escarola'],
+  'lechuga':  ['radicheta', 'radicchio', 'escarola', 'lecguga'],
+  'camaron':  ['camarones', 'gambas', 'langostino', 'langostinos'],
+  'hongos':   ['champiñones', 'champignones', 'champinones laminados', 'setas', 'portobellos'],
+  'palta':    ['aguacate', 'avocado', 'palta madura'],
+  'limon':    ['limón', 'lima'],
+  'dulce_de_leche': ['dulce de leche'],
+  'salmon':   ['lomo de salmon', 'filet de salmon', 'salmón'],
+  'atun':     ['atún', 'lomo de atun', 'atun_lata', 'atún en lata'],
+  'merluza':  ['filet de merluza'],
+  'morcilla': [],
+  'cordero':  [],
+  'conejo':   [],
 };
 
 // Remove accents from text
@@ -234,11 +246,29 @@ async function searchCachedRecipes(
   });
   
   // Build query - pre-filter by overlapping ingredients for better performance
+  // Use ALL variants (canonical + synonyms) to catch variant names stored in DB
+  const overlapTerms = new Set<string>();
+  for (const canonical of userCanonicals) {
+    overlapTerms.add(canonical);
+    if (ingredientSynonyms[canonical]) {
+      for (const syn of ingredientSynonyms[canonical]) {
+        overlapTerms.add(removeAccents(syn.toLowerCase()));
+      }
+    }
+  }
+  // Also add the raw ingredient names as-is
+  for (const ing of ingredients) {
+    overlapTerms.add(removeAccents(ing.toLowerCase().trim()));
+  }
+  const overlapArray = [...overlapTerms];
+  
+  console.log('Overlap filter terms:', overlapArray.slice(0, 20), '...(total:', overlapArray.length, ')');
+  
   let query = supabase
     .from('cached_recipes')
     .select('*')
     .eq('language', language)
-    .overlaps('main_ingredients', userCanonicals)
+    .overlaps('main_ingredients', overlapArray)
     .order('usage_count', { ascending: false });
   
   const { data: recipes, error } = await query.limit(500);
