@@ -94,6 +94,8 @@ export default function Index() {
   const [loginRequired, setLoginRequired] = useState<string | null>(null);
   const [showLoginFloatingMessage, setShowLoginFloatingMessage] = useState(false);
   const [pendingSuggestion, setPendingSuggestion] = useState<{ name: string; reason: string } | null>(null);
+  // Track shown recipes per session to rotate and avoid repeats
+  const [shownRecipeNames, setShownRecipeNames] = useState<string[]>([]);
 
   // Compute the active tab for Marcela (use sub-tab when available)
   const marcelaActiveTab = activeSubTab || activeTab;
@@ -222,6 +224,8 @@ export default function Index() {
     setIsGeneratingAI(false);
 
     const recentRecipes = getRecentRecipeNames(7);
+    // Combine recently cooked + already shown this session for rotation
+    const allExcluded = [...new Set([...recentRecipes, ...shownRecipeNames])];
 
     // SINGLE CALL: Backend handles free (DB only) vs premium (DB + AI fallback)
     setIsGeneratingAI(true);
@@ -238,7 +242,7 @@ export default function Index() {
           servings: filters.servings,
           cookingMethod: filters.cookingMethod,
           budget: filters.budget,
-          excludeRecipes: recentRecipes,
+          excludeRecipes: allExcluded,
           language: language,
         }
       });
@@ -298,6 +302,11 @@ export default function Index() {
        if (data?.recipes && data.recipes.length > 0 && data.source === 'cache') {
          setRecipes(data.recipes);
          addCookedRecipe(data.recipes[0]);
+         // Track shown recipe name for rotation
+         const recipeName = data.recipes[0]?.name || '';
+         if (recipeName) {
+           setShownRecipeNames(prev => [...prev, recipeName.toLowerCase()]);
+         }
          
          const matchInfo = data.matchInfo;
          const isPartial = matchInfo && matchInfo.percentage < 100;
@@ -346,9 +355,14 @@ export default function Index() {
         setInstantRecipe(null); // Clear instant recipe as we have AI recipes now
         
         // Save first recipe to history automatically
-        if (recipesToShow[0]) {
-          addCookedRecipe(recipesToShow[0]);
-        }
+         if (recipesToShow[0]) {
+           addCookedRecipe(recipesToShow[0]);
+           // Track shown recipe name for rotation
+           const aiName = recipesToShow[0]?.name || '';
+           if (aiName) {
+             setShownRecipeNames(prev => [...prev, aiName.toLowerCase()]);
+           }
+         }
         
         toast({
           title: "¡Receta lista!",
@@ -389,6 +403,7 @@ export default function Index() {
     setFilters({ difficulty: null, diet: [], excludeIngredients: [], servings: null, cookingMethod: null, budget: null, maxTime: null });
     setRecipes([]);
     setSelectedRecipe(null);
+    setShownRecipeNames([]); // Reset rotation on new search
   };
 
   const handleSelectRecipe = (recipe: Recipe | null) => {
