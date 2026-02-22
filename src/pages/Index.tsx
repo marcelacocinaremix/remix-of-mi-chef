@@ -260,12 +260,16 @@ export default function Index() {
       }
 
       if (cachedData?.recipes && cachedData.recipes.length > 0 && cachedData.source === 'cache') {
-        // Cache hit — show recipe immediately and stop (no AI call, no daily use consumed)
+        // Cache hit — show recipe immediately
         setRecipes(cachedData.recipes);
         addCookedRecipe(cachedData.recipes[0]);
+        const matchInfo = cachedData.matchInfo;
+        const isPartial = matchInfo && matchInfo.percentage < 100;
         toast({
-          title: "¡Receta lista!",
-          description: "¡Encontré una receta perfecta para vos!",
+          title: isPartial ? `Receta con ${matchInfo.matched} de ${matchInfo.total} ingredientes` : "¡Receta lista!",
+          description: isPartial 
+            ? `Coincidencia del ${matchInfo.percentage}%. Probá quitando algún ingrediente para más opciones.`
+            : "¡Encontré una receta perfecta para vos!",
         });
         setIsLoading(false);
         refetchPremium();
@@ -345,7 +349,6 @@ export default function Index() {
       }
       
       if (data?.error === 'no_food_ingredients' || (data?.recipes && data.recipes.length === 0)) {
-        // If we have cached recipes, keep them
         if (instantRecipe) {
           toast({
             title: "Usando recetas guardadas",
@@ -353,8 +356,8 @@ export default function Index() {
           });
         } else {
           toast({
-            title: "No encontré recetas",
-            description: "Parece que los ingredientes ingresados no son alimentos. ¡Probá con ingredientes de cocina!",
+            title: "No encontramos recetas con esos ingredientes",
+            description: "Probá quitando alguno para encontrar más opciones. 🍳",
             variant: "destructive",
           });
         }

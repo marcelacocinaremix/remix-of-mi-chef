@@ -256,14 +256,6 @@ async function searchCachedRecipes(
       getIngredientVariants(i)
     );
     
-    // Check recipe time fits user's time constraint (flexible: allow up to 2x for cache)
-    const recipeTime = (recipe.recipe_data as any)?.time || 30;
-    if (recipeTime > time * 2) {
-      return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0 };
-    }
-    // Small penalty for recipes that exceed user's time
-    const timePenalty = recipeTime > time ? Math.min((recipeTime - time) / time * 0.05, 0.1) : 0;
-    
     // How many of the USER's ingredients does this recipe use?
     let matchedUserCount = 0;
     for (const userCanonical of userCanonicals) {
@@ -297,52 +289,74 @@ async function searchCachedRecipes(
     const userCoverage = userCanonicals.length > 0 ? matchedUserCount / userCanonicals.length : 0;
     const recipeCoverage = recipeKeys.length > 0 ? matchedRecipeCount / recipeKeys.length : 0;
     
-    // STRICT: ALL user ingredients must be in the recipe (99% match policy)
-    // If any user ingredient is missing from the recipe, disqualify it
-    if (userCoverage < 1.0) {
-      return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0 };
+    // Minimum 80% user coverage — never show recipes below this
+    if (userCoverage < 0.80) {
+      return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0, matchedCount: 0, totalCount: userCanonicals.length };
     }
     
-    // Score based on how well the recipe matches (recipeCoverage as secondary)
-    const combinedScore = 0.80 + (recipeCoverage * 0.20);
+    // Score based on coverage
+    const combinedScore = (userCoverage * 0.80) + (recipeCoverage * 0.20);
     
     // Meal type bonus
     let mealBonus = 0;
     if (mealType && recipe.meal_type) {
-      const recipeMealTypes = (recipe.meal_type || '').split(',').map((m: string) => m.trim());
-      if (recipeMealTypes.includes(mealType)) mealBonus = 0.05;
+      const recipeMealType = recipe.meal_type.toLowerCase();
+      if (recipeMealType === mealType.toLowerCase()) {
+        mealBonus = 0.05;
+      }
     }
     
-    // FILTER VALIDATION: Check dietary filters against recipe tags & ingredients
-    const recipeTags = ((recipe.recipe_data as any)?.tags || recipe.tags || []).map((t: string) => removeAccents(t.toLowerCase()));
-    const recipeIngText = removeAccents(((recipe.recipe_data as any)?.ingredients || []).join(' ').toLowerCase());
-    const recipeNameText = removeAccents(((recipe.recipe_data as any)?.name || recipe.recipe_name || '').toLowerCase());
-    const recipeNutrition = (recipe.recipe_data as any)?.nutrition || {};
+    // TIME CHECK: reject recipes that take too long
+    const recipeTime = (recipe.recipe_data as any)?.time || 30;
+    if (recipeTime > time * 2) {
+      return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0, matchedCount: 0, totalCount: userCanonicals.length };
+    }
+    const timePenalty = recipeTime > time ? Math.min((recipeTime - time) / time * 0.05, 0.1) : 0;
     
-    // Check all filters compliance
-    const allFilters = [...new Set([...(quickFilters || []), ...(diet || [])])];
+    // QUICK FILTERS / DIET validation
     let filterPenalty = 0;
-    for (const filter of allFilters) {
-      const f = filter.toLowerCase();
-      if (f === 'vegetariano' && (recipeIngText.includes('pollo') || recipeIngText.includes('carne') || recipeIngText.includes('pescado') || recipeIngText.includes('cerdo') || recipeIngText.includes('bife') || recipeIngText.includes('milanesa') || recipeIngText.includes('jamon') || recipeIngText.includes('panceta') || recipeIngText.includes('bondiola') || recipeIngText.includes('chorizo') || recipeIngText.includes('rabas') || recipeIngText.includes('mariscos'))) {
-        filterPenalty = 1; break;
+    const recipeIngText = removeAccents(JSON.stringify(recipe.recipe_data).toLowerCase());
+    const recipeTags = (recipe.tags || []).map((t: string) => t.toLowerCase());
+    
+    for (const qf of (quickFilters || [])) {
+      const qfLower = qf.toLowerCase();
+      switch (qfLower) {
+        case 'vegetariano':
+        case 'vegano':
+          if (!recipeTags.includes(qfLower)) {
+            const meatTerms = ['pollo', 'carne', 'cerdo', 'pescado', 'jamon', 'panceta', 'chorizo', 'bondiola'];
+            if (meatTerms.some(m => recipeIngText.includes(m))) filterPenalty = 1;
+          }
+          break;
+        case 'sin-gluten':
+          if (['harina', 'pan ', 'pan,', 'fideos', 'pasta', 'spaghetti'].some(g => recipeIngText.includes(g))) filterPenalty = 1;
+          break;
+        case 'sin-lactosa':
+          if (['leche', 'queso', 'crema', 'manteca', 'yogur', 'mozzarella'].some(l => recipeIngText.includes(l))) filterPenalty = 1;
+          break;
       }
-      if (f === 'sin-gluten' && (recipeIngText.includes('harina') || recipeIngText.includes('pan ') || recipeIngText.includes('pan,') || recipeIngText.includes('fideos') || recipeIngText.includes('pasta') || recipeIngText.includes('spaghetti') || recipeIngText.includes('tallarines') || recipeIngText.includes('galletitas'))) {
-        filterPenalty = 1; break;
-      }
-      if (f === 'sin-lactosa' && (recipeIngText.includes('leche') || recipeIngText.includes('queso') || recipeIngText.includes('crema') || recipeIngText.includes('manteca') || recipeIngText.includes('muzzarella') || recipeIngText.includes('mozzarella') || recipeIngText.includes('yogur') || recipeIngText.includes('ricota'))) {
-        filterPenalty = 1; break;
-      }
-      if (f === 'alto-proteina' && recipeNutrition.protein && recipeNutrition.protein < 20) {
-        filterPenalty = 1; break;
-      }
-      if (f === 'bajo-calorias' && recipeNutrition.calories && recipeNutrition.calories > 400) {
-        filterPenalty = 1; break;
+    }
+    
+    for (const d of (diet || [])) {
+      const dLower = d.toLowerCase();
+      switch (dLower) {
+        case 'vegetariano':
+        case 'vegano': {
+          const meatTerms = ['pollo', 'carne', 'cerdo', 'pescado', 'jamon', 'panceta', 'chorizo'];
+          if (meatTerms.some(m => recipeIngText.includes(m))) filterPenalty = 1;
+          break;
+        }
+        case 'sin-gluten':
+          if (['harina', 'pan ', 'pan,', 'fideos', 'pasta'].some(g => recipeIngText.includes(g))) filterPenalty = 1;
+          break;
+        case 'sin-lactosa':
+          if (['leche', 'queso', 'crema', 'manteca', 'yogur'].some(l => recipeIngText.includes(l))) filterPenalty = 1;
+          break;
       }
     }
     
     if (filterPenalty >= 1) {
-      return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0 };
+      return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0, matchedCount: 0, totalCount: userCanonicals.length };
     }
     
     // EXCLUDE INGREDIENTS: Disqualify if recipe contains excluded ingredients
@@ -351,7 +365,7 @@ async function searchCachedRecipes(
         const excCanonical = getCanonicalIngredient(excluded);
         const excVariants = getIngredientVariants(excCanonical);
         if (excVariants.some(v => recipeIngText.includes(removeAccents(v)))) {
-          return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0 };
+          return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0, matchedCount: 0, totalCount: userCanonicals.length };
         }
       }
     }
@@ -363,21 +377,57 @@ async function searchCachedRecipes(
       ...recipe,
       matchScore: combinedScore + mealBonus + popularityBonus - timePenalty,
       recipeCoverage,
-      userCoverage
+      userCoverage,
+      matchedCount: matchedUserCount,
+      totalCount: userCanonicals.length,
     };
   });
   
-  // Filter and sort
-  const matched = scoredRecipes
-    .filter(r => r.matchScore > 0 && r.userCoverage >= 1.0)
-    .sort((a, b) => b.matchScore - a.matchScore)
-    .slice(0, 3);
+  // ── Progressive matching: try 100% first, then relax down to 80% ──
+  const validRecipes = scoredRecipes.filter(r => r.matchScore > 0);
+  
+  // Sort by userCoverage desc first, then matchScore desc
+  validRecipes.sort((a, b) => {
+    if (b.userCoverage !== a.userCoverage) return b.userCoverage - a.userCoverage;
+    return b.matchScore - a.matchScore;
+  });
+  
+  // Try progressive thresholds: 100% → 80% (in steps matching ingredient count)
+  const totalIngredients = ingredients.length;
+  let matched: typeof validRecipes = [];
+  
+  // Build thresholds based on ingredient count
+  // e.g. 5 ingredients → [1.0, 0.8, 0.6 (but min 0.8)] → [1.0, 0.8]
+  // e.g. 4 ingredients → [1.0, 0.75 → 0.80] → [1.0, 0.80]  
+  // e.g. 3 ingredients → [1.0, 0.67 → skip] → [1.0]
+  // e.g. 2 ingredients → [1.0] only
+  const thresholds: number[] = [1.0];
+  if (totalIngredients >= 3) {
+    // Add intermediate thresholds: N-1/N, N-2/N etc, but never below 0.80
+    for (let miss = 1; miss < totalIngredients; miss++) {
+      const threshold = (totalIngredients - miss) / totalIngredients;
+      if (threshold >= 0.80) {
+        thresholds.push(threshold);
+      } else {
+        break;
+      }
+    }
+  }
+  
+  for (const threshold of thresholds) {
+    matched = validRecipes
+      .filter(r => r.userCoverage >= threshold)
+      .slice(0, 3);
+    
+    if (matched.length > 0) {
+      console.log(`Cache HIT at ${(threshold * 100).toFixed(0)}% threshold: ${matched.length} recipes`,
+        matched.map(r => ({ name: r.recipe_name, coverage: `${r.matchedCount}/${r.totalCount}`, score: r.matchScore.toFixed(2) }))
+      );
+      break;
+    }
+  }
   
   if (matched.length > 0) {
-    console.log(`Cache HIT: ${matched.length} recipes`, 
-      matched.map(r => ({ name: r.recipe_name, score: r.matchScore.toFixed(2) }))
-    );
-    
     // Increment usage count
     for (const recipe of matched) {
       await supabase
@@ -387,13 +437,25 @@ async function searchCachedRecipes(
     }
     
     return { 
-      recipes: matched.map(r => r.recipe_data),
+      recipes: matched.map(r => ({
+        ...r.recipe_data as any,
+        _matchInfo: {
+          matched: r.matchedCount,
+          total: r.totalCount,
+          percentage: Math.round(r.userCoverage * 100),
+        }
+      })),
       fromCache: true,
-      matchScore: matched[0].matchScore
+      matchScore: matched[0].matchScore,
+      matchInfo: {
+        matched: matched[0].matchedCount,
+        total: matched[0].totalCount,
+        percentage: Math.round(matched[0].userCoverage * 100),
+      }
     };
   }
   
-  console.log('Cache MISS: no recipes above threshold');
+  console.log('Cache MISS: no recipes above 80% threshold');
   return { recipes: [], fromCache: false, matchScore: 0 };
 }
 
