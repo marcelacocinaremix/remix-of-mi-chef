@@ -214,8 +214,9 @@ async function searchCachedRecipes(
   minMatchScore: number = 0.95,
   quickFilters: string[] = [],
   diet: string[] = [],
-  excludeIngredients: string[] = []
-): Promise<{ recipes: any[]; fromCache: boolean; matchScore: number }> {
+  excludeIngredients: string[] = [],
+  excludeRecipeNames: string[] = []
+): Promise<{ recipes: any[]; fromCache: boolean; matchScore: number; matchInfo?: any }> {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -383,8 +384,18 @@ async function searchCachedRecipes(
     };
   });
   
-  // ── Progressive matching: try 100% first, then relax down to 80% ──
+  // ── Progressive matching with rotation ──
   const validRecipes = scoredRecipes.filter(r => r.matchScore > 0);
+  
+  // Shuffle helper for rotation
+  function shuffleArray<T>(arr: T[]): T[] {
+    const shuffled = [...arr];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }
   
   // Sort by userCoverage desc first, then matchScore desc
   validRecipes.sort((a, b) => {
@@ -392,18 +403,15 @@ async function searchCachedRecipes(
     return b.matchScore - a.matchScore;
   });
   
+  // Normalize exclude recipe names for comparison
+  const excludeNamesNorm = (excludeRecipeNames || []).map((n: string) => removeAccents(n.toLowerCase().trim()));
+  
   // Try progressive thresholds: 100% → 80% (in steps matching ingredient count)
   const totalIngredients = ingredients.length;
   let matched: typeof validRecipes = [];
   
-  // Build thresholds based on ingredient count
-  // e.g. 5 ingredients → [1.0, 0.8, 0.6 (but min 0.8)] → [1.0, 0.8]
-  // e.g. 4 ingredients → [1.0, 0.75 → 0.80] → [1.0, 0.80]  
-  // e.g. 3 ingredients → [1.0, 0.67 → skip] → [1.0]
-  // e.g. 2 ingredients → [1.0] only
   const thresholds: number[] = [1.0];
   if (totalIngredients >= 3) {
-    // Add intermediate thresholds: N-1/N, N-2/N etc, but never below 0.80
     for (let miss = 1; miss < totalIngredients; miss++) {
       const threshold = (totalIngredients - miss) / totalIngredients;
       if (threshold >= 0.80) {
@@ -415,12 +423,36 @@ async function searchCachedRecipes(
   }
   
   for (const threshold of thresholds) {
-    matched = validRecipes
-      .filter(r => r.userCoverage >= threshold)
-      .slice(0, 3);
+    const atThreshold = validRecipes.filter(r => r.userCoverage >= threshold);
     
-    if (matched.length > 0) {
-      console.log(`Cache HIT at ${(threshold * 100).toFixed(0)}% threshold: ${matched.length} recipes`,
+    if (atThreshold.length > 0) {
+      // Separate: not recently shown vs recently shown
+      const notExcluded = atThreshold.filter(r => {
+        const nameNorm = removeAccents((r.recipe_name || '').toLowerCase().trim());
+        return !excludeNamesNorm.some((ex: string) => nameNorm.includes(ex) || ex.includes(nameNorm));
+      });
+      
+      // If ALL were excluded (full cycle), reset and use all
+      const pool = notExcluded.length > 0 ? notExcluded : atThreshold;
+      const cycleReset = notExcluded.length === 0 && atThreshold.length > 0;
+      
+      // Group by score bands (5%) and shuffle within each band
+      const scoreBands: Map<number, typeof validRecipes> = new Map();
+      for (const r of pool) {
+        const band = Math.round(r.matchScore * 20);
+        if (!scoreBands.has(band)) scoreBands.set(band, []);
+        scoreBands.get(band)!.push(r);
+      }
+      
+      const shuffledPool: typeof validRecipes = [];
+      const sortedBands = [...scoreBands.keys()].sort((a, b) => b - a);
+      for (const band of sortedBands) {
+        shuffledPool.push(...shuffleArray(scoreBands.get(band)!));
+      }
+      
+      matched = shuffledPool.slice(0, 1); // Return only 1 recipe
+      
+      console.log(`Cache HIT at ${(threshold * 100).toFixed(0)}% threshold: picked "${matched[0]?.recipe_name}" from ${pool.length} options (excluded: ${excludeNamesNorm.length}${cycleReset ? ', CYCLE RESET' : ''})`,
         matched.map(r => ({ name: r.recipe_name, coverage: `${r.matchedCount}/${r.totalCount}`, score: r.matchScore.toFixed(2) }))
       );
       break;
@@ -428,13 +460,11 @@ async function searchCachedRecipes(
   }
   
   if (matched.length > 0) {
-    // Increment usage count
-    for (const recipe of matched) {
-      await supabase
-        .from('cached_recipes')
-        .update({ usage_count: (recipe.usage_count || 0) + 1, updated_at: new Date().toISOString() })
-        .eq('id', recipe.id);
-    }
+    // Increment usage count only for the selected recipe
+    await supabase
+      .from('cached_recipes')
+      .update({ usage_count: (matched[0].usage_count || 0) + 1, updated_at: new Date().toISOString() })
+      .eq('id', matched[0].id);
     
     return { 
       recipes: matched.map(r => {
@@ -994,7 +1024,8 @@ serve(async (req) => {
         cacheThreshold,
         quickFilters || [],
         diet || [],
-        excludeIngredients || []
+        excludeIngredients || [],
+        excludeRecipes || []
       );
       
       if (cacheResult.recipes.length > 0) {
