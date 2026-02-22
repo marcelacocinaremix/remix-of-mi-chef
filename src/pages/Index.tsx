@@ -357,7 +357,7 @@ export default function Index() {
         } else {
           toast({
             title: "No encontramos recetas con esos ingredientes",
-            description: "Probá quitando alguno para encontrar más opciones. 🍳",
+            description: data?.message || "Probá quitando alguno para encontrar más opciones. 🍳",
             variant: "destructive",
           });
         }

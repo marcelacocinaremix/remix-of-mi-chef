@@ -978,14 +978,20 @@ serve(async (req) => {
     
     console.log(`User ${limitCheck.userId} usage: ${limitCheck.usesToday}/${limitCheck.remaining + limitCheck.usesToday}`);
 
-    // STEP 2: Try cache first (95% match)
+    // Determine thresholds based on premium status
+    const isFreeUser = !limitCheck.isPremium;
+    const cacheThreshold = isFreeUser ? 0.80 : 0.95; // Free: 80% min, Premium: 95% min
+    
+    console.log(`User mode: ${isFreeUser ? 'FREE (DB only)' : 'PREMIUM (DB + AI fallback)'}, cache threshold: ${cacheThreshold}`);
+
+    // STEP 2: Try cache first
     if (ingredients && ingredients.length > 0 && !surpriseMode) {
       const cacheResult = await searchCachedRecipes(
         ingredients, 
         time || 30, 
         mealType, 
         language || 'es',
-        0.95,
+        cacheThreshold,
         quickFilters || [],
         diet || [],
         excludeIngredients || []
@@ -1003,22 +1009,26 @@ serve(async (req) => {
             recipes: validCached.slice(0, 1),
             source: 'cache',
             isInstant: true,
-            matchScore: cacheResult.matchScore
+            matchScore: cacheResult.matchScore,
+            matchInfo: cacheResult.matchInfo || null
           }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
-        console.log('⚠️ Cached recipes failed ingredient validation, proceeding to AI');
+        console.log('⚠️ Cached recipes failed ingredient validation');
       }
     }
     
-    // CACHE ONLY MODE: Don't call AI
-    if (useCacheOnly) {
+    // FREE USER: Never call AI, return empty with clear message
+    if (isFreeUser || useCacheOnly) {
+      console.log(`🚫 ${isFreeUser ? 'Free user' : 'Cache-only mode'}: no cache hit, returning empty`);
       return new Response(JSON.stringify({ 
         recipes: [],
         source: 'cache',
         isInstant: true,
-        matchScore: 0
+        matchScore: 0,
+        noResults: true,
+        message: 'No encontramos recetas con esos ingredientes. Probá quitando alguno.'
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
