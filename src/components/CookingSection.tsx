@@ -242,11 +242,11 @@ export function CookingSection({
                 variant="default"
                 size="xl"
                 onClick={onGenerateRecipe}
-                disabled={isLoading}
+                disabled={isLoading || ingredients.length === 0}
                 className="group flex-1 min-w-[220px] py-6 px-8 text-lg font-bold rounded-2xl bg-primary hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
               >
                 <Sparkles className="w-6 h-6 group-hover:animate-spin" />
-                <span>{isLoading ? t("thinking") : t("giveRecipes")}</span>
+                <span>{isLoading ? t("thinking") : ingredients.length === 0 ? "Agregá ingredientes" : t("giveRecipes")}</span>
               </Button>
 
               {ingredients.length > 0 && (
