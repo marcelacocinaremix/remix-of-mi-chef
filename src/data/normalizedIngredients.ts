@@ -113,22 +113,29 @@ export const NORMALIZED_INGREDIENTS: NormalizedIngredient[] = [
   { id: "conejo",         name: "Conejo",         category: "carnes", emoji: "🐇", aliases: [] },
 
   // ── Pescados y Mariscos ──
-  { id: "merluza",    name: "Merluza",    category: "pescados", emoji: "🐟", aliases: [] },
-  { id: "salmon",     name: "Salmón",     category: "pescados", emoji: "🐟", aliases: [] },
-  { id: "atun",       name: "Atún",       category: "pescados", emoji: "🐟", aliases: [] },
-  { id: "trucha",     name: "Trucha",     category: "pescados", emoji: "🐟", aliases: [] },
-  { id: "corvina",    name: "Corvina",    category: "pescados", emoji: "🐟", aliases: [] },
+  { id: "pescado",    name: "Pescado",    category: "pescados", emoji: "🐟", aliases: ["pescado blanco", "filet de pescado", "filete de pescado"] },
+  { id: "merluza",    name: "Merluza",    category: "pescados", emoji: "🐟", aliases: ["filet de merluza"] },
+  { id: "salmon",     name: "Salmón",     category: "pescados", emoji: "🐟", aliases: ["lomo de salmón", "filet de salmón"] },
+  { id: "atun",       name: "Atún",       category: "pescados", emoji: "🐟", aliases: ["atún fresco", "lomo de atún"] },
+  { id: "trucha",     name: "Trucha",     category: "pescados", emoji: "🐟", aliases: ["trucha arcoíris"] },
+  { id: "corvina",    name: "Corvina",    category: "pescados", emoji: "🐟", aliases: ["corvina negra"] },
   { id: "lenguado",   name: "Lenguado",   category: "pescados", emoji: "🐟", aliases: [] },
   { id: "abadejo",    name: "Abadejo",    category: "pescados", emoji: "🐟", aliases: [] },
   { id: "pejerrey",   name: "Pejerrey",   category: "pescados", emoji: "🐟", aliases: [] },
   { id: "surubi",     name: "Surubí",     category: "pescados", emoji: "🐟", aliases: [] },
   { id: "dorado",     name: "Dorado",     category: "pescados", emoji: "🐟", aliases: [] },
+  { id: "tilapia",    name: "Tilapia",    category: "pescados", emoji: "🐟", aliases: [] },
+  { id: "mero",       name: "Mero",       category: "pescados", emoji: "🐟", aliases: [] },
+  { id: "brótola",    name: "Brótola",    category: "pescados", emoji: "🐟", aliases: ["brotola"] },
+  { id: "pez_espada", name: "Pez espada", category: "pescados", emoji: "🐟", aliases: [] },
   { id: "camaron",    name: "Camarón",    category: "pescados", emoji: "🦐", aliases: ["camarones", "gambas"] },
-  { id: "langostino",  name: "Langostino",  category: "pescados", emoji: "🦐", aliases: [] },
+  { id: "langostino",  name: "Langostino",  category: "pescados", emoji: "🦐", aliases: ["langostinos"] },
   { id: "mejillon",    name: "Mejillón",    category: "pescados", emoji: "🦪", aliases: ["mejillones"] },
   { id: "calamar",     name: "Calamar",     category: "pescados", emoji: "🦑", aliases: ["calamares"] },
   { id: "pulpo",       name: "Pulpo",       category: "pescados", emoji: "🐙", aliases: [] },
-  { id: "vieira",      name: "Vieira",      category: "pescados", emoji: "🦪", aliases: [] },
+  { id: "vieira",      name: "Vieira",      category: "pescados", emoji: "🦪", aliases: ["vieiras"] },
+  { id: "mariscos",    name: "Mariscos",    category: "pescados", emoji: "🦐", aliases: ["frutos de mar"] },
+  { id: "rabas",       name: "Rabas",       category: "pescados", emoji: "🦑", aliases: ["anillos de calamar"] },
 
   // ── Lácteos y Huevos ──
   { id: "huevo",         name: "Huevo",         category: "lacteos", emoji: "🥚", aliases: ["huevos"] },
@@ -254,11 +261,17 @@ export function searchIngredients(query: string, maxResults = 10): NormalizedIng
 
   for (const ing of NORMALIZED_INGREDIENTS) {
     const nameLower = ing.name.toLowerCase();
+    const categoryLower = ing.category.toLowerCase();
     if (nameLower === q) {
       exact.push(ing);
     } else if (nameLower.startsWith(q)) {
       startsWith.push(ing);
-    } else if (nameLower.includes(q) || ing.aliases.some(a => a.toLowerCase().includes(q))) {
+    } else if (
+      nameLower.includes(q) || 
+      ing.aliases.some(a => a.toLowerCase().includes(q)) ||
+      categoryLower.includes(q) || 
+      q.includes(categoryLower)
+    ) {
       contains.push(ing);
     }
   }
