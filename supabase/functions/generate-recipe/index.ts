@@ -137,7 +137,11 @@ const ingredientSynonyms: Record<string, string[]> = {
   'huevo':    ['huevos', 'clara', 'claras', 'yema', 'yemas', '2 huevos', '4 huevos'],
   'leche':    ['crema', 'nata', 'crema de leche', 'leche entera', 'leche descremada'],
   'arroz':    ['arroz integral', 'arroz blanco', 'arroz largo', 'arroz yamaní', 'arroz arborio', 'arroz_integral'],
-  'pasta':    ['fideos', 'spaghetti', 'tallarines', 'mostachol', 'tirabuzon', 'penne', 'fusilli', 'rigatoni', 'lasagna', 'ravioles', 'ñoquis', 'canelones', 'fetuccini', 'noquis', 'fideos secos', 'fideos de arroz'],
+  'fideos':   ['pasta', 'spaghetti', 'tallarines', 'mostachol', 'tirabuzon', 'penne', 'fusilli', 'rigatoni', 'fetuccini', 'fideos secos', 'fideos de arroz', 'fideos moño', 'coditos'],
+  'noquis':   ['ñoquis', 'gnocchi', 'noquis de papa', 'ñoquis de papa'],
+  'ravioles': ['raviolones', 'sorrentinos', 'capelettis', 'tortellini', 'agnolottis'],
+  'lasagna':  ['lasaña', 'lasañas'],
+  'canelones': ['canelón'],
   'pan':      ['pan rallado', 'pan_rallado', 'pan lactal', 'baguette', 'pan de molde', 'pan integral', 'tostada', 'miñon', 'pan pita'],
   'zapallo':  ['calabaza', 'anco', 'zapallito', 'zapallito largo', 'zucchini', 'calabacin', 'calabaza mediana', 'zapallo_anco'],
   'morron':   ['pimiento', 'aji', 'aji rojo', 'aji verde', 'pimiento rojo', 'pimiento verde', 'pimiento amarillo', 'morrón (pimiento)'],
@@ -923,11 +927,11 @@ function validateRecipeIngredients(recipe: any, userIngredients: string[], filte
     if (found) matchCount++;
   }
   
-  // At least 95% of user ingredients must be present in the recipe
+  // At least 99% of user ingredients must be present in the recipe
   const matchRatio = matchCount / userCanonicals.length;
   console.log(`Validation "${recipe.name}": ${matchCount}/${userCanonicals.length} ingredients match (${(matchRatio * 100).toFixed(0)}%)`);
   
-  return matchRatio >= 0.95;
+  return matchRatio >= 0.99;
 }
 
 // ============================================================
@@ -1040,7 +1044,7 @@ serve(async (req) => {
 
     // Both free and premium use 98% threshold for maximum relevance; AI fills the gap
     const isFreeUser = !limitCheck.isPremium;
-    const cacheThreshold = 0.98; // 98% min for both plans — best user experience
+    const cacheThreshold = 0.99; // 99% min for both plans — best user experience
     
     console.log(`User mode: ${isFreeUser ? 'FREE' : 'PREMIUM'}, cache threshold: ${cacheThreshold}, AI fallback enabled for both`);
 
