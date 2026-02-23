@@ -218,6 +218,26 @@ function getIngredientVariants(ingredient: string): string[] {
   return [...variants];
 }
 
+// Get specific variants for a raw ingredient — NOT the whole canonical group
+// e.g., "fideos" → fideos, spaghetti, tallarines, penne — but NOT ñoquis, ravioles
+function getSpecificVariants(rawIngredient: string, canonical: string): string[] {
+  const variants = new Set<string>([rawIngredient]);
+  
+  // If the raw ingredient IS a canonical key, use its direct variants
+  if (ingredientSynonyms[rawIngredient]) {
+    for (const v of ingredientSynonyms[rawIngredient]) {
+      variants.add(removeAccents(v.toLowerCase()));
+    }
+  }
+  
+  // If the canonical is different from raw, check if the raw is listed under canonical
+  if (canonical !== rawIngredient && ingredientSynonyms[canonical]) {
+    variants.add(canonical);
+  }
+  
+  return [...variants];
+}
+
 // ============================================================
 // SMART CACHE SEARCH WITH ≥70% MATCHING
 // ============================================================
@@ -291,20 +311,27 @@ async function searchCachedRecipes(
       getIngredientVariants(i)
     );
     
-    // How many of the USER's ingredients does this recipe use?
+    // How many of the USER's SPECIFIC ingredients does this recipe use?
+    // Use specific variant matching (not full canonical group)
     let matchedUserCount = 0;
-    for (const userCanonical of userCanonicals) {
-      const userVars = getIngredientVariants(userCanonical);
-      const hit = userVars.some(uv => 
-        recipeVariants.some(rv => {
-          // Use word-boundary matching to avoid partial matches like "ala" in "calabaza"
-          if (uv.length <= 3) {
-            // Short words must match exactly
-            return rv === uv;
-          }
-          return rv === uv || rv.includes(uv) || uv.includes(rv);
-        })
-      );
+    for (let idx = 0; idx < ingredients.length; idx++) {
+      const rawIng = removeAccents(ingredients[idx].toLowerCase().replace(/_/g, ' ').trim());
+      const userCanonical = userCanonicals[idx];
+      
+      // Check if the raw ingredient or its specific variants appear in the recipe
+      const recipeIngText = removeAccents((recipe.main_ingredients || []).join(' ').toLowerCase());
+      const recipeDataText = removeAccents(JSON.stringify(recipe.recipe_data).toLowerCase());
+      const combinedText = recipeIngText + ' ' + recipeDataText;
+      
+      // Direct raw match
+      if (combinedText.includes(rawIng)) {
+        matchedUserCount++;
+        continue;
+      }
+      
+      // Check specific variants (not full canonical group)
+      const specificVars = getSpecificVariants(rawIng, userCanonical);
+      const hit = specificVars.some(v => combinedText.includes(removeAccents(v)));
       if (hit) matchedUserCount++;
     }
     
@@ -919,19 +946,30 @@ function validateRecipeIngredients(recipe: any, userIngredients: string[], filte
     }
   }
   
-  // Check how many of the user's ingredients appear in the recipe
+  // Check that the user's SPECIFIC ingredients (not just canonicals) appear in the recipe
   let matchCount = 0;
-  for (const canonical of userCanonicals) {
-    const variants = getIngredientVariants(canonical);
-    const found = variants.some(v => fullText.includes(removeAccents(v)));
+  for (let i = 0; i < userIngredients.length; i++) {
+    const rawIngredient = removeAccents(userIngredients[i].toLowerCase().replace(/_/g, ' ').trim());
+    const canonical = userCanonicals[i];
+    
+    // First try: exact raw ingredient name in recipe text
+    if (fullText.includes(rawIngredient)) {
+      matchCount++;
+      continue;
+    }
+    
+    // Second try: check if any variant of this SPECIFIC ingredient (not the whole canonical group) is present
+    // Only allow close variants, not the entire canonical family
+    const specificVariants = getSpecificVariants(rawIngredient, canonical);
+    const found = specificVariants.some(v => fullText.includes(removeAccents(v)));
     if (found) matchCount++;
   }
   
-  // At least 99% of user ingredients must be present in the recipe
+  // ALL user ingredients must be present in the recipe (100% match)
   const matchRatio = matchCount / userCanonicals.length;
   console.log(`Validation "${recipe.name}": ${matchCount}/${userCanonicals.length} ingredients match (${(matchRatio * 100).toFixed(0)}%)`);
   
-  return matchRatio >= 0.99;
+  return matchRatio >= 1.0;
 }
 
 // ============================================================
@@ -1130,7 +1168,12 @@ Generá UNA SOLA receta sorpresa con estas características:
       userPrompt += `\n\nSorprendé con algo creativo pero realizable!`;
     } else {
       userPrompt = `INGREDIENTES DEL USUARIO (OBLIGATORIOS): ${ingredients?.join(', ') || 'ninguno especificado'}\n`;
-      userPrompt += `⚠️ REGLA ABSOLUTA: La receta DEBE contener CADA UNO de estos ingredientes: [${ingredients?.join(', ')}]. Si el usuario puso "pollo", la receta lleva pollo. Si puso "arroz", la receta lleva arroz. NO reemplaces NINGUNO. NO agregues proteínas, carnes, pastas u otros ingredientes principales que el usuario NO mencionó. Solo podés agregar condimentos básicos (sal, aceite, pimienta, ajo, cebolla).\n`;
+      userPrompt += `⚠️ REGLA ABSOLUTA: La receta DEBE contener CADA UNO de estos ingredientes EXACTOS: [${ingredients?.join(', ')}].\n`;
+      userPrompt += `- Si el usuario puso "fideos", la receta DEBE llevar fideos (spaghetti, tallarines, penne, etc). NUNCA ñoquis, ravioles, lasagna ni canelones.\n`;
+      userPrompt += `- Si puso "pollo", DEBE llevar pollo. NUNCA carne, cerdo ni pescado.\n`;
+      userPrompt += `- Si puso "crema", DEBE incluir crema de leche en la receta.\n`;
+      userPrompt += `- NO reemplaces NINGÚN ingrediente por otro similar. Usá EXACTAMENTE lo que pidió el usuario.\n`;
+      userPrompt += `- Solo podés agregar condimentos básicos (sal, aceite, pimienta, ajo, cebolla) como complemento.\n`;
       userPrompt += `Generá EXACTAMENTE 1 SOLA receta.\n`;
       userPrompt += `Tiempo máximo para cocinar: ${time} minutos\n`;
 
