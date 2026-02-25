@@ -125,30 +125,106 @@ const stopwords = new Set([
 // Expanded synonym map: canonical → variants
 // Includes normalized IDs from the frontend (e.g., carne_picada, muslo_pollo)
 const ingredientSynonyms: Record<string, string[]> = {
+  // ── CARNES ───────────────────────────────────────────────────────────────
   'pollo':    ['pechuga', 'muslo', 'pata muslo', 'suprema', 'pollo entero', 'trutro', 'ala de pollo', 'muslo_pollo', 'alitas', 'pechuga de pollo'],
   'carne':    ['bife', 'lomo', 'picada', 'milanesa', 'nalga', 'cuadril', 'asado', 'vacuno', 'ternera', 'vacio', 'entraña', 'tapa', 'paleta', 'osobuco', 'roast beef', 'carne molida', 'carne picada', 'carne_picada', 'costilla', 'matambre', 'entrana', 'mondongo'],
   'cerdo':    ['bondiola', 'costeleta', 'jamon', 'panceta', 'chorizo', 'lomo de cerdo', 'costilla de cerdo', 'costillas_cerdo', 'solomillo', 'carre', 'carré', 'carre de cerdo', 'tocino', 'bacon', 'salchicha', 'frankfurt'],
-  'atun':     ['atún', 'lomo de atun', 'atun_lata', 'atún en lata', 'atun en lata'],
-  'salmon':   ['salmón', 'lomo de salmon', 'filet de salmon', 'lomo de salmón', 'filet de salmón'],
-  'merluza':  ['filet de merluza', 'filete de merluza', 'merluza negra', 'brotola', 'brótola'],
-  'trucha':   ['trucha arcoiris', 'filet de trucha'],
-  'pescado':  ['lenguado', 'surubi', 'corvina', 'caballa', 'sardina', 'filet de pescado', 'filete de pescado', 'tilapia', 'mero', 'abadejo', 'pejerrey', 'dorado', 'pez espada', 'pez_espada'],
-  'papa':     ['patata', 'papas', 'papines', 'papas medianas'],
-  'tomate':   ['tomates', 'cherry', 'perita', 'salsa de tomate', 'pure de tomate', 'tomate triturado', 'tomate_triturado', 'tomate_perita', 'salsa_tomate', 'jitomate'],
-  'cebolla':  ['cebollas', 'cebollita', 'verdeo', 'cebolla morada', 'cebolla blanca', 'cebolla mediana', 'cebolla de verdeo', 'echalote', 'chalota'],
-  'ajo':      ['ajos', 'diente de ajo', 'ajo en polvo', 'ajo picado'],
-  'queso':    ['muzzarella', 'mozzarella', 'parmesano', 'cremoso', 'cheddar', 'roquefort', 'provolone', 'reggianito', 'gruyere', 'fontina', 'brie', 'camembert', 'dambo', 'port salut', 'queso crema', 'queso_crema', 'ricota', 'queso rallado', 'queso_rallado', 'queso_azul', 'mozzarella rallado', 'cheddar rallado'],
-  'huevo':    ['huevos', 'clara', 'claras', 'yema', 'yemas', '2 huevos', '4 huevos'],
-  'leche':    ['crema', 'nata', 'crema de leche', 'leche entera', 'leche descremada'],
+  'cordero':  ['chivo', 'cabrito', 'borrego', 'pierna de cordero', 'costilla de cordero'],
+  'conejo':   ['conejo al horno', 'conejo estofado'],
+  'pavo':     ['pechuga de pavo', 'muslo de pavo'],
+  'morcilla': ['morcilla criolla', 'morcilla dulce'],
+
+  // ── PESCADOS (cada uno por separado para NO confundirlos) ─────────────────
+  'atun':     ['atún', 'lomo de atun', 'atun_lata', 'atún en lata', 'atun en lata', 'atún en aceite'],
+  'salmon':   ['salmón', 'lomo de salmon', 'filet de salmon', 'lomo de salmón', 'filet de salmón', 'salmon ahumado', 'salmón ahumado'],
+  'merluza':  ['filet de merluza', 'filete de merluza', 'merluza negra', 'brotola', 'brótola', 'abadejo'],
+  'trucha':   ['trucha arcoiris', 'filet de trucha', 'trucha ahumada'],
+  'sardina':  ['sardinas', 'sardinas en lata', 'sardinitas'],
+  'caballa':  ['caballa en lata', 'caballa al natural'],
+  'camaron':  ['camarones', 'gambas', 'langostino', 'langostinos', 'camarón'],
+  'pulpo':    ['pulpo a la gallega', 'pulpo al olivo'],
+  'calamar':  ['calamares', 'calamar en su tinta', 'calamaretti'],
+  'pescado':  ['lenguado', 'surubi', 'corvina', 'tilapia', 'mero', 'pejerrey', 'dorado', 'pez espada', 'pez_espada', 'filet de pescado', 'filete de pescado'],
+
+  // ── PASTAS (cada tipo por separado para NO confundirlos) ──────────────────
+  'fideos':   ['pasta', 'spaghetti', 'tallarines', 'mostachol', 'tirabuzon', 'penne', 'fusilli', 'rigatoni', 'fetuccini', 'fideos secos', 'fideos de arroz', 'fideos moño', 'coditos', 'linguine', 'bucatini'],
+  'noquis':   ['ñoquis', 'gnocchi', 'noquis de papa', 'ñoquis de papa', 'ñoquis de ricota'],
+  'ravioles': ['raviolones', 'sorrentinos', 'capelettis', 'tortellini', 'agnolottis', 'ravioli'],
+  'lasagna':  ['lasaña', 'lasañas', 'lasagna boloñesa'],
+  'canelones': ['canelón', 'canelon'],
+
+  // ── CEREALES / HARINAS ────────────────────────────────────────────────────
   'arroz':    ['arroz integral', 'arroz blanco', 'arroz largo', 'arroz yamaní', 'arroz arborio', 'arroz_integral'],
-  'fideos':   ['pasta', 'spaghetti', 'tallarines', 'mostachol', 'tirabuzon', 'penne', 'fusilli', 'rigatoni', 'fetuccini', 'fideos secos', 'fideos de arroz', 'fideos moño', 'coditos'],
-  'noquis':   ['ñoquis', 'gnocchi', 'noquis de papa', 'ñoquis de papa'],
-  'ravioles': ['raviolones', 'sorrentinos', 'capelettis', 'tortellini', 'agnolottis'],
-  'lasagna':  ['lasaña', 'lasañas'],
-  'canelones': ['canelón'],
-  'morcilla': [],
-  'cordero':  [],
-  'conejo':   [],
+  'quinoa':   ['quinua', 'quinoa blanca', 'quinoa roja'],
+  'avena':    ['avena arrollada', 'copos de avena', 'harina de avena'],
+  'harina':   ['harina leudante', 'harina 000', 'harina 0000', 'harina integral', 'fecula', 'maicena', 'almidon', 'almidón de mandioca'],
+  'pan':      ['pan rallado', 'pan_rallado', 'pan lactal', 'baguette', 'pan de molde', 'pan integral', 'tostada', 'pan pita', 'pan árabe'],
+  'polenta':  ['grits', 'harina de maiz gruesa', 'polenta precocida'],
+  'lenteja':  ['lentejas', 'lentejas rojas', 'lentejas verdes', 'lenteja coral'],
+
+  // ── LEGUMBRES (separadas para no confundirlas entre sí) ────────────────────
+  'poroto':   ['porotos', 'frijol', 'alubia', 'poroto negro', 'poroto colorado', 'poroto blanco', 'porotos_verdes', 'chauchas'],
+  'garbanzo': ['garbanzos', 'chickpeas', 'garbanzo cocido'],
+
+  // ── LÁCTEOS ────────────────────────────────────────────────────────────────
+  'leche':    ['leche entera', 'leche descremada', 'leche_descremada'],
+  'crema':    ['crema de leche', 'nata', 'crema_leche', 'crema para cocinar', 'crema de cocina', 'media crema'],
+  'yogur':    ['yogurt', 'yogur natural', 'yogur griego', 'yogur descremado'],
+  'queso':    ['muzzarella', 'mozzarella', 'parmesano', 'cremoso', 'cheddar', 'roquefort', 'provolone', 'reggianito', 'gruyere', 'fontina', 'brie', 'camembert', 'dambo', 'port salut', 'queso crema', 'queso_crema', 'ricota', 'queso rallado', 'queso_rallado', 'queso_azul', 'mozzarella rallado', 'cheddar rallado'],
+  'manteca':  ['mantequilla', 'margarina', 'manteca sin sal'],
+  'dulce_de_leche': ['dulce de leche', 'dulce_de_leche'],
+
+  // ── HUEVOS ─────────────────────────────────────────────────────────────────
+  'huevo':    ['huevos', 'clara', 'claras', 'yema', 'yemas', '2 huevos', '4 huevos', 'huevo de codorniz'],
+
+  // ── VERDURAS ───────────────────────────────────────────────────────────────
+  'papa':     ['patata', 'papas', 'papines', 'papas medianas', 'papa_andina'],
+  'batata':   ['boniato', 'camote', 'papa dulce', 'batatas medianas', 'batata anaranjada'],
+  'tomate':   ['tomates', 'cherry', 'perita', 'salsa de tomate', 'pure de tomate', 'tomate triturado', 'tomate_triturado', 'tomate_perita', 'salsa_tomate', 'jitomate'],
+  'cebolla':  ['cebollas', 'cebollita', 'cebolla morada', 'cebolla blanca', 'cebolla mediana', 'echalote', 'chalota'],
+  'verdeo':   ['cebolla de verdeo', 'cebollín', 'cebollino', 'green onion'],
+  'ajo':      ['ajos', 'diente de ajo', 'ajo en polvo', 'ajo picado', 'ajo_polvo'],
+  'zanahoria':['zanahorias', 'zanahoria rallada', 'zanahoria baby'],
+  'zapallo':  ['calabaza', 'anco', 'zapallo_anco', 'zapallo cabutia'],
+  'zapallito':['zapallito largo', 'zucchini', 'calabacin', 'calabacín'],
+  'morron':   ['pimiento', 'aji morrón', 'aji rojo', 'aji verde', 'pimiento rojo', 'pimiento verde', 'pimiento amarillo', 'morrón (pimiento)'],
+  'aji':      ['chile', 'jalapeño', 'ají picante', 'ají amarillo', 'ají verde', 'pepperoncino'],
+  'choclo':   ['maiz', 'maíz', 'elote', 'mazorca', 'choclo desgranado', 'choclo_lata', 'maiz en lata'],
+  'espinaca': ['espinacas', 'baby espinaca', 'espinaca congelada'],
+  'acelga':   ['acelgas', 'acelga blanca'],
+  'kale':     ['col rizada', 'repollo kale'],
+  'repollo':  ['col', 'repollo blanco', 'repollo morado', 'lombarda', 'col lombarda'],
+  'lechuga':  ['radicheta', 'radicchio', 'escarola', 'lechuga romana', 'lechuga capuchina', 'lechuga mantecosa'],
+  'rucula':   ['rúcula', 'arugula'],
+  'apio':     ['apio en ramas', 'apio nabo'],
+  'puerro':   ['poro', 'puerros'],
+  'hongos':   ['champiñones', 'champignones', 'champinones laminados', 'setas', 'portobellos', 'hongos secos', 'hongos_secos', 'shiitake'],
+  'palta':    ['aguacate', 'avocado', 'palta madura'],
+  'berenjena':['berenjenas', 'berenjena asada'],
+
+  // ── FRUTAS ─────────────────────────────────────────────────────────────────
+  'banana':   ['banano', 'platano', 'plátano'],
+  'manzana':  ['manzanas', 'manzana verde', 'manzana roja', 'manzana gala'],
+  'pera':     ['peras', 'pera williams'],
+  'naranja':  ['naranjas', 'jugo de naranja', 'ralladura de naranja'],
+  'limon':    ['limón', 'lima', 'ralladura de limon', 'jugo de limon'],
+  'frutilla': ['fresa', 'fresas', 'strawberry', 'frutillas'],
+  'durazno':  ['melocotón', 'duraznos', 'durazno en lata'],
+  'ciruela':  ['ciruelas', 'ciruela pasa'],
+  'uva':      ['uvas', 'uva negra', 'uva verde', 'pasas de uva'],
+
+  // ── CONDIMENTOS / ACEITES ──────────────────────────────────────────────────
+  'aceite':   ['aceite de girasol', 'aceite de maiz', 'aceite vegetal', 'aceite_girasol'],
+  'aceite_oliva': ['aceite de oliva', 'oliva extra virgen', 'aove'],
+  'azucar':   ['azucar impalpable', 'azucar mascabo', 'azucar rubia', 'edulcorante', 'stevia', 'azúcar', 'azucar blanca'],
+  'miel':     ['miel de abeja', 'miel pura', 'jarabe de miel'],
+
+  // ── FRUTOS SECOS / SEMILLAS ────────────────────────────────────────────────
+  'nuez':     ['nueces', 'nuez de castilla', 'nuez pecán', 'pecan'],
+  'almendra': ['almendras', 'harina de almendras', 'almendra tostada'],
+  'mani':     ['maní', 'cacahuate', 'mantequilla de mani', 'crema de mani'],
+  'chia':     ['chía', 'semillas de chia'],
+  'lino':     ['linaza', 'semillas de lino'],
 };
 
 // Remove accents from text
@@ -1151,10 +1227,32 @@ Generá UNA SOLA receta sorpresa con estas características:
       userPrompt += `\n\nSorprendé con algo creativo pero realizable!`;
     } else {
       userPrompt = `INGREDIENTES DEL USUARIO (OBLIGATORIOS): ${ingredients?.join(', ') || 'ninguno especificado'}\n`;
-      userPrompt += `⚠️ REGLA ABSOLUTA: La receta DEBE contener CADA UNO de estos ingredientes EXACTOS: [${ingredients?.join(', ')}].\n`;
-      userPrompt += `- Si el usuario puso "fideos", la receta DEBE llevar fideos (spaghetti, tallarines, penne, etc). NUNCA ñoquis, ravioles, lasagna ni canelones.\n`;
-      userPrompt += `- Si puso "pollo", DEBE llevar pollo. NUNCA carne, cerdo ni pescado.\n`;
-      userPrompt += `- Si puso "crema", DEBE incluir crema de leche en la receta.\n`;
+      userPrompt += `⚠️ REGLAS ABSOLUTAS — PROHIBIDO IGNORARLAS:\n`;
+      userPrompt += `La receta DEBE contener CADA UNO de estos ingredientes EXACTOS: [${ingredients?.join(', ')}].\n`;
+      // Pastas — no intercambiar entre tipos
+      userPrompt += `- "fideos" → fideos/spaghetti/tallarines/penne. NUNCA ñoquis, ravioles, lasagna ni canelones.\n`;
+      userPrompt += `- "noquis" o "ñoquis" → ñoquis. NUNCA fideos ni ravioles.\n`;
+      userPrompt += `- "ravioles" → ravioles/sorrentinos. NUNCA fideos ni ñoquis.\n`;
+      // Pescados — no intercambiar entre tipos
+      userPrompt += `- "atun" o "atún" → atún (fresco o en lata). NUNCA merluza, salmón, brótola ni otro pescado.\n`;
+      userPrompt += `- "salmon" o "salmón" → salmón. NUNCA merluza, atún ni otro pescado.\n`;
+      userPrompt += `- "merluza" → merluza/brótola/abadejo. NUNCA atún, salmón ni camarones.\n`;
+      userPrompt += `- "camaron" o "langostino" → camarones/langostinos. NUNCA otro pescado.\n`;
+      // Carnes — no intercambiar entre tipos
+      userPrompt += `- "pollo" → pollo/pechuga/muslo. NUNCA carne vacuna, cerdo ni pescado.\n`;
+      userPrompt += `- "carne" → carne vacuna (bife, picada, lomo, etc). NUNCA pollo, cerdo ni pescado.\n`;
+      userPrompt += `- "cerdo" → cerdo/bondiola/panceta. NUNCA pollo ni carne vacuna.\n`;
+      // Legumbres — no intercambiar
+      userPrompt += `- "poroto" → porotos/frijoles. NUNCA garbanzos ni lentejas.\n`;
+      userPrompt += `- "garbanzo" → garbanzos. NUNCA porotos ni lentejas.\n`;
+      userPrompt += `- "lenteja" → lentejas. NUNCA garbanzos ni porotos.\n`;
+      // Verduras — no intercambiar
+      userPrompt += `- "espinaca" → espinaca. NUNCA acelga ni kale.\n`;
+      userPrompt += `- "zapallo" → zapallo/calabaza. NUNCA zapallito ni zucchini.\n`;
+      userPrompt += `- "zapallito" o "zucchini" → zapallito/zucchini. NUNCA zapallo ni calabaza.\n`;
+      // Lácteos — no intercambiar
+      userPrompt += `- "crema" → crema de leche/nata. NUNCA leche ni yogur.\n`;
+      userPrompt += `- "leche" → leche. NUNCA crema.\n`;
       userPrompt += `- NO reemplaces NINGÚN ingrediente por otro similar. Usá EXACTAMENTE lo que pidió el usuario.\n`;
       userPrompt += `- Solo podés agregar condimentos básicos (sal, aceite, pimienta, ajo, cebolla) como complemento.\n`;
       userPrompt += `Generá EXACTAMENTE 1 SOLA receta.\n`;
