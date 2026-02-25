@@ -1005,6 +1005,39 @@ function validateRecipeIngredients(recipe: any, userIngredients: string[], filte
     }
   }
   
+  // ── CONFLICT EXCLUSION: groups of mutually exclusive ingredients ────────────
+  // If user requested ingredient A from a group, recipe MUST NOT contain any other member of that group
+  const conflictGroups: string[][] = [
+    // Pescados — cada uno es distinto
+    ['atun', 'salmon', 'merluza', 'trucha', 'sardina', 'caballa', 'camaron', 'pulpo', 'calamar', 'pescado'],
+    // Pastas — cada tipo es distinto
+    ['fideos', 'noquis', 'ravioles', 'lasagna', 'canelones'],
+    // Legumbres
+    ['poroto', 'garbanzo', 'lenteja'],
+  ];
+
+  for (const group of conflictGroups) {
+    // Find which members of this group the user requested
+    const requestedInGroup = userIngredients
+      .map(i => getCanonicalIngredient(i))
+      .filter(c => group.includes(c));
+    
+    if (requestedInGroup.length === 0) continue; // user didn't use this group
+    
+    // Build list of forbidden canonicals = group members the user did NOT request
+    const forbidden = group.filter(member => !requestedInGroup.includes(member));
+    
+    // Check if recipe text contains any forbidden member
+    for (const forbiddenCanonical of forbidden) {
+      const forbiddenVariants = [forbiddenCanonical, ...(ingredientSynonyms[forbiddenCanonical] || [])].map(v => removeAccents(v.toLowerCase()));
+      const hasForbidden = forbiddenVariants.some(v => fullText.includes(v));
+      if (hasForbidden) {
+        console.log(`CONFLICT REJECT "${recipe.name}": user wants [${requestedInGroup}] but recipe has forbidden [${forbiddenCanonical}]`);
+        return false;
+      }
+    }
+  }
+
   // Check that the user's SPECIFIC ingredients (not just canonicals) appear in the recipe
   let matchCount = 0;
   for (let i = 0; i < userIngredients.length; i++) {
