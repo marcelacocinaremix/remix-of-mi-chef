@@ -40,7 +40,6 @@ export function useAdMob() {
 
   const showInterstitial = useCallback(async (): Promise<boolean> => {
     if (!Capacitor.isNativePlatform()) {
-      // On web, just skip the ad
       return true;
     }
 
@@ -52,49 +51,58 @@ export function useAdMob() {
       const AdMob = await getAdMob();
       if (!AdMob) {
         loadingRef.current = false;
-        return true; // No AdMob available, continue
+        return true;
       }
 
       // Prepare the interstitial
-      await AdMob.prepareInterstitial({
-        adId: INTERSTITIAL_AD_UNIT_ID,
-        isTesting: false,
-      });
+      try {
+        await AdMob.prepareInterstitial({
+          adId: INTERSTITIAL_AD_UNIT_ID,
+          isTesting: false,
+        });
+      } catch (prepareErr) {
+        console.warn('Interstitial prepare failed:', prepareErr);
+        loadingRef.current = false;
+        return true; // Continue without ad
+      }
 
-      // Show and wait for it to close
+      // Show and wait for it to close, with a 15s safety timeout
       return new Promise<boolean>((resolve) => {
-        // Listen for dismiss event
-        const dismissListener = AdMob.addListener(
-          'onInterstitialAdDismissed',
-          () => {
-            dismissListener?.remove?.();
-            failListener?.remove?.();
-            loadingRef.current = false;
-            resolve(true);
-          }
-        );
-
-        const failListener = AdMob.addListener(
-          'onInterstitialAdFailedToShow',
-          () => {
-            dismissListener?.remove?.();
-            failListener?.remove?.();
-            loadingRef.current = false;
-            resolve(true); // Continue even if ad fails
-          }
-        );
-
-        AdMob.showInterstitial().catch(() => {
+        let resolved = false;
+        const done = () => {
+          if (resolved) return;
+          resolved = true;
           dismissListener?.remove?.();
           failListener?.remove?.();
           loadingRef.current = false;
           resolve(true);
+        };
+
+        // Safety timeout: if ad never fires events, unblock after 15s
+        const timeout = setTimeout(() => {
+          console.warn('Interstitial timeout — unblocking');
+          done();
+        }, 15000);
+
+        const dismissListener = AdMob.addListener(
+          'onInterstitialAdDismissed',
+          () => { clearTimeout(timeout); done(); }
+        );
+
+        const failListener = AdMob.addListener(
+          'onInterstitialAdFailedToShow',
+          () => { clearTimeout(timeout); done(); }
+        );
+
+        AdMob.showInterstitial().catch(() => {
+          clearTimeout(timeout);
+          done();
         });
       });
     } catch (e) {
       console.warn('Interstitial error:', e);
       loadingRef.current = false;
-      return true; // On error, let the user continue
+      return true;
     }
   }, [initialize]);
 
