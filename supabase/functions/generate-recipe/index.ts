@@ -127,7 +127,8 @@ const stopwords = new Set([
 const ingredientSynonyms: Record<string, string[]> = {
   // ── CARNES ───────────────────────────────────────────────────────────────
   'pollo':    ['pechuga', 'muslo', 'pata muslo', 'suprema', 'pollo entero', 'trutro', 'ala de pollo', 'muslo_pollo', 'alitas', 'pechuga de pollo'],
-  'carne':    ['bife', 'lomo', 'picada', 'milanesa', 'nalga', 'cuadril', 'asado', 'vacuno', 'ternera', 'vacio', 'entraña', 'tapa', 'paleta', 'osobuco', 'roast beef', 'carne molida', 'carne picada', 'carne_picada', 'costilla', 'matambre', 'entrana', 'mondongo'],
+  'carne':    ['bife', 'lomo', 'picada', 'milanesa', 'nalga', 'cuadril', 'asado', 'vacuno', 'ternera', 'vacio', 'entraña', 'tapa', 'paleta', 'osobuco', 'roast beef', 'carne molida', 'carne picada', 'carne_picada', 'costilla', 'entrana', 'mondongo'],
+  'matambre': ['matambre arrollado', 'matambre a la pizza', 'matambre relleno', 'matambre de cerdo', 'matambre de ternera'],
   'cerdo':    ['bondiola', 'costeleta', 'jamon', 'panceta', 'chorizo', 'lomo de cerdo', 'costilla de cerdo', 'costillas_cerdo', 'solomillo', 'carre', 'carré', 'carre de cerdo', 'tocino', 'bacon', 'salchicha', 'frankfurt'],
   'cordero':  ['chivo', 'cabrito', 'borrego', 'pierna de cordero', 'costilla de cordero'],
   'conejo':   ['conejo al horno', 'conejo estofado'],
