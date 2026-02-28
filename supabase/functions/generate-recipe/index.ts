@@ -127,9 +127,14 @@ const stopwords = new Set([
 const ingredientSynonyms: Record<string, string[]> = {
   // ── CARNES ───────────────────────────────────────────────────────────────
   'pollo':    ['pechuga', 'muslo', 'pata muslo', 'suprema', 'pollo entero', 'trutro', 'ala de pollo', 'muslo_pollo', 'alitas', 'pechuga de pollo'],
-  'carne':    ['bife', 'lomo', 'picada', 'milanesa', 'nalga', 'cuadril', 'asado', 'vacuno', 'ternera', 'vacio', 'entraña', 'tapa', 'paleta', 'osobuco', 'roast beef', 'carne molida', 'carne picada', 'carne_picada', 'costilla', 'entrana', 'mondongo'],
+  'carne':    ['bife', 'lomo', 'picada', 'milanesa', 'nalga', 'cuadril', 'asado', 'vacuno', 'ternera', 'vacio', 'entraña', 'tapa', 'paleta', 'osobuco', 'roast beef', 'carne molida', 'carne picada', 'carne_picada', 'costilla', 'entrana'],
   'matambre': ['matambre arrollado', 'matambre a la pizza', 'matambre relleno', 'matambre de cerdo', 'matambre de ternera'],
-  'cerdo':    ['bondiola', 'costeleta', 'jamon', 'panceta', 'chorizo', 'lomo de cerdo', 'costilla de cerdo', 'costillas_cerdo', 'solomillo', 'carre', 'carré', 'carre de cerdo', 'tocino', 'bacon', 'salchicha', 'frankfurt'],
+  'mondongo': ['mondongo guisado', 'tripas', 'callos', 'buseca'],
+  'cerdo':    ['costeleta', 'lomo de cerdo', 'costilla de cerdo', 'costillas_cerdo', 'solomillo', 'carre', 'carré', 'carre de cerdo', 'tocino', 'bacon', 'salchicha', 'frankfurt'],
+  'bondiola': ['bondiola de cerdo', 'bondiola al horno', 'bondiola estofada', 'bondiola a la pizza'],
+  'panceta':  ['panceta ahumada', 'panceta en tiritas', 'panceta feteada', 'bacon'],
+  'chorizo':  ['chorizo criollo', 'chorizo parrilla', 'chorizo colorado', 'salsichon', 'salchicha parrillera'],
+  'jamon':    ['jamón cocido', 'jamón crudo', 'jamon_cocido', 'jamon_crudo', 'prosciutto', 'serrano'],
   'cordero':  ['chivo', 'cabrito', 'borrego', 'pierna de cordero', 'costilla de cordero'],
   'conejo':   ['conejo al horno', 'conejo estofado'],
   'pavo':     ['pechuga de pavo', 'muslo de pavo'],
@@ -164,14 +169,16 @@ const ingredientSynonyms: Record<string, string[]> = {
   'lenteja':  ['lentejas', 'lentejas rojas', 'lentejas verdes', 'lenteja coral'],
 
   // ── LEGUMBRES (separadas para no confundirlas entre sí) ────────────────────
-  'poroto':   ['porotos', 'frijol', 'alubia', 'poroto negro', 'poroto colorado', 'poroto blanco', 'porotos_verdes', 'chauchas'],
+  'poroto':   ['porotos', 'frijol', 'alubia', 'poroto negro', 'poroto colorado', 'poroto blanco'],
+  'chaucha':  ['chauchas', 'porotos verdes', 'porotos_verdes', 'judias verdes', 'ejotes', 'vainitas'],
   'garbanzo': ['garbanzos', 'chickpeas', 'garbanzo cocido'],
 
   // ── LÁCTEOS ────────────────────────────────────────────────────────────────
   'leche':    ['leche entera', 'leche descremada', 'leche_descremada'],
   'crema':    ['crema de leche', 'nata', 'crema_leche', 'crema para cocinar', 'crema de cocina', 'media crema'],
   'yogur':    ['yogurt', 'yogur natural', 'yogur griego', 'yogur descremado'],
-  'queso':    ['muzzarella', 'mozzarella', 'parmesano', 'cremoso', 'cheddar', 'roquefort', 'provolone', 'reggianito', 'gruyere', 'fontina', 'brie', 'camembert', 'dambo', 'port salut', 'queso crema', 'queso_crema', 'ricota', 'queso rallado', 'queso_rallado', 'queso_azul', 'mozzarella rallado', 'cheddar rallado'],
+  'queso':    ['muzzarella', 'mozzarella', 'parmesano', 'cremoso', 'cheddar', 'roquefort', 'provolone', 'reggianito', 'gruyere', 'fontina', 'brie', 'camembert', 'dambo', 'port salut', 'queso crema', 'queso_crema', 'queso rallado', 'queso_rallado', 'queso_azul', 'mozzarella rallado', 'cheddar rallado'],
+  'ricota':   ['ricotta', 'queso ricota', 'ricota entera', 'ricota descremada'],
   'manteca':  ['mantequilla', 'margarina', 'manteca sin sal'],
   'dulce_de_leche': ['dulce de leche', 'dulce_de_leche'],
 
