@@ -3,9 +3,7 @@ import { Capacitor } from '@capacitor/core';
 
 // AdMob IDs
 const ADMOB_APP_ID = 'ca-app-pub-2070932144567614~2284749809';
-// Use test IDs to verify integration, swap back to real IDs for production:
-// Real: 'ca-app-pub-2070932144567614/7133653740'
-const INTERSTITIAL_AD_UNIT_ID = 'ca-app-pub-3940256099942544/1033173712'; // Google test interstitial
+const INTERSTITIAL_AD_UNIT_ID = 'ca-app-pub-2070932144567614/7133653740';
 const BANNER_AD_UNIT_ID = 'ca-app-pub-2070932144567614/7836431130';
 
 let admobModule: any = null;
@@ -50,7 +48,7 @@ export function useAdMob() {
       try {
         await AdMob.prepareInterstitial({
           adId: INTERSTITIAL_AD_UNIT_ID,
-          isTesting: true, // ← SET TO FALSE BEFORE PUBLISHING
+          isTesting: false,
         });
       } catch (prepareErr) {
         console.warn('Interstitial prepare failed:', prepareErr);
