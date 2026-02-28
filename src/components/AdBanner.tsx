@@ -2,9 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { usePremium } from '@/hooks/usePremium';
 
-// Use test ID to verify integration, swap back to real ID for production:
-// Real: 'ca-app-pub-2070932144567614/7836431130'
-const BANNER_AD_UNIT_ID = 'ca-app-pub-3940256099942544/6300978111'; // Google test banner
+const BANNER_AD_UNIT_ID = 'ca-app-pub-2070932144567614/7836431130';
 
 let admobModule: any = null;
 let bannerShowing = false;
@@ -52,7 +50,7 @@ export function AdBanner() {
           adSize: 'ADAPTIVE_BANNER',
           position: 'BOTTOM_CENTER',
           margin: 0,
-          isTesting: true, // ← SET TO FALSE BEFORE PUBLISHING
+          isTesting: false,
         });
 
         bannerShowing = true;
