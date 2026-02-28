@@ -45,13 +45,6 @@ export function AdBanner() {
         const AdMob = await getAdMob();
         if (!AdMob) return;
 
-        // Initialize if needed
-        try {
-          await AdMob.initialize({ initializeForTesting: false });
-        } catch {
-          // Already initialized, ignore
-        }
-
         await AdMob.showBanner({
           adId: BANNER_AD_UNIT_ID,
           adSize: 'ADAPTIVE_BANNER',

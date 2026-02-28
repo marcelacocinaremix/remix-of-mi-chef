@@ -24,18 +24,8 @@ export function useAdMob() {
   const loadingRef = useRef(false);
 
   const initialize = useCallback(async () => {
-    if (initialized || !Capacitor.isNativePlatform()) return;
-    try {
-      const AdMob = await getAdMob();
-      if (!AdMob) return;
-      await AdMob.initialize({
-        initializeForTesting: false,
-      });
-      initialized = true;
-      console.log('AdMob initialized');
-    } catch (e) {
-      console.warn('AdMob init failed:', e);
-    }
+    // AdMob is initialized early in main.tsx — this is a no-op guard
+    initialized = true;
   }, []);
 
   const showInterstitial = useCallback(async (): Promise<boolean> => {
