@@ -1,15 +1,15 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useRef, useMemo } from "react";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Globe, Check, User, Mail, Lock, ChefHat, ArrowRight, ArrowLeft, UtensilsCrossed, GraduationCap, Calendar, ShoppingCart, HeartPulse, Trophy, Bot, Timer, Gamepad2, Eye, EyeOff, X } from "lucide-react";
+import { Globe, Check, User, Mail, Lock, ChefHat, ArrowRight, ArrowLeft, UtensilsCrossed, GraduationCap, Calendar, ShoppingCart, HeartPulse, Trophy, Bot, Timer, Gamepad2, Eye, EyeOff, X, Sparkles, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Language, translations, TranslationKey } from "@/i18n/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
-
 import { useToast } from "@/hooks/use-toast";
+import { useGuestMode } from "@/hooks/useGuestMode";
 
 
 // Password validation helpers
@@ -50,7 +50,7 @@ const translateAuthError = (errorMessage: string, t: (key: TranslationKey) => st
   return t("authErrorGeneric");
 };
 
-type OnboardingStep = "intro" | "language" | "tour" | "auth";
+type OnboardingStep = "intro" | "language" | "tour" | "guest" | "auth";
 
 const LANGUAGES: { code: Language; name: string; flag: string; greeting: string }[] = [
   { code: "es", name: "Español", flag: "🇦🇷", greeting: "¡Hola!" },
@@ -142,6 +142,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const { setLanguage } = useLanguage();
   const { toast } = useToast();
+  const { setIsGuest } = useGuestMode();
 
   // Create translation function based on selected language
   const t = (key: TranslationKey): string => {
@@ -261,8 +262,13 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     if (currentSlide < FEATURE_SLIDES.length - 1) {
       setCurrentSlide(currentSlide + 1);
     } else {
-      setStep("auth");
+      setStep("guest");
     }
+  };
+
+  const handleGuestMode = () => {
+    setIsGuest(true);
+    onComplete();
   };
 
   const handlePrevSlide = () => {
@@ -566,6 +572,88 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         )}
 
         {/* STEP 4: Auth (Required) */}
+        {/* STEP 4: Guest choice */}
+        {step === "guest" && (
+          <motion.div
+            key="guest"
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-black"
+          >
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setStep("tour")}
+              className="absolute top-6 left-6 text-white/70 hover:text-white hover:bg-white/10"
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </Button>
+
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="w-full max-w-md"
+            >
+              {/* Icon */}
+              <div className="text-center mb-8">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
+                  className="w-20 h-20 rounded-3xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mx-auto mb-6 shadow-2xl"
+                >
+                  <ChefHat className="w-10 h-10 text-white" />
+                </motion.div>
+                <h2 className="font-display text-2xl font-bold text-white mb-3">
+                  Probá Mi Chef sin registrarte
+                </h2>
+                <p className="text-white/60 text-sm leading-relaxed">
+                  Podés explorar la app con acceso limitado y generar algunas recetas.{"\n"}
+                  Cuando quieras desbloquear todo, creás tu cuenta y obtenés{" "}
+                  <span className="text-emerald-400 font-semibold">15 días gratis</span>.
+                </p>
+              </div>
+
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="space-y-3"
+              >
+                {/* Guest button */}
+                <button
+                  onClick={handleGuestMode}
+                  className="w-full flex items-center justify-center gap-3 py-5 px-6 rounded-2xl border-2 border-white/20 hover:border-white/40 bg-white/5 hover:bg-white/10 text-white font-semibold text-base transition-all"
+                >
+                  Probar como invitado
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+
+                {/* Signup button */}
+                <Button
+                  size="lg"
+                  onClick={() => { setAuthMode("signup"); setStep("auth"); }}
+                  className="w-full py-6 text-lg rounded-2xl bg-white text-black hover:bg-white/90 shadow-lg transition-all gap-2"
+                >
+                  <Sparkles className="w-5 h-5" />
+                  Crear cuenta gratis
+                </Button>
+
+                {/* Login button */}
+                <button
+                  onClick={() => { setAuthMode("login"); setStep("auth"); }}
+                  className="w-full text-center text-white/60 hover:text-white text-sm transition-colors py-2"
+                >
+                  Ya tengo cuenta → Iniciar sesión
+                </button>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+
         {step === "auth" && (
           <motion.div
             key="auth"
@@ -782,7 +870,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
       {/* Progress Dots */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-        {["intro", "language", "tour", "auth"].map((s, i) => (
+        {["intro", "language", "tour", "guest", "auth"].map((s, i) => (
           <motion.div
             key={s}
             initial={{ scale: 0 }}
