@@ -44,12 +44,15 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
 import { useAdMob } from "@/hooks/useAdMob";
+import { useGuestMode } from "@/hooks/useGuestMode";
+import { GuestBlockModal } from "@/components/GuestBlockModal";
 
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
   const { user } = useAuth();
   const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium } = usePremium();
   const { showInterstitial, initialize: initAdMob } = useAdMob();
+  const { isGuest, guestBlockModal, showGuestBlock, hideGuestBlock, checkGuestLimit, incrementGuestUsage } = useGuestMode();
   const isMobile = useIsMobile();
 
   const [ingredients, setIngredients] = useState<string[]>([]);
@@ -115,8 +118,8 @@ export default function Index() {
     initAdMob();
   }, [initAdMob]);
 
-  // Show onboarding if first visit OR if user is not logged in
-  if (isFirstVisit || !user) {
+  // Show onboarding if first visit OR if user is not logged in and not guest
+  if (isFirstVisit || (!user && !isGuest)) {
     return <OnboardingFlow onComplete={setFirstVisitComplete} />;
   }
 
@@ -223,6 +226,12 @@ export default function Index() {
       await showInterstitial();
     }
 
+    // Guest mode limit check for cocinar
+    if (isGuest && !checkGuestLimit('cocinar')) {
+      showGuestBlock('cocinar');
+      return;
+    }
+
     playSound('magic');
     setIsButtonAnimating(true);
     setIsCharacterAnimating(true);
@@ -314,6 +323,7 @@ export default function Index() {
        if (data?.recipes && data.recipes.length > 0 && data.source === 'cache') {
          setRecipes(data.recipes);
          addCookedRecipe(data.recipes[0]);
+         if (isGuest) incrementGuestUsage('cocinar');
          // Track shown recipe name for rotation
          const recipeName = data.recipes[0]?.name || '';
          if (recipeName) {
@@ -364,6 +374,7 @@ export default function Index() {
         // Show only 1 recipe per click
         const recipesToShow = data.recipes.slice(0, 1);
         setRecipes(recipesToShow);
+        if (isGuest) incrementGuestUsage('cocinar');
         setInstantRecipe(null); // Clear instant recipe as we have AI recipes now
         
         // Save first recipe to history automatically
@@ -841,6 +852,12 @@ export default function Index() {
 
         <Footer />
       </div>
+      {/* Guest Block Modal - global */}
+      <GuestBlockModal
+        open={guestBlockModal.show}
+        feature={guestBlockModal.feature}
+        onClose={hideGuestBlock}
+      />
     </div>
   );
 }
