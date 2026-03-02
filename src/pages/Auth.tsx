@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useGuestMode } from "@/hooks/useGuestMode";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +34,7 @@ export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { setIsGuest } = useGuestMode();
 
   const returnTo = getSafeReturnTo(location.search);
 
@@ -377,6 +379,22 @@ export default function Auth() {
               </button>
             </p>
           </div>
+
+          {/* Guest mode - only show on login */}
+          {isLogin && (
+            <div className="mt-3 text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsGuest(true);
+                  navigate("/");
+                }}
+                className="text-muted-foreground text-sm hover:text-foreground transition-colors underline underline-offset-2"
+              >
+                Probar como invitado
+              </button>
+            </div>
+          )}
 
           <div className="mt-4 text-center">
             <Button
