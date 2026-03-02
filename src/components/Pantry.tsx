@@ -21,6 +21,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import PantrySmartHistory from "@/components/PantrySmartHistory";
+import { useGuestMode } from "@/hooks/useGuestMode";
 
 interface PantryItem {
   id: string;
@@ -581,6 +582,8 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const { addItem: addToShoppingList } = useShoppingList();
+  const { isGuest, checkGuestLimit, incrementGuestUsage, showGuestBlock } = useGuestMode();
+
   
   // Step state for guided flow
   const [currentStep, setCurrentStep] = useState(2); // Default to "Mi Despensa"
@@ -647,6 +650,11 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
   const handleAddIngredient = async () => {
     if (!newIngredient.trim()) return;
 
+    if (isGuest && !checkGuestLimit('despensa')) {
+      showGuestBlock('despensa');
+      return;
+    }
+
     if (!user) {
       toast({
         title: "Iniciá sesión",
@@ -685,6 +693,8 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
       setExpirationDate("");
       setShowAddDialog(false);
       
+      if (isGuest) incrementGuestUsage('despensa');
+
       toast({
         title: "¡Agregado al estante! 🎉",
         description: `${newIngredient} se agregó a tu despensa.`,

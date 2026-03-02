@@ -20,6 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { SuperSmartHistory } from "./SuperSmartHistory";
+import { useGuestMode } from "@/hooks/useGuestMode";
 
 const CATEGORY_CONFIG: Record<string, { emoji: string; label: string; order: number; color: string }> = {
   verduras: { emoji: "🥬", label: "Verduras", order: 1, color: "emerald" },
@@ -172,6 +173,7 @@ export function ShoppingListDirect() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { items, isLoading, togglePurchased, removeItem, clearPurchased, pendingCount, addItem, updateQuantity, updateUnit, refetch } = useShoppingList();
+  const { isGuest, checkGuestLimit, incrementGuestUsage, showGuestBlock } = useGuestMode();
   
   // Step state
   const [currentStep, setCurrentStep] = useState<ShoppingStep>("agregar");
@@ -255,8 +257,13 @@ export function ShoppingListDirect() {
 
   const handleAddItem = async () => {
     if (!newItemName.trim()) return;
+    if (isGuest && !checkGuestLimit('super')) {
+      showGuestBlock('super');
+      return;
+    }
     const success = await addItem(newItemName.trim(), selectedCategory, newQuantity, newUnit);
     if (success) {
+      if (isGuest) incrementGuestUsage('super');
       setNewItemName("");
       setNewQuantity(1);
       // Ir a la lista después de agregar
@@ -265,8 +272,13 @@ export function ShoppingListDirect() {
   };
 
   const handleQuickAdd = async (product: typeof QUICK_ADD_PRODUCTS[0]) => {
+    if (isGuest && !checkGuestLimit('super')) {
+      showGuestBlock('super');
+      return;
+    }
     const success = await addItem(product.name, product.category, 1, product.unit);
     if (success) {
+      if (isGuest) incrementGuestUsage('super');
       toast({
         title: `${product.emoji} ¡Agregado!`,
         description: `${product.name} en tu lista.`,

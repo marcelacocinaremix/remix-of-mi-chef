@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useGameStats } from "@/hooks/useGameStats";
 import { Trophy, Star, ChefHat, Sparkles, RotateCcw, Play, Heart, Timer, Crown } from "lucide-react";
 import marcelaCharacter from "@/assets/marcela-character.png";
+import { useGuestMode } from "@/hooks/useGuestMode";
 // Game recipes with required ingredients - RECETAS ARGENTINAS PRECISAS
 const GAME_RECIPES = [
   {
@@ -166,6 +167,7 @@ export function CookingGame({ onAchievementUnlocked }: CookingGameProps) {
   const { user } = useAuth();
   const { play } = useSound();
   const { stats: gameStats, saveGameResult } = useGameStats();
+  const { isGuest, checkGuestLimit, incrementGuestUsage, showGuestBlock } = useGuestMode();
   
   const [gameState, setGameState] = useState<"menu" | "playing" | "complete">("menu");
   const [currentRecipeIndex, setCurrentRecipeIndex] = useState(0);
@@ -233,6 +235,10 @@ export function CookingGame({ onAchievementUnlocked }: CookingGameProps) {
 
   // Start game
   const startGame = () => {
+    if (isGuest && !checkGuestLimit('jugar')) {
+      showGuestBlock('jugar');
+      return;
+    }
     setGameState("playing");
     setCurrentRecipeIndex(0);
     setSelectedIngredients([]);
@@ -247,6 +253,7 @@ export function CookingGame({ onAchievementUnlocked }: CookingGameProps) {
     shuffleIngredients();
     setMarcelaMessage(MARCELA_MESSAGES.welcome[Math.floor(Math.random() * MARCELA_MESSAGES.welcome.length)]);
     play("magic");
+    if (isGuest) incrementGuestUsage('jugar');
   };
 
   // Handle ingredient selection (drag & drop or click)
