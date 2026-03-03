@@ -10,7 +10,6 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { PremiumProvider } from "@/hooks/usePremium";
 import { KitchenTimerProvider } from "@/hooks/useKitchenTimer";
 import { useAndroidPurchase } from "@/hooks/useAndroidPurchase";
-import { GuestModeProvider } from "@/hooks/useGuestMode";
 import { AdBanner } from "@/components/AdBanner";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -46,30 +45,28 @@ const App = () => (
             <PremiumProvider>
               <AndroidPurchaseHandler>
                 <LanguageProvider>
-                  <GuestModeProvider>
-                    <KitchenTimerProvider>
-                      <TooltipProvider>
-                        <Toaster />
-                        <Sonner />
-                        <AdBanner />
-                        <Routes>
-                          <Route path="/" element={<Index />} />
-                          <Route path="/auth" element={<Auth />} />
-                          <Route path="/reset-password" element={<ResetPassword />} />
-                          <Route path="/open-reset-password" element={<OpenResetPassword />} />
-                          <Route path="/privacy" element={<PrivacyPolicy />} />
-                          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                          <Route path="/terms" element={<TermsOfService />} />
-                          <Route path="/terms-of-service" element={<TermsOfService />} />
-                          <Route path="/r/:shareCode" element={<SharedRecipe />} />
-                          <Route path="/payment-processing" element={<PaymentProcessing />} />
-                          <Route path="/payment-failed" element={<PaymentFailed />} />
-                          <Route path="/auth/callback" element={<AuthCallback />} />
-                          <Route path="*" element={<NotFound />} />
-                        </Routes>
-                      </TooltipProvider>
-                    </KitchenTimerProvider>
-                  </GuestModeProvider>
+                  <KitchenTimerProvider>
+                    <TooltipProvider>
+                      <Toaster />
+                      <Sonner />
+                      <AdBanner />
+                      <Routes>
+                        <Route path="/" element={<Index />} />
+                        <Route path="/auth" element={<Auth />} />
+                        <Route path="/reset-password" element={<ResetPassword />} />
+                        <Route path="/open-reset-password" element={<OpenResetPassword />} />
+                        <Route path="/privacy" element={<PrivacyPolicy />} />
+                        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                        <Route path="/terms" element={<TermsOfService />} />
+                        <Route path="/terms-of-service" element={<TermsOfService />} />
+                        <Route path="/r/:shareCode" element={<SharedRecipe />} />
+                        <Route path="/payment-processing" element={<PaymentProcessing />} />
+                        <Route path="/payment-failed" element={<PaymentFailed />} />
+                        <Route path="/auth/callback" element={<AuthCallback />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </TooltipProvider>
+                  </KitchenTimerProvider>
                 </LanguageProvider>
               </AndroidPurchaseHandler>
             </PremiumProvider>

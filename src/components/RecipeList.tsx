@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import { useGuestMode } from "@/hooks/useGuestMode";
-import { useNavigate } from "react-router-dom";
 import { Clock, ChefHat, Users, Heart, ChevronDown, ChevronUp, Flame, Dumbbell, Wheat } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -34,8 +32,6 @@ interface RecipeListProps {
 
 export function RecipeList({ recipes, onSelectRecipe }: RecipeListProps) {
   const { user } = useAuth();
-  const { isGuest, showGuestBlock } = useGuestMode();
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [savingId, setSavingId] = useState<string | null>(null);
   const [favoriteNames, setFavoriteNames] = useState<Set<string>>(new Set());
@@ -58,7 +54,6 @@ export function RecipeList({ recipes, onSelectRecipe }: RecipeListProps) {
 
   const handleToggleFavorite = async (recipe: Recipe, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (isGuest) { showGuestBlock('cocinar'); return; }
     
     if (!user) {
       toast({
