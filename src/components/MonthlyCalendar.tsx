@@ -10,7 +10,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useGuestMode } from "@/hooks/useGuestMode";
 import { Recipe } from "@/components/RecipeList";
 import {
   format, startOfMonth, endOfMonth, eachDayOfInterval,
@@ -63,7 +62,6 @@ interface MonthlyCalendarProps {
 export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: MonthlyCalendarProps) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { isGuest, checkGuestLimit, incrementGuestUsage, showGuestBlock } = useGuestMode();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [allMeals, setAllMeals] = useState<Record<string, DayMeal[]>>({});
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -165,11 +163,6 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
   const handleAddRecipe = async (recipe: Recipe, mealType: MealType) => {
     if (!user || !selectedDate) return;
 
-    if (isGuest && !checkGuestLimit('planificar')) {
-      showGuestBlock('planificar');
-      return;
-    }
-
     const { weekStart, dayOfWeek } = getWeekStartAndDay(selectedDate);
 
     try {
@@ -196,7 +189,6 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
         if (error) throw error;
       }
 
-      if (isGuest) incrementGuestUsage('planificar');
       await fetchMealsForRange();
       setShowRecipeSelector(null);
       toast({ title: "¡Receta agregada!", description: `${recipe.name} para el ${format(selectedDate, "EEEE d", { locale: es })}` });

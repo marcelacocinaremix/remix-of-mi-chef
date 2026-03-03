@@ -32,7 +32,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
-import { useGuestMode } from "@/hooks/useGuestMode";
 
 interface CategoryOption {
   id: string;
@@ -194,7 +193,6 @@ export function FoodStorageGuide() {
   const [isSaved, setIsSaved] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
-  const { isGuest, checkGuestLimit, incrementGuestUsage, showGuestBlock } = useGuestMode();
 
   // Load history from localStorage
   useEffect(() => {
@@ -237,11 +235,6 @@ export function FoodStorageGuide() {
       return;
     }
 
-    if (isGuest && !checkGuestLimit('guia')) {
-      showGuestBlock('guia');
-      return;
-    }
-
     setIsLoading(true);
     setFoodInfo(null);
     setNotFoodError(false);
@@ -261,7 +254,6 @@ export function FoodStorageGuide() {
         setNotFoodError(true);
         setFoodInfo(null);
       } else if (data) {
-        if (isGuest) incrementGuestUsage('guia');
         setFoodInfo(data);
         saveToHistory(foodToUse, categoryToUse);
         if (foodOverride) setFoodName(foodOverride);
