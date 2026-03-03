@@ -862,17 +862,6 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                       : `${t("onboardingAlreadyAccount")} ${t("onboardingLoginHere")}`}
                   </button>
                 </div>
-
-                {/* Guest mode button - always visible in auth step */}
-                <div className="text-center pt-2 border-t border-white/10 mt-2">
-                  <button
-                    type="button"
-                    onClick={handleGuestMode}
-                    className="text-white/50 hover:text-white/80 text-sm transition-colors underline underline-offset-2"
-                  >
-                    Probar como invitado
-                  </button>
-                </div>
               </motion.div>
             </motion.div>
           </motion.div>
