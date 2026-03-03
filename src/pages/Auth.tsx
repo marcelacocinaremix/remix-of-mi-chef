@@ -351,8 +351,21 @@ export default function Auth() {
                 : "Crear cuenta"}
             </Button>
 
-          </form>
+            {/* Guest mode - inside form, always visible */}
+            <div className="text-center pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsGuest(true);
+                  navigate("/");
+                }}
+                className="text-muted-foreground text-sm hover:text-foreground transition-colors underline underline-offset-2"
+              >
+                Probar como invitado
+              </button>
+            </div>
 
+          </form>
 
           {/* Forgot password link - only show on login */}
           {isLogin && (
@@ -378,20 +391,6 @@ export default function Auth() {
                 {isLogin ? "Registrate" : "Iniciá sesión"}
               </button>
             </p>
-          </div>
-
-          {/* Guest mode - always visible */}
-          <div className="mt-3 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setIsGuest(true);
-                navigate("/");
-              }}
-              className="text-muted-foreground text-sm hover:text-foreground transition-colors underline underline-offset-2"
-            >
-              Probar como invitado
-            </button>
           </div>
 
           <div className="mt-4 text-center">
