@@ -380,21 +380,19 @@ export default function Auth() {
             </p>
           </div>
 
-          {/* Guest mode - only show on login */}
-          {isLogin && (
-            <div className="mt-3 text-center">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsGuest(true);
-                  navigate("/");
-                }}
-                className="text-muted-foreground text-sm hover:text-foreground transition-colors underline underline-offset-2"
-              >
-                Probar como invitado
-              </button>
-            </div>
-          )}
+          {/* Guest mode - always visible */}
+          <div className="mt-3 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setIsGuest(true);
+                navigate("/");
+              }}
+              className="text-muted-foreground text-sm hover:text-foreground transition-colors underline underline-offset-2"
+            >
+              Probar como invitado
+            </button>
+          </div>
 
           <div className="mt-4 text-center">
             <Button
