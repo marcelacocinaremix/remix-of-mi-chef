@@ -1416,13 +1416,13 @@ Generá UNA SOLA receta sorpresa con estas características:
 
     console.log('AI prompt:', userPrompt.substring(0, 200) + '...');
 
-    // Multiple models for fallback
+    // Models ordered by capability — use smarter models first for better ingredient compliance
     const models = [
-      'google/gemini-2.5-flash-lite',
-      'openai/gpt-5-nano',
       'google/gemini-2.5-flash',
       'openai/gpt-5-mini',
       'google/gemini-3-flash-preview',
+      'google/gemini-2.5-flash-lite',
+      'openai/gpt-5-nano',
       'google/gemini-2.5-pro',
       'openai/gpt-5',
       'google/gemini-3-pro-preview',
