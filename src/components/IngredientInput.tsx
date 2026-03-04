@@ -128,6 +128,15 @@ export function IngredientInput({ ingredients, onIngredientsChange }: Ingredient
     inputRef.current?.focus();
   };
 
+  const addManualIngredient = (value: string) => {
+    const trimmed = value.trim().toLowerCase();
+    if (!trimmed || isAtMax || ingredients.includes(trimmed)) return;
+    onIngredientsChange([...ingredients, trimmed]);
+    setInputValue("");
+    setShowSuggestions(false);
+    inputRef.current?.focus();
+  };
+
   const removeIngredient = (id: string) => {
     onIngredientsChange(ingredients.filter(i => i !== id));
   };
