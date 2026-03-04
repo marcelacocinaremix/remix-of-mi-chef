@@ -1536,12 +1536,17 @@ Tiempo máximo de cocción: ${time} minutos.\n`;
         // RETRY: Try once more with a stronger prompt before giving up
         console.log('⚠️ AI recipes rejected, retrying with stronger prompt...');
         
-        const retryPrompt = `ATENCIÓN: Tu respuesta anterior fue RECHAZADA porque NO usaba los ingredientes del usuario.
-INGREDIENTES OBLIGATORIOS QUE DEBEN APARECER EN LA RECETA: ${ingredients.join(', ')}
-Cada uno de estos ingredientes DEBE ser un ingrediente principal de la receta. NO los reemplaces por otros.
-Tiempo máximo: ${time || 30} minutos.
-${mealType ? `Tipo de comida: ${mealType}` : ''}
-Generá EXACTAMENTE 1 receta que use TODOS estos ingredientes. Respondé SOLO con JSON válido.`;
+        const retryPrompt = `⚠️ REINTENTO — Tu respuesta fue RECHAZADA porque no usó todos los ingredientes del usuario.
+
+INGREDIENTES QUE DEBEN ESTAR SÍ O SÍ EN LA RECETA:
+${ingredients.map((ing: string, i: number) => `  ${i+1}. ${ing}`).join('\n')}
+
+REGLAS:
+- NO sustituyas ningún ingrediente por otro.
+- Todos los ingredientes listados DEBEN aparecer en el campo "ingredients".
+- Tiempo máximo: ${time || 30} minutos.
+${mealType ? `- Tipo de comida: ${mealType}` : ''}
+- Respondé SOLO con JSON válido. UNA SOLA receta.`;
         
         let retryResult = null;
         for (const retryModel of models.slice(0, 3)) {
