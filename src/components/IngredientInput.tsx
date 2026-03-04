@@ -65,7 +65,8 @@ export function IngredientInput({ ingredients, onIngredientsChange }: Ingredient
       const results = searchIngredients(inputValue, 20)
         .filter(ing => !ingredients.includes(ing.id));
       setSuggestions(results);
-      setShowSuggestions(results.length > 0);
+      // Always show dropdown when typing (either results or "add manually" option)
+      setShowSuggestions(true);
       setHighlightedIndex(-1);
     } else {
       setSuggestions([]);
