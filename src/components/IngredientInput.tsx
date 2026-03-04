@@ -154,6 +154,9 @@ export function IngredientInput({ ingredients, onIngredientsChange }: Ingredient
         selectIngredient(suggestions[highlightedIndex]);
       } else if (suggestions.length > 0) {
         selectIngredient(suggestions[0]);
+      } else if (inputValue.trim().length >= 2) {
+        // No suggestions found → add manually
+        addManualIngredient(inputValue);
       }
     } else if (e.key === "Escape") {
       setShowSuggestions(false);
