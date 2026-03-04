@@ -250,9 +250,15 @@ export function getIngredientById(id: string): NormalizedIngredient | undefined 
   return NORMALIZED_INGREDIENTS.find(i => i.id === id);
 }
 
-/** Search ingredients by query (name, aliases) */
+/** Remove accents from a string for accent-insensitive comparison */
+function removeAccents(str: string): string {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+/** Search ingredients by query (name, aliases) — accent-insensitive */
 export function searchIngredients(query: string, maxResults = 10): NormalizedIngredient[] {
-  const q = query.toLowerCase().trim();
+  const rawQ = query.toLowerCase().trim();
+  const q = removeAccents(rawQ); // accent-normalized query
   if (!q) return [];
   
   const exact: NormalizedIngredient[] = [];
@@ -260,15 +266,17 @@ export function searchIngredients(query: string, maxResults = 10): NormalizedIng
   const contains: NormalizedIngredient[] = [];
 
   for (const ing of NORMALIZED_INGREDIENTS) {
-    const nameLower = ing.name.toLowerCase();
-    const categoryLower = ing.category.toLowerCase();
-    if (nameLower === q) {
+    const nameLower = removeAccents(ing.name.toLowerCase());
+    const nameRaw = ing.name.toLowerCase();
+    const categoryLower = removeAccents(ing.category.toLowerCase());
+
+    if (nameLower === q || nameRaw === rawQ) {
       exact.push(ing);
     } else if (nameLower.startsWith(q)) {
       startsWith.push(ing);
     } else if (
       nameLower.includes(q) || 
-      ing.aliases.some(a => a.toLowerCase().includes(q)) ||
+      ing.aliases.some(a => removeAccents(a.toLowerCase()).includes(q)) ||
       categoryLower.includes(q) || 
       q.includes(categoryLower)
     ) {
