@@ -264,7 +264,7 @@ export function IngredientInput({ ingredients, onIngredientsChange }: Ingredient
                     "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors",
                     "hover:bg-accent/50",
                     index === highlightedIndex && "bg-accent/50",
-                    index !== suggestions.length - 1 && "border-b border-border/50"
+                    "border-b border-border/50"
                   )}
                 >
                   <span className="text-lg">{ing.emoji}</span>
@@ -275,6 +275,23 @@ export function IngredientInput({ ingredients, onIngredientsChange }: Ingredient
                   <Plus className="w-4 h-4 text-muted-foreground shrink-0" />
                 </button>
               ))}
+
+              {/* Manual add option — always shown when typing */}
+              {inputValue.trim().length >= 2 && !ingredients.includes(inputValue.trim().toLowerCase()) && (
+                <button
+                  onClick={() => addManualIngredient(inputValue)}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-primary/10"
+                >
+                  <span className="text-lg">✏️</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm text-primary">
+                      Agregar "{inputValue.trim()}"
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">No está en la lista · agregar igual</p>
+                  </div>
+                  <Plus className="w-4 h-4 text-primary shrink-0" />
+                </button>
+              )}
             </div>
           )}
         </div>
