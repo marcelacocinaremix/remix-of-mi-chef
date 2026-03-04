@@ -1314,37 +1314,29 @@ Generá UNA SOLA receta sorpresa con estas características:
       }
       userPrompt += `\n\nSorprendé con algo creativo pero realizable!`;
     } else {
-      userPrompt = `INGREDIENTES DEL USUARIO (OBLIGATORIOS): ${ingredients?.join(', ') || 'ninguno especificado'}\n`;
-      userPrompt += `⚠️ REGLAS ABSOLUTAS — PROHIBIDO IGNORARLAS:\n`;
-      userPrompt += `La receta DEBE contener CADA UNO de estos ingredientes EXACTOS: [${ingredients?.join(', ')}].\n`;
-      // Pastas — no intercambiar entre tipos
-      userPrompt += `- "fideos" → fideos/spaghetti/tallarines/penne. NUNCA ñoquis, ravioles, lasagna ni canelones.\n`;
-      userPrompt += `- "noquis" o "ñoquis" → ñoquis. NUNCA fideos ni ravioles.\n`;
-      userPrompt += `- "ravioles" → ravioles/sorrentinos. NUNCA fideos ni ñoquis.\n`;
-      // Pescados — no intercambiar entre tipos
-      userPrompt += `- "atun" o "atún" → atún (fresco o en lata). NUNCA merluza, salmón, brótola ni otro pescado.\n`;
-      userPrompt += `- "salmon" o "salmón" → salmón. NUNCA merluza, atún ni otro pescado.\n`;
-      userPrompt += `- "merluza" → merluza/brótola/abadejo. NUNCA atún, salmón ni camarones.\n`;
-      userPrompt += `- "camaron" o "langostino" → camarones/langostinos. NUNCA otro pescado.\n`;
-      // Carnes — no intercambiar entre tipos
-      userPrompt += `- "pollo" → pollo/pechuga/muslo. NUNCA carne vacuna, cerdo ni pescado.\n`;
-      userPrompt += `- "carne" → carne vacuna (bife, picada, lomo, etc). NUNCA pollo, cerdo ni pescado.\n`;
-      userPrompt += `- "cerdo" → cerdo/bondiola/panceta. NUNCA pollo ni carne vacuna.\n`;
-      // Legumbres — no intercambiar
-      userPrompt += `- "poroto" → porotos/frijoles. NUNCA garbanzos ni lentejas.\n`;
-      userPrompt += `- "garbanzo" → garbanzos. NUNCA porotos ni lentejas.\n`;
-      userPrompt += `- "lenteja" → lentejas. NUNCA garbanzos ni porotos.\n`;
-      // Verduras — no intercambiar
-      userPrompt += `- "espinaca" → espinaca. NUNCA acelga ni kale.\n`;
-      userPrompt += `- "zapallo" → zapallo/calabaza. NUNCA zapallito ni zucchini.\n`;
-      userPrompt += `- "zapallito" o "zucchini" → zapallito/zucchini. NUNCA zapallo ni calabaza.\n`;
-      // Lácteos — no intercambiar
-      userPrompt += `- "crema" → crema de leche/nata. NUNCA leche ni yogur.\n`;
-      userPrompt += `- "leche" → leche. NUNCA crema.\n`;
-      userPrompt += `- NO reemplaces NINGÚN ingrediente por otro similar. Usá EXACTAMENTE lo que pidió el usuario.\n`;
-      userPrompt += `- Solo podés agregar condimentos básicos (sal, aceite, pimienta, ajo, cebolla) como complemento.\n`;
-      userPrompt += `Generá EXACTAMENTE 1 SOLA receta.\n`;
-      userPrompt += `Tiempo máximo para cocinar: ${time} minutos\n`;
+      const ingCount = ingredients?.length || 0;
+      userPrompt = `═══════════════════════════════════════
+INGREDIENTES OBLIGATORIOS (${ingCount} en total):
+${(ingredients || []).map((ing: string, i: number) => `  ${i+1}. ${ing}`).join('\n')}
+═══════════════════════════════════════
+
+⚠️ VERIFICACIÓN OBLIGATORIA ANTES DE RESPONDER:
+Revisá que CADA uno de los ${ingCount} ingredientes listados arriba aparezca en el campo "ingredients" de tu receta.
+Si alguno no está → la respuesta será rechazada automáticamente.
+
+PROHIBICIONES ABSOLUTAS:
+- NO sustituyas "matambre" por "carne", "bife" ni ninguna otra cosa.
+- NO sustituyas "bondiola" por "cerdo" ni "panceta".
+- NO sustituyas "pollo" por "carne vacuna" ni por "cerdo".
+- NO sustituyas "fideos" por "ñoquis" ni "ravioles" (ni viceversa).
+- NO sustituyas "atún" por "merluza" ni ningún otro pescado (ni viceversa).
+- NO sustituyas "salmón" por "atún", "merluza" ni ningún otro pescado (ni viceversa).
+- NO sustituyas "espinaca" por "acelga" ni por cualquier otra verdura de hoja.
+- NO sustituyas "zapallo" por "zapallito" ni "zucchini" (ni viceversa).
+- Solo podés agregar: sal, pimienta, aceite, ajo, cebolla, agua, especias básicas.
+
+Generá EXACTAMENTE 1 SOLA receta que use TODOS los ingredientes listados.
+Tiempo máximo de cocción: ${time} minutos.\n`;
 
       if (mealType) {
         const mealTypes: Record<string, string> = {
