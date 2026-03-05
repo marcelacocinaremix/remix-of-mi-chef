@@ -18,6 +18,7 @@ import { RecipeList, Recipe } from "@/components/RecipeList";
 import { LoadingRecipe } from "@/components/LoadingRecipe";
 import { RecentRecipesHistory } from "@/components/RecentRecipesHistory";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 interface CookingSectionProps {
@@ -47,15 +48,6 @@ interface CookingSectionProps {
 
 const FLAVOR_OPTIONS = [
   {
-    id: "dulce",
-    label: "Dulce / Postre",
-    emoji: "🍬",
-    icon: Candy,
-    desc: "Postres, budines, tortas…",
-    color: "border-rose-400 bg-rose-500/10 text-rose-600",
-    activeColor: "border-rose-500 bg-rose-500/20 text-rose-700 ring-2 ring-rose-400/40",
-  },
-  {
     id: "salado",
     label: "Salado",
     emoji: "🧂",
@@ -63,6 +55,15 @@ const FLAVOR_OPTIONS = [
     desc: "Platos principales, entradas…",
     color: "border-slate-400 bg-slate-500/10 text-slate-600",
     activeColor: "border-slate-500 bg-slate-500/20 text-slate-700 ring-2 ring-slate-400/40",
+  },
+  {
+    id: "dulce",
+    label: "Dulce / Postre",
+    emoji: "🍬",
+    icon: Candy,
+    desc: "Postres, budines, tortas…",
+    color: "border-rose-400 bg-rose-500/10 text-rose-600",
+    activeColor: "border-rose-500 bg-rose-500/20 text-rose-700 ring-2 ring-rose-400/40",
   },
 ];
 
@@ -109,13 +110,23 @@ export function CookingSection({
 
   const toggleFlavor = (id: string) => {
     const isActive = quickFilters.includes(id);
-    // Remove both flavor filters then add the selected one if not already active
     const withoutFlavors = quickFilters.filter(f => f !== "dulce" && f !== "salado");
     setQuickFilters(isActive ? withoutFlavors : [...withoutFlavors, id]);
   };
 
   // Diet/preference filters only (no flavor filters)
   const dietAndPrefFilters = quickFilters.filter(f => f !== "dulce" && f !== "salado");
+
+  const handleGenerate = () => {
+    if (!activeFlavor) {
+      toast.warning("¿Salado o dulce?", {
+        description: "Seleccioná si querés una receta salada o dulce antes de continuar.",
+        duration: 3500,
+      });
+      return;
+    }
+    onGenerateRecipe();
+  };
 
   return (
     <div className="space-y-4 overflow-hidden">
@@ -215,7 +226,7 @@ export function CookingSection({
                     "hover:scale-[1.03] active:scale-[0.97]"
                   )}
                 >
-                  <Icon className="w-8 h-8" strokeWidth={1.8} />
+                  <Icon className="w-6 h-6" strokeWidth={1.8} />
                   <span className="font-semibold text-sm leading-tight text-center">{opt.label}</span>
                   <span className="text-[11px] text-center opacity-70 leading-tight">{opt.desc}</span>
                   {isActive && (
@@ -297,7 +308,7 @@ export function CookingSection({
             <Button
               variant="default"
               size="xl"
-              onClick={onGenerateRecipe}
+              onClick={handleGenerate}
               disabled={isLoading || ingredients.length === 0}
               className="group flex-1 min-w-[220px] py-6 px-8 text-lg font-bold rounded-2xl bg-primary hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
             >
