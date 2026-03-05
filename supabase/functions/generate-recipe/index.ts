@@ -1440,17 +1440,23 @@ Tiempo máximo de cocción: ${time} minutos.\n`;
 
     console.log('AI prompt:', userPrompt.substring(0, 200) + '...');
 
-    // Models ordered by capability — use smarter models first for better ingredient compliance
-    const models = [
-      'google/gemini-2.5-flash',
-      'openai/gpt-5-mini',
-      'google/gemini-3-flash-preview',
-      'google/gemini-2.5-flash-lite',
-      'openai/gpt-5-nano',
-      'google/gemini-2.5-pro',
-      'openai/gpt-5',
-      'google/gemini-3-pro-preview',
-    ];
+    // Models ordered by capability — smarter models first for best recipe quality
+    // gemini-3-flash-preview: fastest next-gen with great instruction following
+    // gemini-2.5-pro: best for complex multi-ingredient combinations
+    const models = isFreeUser
+      ? [
+          'google/gemini-3-flash-preview',   // fast + smart for free users
+          'google/gemini-2.5-flash',          // reliable fallback
+          'google/gemini-2.5-flash-lite',     // cost-efficient last resort
+        ]
+      : [
+          'google/gemini-3-flash-preview',   // premium: best speed+quality
+          'google/gemini-2.5-pro',            // premium: best for complex recipes
+          'openai/gpt-5-mini',               // premium: strong instruction following
+          'google/gemini-2.5-flash',          // premium fallback
+          'google/gemini-3-pro-preview',     // premium: next-gen pro
+          'openai/gpt-5',                    // premium: most capable
+        ];
     
     let response: Response | null = null;
     let successfulModel = '';
