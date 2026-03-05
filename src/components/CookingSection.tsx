@@ -225,7 +225,9 @@ export function CookingSection({
                   onClick={() => toggleFlavor(opt.id)}
                   className={cn(
                     "flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-200",
-                    isActive ? opt.activeColor : opt.color,
+                    isActive
+                      ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/30"
+                      : "border-border bg-muted/30 text-muted-foreground hover:border-primary/40 hover:text-foreground",
                     "hover:scale-[1.03] active:scale-[0.97]"
                   )}
                 >
