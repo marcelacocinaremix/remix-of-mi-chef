@@ -1257,13 +1257,11 @@ serve(async (req) => {
     
     console.log(`User ${limitCheck.userId} usage: ${limitCheck.usesToday}/${limitCheck.remaining + limitCheck.usesToday}`);
 
-    // Premium users get fresh AI more often; free users rely more on cache (cost optimization)
+    // Both free and premium get the same AI-first experience (70% cache threshold)
     const isFreeUser = !limitCheck.isPremium;
-    // Premium: 70% cache hit threshold → more AI invocations → more variety
-    // Free: 99% cache hit threshold → cache first, AI only on real misses
-    const cacheThreshold = isFreeUser ? 0.99 : 0.70;
+    const cacheThreshold = 0.70; // Same for everyone — more AI, more variety
     
-    console.log(`User mode: ${isFreeUser ? 'FREE' : 'PREMIUM'}, cache threshold: ${cacheThreshold}, AI ${isFreeUser ? 'fallback only' : 'preferred'}`);
+    console.log(`User mode: ${isFreeUser ? 'FREE' : 'PREMIUM'}, cache threshold: ${cacheThreshold}, AI preferred for both`);
 
     // STEP 2: Try cache first
     if (ingredients && ingredients.length > 0 && !surpriseMode) {
