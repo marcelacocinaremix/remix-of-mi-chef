@@ -1347,28 +1347,30 @@ Generá UNA SOLA receta sorpresa con estas características:
       userPrompt += `\n\nSorprendé con algo creativo pero realizable!`;
     } else {
       const ingCount = ingredients?.length || 0;
-      userPrompt = `═══════════════════════════════════════
-INGREDIENTES OBLIGATORIOS (${ingCount} en total):
+      userPrompt = `╔═══════════════════════════════════════╗
+║  INGREDIENTES OBLIGATORIOS (${ingCount} en total)  ║
+╚═══════════════════════════════════════╝
 ${(ingredients || []).map((ing: string, i: number) => `  ${i+1}. ${ing}`).join('\n')}
-═══════════════════════════════════════
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚠️ VERIFICACIÓN OBLIGATORIA ANTES DE RESPONDER:
-Revisá que CADA uno de los ${ingCount} ingredientes listados arriba aparezca en el campo "ingredients" de tu receta.
-Si alguno no está → la respuesta será rechazada automáticamente.
+Revisá que CADA uno de los ${ingCount} ingredientes listados arriba aparezca TEXTUALMENTE en el campo "ingredients" de tu receta.
+Si alguno no está → la respuesta será RECHAZADA AUTOMÁTICAMENTE por el sistema.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-PROHIBICIONES ABSOLUTAS:
-- NO sustituyas "matambre" por "carne", "bife" ni ninguna otra cosa.
-- NO sustituyas "bondiola" por "cerdo" ni "panceta".
-- NO sustituyas "pollo" por "carne vacuna" ni por "cerdo".
-- NO sustituyas "fideos" por "ñoquis" ni "ravioles" (ni viceversa).
-- NO sustituyas "atún" por "merluza" ni ningún otro pescado (ni viceversa).
-- NO sustituyas "salmón" por "atún", "merluza" ni ningún otro pescado (ni viceversa).
-- NO sustituyas "espinaca" por "acelga" ni por cualquier otra verdura de hoja.
-- NO sustituyas "zapallo" por "zapallito" ni "zucchini" (ni viceversa).
-- Solo podés agregar: sal, pimienta, aceite, ajo, cebolla, agua, especias básicas.
+PROHIBICIONES ABSOLUTAS (no sustituir NUNCA):
+- "matambre" → SOLO matambre. Jamás bife, carne picada ni milanesa.
+- "bondiola" → SOLO bondiola. Jamás cerdo genérico ni panceta.
+- "pollo" → SOLO pollo. Jamás carne vacuna ni cerdo.
+- "fideos" → SOLO fideos/spaghetti/penne. Jamás ñoquis ni ravioles.
+- "atún" → SOLO atún. Jamás merluza, salmón ni otro pescado.
+- "salmón" → SOLO salmón. Jamás merluza ni atún.
+- "espinaca" → SOLO espinaca. Jamás acelga ni rúcula.
+- Solo podés agregar condimentos básicos: sal, pimienta, aceite, ajo, cebolla, agua, especias.
 
-Generá EXACTAMENTE 1 SOLA receta que use TODOS los ingredientes listados.
-Tiempo máximo de cocción: ${time} minutos.\n`;
+OBJETIVO: Generá 1 SOLA receta DELICIOSA, CREATIVA y DETALLADA que use los ${ingCount} ingredientes.
+Tiempo máximo de cocción: ${time} minutos.
+¡Sorprendé con una combinación sabrosa que haga que el usuario quiera cocinarla ahora mismo!\n`;
 
       if (mealType) {
         const mealTypes: Record<string, string> = {
