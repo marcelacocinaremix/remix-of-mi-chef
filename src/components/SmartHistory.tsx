@@ -69,40 +69,35 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
   const [isDeleting, setIsDeleting] = useState(false);
   const [showAllRecipes, setShowAllRecipes] = useState(false);
 
+  // Fetch fresh data from DB every time this component mounts (e.g. user switches to Mi Cocina tab)
   useEffect(() => {
     if (user) {
-      fetchInsights();
+      refetchRecipes();
     }
   }, [user]);
 
-  // Re-run insights whenever the cooked recipes list changes (e.g. after generating a new recipe)
+  // Recompute insights whenever cookedRecipes changes (covers both mount and new recipe added)
   useEffect(() => {
-    if (user && cookedRecipes.length > 0) {
-      fetchInsights();
+    if (user) {
+      computeInsights();
     }
-  }, [cookedRecipes.length]);
+  }, [cookedRecipes.length, user]);
 
-  const fetchInsights = async () => {
+  // Compute insights from the already-fetched cookedRecipes (no extra Supabase call)
+  const computeInsights = async () => {
     if (!user) return;
     setLoading(true);
 
     try {
-      // Fetch cooked recipes
-      const { data: cookedRecipes } = await supabase
-        .from("cooked_recipes")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("cooked_at", { ascending: false });
-
-      // Fetch favorite recipes
+      // Fetch favorite recipes (still needed for style analysis)
       const { data: favoriteRecipes } = await supabase
         .from("favorite_recipes")
         .select("*")
         .eq("user_id", user.id);
 
-      // Analyze the data locally
-      const allRecipes = [...(cookedRecipes || []), ...(favoriteRecipes || [])];
-      
+      // Use cookedRecipes from hook (already fresh) + favorites
+      const allRecipes = [...cookedRecipes, ...(favoriteRecipes || [])];
+
       if (allRecipes.length === 0) {
         setInsights(null);
         return;
@@ -176,7 +171,7 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
       }
 
       // Determine cooking frequency
-      const totalCooked = cookedRecipes?.length || 0;
+      const totalCooked = cookedRecipes.length;
       let cookingFrequency = "ocasional";
       if (totalCooked >= 20) cookingFrequency = "muy frecuente";
       else if (totalCooked >= 10) cookingFrequency = "frecuente";
@@ -198,11 +193,11 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
         averageCookingTime: `${avgTime} min`
       });
 
-      // Now generate AI suggestions
+      // Generate AI suggestions
       await generateSuggestions(topIngredients, recipeStyles);
 
     } catch (error) {
-      console.error("Error fetching insights:", error);
+      console.error("Error computing insights:", error);
     } finally {
       setLoading(false);
     }
