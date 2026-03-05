@@ -444,7 +444,7 @@ async function searchCachedRecipes(
     
     // QUICK FILTERS / DIET validation
     let filterPenalty = 0;
-    const recipeIngText = removeAccents(JSON.stringify(recipe.recipe_data).toLowerCase());
+    const recipeFullText = removeAccents(JSON.stringify(recipe.recipe_data).toLowerCase());
     const recipeTags = (recipe.tags || []).map((t: string) => t.toLowerCase());
     
     for (const qf of (quickFilters || [])) {
