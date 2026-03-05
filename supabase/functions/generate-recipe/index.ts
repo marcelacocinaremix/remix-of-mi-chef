@@ -43,12 +43,20 @@ async function checkUserLimits(req: Request): Promise<{
   // Check if user is premium to set proper limit
   const { data: subData } = await supabaseAdmin
     .from('user_subscriptions')
-    .select('is_premium, daily_uses, last_use_date')
+    .select('is_premium, daily_uses, last_use_date, subscription_end, trial_end_date')
     .eq('user_id', user.id)
     .maybeSingle();
 
-  const isPremium = subData?.is_premium || false;
-  const userLimit = isPremium ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
+  const now = new Date();
+  // Premium is active only if is_premium=true AND subscription hasn't expired
+  const paidActive = subData?.is_premium === true &&
+    (!subData?.subscription_end || new Date(subData.subscription_end) > now);
+  // Trial active only if trial_end_date is in the future
+  const trialActive = !paidActive &&
+    (subData?.trial_end_date ? new Date(subData.trial_end_date) > now : false);
+  const isPremium = paidActive; // true premium = paid period active
+  const hasAnyAccess = paidActive || trialActive;
+  const userLimit = paidActive ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
   
   // Calculate current uses (reset if new day)
   const today = new Date().toISOString().split('T')[0];
