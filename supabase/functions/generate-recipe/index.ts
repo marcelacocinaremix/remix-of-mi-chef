@@ -43,12 +43,20 @@ async function checkUserLimits(req: Request): Promise<{
   // Check if user is premium to set proper limit
   const { data: subData } = await supabaseAdmin
     .from('user_subscriptions')
-    .select('is_premium, daily_uses, last_use_date')
+    .select('is_premium, daily_uses, last_use_date, subscription_end, trial_end_date')
     .eq('user_id', user.id)
     .maybeSingle();
 
-  const isPremium = subData?.is_premium || false;
-  const userLimit = isPremium ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
+  const now = new Date();
+  // Premium is active only if is_premium=true AND subscription hasn't expired
+  const paidActive = subData?.is_premium === true &&
+    (!subData?.subscription_end || new Date(subData.subscription_end) > now);
+  // Trial active only if trial_end_date is in the future
+  const trialActive = !paidActive &&
+    (subData?.trial_end_date ? new Date(subData.trial_end_date) > now : false);
+  const isPremium = paidActive; // true premium = paid period active
+  const hasAnyAccess = paidActive || trialActive;
+  const userLimit = paidActive ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
   
   // Calculate current uses (reset if new day)
   const today = new Date().toISOString().split('T')[0];
@@ -255,14 +263,32 @@ function normalizeText(text: string): string {
 function getCanonicalIngredient(ingredient: string): string {
   const normalized = normalizeText(ingredient);
   
-  // Check direct match with canonical keys
+  // PASS 1: exact match against canonical keys (highest priority)
+  for (const canonical of Object.keys(ingredientSynonyms)) {
+    if (normalized === canonical) return canonical;
+  }
+
+  // PASS 2: exact match against variant values
   for (const [canonical, variants] of Object.entries(ingredientSynonyms)) {
-    if (normalized === canonical || normalized.includes(canonical)) return canonical;
     for (const variant of variants) {
-      const normVariant = removeAccents(variant.toLowerCase());
-      if (normalized.includes(normVariant) || normVariant.includes(normalized)) {
-        return canonical;
-      }
+      const normVariant = removeAccents(variant.toLowerCase().trim());
+      if (normalized === normVariant) return canonical;
+    }
+  }
+
+  // PASS 3: the user input CONTAINS a canonical key as a whole word
+  for (const canonical of Object.keys(ingredientSynonyms)) {
+    // Use word-boundary check: canonical must be a standalone word in the input
+    const wordBoundary = new RegExp(`(^|\\s)${canonical}(\\s|$)`);
+    if (wordBoundary.test(normalized)) return canonical;
+  }
+
+  // PASS 4: the user input CONTAINS a variant as a whole word
+  for (const [canonical, variants] of Object.entries(ingredientSynonyms)) {
+    for (const variant of variants) {
+      const normVariant = removeAccents(variant.toLowerCase().trim());
+      const wordBoundary = new RegExp(`(^|\\s)${normVariant.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\s|$)`);
+      if (wordBoundary.test(normalized)) return canonical;
     }
   }
   
