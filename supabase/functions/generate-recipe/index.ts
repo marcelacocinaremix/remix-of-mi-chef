@@ -1457,23 +1457,28 @@ Tiempo máximo de cocción: ${time} minutos.\n`;
     if (!response || !response.ok) {
       console.error('All models failed');
 
-      // Fallback to cache with lower threshold
+      // Fallback to cache — still requires 100% ingredient match
       if (!surpriseMode && ingredients && ingredients.length > 0) {
-        const cacheResult = await searchCachedRecipes(ingredients, time || 30, mealType, language || 'es', 0.7, quickFilters || [], diet || [], excludeIngredients || []);
+        const cacheResult = await searchCachedRecipes(ingredients, time || 30, mealType, language || 'es', 0.99, quickFilters || [], diet || [], excludeIngredients || []);
         if (cacheResult.recipes.length > 0) {
-          // Consume credit for fallback cache hit too
-          if (limitCheck.userId) {
-            await consumeDailyCredit(limitCheck.userId, limitCheck.isPremium);
+          const allUserFilters = [...(quickFilters || []), ...(diet || [])];
+          const validFallback = cacheResult.recipes.filter((r: any) => 
+            validateRecipeIngredients(r, ingredients, allUserFilters, excludeIngredients || [])
+          );
+          if (validFallback.length > 0) {
+            if (limitCheck.userId) {
+              await consumeDailyCredit(limitCheck.userId, limitCheck.isPremium);
+            }
+            return new Response(JSON.stringify({
+              recipes: validFallback.slice(0, 1),
+              source: 'cache',
+              isInstant: true,
+              fallbackReason: 'ai_unavailable',
+              matchScore: cacheResult.matchScore
+            }), {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
           }
-          return new Response(JSON.stringify({
-            recipes: cacheResult.recipes,
-            source: 'cache',
-            isInstant: true,
-            fallbackReason: 'ai_unavailable',
-            matchScore: cacheResult.matchScore
-          }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
         }
       }
 
