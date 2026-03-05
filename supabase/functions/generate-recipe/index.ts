@@ -418,8 +418,8 @@ async function searchCachedRecipes(
     const userCoverage = userCanonicals.length > 0 ? matchedUserCount / userCanonicals.length : 0;
     const recipeCoverage = recipeKeys.length > 0 ? matchedRecipeCount / recipeKeys.length : 0;
     
-    // Minimum 80% user coverage — never show recipes below this
-    if (userCoverage < 0.80) {
+    // 100% user coverage required — ALL user ingredients must be present
+    if (userCoverage < 1.0) {
       return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0, matchedCount: 0, totalCount: userCanonicals.length };
     }
     
@@ -534,21 +534,11 @@ async function searchCachedRecipes(
   // Normalize exclude recipe names for comparison
   const excludeNamesNorm = (excludeRecipeNames || []).map((n: string) => removeAccents(n.toLowerCase().trim()));
   
-  // Try progressive thresholds: 100% → 80% (in steps matching ingredient count)
+  // STRICT: always require 100% user ingredient coverage — no progressive fallback
   const totalIngredients = ingredients.length;
   let matched: typeof validRecipes = [];
   
-  const thresholds: number[] = [1.0];
-  if (totalIngredients >= 3) {
-    for (let miss = 1; miss < totalIngredients; miss++) {
-      const threshold = (totalIngredients - miss) / totalIngredients;
-      if (threshold >= 0.80) {
-        thresholds.push(threshold);
-      } else {
-        break;
-      }
-    }
-  }
+  const thresholds: number[] = [1.0]; // Only 100% — user's ingredients MUST all be present
   
   for (const threshold of thresholds) {
     const atThreshold = validRecipes.filter(r => r.userCoverage >= threshold);
@@ -1467,23 +1457,28 @@ Tiempo máximo de cocción: ${time} minutos.\n`;
     if (!response || !response.ok) {
       console.error('All models failed');
 
-      // Fallback to cache with lower threshold
+      // Fallback to cache — still requires 100% ingredient match
       if (!surpriseMode && ingredients && ingredients.length > 0) {
-        const cacheResult = await searchCachedRecipes(ingredients, time || 30, mealType, language || 'es', 0.7, quickFilters || [], diet || [], excludeIngredients || []);
+        const cacheResult = await searchCachedRecipes(ingredients, time || 30, mealType, language || 'es', 0.99, quickFilters || [], diet || [], excludeIngredients || []);
         if (cacheResult.recipes.length > 0) {
-          // Consume credit for fallback cache hit too
-          if (limitCheck.userId) {
-            await consumeDailyCredit(limitCheck.userId, limitCheck.isPremium);
+          const allUserFilters = [...(quickFilters || []), ...(diet || [])];
+          const validFallback = cacheResult.recipes.filter((r: any) => 
+            validateRecipeIngredients(r, ingredients, allUserFilters, excludeIngredients || [])
+          );
+          if (validFallback.length > 0) {
+            if (limitCheck.userId) {
+              await consumeDailyCredit(limitCheck.userId, limitCheck.isPremium);
+            }
+            return new Response(JSON.stringify({
+              recipes: validFallback.slice(0, 1),
+              source: 'cache',
+              isInstant: true,
+              fallbackReason: 'ai_unavailable',
+              matchScore: cacheResult.matchScore
+            }), {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
           }
-          return new Response(JSON.stringify({
-            recipes: cacheResult.recipes,
-            source: 'cache',
-            isInstant: true,
-            fallbackReason: 'ai_unavailable',
-            matchScore: cacheResult.matchScore
-          }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
         }
       }
 
