@@ -1391,25 +1391,59 @@ Tiempo máximo de cocción: ${time} minutos.
       }
 
       if (quickFilters && quickFilters.length > 0) {
-        const quickFilterLabels: Record<string, string> = {
-          'vegetariano': 'vegetariano (sin carne ni pescado)',
-          'bajo-calorias': 'bajo en calorías/light',
-          'sin-gluten': 'sin gluten',
-          'sin-lactosa': 'sin lácteos',
-          'ninos': 'apto para niños (sabores suaves, presentación atractiva)',
-          'economico': 'económico/bajo presupuesto',
-          'alto-proteina': 'alto en proteínas',
-          'dulce': 'PERFIL DULCE — la receta DEBE tener perfil de sabor dulce. Usá los ingredientes del usuario de forma creativa para lograrlo (ej: pollo → pollo agridulce con miel; zanahoria → budín o torta de zanahoria; arroz → arroz con leche; banana → banana split o smoothie; cerdo → cerdo con manzana o cerdo glaseado). SIEMPRE encontrá una preparación dulce o agridulce que use esos ingredientes.',
-          'salado': 'PERFIL SALADO — la receta DEBE tener perfil de sabor salado. Usá los ingredientes del usuario en una preparación salada clásica o creativa. SIEMPRE encontrá una preparación salada que use esos ingredientes.'
-        };
-        const filterDescriptions = quickFilters.map((f: string) => quickFilterLabels[f] || f);
-        userPrompt += `Filtros adicionales: ${filterDescriptions.join(', ')}\n`;
+        const nonFlavorFilters = quickFilters.filter((f: string) => f !== 'dulce' && f !== 'salado');
+        if (nonFlavorFilters.length > 0) {
+          const quickFilterLabels: Record<string, string> = {
+            'vegetariano': 'vegetariano (sin carne ni pescado)',
+            'bajo-calorias': 'bajo en calorías/light',
+            'sin-gluten': 'sin gluten',
+            'sin-lactosa': 'sin lácteos',
+            'ninos': 'apto para niños (sabores suaves, presentación atractiva)',
+            'economico': 'económico/bajo presupuesto',
+            'alto-proteina': 'alto en proteínas',
+          };
+          const filterDescriptions = nonFlavorFilters.map((f: string) => quickFilterLabels[f] || f);
+          userPrompt += `Filtros adicionales: ${filterDescriptions.join(', ')}\n`;
+        }
 
         if (quickFilters.includes('dulce')) {
-          userPrompt += `\n🍬 INSTRUCCIÓN SABOR DULCE: Con los ingredientes dados, generá una receta con perfil DULCE o AGRIDULCE. Nunca respondas con error. Ejemplos creativos: pollo con miel y mostaza, pollo agridulce, cerdo con manzana glaseada, zanahoria en budín o torta, papa en crepe dulce, arroz con leche. Adaptá los ingredientes al perfil dulce de manera creativa. SIEMPRE generá una receta.\n`;
+          userPrompt += `
+╔══════════════════════════════════════════════════════════╗
+║              🍬 PERFIL DE SABOR: DULCE                   ║
+╚══════════════════════════════════════════════════════════╝
+REGLA ESTRICTA: La receta FINAL debe ser DULCE — es decir, el plato terminado debe tener sabor predominantemente dulce (postre, budín, torta, arroz con leche, mousse, crepe dulce, smoothie, compota, etc.).
+
+CÓMO USAR LOS INGREDIENTES DEL USUARIO:
+- Arroz → arroz con leche, arroz con canela y azúcar
+- Zapallo / calabaza / zanahoria / batata → budín, torta, puré dulce, mermelada
+- Banana / manzana / pera / durazno / frutilla → postre de frutas, smoothie, crumble, tarta
+- Huevo / leche / crema / harina → flan, budín, torta, panqueques dulces, crepes
+- Pollo / cerdo / carne (con miel, frutas o glaseado) → SOLO si el plato terminado es agridulce con perfil dulce real (ej: pollo con miel y naranja, cerdo glaseado con manzana)
+- Verduras saladas simples (ajo, cebolla, morrón, espinaca) sin ingredientes dulces → NO son aptos para dulce
+
+DECISIÓN OBLIGATORIA:
+1. Si AL MENOS UN ingrediente del usuario puede ser protagonista de una preparación dulce real → generá esa receta dulce (podés ignorar ingredientes que no encajen, agregando solo condimentos básicos como azúcar, canela, vainilla, miel).
+2. Si NINGÚN ingrediente puede ser protagonista de algo dulce (ej: solo ajo + cebolla + morrón) → respondé EXACTAMENTE con este JSON:
+{"recipes": [], "error": "no_flavor_match", "message": "No encontré una receta dulce con esos ingredientes. Probá agregando frutas, leche, harina, huevos, chocolate o dulce de leche."}
+
+PROHIBIDO: Generar una receta que sea claramente salada (ej: arroz con zapallo, estofado, guiso) y llamarla "dulce". El plato terminado DEBE saber dulce.
+`;
         }
+
         if (quickFilters.includes('salado')) {
-          userPrompt += `\n🧂 INSTRUCCIÓN SABOR SALADO: Con los ingredientes dados, generá una receta con perfil SALADO clásico o creativo. SIEMPRE generá una receta salada usando esos ingredientes.\n`;
+          userPrompt += `
+╔══════════════════════════════════════════════════════════╗
+║              🧂 PERFIL DE SABOR: SALADO                  ║
+╚══════════════════════════════════════════════════════════╝
+REGLA ESTRICTA: La receta FINAL debe ser SALADA — plato principal, entrada, sopa, guiso, salteado, ensalada salada, etc.
+
+DECISIÓN OBLIGATORIA:
+1. Si los ingredientes son aptos para una preparación salada → generá la receta salada.
+2. Si los ingredientes son EXCLUSIVAMENTE dulces de repostería (ej: solo chocolate + azúcar impalpable + dulce de leche sin nada más) → respondé EXACTAMENTE con este JSON:
+{"recipes": [], "error": "no_flavor_match", "message": "No encontré una receta salada con esos ingredientes. Probá con verduras, carnes, pastas, arroz o cereales."}
+
+PROHIBIDO: Generar una receta dulce o de postre cuando el usuario seleccionó SALADO.
+`;
         }
       }
 
