@@ -534,21 +534,11 @@ async function searchCachedRecipes(
   // Normalize exclude recipe names for comparison
   const excludeNamesNorm = (excludeRecipeNames || []).map((n: string) => removeAccents(n.toLowerCase().trim()));
   
-  // Try progressive thresholds: 100% → 80% (in steps matching ingredient count)
+  // STRICT: always require 100% user ingredient coverage — no progressive fallback
   const totalIngredients = ingredients.length;
   let matched: typeof validRecipes = [];
   
-  const thresholds: number[] = [1.0];
-  if (totalIngredients >= 3) {
-    for (let miss = 1; miss < totalIngredients; miss++) {
-      const threshold = (totalIngredients - miss) / totalIngredients;
-      if (threshold >= 0.80) {
-        thresholds.push(threshold);
-      } else {
-        break;
-      }
-    }
-  }
+  const thresholds: number[] = [1.0]; // Only 100% — user's ingredients MUST all be present
   
   for (const threshold of thresholds) {
     const atThreshold = validRecipes.filter(r => r.userCoverage >= threshold);
