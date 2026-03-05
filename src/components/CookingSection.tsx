@@ -226,7 +226,7 @@ export function CookingSection({
                     "hover:scale-[1.03] active:scale-[0.97]"
                   )}
                 >
-                  <Icon className="w-8 h-8" strokeWidth={1.8} />
+                  <Icon className="w-6 h-6" strokeWidth={1.8} />
                   <span className="font-semibold text-sm leading-tight text-center">{opt.label}</span>
                   <span className="text-[11px] text-center opacity-70 leading-tight">{opt.desc}</span>
                   {isActive && (
