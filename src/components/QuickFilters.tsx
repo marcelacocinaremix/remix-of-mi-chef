@@ -10,7 +10,7 @@ import {
   Fish,
   Vegan,
   X,
-  Clock
+  Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSound } from "@/hooks/useSound";

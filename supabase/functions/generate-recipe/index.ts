@@ -43,12 +43,20 @@ async function checkUserLimits(req: Request): Promise<{
   // Check if user is premium to set proper limit
   const { data: subData } = await supabaseAdmin
     .from('user_subscriptions')
-    .select('is_premium, daily_uses, last_use_date')
+    .select('is_premium, daily_uses, last_use_date, subscription_end, trial_end_date')
     .eq('user_id', user.id)
     .maybeSingle();
 
-  const isPremium = subData?.is_premium || false;
-  const userLimit = isPremium ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
+  const now = new Date();
+  // Premium is active only if is_premium=true AND subscription hasn't expired
+  const paidActive = subData?.is_premium === true &&
+    (!subData?.subscription_end || new Date(subData.subscription_end) > now);
+  // Trial active only if trial_end_date is in the future
+  const trialActive = !paidActive &&
+    (subData?.trial_end_date ? new Date(subData.trial_end_date) > now : false);
+  const isPremium = paidActive; // true premium = paid period active
+  const hasAnyAccess = paidActive || trialActive;
+  const userLimit = paidActive ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
   
   // Calculate current uses (reset if new day)
   const today = new Date().toISOString().split('T')[0];
@@ -255,14 +263,32 @@ function normalizeText(text: string): string {
 function getCanonicalIngredient(ingredient: string): string {
   const normalized = normalizeText(ingredient);
   
-  // Check direct match with canonical keys
+  // PASS 1: exact match against canonical keys (highest priority)
+  for (const canonical of Object.keys(ingredientSynonyms)) {
+    if (normalized === canonical) return canonical;
+  }
+
+  // PASS 2: exact match against variant values
   for (const [canonical, variants] of Object.entries(ingredientSynonyms)) {
-    if (normalized === canonical || normalized.includes(canonical)) return canonical;
     for (const variant of variants) {
-      const normVariant = removeAccents(variant.toLowerCase());
-      if (normalized.includes(normVariant) || normVariant.includes(normalized)) {
-        return canonical;
-      }
+      const normVariant = removeAccents(variant.toLowerCase().trim());
+      if (normalized === normVariant) return canonical;
+    }
+  }
+
+  // PASS 3: the user input CONTAINS a canonical key as a whole word
+  for (const canonical of Object.keys(ingredientSynonyms)) {
+    // Use word-boundary check: canonical must be a standalone word in the input
+    const wordBoundary = new RegExp(`(^|\\s)${canonical}(\\s|$)`);
+    if (wordBoundary.test(normalized)) return canonical;
+  }
+
+  // PASS 4: the user input CONTAINS a variant as a whole word
+  for (const [canonical, variants] of Object.entries(ingredientSynonyms)) {
+    for (const variant of variants) {
+      const normVariant = removeAccents(variant.toLowerCase().trim());
+      const wordBoundary = new RegExp(`(^|\\s)${normVariant.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\s|$)`);
+      if (wordBoundary.test(normalized)) return canonical;
     }
   }
   
@@ -378,27 +404,27 @@ async function searchCachedRecipes(
       getIngredientVariants(i)
     );
     
+    // ONLY check actual recipe ingredients list — NOT steps/tips/variations
+    // This prevents false matches like "you can serve with arroz" in steps
+    const actualIngredients: string[] = (recipe.recipe_data as any)?.ingredients || [];
+    const recipeIngText = removeAccents(actualIngredients.join(' ').toLowerCase());
+    
     // How many of the USER's SPECIFIC ingredients does this recipe use?
-    // Use specific variant matching (not full canonical group)
     let matchedUserCount = 0;
     for (let idx = 0; idx < ingredients.length; idx++) {
       const rawIng = removeAccents(ingredients[idx].toLowerCase().replace(/_/g, ' ').trim());
       const userCanonical = userCanonicals[idx];
       
-      // Check if the raw ingredient or its specific variants appear in the recipe
-      const recipeIngText = removeAccents((recipe.main_ingredients || []).join(' ').toLowerCase());
-      const recipeDataText = removeAccents(JSON.stringify(recipe.recipe_data).toLowerCase());
-      const combinedText = recipeIngText + ' ' + recipeDataText;
-      
+      // Check ONLY in the ingredients list, not full recipe JSON
       // Direct raw match
-      if (combinedText.includes(rawIng)) {
+      if (recipeIngText.includes(rawIng)) {
         matchedUserCount++;
         continue;
       }
       
-      // Check specific variants (not full canonical group)
+      // Check specific variants — ONLY in ingredients list, not steps/tips
       const specificVars = getSpecificVariants(rawIng, userCanonical);
-      const hit = specificVars.some(v => combinedText.includes(removeAccents(v)));
+      const hit = specificVars.some(v => recipeIngText.includes(removeAccents(v)));
       if (hit) matchedUserCount++;
     }
     
@@ -418,8 +444,8 @@ async function searchCachedRecipes(
     const userCoverage = userCanonicals.length > 0 ? matchedUserCount / userCanonicals.length : 0;
     const recipeCoverage = recipeKeys.length > 0 ? matchedRecipeCount / recipeKeys.length : 0;
     
-    // Minimum 80% user coverage — never show recipes below this
-    if (userCoverage < 0.80) {
+    // 100% user coverage required — ALL user ingredients must be present
+    if (userCoverage < 1.0) {
       return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0, matchedCount: 0, totalCount: userCanonicals.length };
     }
     
@@ -444,7 +470,7 @@ async function searchCachedRecipes(
     
     // QUICK FILTERS / DIET validation
     let filterPenalty = 0;
-    const recipeIngText = removeAccents(JSON.stringify(recipe.recipe_data).toLowerCase());
+    const recipeFullText = removeAccents(JSON.stringify(recipe.recipe_data).toLowerCase());
     const recipeTags = (recipe.tags || []).map((t: string) => t.toLowerCase());
     
     for (const qf of (quickFilters || [])) {
@@ -454,14 +480,14 @@ async function searchCachedRecipes(
         case 'vegano':
           if (!recipeTags.includes(qfLower)) {
             const meatTerms = ['pollo', 'carne', 'cerdo', 'pescado', 'jamon', 'panceta', 'chorizo', 'bondiola'];
-            if (meatTerms.some(m => recipeIngText.includes(m))) filterPenalty = 1;
+            if (meatTerms.some(m => recipeFullText.includes(m))) filterPenalty = 1;
           }
           break;
         case 'sin-gluten':
-          if (['harina', 'pan ', 'pan,', 'fideos', 'pasta', 'spaghetti'].some(g => recipeIngText.includes(g))) filterPenalty = 1;
+          if (['harina', 'pan ', 'pan,', 'fideos', 'pasta', 'spaghetti'].some(g => recipeFullText.includes(g))) filterPenalty = 1;
           break;
         case 'sin-lactosa':
-          if (['leche', 'queso', 'crema', 'manteca', 'yogur', 'mozzarella'].some(l => recipeIngText.includes(l))) filterPenalty = 1;
+          if (['leche', 'queso', 'crema', 'manteca', 'yogur', 'mozzarella'].some(l => recipeFullText.includes(l))) filterPenalty = 1;
           break;
       }
     }
@@ -472,14 +498,14 @@ async function searchCachedRecipes(
         case 'vegetariano':
         case 'vegano': {
           const meatTerms = ['pollo', 'carne', 'cerdo', 'pescado', 'jamon', 'panceta', 'chorizo'];
-          if (meatTerms.some(m => recipeIngText.includes(m))) filterPenalty = 1;
+          if (meatTerms.some(m => recipeFullText.includes(m))) filterPenalty = 1;
           break;
         }
         case 'sin-gluten':
-          if (['harina', 'pan ', 'pan,', 'fideos', 'pasta'].some(g => recipeIngText.includes(g))) filterPenalty = 1;
+          if (['harina', 'pan ', 'pan,', 'fideos', 'pasta'].some(g => recipeFullText.includes(g))) filterPenalty = 1;
           break;
         case 'sin-lactosa':
-          if (['leche', 'queso', 'crema', 'manteca', 'yogur'].some(l => recipeIngText.includes(l))) filterPenalty = 1;
+          if (['leche', 'queso', 'crema', 'manteca', 'yogur'].some(l => recipeFullText.includes(l))) filterPenalty = 1;
           break;
       }
     }
@@ -493,7 +519,7 @@ async function searchCachedRecipes(
       for (const excluded of excludeIngredients) {
         const excCanonical = getCanonicalIngredient(excluded);
         const excVariants = getIngredientVariants(excCanonical);
-        if (excVariants.some(v => recipeIngText.includes(removeAccents(v)))) {
+        if (excVariants.some(v => recipeFullText.includes(removeAccents(v)))) {
           return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0, matchedCount: 0, totalCount: userCanonicals.length };
         }
       }
@@ -534,21 +560,11 @@ async function searchCachedRecipes(
   // Normalize exclude recipe names for comparison
   const excludeNamesNorm = (excludeRecipeNames || []).map((n: string) => removeAccents(n.toLowerCase().trim()));
   
-  // Try progressive thresholds: 100% → 80% (in steps matching ingredient count)
+  // STRICT: always require 100% user ingredient coverage — no progressive fallback
   const totalIngredients = ingredients.length;
   let matched: typeof validRecipes = [];
   
-  const thresholds: number[] = [1.0];
-  if (totalIngredients >= 3) {
-    for (let miss = 1; miss < totalIngredients; miss++) {
-      const threshold = (totalIngredients - miss) / totalIngredients;
-      if (threshold >= 0.80) {
-        thresholds.push(threshold);
-      } else {
-        break;
-      }
-    }
-  }
+  const thresholds: number[] = [1.0]; // Only 100% — user's ingredients MUST all be present
   
   for (const threshold of thresholds) {
     const atThreshold = validRecipes.filter(r => r.userCoverage >= threshold);
@@ -1047,21 +1063,24 @@ function validateRecipeIngredients(recipe: any, userIngredients: string[], filte
   }
 
   // Check that the user's SPECIFIC ingredients (not just canonicals) appear in the recipe
+  // CRITICAL: Only check the INGREDIENTS LIST — NOT steps, tips, variations, or name
+  // This prevents false matches like "you can serve with arroz" in a step
+  const ingredientsOnlyText = removeAccents((recipe.ingredients || []).join(' ').toLowerCase());
+
   let matchCount = 0;
   for (let i = 0; i < userIngredients.length; i++) {
     const rawIngredient = removeAccents(userIngredients[i].toLowerCase().replace(/_/g, ' ').trim());
     const canonical = userCanonicals[i];
     
-    // First try: exact raw ingredient name in recipe text
-    if (fullText.includes(rawIngredient)) {
+    // First try: exact raw ingredient name in ingredients list only
+    if (ingredientsOnlyText.includes(rawIngredient)) {
       matchCount++;
       continue;
     }
     
-    // Second try: check if any variant of this SPECIFIC ingredient (not the whole canonical group) is present
-    // Only allow close variants, not the entire canonical family
+    // Second try: specific variants in ingredients list only
     const specificVariants = getSpecificVariants(rawIngredient, canonical);
-    const found = specificVariants.some(v => fullText.includes(removeAccents(v)));
+    const found = specificVariants.some(v => ingredientsOnlyText.includes(removeAccents(v)));
     if (found) matchCount++;
   }
   
@@ -1078,14 +1097,20 @@ function validateRecipeIngredients(recipe: any, userIngredients: string[], filte
 
 const getSystemPrompt = (language: string = 'es') => {
   const langInstructions: Record<string, string> = {
-    es: 'Respondé en español rioplatense (argentino). Usá "vos" en lugar de "tú".',
-    en: 'Respond in English. Use American English spelling and expressions.',
-    pt: 'Responda em português brasileiro. Use expressões brasileiras.',
+    es: 'Respondé en español rioplatense (argentino). Usá "vos" en lugar de "tú". Escribí con calidez, como una chef amiga que comparte sus secretos.',
+    en: 'Respond in English. Use American English spelling and expressions. Write warmly like a friendly chef sharing secrets.',
+    pt: 'Responda em português brasileiro. Use expressões brasileiras. Escreva com calor, como uma chef amiga compartilhando seus segredos.',
   };
+
+  // Current month for seasonal tips
+  const month = new Date().getMonth() + 1;
+  const season = (month >= 12 || month <= 2) ? 'verano' : (month >= 3 && month <= 5) ? 'otoño' : (month >= 6 && month <= 8) ? 'invierno' : 'primavera';
   
-  return `Eres MarcelaCocina, chef y creadora de contenido gastronómico especializada en comida casera, práctica y deliciosa.
+  return `Sos MarcelaCocina — chef, creadora de contenido gastronómico y referente de cocina casera argentina.
 ${langInstructions[language] || langInstructions.es}
-Tu misión: generar recetas reales, sabrosas y realizables con los ingredientes exactos del usuario.
+
+Tu misión es generar UNA receta REAL, sabrosa, con historia y con alma, usando exactamente los ingredientes del usuario.
+Estamos en ${season} en Argentina — aprovechá eso en el tip si es relevante.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 REGLAS ABSOLUTAS (NUNCA violar ninguna):
@@ -1095,22 +1120,28 @@ REGLAS ABSOLUTAS (NUNCA violar ninguna):
    Si el usuario ingresa cosas que NO son alimentos comestibles, respondé con:
    {"recipes": [], "error": "no_food_ingredients"}
 
+1b. VALIDACIÓN DE PERFIL DE SABOR:
+   Si el usuario pide filtro "dulce" pero los ingredientes son incompatibles (carnes, pescados, ajo, cebolla como protagonistas), respondé:
+   {"recipes": [], "error": "no_flavor_match", "message": "Estos ingredientes no combinan con una receta dulce."}
+   Si el usuario pide filtro "salado" pero los ingredientes son incompatibles (chocolate, caramelo, dulce de leche como protagonistas), respondé:
+   {"recipes": [], "error": "no_flavor_match", "message": "Estos ingredientes no combinan con una receta salada."}
+
 2. UNA SOLA RECETA: Generá exactamente 1 receta. Ni más ni menos.
 
-3. TIEMPO: La receta DEBE realizarse dentro del tiempo máximo indicado.
+3. TIEMPO: La receta DEBE realizarse dentro del tiempo máximo indicado. Si es corto, priorizá técnicas rápidas (sartén, wok, microondas).
 
 4. ══════════════════════════════════════
    REGLA #1 — INGREDIENTES OBLIGATORIOS:
    ══════════════════════════════════════
    Si el usuario provee N ingredientes, los N DEBEN aparecer en la lista de ingredientes de la receta.
-   NO es opcional. NO es negociable. Es la regla más importante.
+   NO es opcional. NO es negociable. Es la regla MÁS importante de todo el sistema.
    
-   ✅ Si dijo "pollo, arroz, papa" → la receta TIENE pollo + arroz + papa en sus ingredientes.
-   ✅ Si dijo "matambre, papas, queso" → la receta TIENE matambre + papas + queso.
-   ✅ Si dijo "atún, pasta, tomate" → la receta TIENE atún + pasta + tomate.
+   ✅ "pollo, arroz, papa" → la receta TIENE pollo + arroz + papa en ingredients[].
+   ✅ "matambre, papas, queso" → la receta TIENE matambre + papas + queso en ingredients[].
+   ✅ "atún, pasta, tomate" → la receta TIENE atún + pasta + tomate en ingredients[].
    ❌ JAMÁS sustituyas un ingrediente por otro.
-   ❌ JAMÁS omitas un ingrediente del usuario aunque "no combine bien".
-   ❌ Solo podés agregar condimentos/básicos: sal, pimienta, aceite, ajo, cebolla, agua, especias.
+   ❌ JAMÁS omitas un ingrediente aunque "no combine bien" — tu trabajo es hacerlos funcionar.
+   ❌ Solo podés AGREGAR: sal, pimienta, aceite, ajo, cebolla, agua, especias, condimentos básicos.
 
 5. ══════════════════════════════════════
    REGLA #2 — NO INTERCAMBIAR TIPOS:
@@ -1118,11 +1149,11 @@ REGLAS ABSOLUTAS (NUNCA violar ninguna):
    - "matambre" → SOLO matambre. NUNCA bife, carne picada ni milanesa.
    - "bondiola" → SOLO bondiola. NUNCA cerdo genérico ni panceta.
    - "pollo" → pechuga/muslo de pollo. NUNCA carne vacuna ni cerdo.
-   - "carne" → carne vacuna (bife, picada, lomo). NUNCA pollo ni cerdo.
+   - "carne" → carne vacuna. NUNCA pollo ni cerdo.
    - "fideos" → fideos/spaghetti/tallarines/penne. NUNCA ñoquis, ravioles, lasagna.
-   - "noquis/ñoquis" → ñoquis. NUNCA fideos ni ravioles.
-   - "atun/atún" → atún. NUNCA merluza, salmón ni otro pescado.
-   - "salmon/salmón" → salmón. NUNCA merluza ni atún.
+   - "ñoquis/noquis" → ñoquis. NUNCA fideos ni ravioles.
+   - "atún" → atún. NUNCA merluza, salmón ni otro pescado.
+   - "salmón" → salmón. NUNCA merluza ni atún.
    - "merluza" → merluza/brótola/abadejo. NUNCA atún ni salmón.
    - "zapallo" → zapallo/calabaza. NUNCA zapallito ni zucchini.
    - "espinaca" → espinaca. NUNCA acelga ni rúcula.
@@ -1130,57 +1161,62 @@ REGLAS ABSOLUTAS (NUNCA violar ninguna):
 
 6. FILTROS DIETÉTICOS: Si el usuario indica vegetariano/vegano/sin-gluten/sin-lactosa, la receta DEBE cumplirlos sin excepción.
 
-7. RECETAS CASERAS: Priorizá recetas caseras, económicas, simples y con pasos claros.
+7. ══════════════════════════════════════
+   REGLA #3 — CALIDAD DE LA RECETA:
+   ══════════════════════════════════════
+   - Escribí pasos DETALLADOS con técnicas reales: "sellá a fuego fuerte 2 min", "incorporá en hilo fino", "tapá y bajá el fuego".
+   - El "tip" DEBE ser un secreto real de cocina (truco de chef, técnica, por qué funciona), no genérico.
+   - La "variation" debe proponer un cambio concreto que cambie totalmente el plato.
+   - Los pasos deben tener entre 5 y 8 instrucciones claras y progresivas.
+   - Mencioná temperaturas, tiempos exactos y puntos de cocción cuando sea relevante.
 
-8. NUTRICIÓN: Incluí información nutricional estimada por porción (calorías, proteínas, carbos, grasas, fibra).
+8. NUTRICIÓN: Calculá información nutricional REAL y precisa por porción (calorías, proteínas, carbos, grasas, fibra).
 
-9. SIN COMILLAS DOBLES en strings. Usá comillas simples si necesitás enfatizar.
+9. SIN COMILLAS DOBLES en strings del JSON. Usá comillas simples si necesitás enfatizar.
 
 10. ══════════════════════════════════════
-    REGLA #3 — TÍTULOS ATRACTIVOS Y PRECISOS:
+    REGLA #4 — TÍTULOS PRECISOS Y APETITOSOS:
     ══════════════════════════════════════
-    El título DEBE ser claro, descriptivo y reflejar exactamente la receta. Máximo 5 palabras.
+    El título DEBE reflejar exactamente lo que se va a cocinar. Máximo 5 palabras. Que dé hambre.
     
-    BUENAS opciones (descriptivos + atractivos):
-    - "Matambre relleno con papas" ✅
-    - "Pollo al horno con arroz" ✅
-    - "Milanesas de pollo caseras" ✅
-    - "Tarta de espinaca y queso" ✅
-    - "Guiso de lentejas" ✅
-    - "Fideos con atún y tomate" ✅
-    
-    PROHIBIDO:
-    - Adjetivos vacíos: "explosivo", "mágico", "irresistible", "celestial", "divino", "supremo"
-    - Frases sin sentido: "Sabores del campo", "Delicias caseras"
-    - Títulos que NO reflejen los ingredientes del usuario
+    ✅ "Matambre relleno al horno" / "Pollo dorado con arroz" / "Fideos con atún al limón"
+    ❌ "explosivo", "mágico", "irresistible", "celestial", "divino", "delicias", "sabores"
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-FORMATO JSON (sin texto adicional, sin markdown):
+FORMATO JSON EXACTO (sin texto adicional, sin markdown, sin bloques de código):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {
   "recipes": [
     {
-      "name": "Nombre claro de la receta",
+      "name": "Nombre preciso y apetitoso",
       "time": 30,
       "difficulty": "fácil",
       "servings": 4,
-      "ingredients": ["ingrediente 1 con cantidad", "ingrediente 2 con cantidad"],
-      "steps": ["Paso 1 detallado", "Paso 2 detallado"],
-      "tip": "Consejo práctico y útil",
-      "variation": "Alternativa opcional",
+      "ingredients": ["400g de pollo en cubos", "1 taza de arroz largo fino", "2 papas medianas peladas y cortadas en cubos"],
+      "steps": [
+        "Paso 1 con técnica precisa y tiempo/temperatura cuando aplique",
+        "Paso 2...",
+        "Paso 3...",
+        "Paso 4...",
+        "Paso 5 — emplatado y presentación"
+      ],
+      "tip": "Secreto real de chef que mejora este plato específico",
+      "variation": "Cambio concreto que transforma el plato (ej: versión al horno, versión cremosa, versión picante)",
       "nutrition": {
-        "calories": 200,
-        "protein": 10,
-        "carbs": 25,
-        "fat": 8,
+        "calories": 380,
+        "protein": 28,
+        "carbs": 35,
+        "fat": 12,
         "fiber": 3
       },
-      "tags": ["tag1", "tag2"]
+      "tags": ["pollo", "arroz", "casero", "almuerzo"]
     }
   ]
 }
 
-RECORDATORIO FINAL: Verificá que CADA ingrediente del usuario aparezca en el campo "ingredients" antes de responder.`
+⚠️ VERIFICACIÓN FINAL OBLIGATORIA antes de responder:
+Contá cuántos ingredientes ingresó el usuario. Confirmá que cada uno aparece LITERALMENTE en el campo "ingredients".
+Si falta alguno → reescribí la receta. No hay excepciones.`
 };
 
 serve(async (req) => {
@@ -1227,14 +1263,16 @@ serve(async (req) => {
     
     console.log(`User ${limitCheck.userId} usage: ${limitCheck.usesToday}/${limitCheck.remaining + limitCheck.usesToday}`);
 
-    // Both free and premium use 98% threshold for maximum relevance; AI fills the gap
+    // Low threshold = more AI, less cache = better, fresher, more varied recipes for everyone
     const isFreeUser = !limitCheck.isPremium;
-    const cacheThreshold = 0.99; // 99% min for both plans — best user experience
+    const cacheThreshold = 0.70; // Same for free and premium — AI is preferred
     
-    console.log(`User mode: ${isFreeUser ? 'FREE' : 'PREMIUM'}, cache threshold: ${cacheThreshold}, AI fallback enabled for both`);
+    console.log(`User mode: ${isFreeUser ? 'FREE' : 'PREMIUM'}, cache threshold: ${cacheThreshold}, AI-first for all users`);
 
     // STEP 2: Try cache first
-    if (ingredients && ingredients.length > 0 && !surpriseMode) {
+    // Skip cache entirely when a flavor filter (dulce/salado) is active — the AI must handle it
+    const hasFlavorFilter = (quickFilters || []).some((f: string) => f === 'dulce' || f === 'salado');
+    if (ingredients && ingredients.length > 0 && !surpriseMode && !hasFlavorFilter) {
       const cacheResult = await searchCachedRecipes(
         ingredients, 
         time || 30, 
@@ -1315,28 +1353,30 @@ Generá UNA SOLA receta sorpresa con estas características:
       userPrompt += `\n\nSorprendé con algo creativo pero realizable!`;
     } else {
       const ingCount = ingredients?.length || 0;
-      userPrompt = `═══════════════════════════════════════
-INGREDIENTES OBLIGATORIOS (${ingCount} en total):
+      userPrompt = `╔═══════════════════════════════════════╗
+║  INGREDIENTES OBLIGATORIOS (${ingCount} en total)  ║
+╚═══════════════════════════════════════╝
 ${(ingredients || []).map((ing: string, i: number) => `  ${i+1}. ${ing}`).join('\n')}
-═══════════════════════════════════════
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚠️ VERIFICACIÓN OBLIGATORIA ANTES DE RESPONDER:
-Revisá que CADA uno de los ${ingCount} ingredientes listados arriba aparezca en el campo "ingredients" de tu receta.
-Si alguno no está → la respuesta será rechazada automáticamente.
+Revisá que CADA uno de los ${ingCount} ingredientes listados arriba aparezca TEXTUALMENTE en el campo "ingredients" de tu receta.
+Si alguno no está → la respuesta será RECHAZADA AUTOMÁTICAMENTE por el sistema.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-PROHIBICIONES ABSOLUTAS:
-- NO sustituyas "matambre" por "carne", "bife" ni ninguna otra cosa.
-- NO sustituyas "bondiola" por "cerdo" ni "panceta".
-- NO sustituyas "pollo" por "carne vacuna" ni por "cerdo".
-- NO sustituyas "fideos" por "ñoquis" ni "ravioles" (ni viceversa).
-- NO sustituyas "atún" por "merluza" ni ningún otro pescado (ni viceversa).
-- NO sustituyas "salmón" por "atún", "merluza" ni ningún otro pescado (ni viceversa).
-- NO sustituyas "espinaca" por "acelga" ni por cualquier otra verdura de hoja.
-- NO sustituyas "zapallo" por "zapallito" ni "zucchini" (ni viceversa).
-- Solo podés agregar: sal, pimienta, aceite, ajo, cebolla, agua, especias básicas.
+PROHIBICIONES ABSOLUTAS (no sustituir NUNCA):
+- "matambre" → SOLO matambre. Jamás bife, carne picada ni milanesa.
+- "bondiola" → SOLO bondiola. Jamás cerdo genérico ni panceta.
+- "pollo" → SOLO pollo. Jamás carne vacuna ni cerdo.
+- "fideos" → SOLO fideos/spaghetti/penne. Jamás ñoquis ni ravioles.
+- "atún" → SOLO atún. Jamás merluza, salmón ni otro pescado.
+- "salmón" → SOLO salmón. Jamás merluza ni atún.
+- "espinaca" → SOLO espinaca. Jamás acelga ni rúcula.
+- Solo podés agregar condimentos básicos: sal, pimienta, aceite, ajo, cebolla, agua, especias.
 
-Generá EXACTAMENTE 1 SOLA receta que use TODOS los ingredientes listados.
-Tiempo máximo de cocción: ${time} minutos.\n`;
+OBJETIVO: Generá 1 SOLA receta DELICIOSA, CREATIVA y DETALLADA que use los ${ingCount} ingredientes.
+Tiempo máximo de cocción: ${time} minutos.
+¡Sorprendé con una combinación sabrosa que haga que el usuario quiera cocinarla ahora mismo!\n`;
 
       if (mealType) {
         const mealTypes: Record<string, string> = {
@@ -1353,17 +1393,60 @@ Tiempo máximo de cocción: ${time} minutos.\n`;
       }
 
       if (quickFilters && quickFilters.length > 0) {
-        const quickFilterLabels: Record<string, string> = {
-          'vegetariano': 'vegetariano (sin carne ni pescado)',
-          'bajo-calorias': 'bajo en calorías/light',
-          'sin-gluten': 'sin gluten',
-          'sin-lactosa': 'sin lácteos',
-          'ninos': 'apto para niños (sabores suaves, presentación atractiva)',
-          'economico': 'económico/bajo presupuesto',
-          'alto-proteina': 'alto en proteínas'
-        };
-        const filterDescriptions = quickFilters.map((f: string) => quickFilterLabels[f] || f);
-        userPrompt += `Filtros adicionales: ${filterDescriptions.join(', ')}\n`;
+        const nonFlavorFilters = quickFilters.filter((f: string) => f !== 'dulce' && f !== 'salado');
+        if (nonFlavorFilters.length > 0) {
+          const quickFilterLabels: Record<string, string> = {
+            'vegetariano': 'vegetariano (sin carne ni pescado)',
+            'bajo-calorias': 'bajo en calorías/light',
+            'sin-gluten': 'sin gluten',
+            'sin-lactosa': 'sin lácteos',
+            'ninos': 'apto para niños (sabores suaves, presentación atractiva)',
+            'economico': 'económico/bajo presupuesto',
+            'alto-proteina': 'alto en proteínas',
+          };
+          const filterDescriptions = nonFlavorFilters.map((f: string) => quickFilterLabels[f] || f);
+          userPrompt += `Filtros adicionales: ${filterDescriptions.join(', ')}\n`;
+        }
+
+        if (quickFilters.includes('dulce')) {
+          userPrompt += `
+╔══════════════════════════════════════════════════════════╗
+║              🍬 PERFIL DE SABOR: DULCE                   ║
+╚══════════════════════════════════════════════════════════╝
+REGLA ESTRICTA: La receta FINAL debe ser DULCE — es decir, el plato terminado debe tener sabor predominantemente dulce (postre, budín, torta, arroz con leche, mousse, crepe dulce, smoothie, compota, etc.).
+
+CÓMO USAR LOS INGREDIENTES DEL USUARIO:
+- Arroz → arroz con leche, arroz con canela y azúcar
+- Zapallo / calabaza / zanahoria / batata → budín, torta, puré dulce, mermelada
+- Banana / manzana / pera / durazno / frutilla → postre de frutas, smoothie, crumble, tarta
+- Huevo / leche / crema / harina → flan, budín, torta, panqueques dulces, crepes
+- Pollo / cerdo / carne (con miel, frutas o glaseado) → SOLO si el plato terminado es agridulce con perfil dulce real (ej: pollo con miel y naranja, cerdo glaseado con manzana)
+- Verduras saladas simples (ajo, cebolla, morrón, espinaca) sin ingredientes dulces → NO son aptos para dulce
+
+DECISIÓN OBLIGATORIA:
+1. Si AL MENOS UN ingrediente del usuario puede ser protagonista de una preparación dulce real → generá esa receta dulce (podés ignorar ingredientes que no encajen, agregando solo condimentos básicos como azúcar, canela, vainilla, miel).
+2. Si NINGÚN ingrediente puede ser protagonista de algo dulce (ej: solo ajo + cebolla + morrón) → respondé EXACTAMENTE con este JSON:
+{"recipes": [], "error": "no_flavor_match", "message": "No encontré una receta dulce con esos ingredientes. Probá agregando frutas, leche, harina, huevos, chocolate o dulce de leche."}
+
+PROHIBIDO: Generar una receta que sea claramente salada (ej: arroz con zapallo, estofado, guiso) y llamarla "dulce". El plato terminado DEBE saber dulce.
+`;
+        }
+
+        if (quickFilters.includes('salado')) {
+          userPrompt += `
+╔══════════════════════════════════════════════════════════╗
+║              🧂 PERFIL DE SABOR: SALADO                  ║
+╚══════════════════════════════════════════════════════════╝
+REGLA ESTRICTA: La receta FINAL debe ser SALADA — plato principal, entrada, sopa, guiso, salteado, ensalada salada, etc.
+
+DECISIÓN OBLIGATORIA:
+1. Si los ingredientes son aptos para una preparación salada → generá la receta salada.
+2. Si los ingredientes son EXCLUSIVAMENTE dulces de repostería (ej: solo chocolate + azúcar impalpable + dulce de leche sin nada más) → respondé EXACTAMENTE con este JSON:
+{"recipes": [], "error": "no_flavor_match", "message": "No encontré una receta salada con esos ingredientes. Probá con verduras, carnes, pastas, arroz o cereales."}
+
+PROHIBIDO: Generar una receta dulce o de postre cuando el usuario seleccionó SALADO.
+`;
+        }
       }
 
       if (servings) userPrompt += `Cantidad de porciones: ${servings} personas\n`;
@@ -1408,17 +1491,23 @@ Tiempo máximo de cocción: ${time} minutos.\n`;
 
     console.log('AI prompt:', userPrompt.substring(0, 200) + '...');
 
-    // Models ordered by capability — use smarter models first for better ingredient compliance
-    const models = [
-      'google/gemini-2.5-flash',
-      'openai/gpt-5-mini',
-      'google/gemini-3-flash-preview',
-      'google/gemini-2.5-flash-lite',
-      'openai/gpt-5-nano',
-      'google/gemini-2.5-pro',
-      'openai/gpt-5',
-      'google/gemini-3-pro-preview',
-    ];
+    // Models ordered by capability — smarter models first for best recipe quality
+    // gemini-3-flash-preview: fastest next-gen with great instruction following
+    // gemini-2.5-pro: best for complex multi-ingredient combinations
+    const models = isFreeUser
+      ? [
+          'google/gemini-3-flash-preview',   // fast + smart for free users
+          'google/gemini-2.5-flash',          // reliable fallback
+          'google/gemini-2.5-flash-lite',     // cost-efficient last resort
+        ]
+      : [
+          'google/gemini-3-flash-preview',   // premium: best speed+quality
+          'google/gemini-2.5-pro',            // premium: best for complex recipes
+          'openai/gpt-5-mini',               // premium: strong instruction following
+          'google/gemini-2.5-flash',          // premium fallback
+          'google/gemini-3-pro-preview',     // premium: next-gen pro
+          'openai/gpt-5',                    // premium: most capable
+        ];
     
     let response: Response | null = null;
     let successfulModel = '';
@@ -1467,23 +1556,28 @@ Tiempo máximo de cocción: ${time} minutos.\n`;
     if (!response || !response.ok) {
       console.error('All models failed');
 
-      // Fallback to cache with lower threshold
+      // Fallback to cache — still requires 100% ingredient match
       if (!surpriseMode && ingredients && ingredients.length > 0) {
-        const cacheResult = await searchCachedRecipes(ingredients, time || 30, mealType, language || 'es', 0.7, quickFilters || [], diet || [], excludeIngredients || []);
+        const cacheResult = await searchCachedRecipes(ingredients, time || 30, mealType, language || 'es', 0.99, quickFilters || [], diet || [], excludeIngredients || []);
         if (cacheResult.recipes.length > 0) {
-          // Consume credit for fallback cache hit too
-          if (limitCheck.userId) {
-            await consumeDailyCredit(limitCheck.userId, limitCheck.isPremium);
+          const allUserFilters = [...(quickFilters || []), ...(diet || [])];
+          const validFallback = cacheResult.recipes.filter((r: any) => 
+            validateRecipeIngredients(r, ingredients, allUserFilters, excludeIngredients || [])
+          );
+          if (validFallback.length > 0) {
+            if (limitCheck.userId) {
+              await consumeDailyCredit(limitCheck.userId, limitCheck.isPremium);
+            }
+            return new Response(JSON.stringify({
+              recipes: validFallback.slice(0, 1),
+              source: 'cache',
+              isInstant: true,
+              fallbackReason: 'ai_unavailable',
+              matchScore: cacheResult.matchScore
+            }), {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
           }
-          return new Response(JSON.stringify({
-            recipes: cacheResult.recipes,
-            source: 'cache',
-            isInstant: true,
-            fallbackReason: 'ai_unavailable',
-            matchScore: cacheResult.matchScore
-          }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
         }
       }
 

@@ -49,7 +49,7 @@ export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
   const { user } = useAuth();
   const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium } = usePremium();
-  const { showInterstitial, initialize: initAdMob } = useAdMob();
+  const { showInterstitial } = useAdMob();
   const isMobile = useIsMobile();
 
   const [ingredients, setIngredients] = useState<string[]>([]);
@@ -110,10 +110,7 @@ export default function Index() {
     }
   }, [user]);
 
-  // Initialize AdMob on mount
-  useEffect(() => {
-    initAdMob();
-  }, [initAdMob]);
+  // AdMob is initialized in main.tsx before the app renders
 
   // Show onboarding if first visit OR if user is not logged in
   if (isFirstVisit || !user) {
@@ -292,6 +289,17 @@ export default function Index() {
         return;
       }
       
+      if (data?.error === 'no_flavor_match') {
+        toast({
+          title: "Sin recetas con ese perfil",
+          description: data?.message || "No encontré una receta que tenga sentido con esos ingredientes y el sabor seleccionado.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        setIsGeneratingAI(false);
+        return;
+      }
+
       if (data?.error === 'no_food_ingredients' || (data?.recipes && data.recipes.length === 0)) {
         if (instantRecipe) {
           toast({
@@ -452,6 +460,7 @@ export default function Index() {
         body: { 
           ingredients, 
           time: 45,
+          quickFilters,
           randomize: true,
           excludeRecipes: recentRecipes
         }
