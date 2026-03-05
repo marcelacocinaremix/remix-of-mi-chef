@@ -110,13 +110,23 @@ export function CookingSection({
 
   const toggleFlavor = (id: string) => {
     const isActive = quickFilters.includes(id);
-    // Remove both flavor filters then add the selected one if not already active
     const withoutFlavors = quickFilters.filter(f => f !== "dulce" && f !== "salado");
     setQuickFilters(isActive ? withoutFlavors : [...withoutFlavors, id]);
   };
 
   // Diet/preference filters only (no flavor filters)
   const dietAndPrefFilters = quickFilters.filter(f => f !== "dulce" && f !== "salado");
+
+  const handleGenerate = () => {
+    if (!activeFlavor) {
+      toast.warning("¿Salado o dulce?", {
+        description: "Seleccioná si querés una receta salada o dulce antes de continuar.",
+        duration: 3500,
+      });
+      return;
+    }
+    onGenerateRecipe();
+  };
 
   return (
     <div className="space-y-4 overflow-hidden">
