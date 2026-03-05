@@ -418,8 +418,8 @@ async function searchCachedRecipes(
     const userCoverage = userCanonicals.length > 0 ? matchedUserCount / userCanonicals.length : 0;
     const recipeCoverage = recipeKeys.length > 0 ? matchedRecipeCount / recipeKeys.length : 0;
     
-    // Minimum 80% user coverage — never show recipes below this
-    if (userCoverage < 0.80) {
+    // 100% user coverage required — ALL user ingredients must be present
+    if (userCoverage < 1.0) {
       return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0, matchedCount: 0, totalCount: userCanonicals.length };
     }
     
