@@ -292,6 +292,16 @@ export default function Index() {
         return;
       }
       
+      if (data?.error === 'no_flavor_match') {
+        toast({
+          title: "Sin recetas con ese perfil",
+          description: data?.message || "No encontré una receta que tenga sentido con esos ingredientes y el sabor seleccionado.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        setIsGeneratingAI(false);
+        return;
+      }
 
       if (data?.error === 'no_food_ingredients' || (data?.recipes && data.recipes.length === 0)) {
         if (instantRecipe) {
