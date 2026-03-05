@@ -53,8 +53,6 @@ const FLAVOR_OPTIONS = [
     emoji: "🧂",
     icon: Utensils,
     desc: "Platos principales, entradas…",
-    color: "border-slate-400 bg-slate-500/10 text-slate-600",
-    activeColor: "border-slate-500 bg-slate-500/20 text-slate-700 ring-2 ring-slate-400/40",
   },
   {
     id: "dulce",
@@ -62,8 +60,6 @@ const FLAVOR_OPTIONS = [
     emoji: "🍬",
     icon: Candy,
     desc: "Postres, budines, tortas…",
-    color: "border-rose-400 bg-rose-500/10 text-rose-600",
-    activeColor: "border-rose-500 bg-rose-500/20 text-rose-700 ring-2 ring-rose-400/40",
   },
 ];
 
@@ -229,7 +225,9 @@ export function CookingSection({
                   onClick={() => toggleFlavor(opt.id)}
                   className={cn(
                     "flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-200",
-                    isActive ? opt.activeColor : opt.color,
+                    isActive
+                      ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/30"
+                      : "border-border bg-muted/30 text-muted-foreground hover:border-primary/40 hover:text-foreground",
                     "hover:scale-[1.03] active:scale-[0.97]"
                   )}
                 >
