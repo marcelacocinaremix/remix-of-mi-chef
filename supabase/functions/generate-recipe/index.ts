@@ -1257,11 +1257,12 @@ serve(async (req) => {
     
     console.log(`User ${limitCheck.userId} usage: ${limitCheck.usesToday}/${limitCheck.remaining + limitCheck.usesToday}`);
 
-    // Both free and premium get the same AI-first experience (70% cache threshold)
+    // 99% threshold: cache only serves near-perfect matches (ingredients + filters must align)
+    // Anything below → AI generates a fresh recipe. Same for free and premium.
     const isFreeUser = !limitCheck.isPremium;
-    const cacheThreshold = 0.70; // Same for everyone — more AI, more variety
+    const cacheThreshold = 0.99;
     
-    console.log(`User mode: ${isFreeUser ? 'FREE' : 'PREMIUM'}, cache threshold: ${cacheThreshold}, AI preferred for both`);
+    console.log(`User mode: ${isFreeUser ? 'FREE' : 'PREMIUM'}, cache threshold: ${cacheThreshold} (strict), AI fallback for all partial matches`);
 
     // STEP 2: Try cache first
     if (ingredients && ingredients.length > 0 && !surpriseMode) {
