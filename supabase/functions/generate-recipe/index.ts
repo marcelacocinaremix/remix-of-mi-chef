@@ -1120,6 +1120,12 @@ REGLAS ABSOLUTAS (NUNCA violar ninguna):
    Si el usuario ingresa cosas que NO son alimentos comestibles, respondé con:
    {"recipes": [], "error": "no_food_ingredients"}
 
+1b. VALIDACIÓN DE PERFIL DE SABOR:
+   Si el usuario pide filtro "dulce" pero los ingredientes son incompatibles (carnes, pescados, ajo, cebolla como protagonistas), respondé:
+   {"recipes": [], "error": "no_flavor_match", "message": "Estos ingredientes no combinan con una receta dulce."}
+   Si el usuario pide filtro "salado" pero los ingredientes son incompatibles (chocolate, caramelo, dulce de leche como protagonistas), respondé:
+   {"recipes": [], "error": "no_flavor_match", "message": "Estos ingredientes no combinan con una receta salada."}
+
 2. UNA SOLA RECETA: Generá exactamente 1 receta. Ni más ni menos.
 
 3. TIEMPO: La receta DEBE realizarse dentro del tiempo máximo indicado. Si es corto, priorizá técnicas rápidas (sartén, wok, microondas).
@@ -1392,10 +1398,20 @@ Tiempo máximo de cocción: ${time} minutos.
           'sin-lactosa': 'sin lácteos',
           'ninos': 'apto para niños (sabores suaves, presentación atractiva)',
           'economico': 'económico/bajo presupuesto',
-          'alto-proteina': 'alto en proteínas'
+          'alto-proteina': 'alto en proteínas',
+          'dulce': 'PERFIL DULCE — la receta DEBE ser dulce (postre, budín, torta, arroz con leche, etc.)',
+          'salado': 'PERFIL SALADO — la receta DEBE ser salada (plato principal, entrada, snack salado)'
         };
         const filterDescriptions = quickFilters.map((f: string) => quickFilterLabels[f] || f);
         userPrompt += `Filtros adicionales: ${filterDescriptions.join(', ')}\n`;
+
+        // Explicit flavor incompatibility check instruction
+        if (quickFilters.includes('dulce')) {
+          userPrompt += `\n⚠️ REGLA DE SABOR DULCE: Si los ingredientes seleccionados NO son compatibles con una preparación dulce (ej: pollo, carne, atún, cebolla, ajo como protagonistas), respondé EXACTAMENTE:\n{"recipes": [], "error": "no_flavor_match", "message": "Estos ingredientes no son compatibles con una receta dulce. Probá con frutas, harina, azúcar, chocolate, dulce de leche o leche."}\nSi SÍ son compatibles (ej: arroz→arroz con leche, banana, manzana, zanahoria, calabaza, leche, huevos, harina), generá la receta dulce.\n`;
+        }
+        if (quickFilters.includes('salado')) {
+          userPrompt += `\n⚠️ REGLA DE SABOR SALADO: Si los ingredientes seleccionados NO son compatibles con una preparación salada (ej: chocolate, azúcar impalpable, caramelo, dulce de leche como protagonistas), respondé EXACTAMENTE:\n{"recipes": [], "error": "no_flavor_match", "message": "Estos ingredientes no son compatibles con una receta salada. Probá con verduras, carnes, pastas o cereales."}\nSi SÍ son compatibles, generá la receta salada.\n`;
+        }
       }
 
       if (servings) userPrompt += `Cantidad de porciones: ${servings} personas\n`;
