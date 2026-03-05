@@ -1270,7 +1270,9 @@ serve(async (req) => {
     console.log(`User mode: ${isFreeUser ? 'FREE' : 'PREMIUM'}, cache threshold: ${cacheThreshold}, AI-first for all users`);
 
     // STEP 2: Try cache first
-    if (ingredients && ingredients.length > 0 && !surpriseMode) {
+    // Skip cache entirely when a flavor filter (dulce/salado) is active — the AI must handle it
+    const hasFlavorFilter = (quickFilters || []).some((f: string) => f === 'dulce' || f === 'salado');
+    if (ingredients && ingredients.length > 0 && !surpriseMode && !hasFlavorFilter) {
       const cacheResult = await searchCachedRecipes(
         ingredients, 
         time || 30, 
