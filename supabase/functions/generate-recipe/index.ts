@@ -454,14 +454,14 @@ async function searchCachedRecipes(
         case 'vegano':
           if (!recipeTags.includes(qfLower)) {
             const meatTerms = ['pollo', 'carne', 'cerdo', 'pescado', 'jamon', 'panceta', 'chorizo', 'bondiola'];
-            if (meatTerms.some(m => recipeIngText.includes(m))) filterPenalty = 1;
+            if (meatTerms.some(m => recipeFullText.includes(m))) filterPenalty = 1;
           }
           break;
         case 'sin-gluten':
-          if (['harina', 'pan ', 'pan,', 'fideos', 'pasta', 'spaghetti'].some(g => recipeIngText.includes(g))) filterPenalty = 1;
+          if (['harina', 'pan ', 'pan,', 'fideos', 'pasta', 'spaghetti'].some(g => recipeFullText.includes(g))) filterPenalty = 1;
           break;
         case 'sin-lactosa':
-          if (['leche', 'queso', 'crema', 'manteca', 'yogur', 'mozzarella'].some(l => recipeIngText.includes(l))) filterPenalty = 1;
+          if (['leche', 'queso', 'crema', 'manteca', 'yogur', 'mozzarella'].some(l => recipeFullText.includes(l))) filterPenalty = 1;
           break;
       }
     }
@@ -472,14 +472,14 @@ async function searchCachedRecipes(
         case 'vegetariano':
         case 'vegano': {
           const meatTerms = ['pollo', 'carne', 'cerdo', 'pescado', 'jamon', 'panceta', 'chorizo'];
-          if (meatTerms.some(m => recipeIngText.includes(m))) filterPenalty = 1;
+          if (meatTerms.some(m => recipeFullText.includes(m))) filterPenalty = 1;
           break;
         }
         case 'sin-gluten':
-          if (['harina', 'pan ', 'pan,', 'fideos', 'pasta'].some(g => recipeIngText.includes(g))) filterPenalty = 1;
+          if (['harina', 'pan ', 'pan,', 'fideos', 'pasta'].some(g => recipeFullText.includes(g))) filterPenalty = 1;
           break;
         case 'sin-lactosa':
-          if (['leche', 'queso', 'crema', 'manteca', 'yogur'].some(l => recipeIngText.includes(l))) filterPenalty = 1;
+          if (['leche', 'queso', 'crema', 'manteca', 'yogur'].some(l => recipeFullText.includes(l))) filterPenalty = 1;
           break;
       }
     }
@@ -493,7 +493,7 @@ async function searchCachedRecipes(
       for (const excluded of excludeIngredients) {
         const excCanonical = getCanonicalIngredient(excluded);
         const excVariants = getIngredientVariants(excCanonical);
-        if (excVariants.some(v => recipeIngText.includes(removeAccents(v)))) {
+        if (excVariants.some(v => recipeFullText.includes(removeAccents(v)))) {
           return { ...recipe, matchScore: 0, recipeCoverage: 0, userCoverage: 0, matchedCount: 0, totalCount: userCanonicals.length };
         }
       }
