@@ -112,14 +112,17 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     if (!user) {
       setDbIsPremium(false);
       setPlanType('free');
-      setSubscriptionStatus('free');
+      setSubscriptionStatus('inactive');
       setSubscriptionEnd(null);
       setTrialStartDate(null);
       setTrialEndDate(null);
       setDailyUsage(null);
+      setIsInitialized(true);
+      setIsLoading(false);
       return;
     }
 
+    setIsLoading(true);
     try {
       const { data, error } = await supabase
         .from('user_subscriptions')
@@ -135,7 +138,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       if (data) {
         setDbIsPremium(data.is_premium || false);
         setPlanType(data.plan_type || 'free');
-        setSubscriptionStatus(data.subscription_status || 'free');
+        setSubscriptionStatus(data.subscription_status || 'inactive');
         setSubscriptionEnd(data.subscription_end ? new Date(data.subscription_end) : null);
         if (data.trial_start_date) setTrialStartDate(new Date(data.trial_start_date));
         if (data.trial_end_date) setTrialEndDate(new Date(data.trial_end_date));
@@ -144,7 +147,6 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         const today = new Date().toISOString().split('T')[0];
         const lastUseDate = data.last_use_date;
         const usesToday = (lastUseDate === today) ? (data.daily_uses || 0) : 0;
-        // Use effective limit based on paid period
         const isPaid = data.is_premium && (!data.subscription_end || new Date() < new Date(data.subscription_end));
         const userLimit = isPaid ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
         setDailyUsage({
@@ -155,6 +157,9 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       }
     } catch (err) {
       console.error('Error in fetchSubscription:', err);
+    } finally {
+      setIsInitialized(true);
+      setIsLoading(false);
     }
   }, [user]);
 
