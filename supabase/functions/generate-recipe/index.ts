@@ -255,14 +255,32 @@ function normalizeText(text: string): string {
 function getCanonicalIngredient(ingredient: string): string {
   const normalized = normalizeText(ingredient);
   
-  // Check direct match with canonical keys
+  // PASS 1: exact match against canonical keys (highest priority)
+  for (const canonical of Object.keys(ingredientSynonyms)) {
+    if (normalized === canonical) return canonical;
+  }
+
+  // PASS 2: exact match against variant values
   for (const [canonical, variants] of Object.entries(ingredientSynonyms)) {
-    if (normalized === canonical || normalized.includes(canonical)) return canonical;
     for (const variant of variants) {
-      const normVariant = removeAccents(variant.toLowerCase());
-      if (normalized.includes(normVariant) || normVariant.includes(normalized)) {
-        return canonical;
-      }
+      const normVariant = removeAccents(variant.toLowerCase().trim());
+      if (normalized === normVariant) return canonical;
+    }
+  }
+
+  // PASS 3: the user input CONTAINS a canonical key as a whole word
+  for (const canonical of Object.keys(ingredientSynonyms)) {
+    // Use word-boundary check: canonical must be a standalone word in the input
+    const wordBoundary = new RegExp(`(^|\\s)${canonical}(\\s|$)`);
+    if (wordBoundary.test(normalized)) return canonical;
+  }
+
+  // PASS 4: the user input CONTAINS a variant as a whole word
+  for (const [canonical, variants] of Object.entries(ingredientSynonyms)) {
+    for (const variant of variants) {
+      const normVariant = removeAccents(variant.toLowerCase().trim());
+      const wordBoundary = new RegExp(`(^|\\s)${normVariant.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\s|$)`);
+      if (wordBoundary.test(normalized)) return canonical;
     }
   }
   
