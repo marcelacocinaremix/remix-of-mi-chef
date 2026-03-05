@@ -378,7 +378,7 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={fetchInsights}
+                onClick={() => { refetchRecipes(); computeInsights(); }}
                 disabled={loading}
                 className="h-8 px-2"
               >
