@@ -16,7 +16,6 @@ async function initAdMob() {
       initializeForTesting: false,
       tagForChildDirectedTreatment: false,
       tagForUnderAgeOfConsent: false,
-      maxAdContentRating: "G",
     });
     console.log("[AdMob] Initialized successfully");
   } catch (e) {
