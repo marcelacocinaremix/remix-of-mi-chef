@@ -463,6 +463,7 @@ export default function Index() {
         body: { 
           ingredients, 
           time: 45,
+          quickFilters,
           randomize: true,
           excludeRecipes: recentRecipes
         }
