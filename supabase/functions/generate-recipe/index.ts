@@ -1392,10 +1392,20 @@ Tiempo máximo de cocción: ${time} minutos.
           'sin-lactosa': 'sin lácteos',
           'ninos': 'apto para niños (sabores suaves, presentación atractiva)',
           'economico': 'económico/bajo presupuesto',
-          'alto-proteina': 'alto en proteínas'
+          'alto-proteina': 'alto en proteínas',
+          'dulce': 'PERFIL DULCE — la receta DEBE ser dulce (postre, budín, torta, arroz con leche, etc.)',
+          'salado': 'PERFIL SALADO — la receta DEBE ser salada (plato principal, entrada, snack salado)'
         };
         const filterDescriptions = quickFilters.map((f: string) => quickFilterLabels[f] || f);
         userPrompt += `Filtros adicionales: ${filterDescriptions.join(', ')}\n`;
+
+        // Explicit flavor incompatibility check instruction
+        if (quickFilters.includes('dulce')) {
+          userPrompt += `\n⚠️ REGLA DE SABOR DULCE: Si los ingredientes seleccionados NO son compatibles con una preparación dulce (ej: pollo, carne, atún, cebolla, ajo como protagonistas), respondé EXACTAMENTE:\n{"recipes": [], "error": "no_flavor_match", "message": "Estos ingredientes no son compatibles con una receta dulce. Probá con frutas, harina, azúcar, chocolate, dulce de leche o leche."}\nSi SÍ son compatibles (ej: arroz→arroz con leche, banana, manzana, zanahoria, calabaza, leche, huevos, harina), generá la receta dulce.\n`;
+        }
+        if (quickFilters.includes('salado')) {
+          userPrompt += `\n⚠️ REGLA DE SABOR SALADO: Si los ingredientes seleccionados NO son compatibles con una preparación salada (ej: chocolate, azúcar impalpable, caramelo, dulce de leche como protagonistas), respondé EXACTAMENTE:\n{"recipes": [], "error": "no_flavor_match", "message": "Estos ingredientes no son compatibles con una receta salada. Probá con verduras, carnes, pastas o cereales."}\nSi SÍ son compatibles, generá la receta salada.\n`;
+        }
       }
 
       if (servings) userPrompt += `Cantidad de porciones: ${servings} personas\n`;
