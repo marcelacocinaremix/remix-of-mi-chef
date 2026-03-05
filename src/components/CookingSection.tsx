@@ -48,15 +48,6 @@ interface CookingSectionProps {
 
 const FLAVOR_OPTIONS = [
   {
-    id: "dulce",
-    label: "Dulce / Postre",
-    emoji: "🍬",
-    icon: Candy,
-    desc: "Postres, budines, tortas…",
-    color: "border-rose-400 bg-rose-500/10 text-rose-600",
-    activeColor: "border-rose-500 bg-rose-500/20 text-rose-700 ring-2 ring-rose-400/40",
-  },
-  {
     id: "salado",
     label: "Salado",
     emoji: "🧂",
@@ -64,6 +55,15 @@ const FLAVOR_OPTIONS = [
     desc: "Platos principales, entradas…",
     color: "border-slate-400 bg-slate-500/10 text-slate-600",
     activeColor: "border-slate-500 bg-slate-500/20 text-slate-700 ring-2 ring-slate-400/40",
+  },
+  {
+    id: "dulce",
+    label: "Dulce / Postre",
+    emoji: "🍬",
+    icon: Candy,
+    desc: "Postres, budines, tortas…",
+    color: "border-rose-400 bg-rose-500/10 text-rose-600",
+    activeColor: "border-rose-500 bg-rose-500/20 text-rose-700 ring-2 ring-rose-400/40",
   },
 ];
 
