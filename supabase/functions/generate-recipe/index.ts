@@ -396,9 +396,9 @@ async function searchCachedRecipes(
         continue;
       }
       
-      // Check specific variants (not full canonical group)
+      // Check specific variants — ONLY in ingredients list, not steps/tips
       const specificVars = getSpecificVariants(rawIng, userCanonical);
-      const hit = specificVars.some(v => combinedText.includes(removeAccents(v)));
+      const hit = specificVars.some(v => recipeIngText.includes(removeAccents(v)));
       if (hit) matchedUserCount++;
     }
     
