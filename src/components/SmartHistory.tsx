@@ -69,37 +69,43 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
   const [isDeleting, setIsDeleting] = useState(false);
   const [showAllRecipes, setShowAllRecipes] = useState(false);
 
-  // Fetch fresh data from DB every time this component mounts (e.g. user switches to Mi Cocina tab)
+  // Force fresh fetch from DB whenever this component mounts or user changes
   useEffect(() => {
     if (user) {
       refetchRecipes();
     }
   }, [user]);
 
-  // Recompute insights whenever cookedRecipes changes (covers both mount and new recipe added)
+  // Run insights computation once cookedRecipes is loaded (not loading anymore)
   useEffect(() => {
-    if (user) {
-      computeInsights();
+    if (user && !loadingRecipes) {
+      fetchInsights();
     }
-  }, [cookedRecipes.length, user]);
+  }, [loadingRecipes, user]);
 
-  // Compute insights from the already-fetched cookedRecipes (no extra Supabase call)
-  const computeInsights = async () => {
+  const fetchInsights = async () => {
     if (!user) return;
     setLoading(true);
 
     try {
-      // Fetch favorite recipes (still needed for style analysis)
+      // Fetch fresh data directly from DB to avoid stale closure issues
+      const { data: freshCookedRecipes } = await supabase
+        .from("cooked_recipes")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("cooked_at", { ascending: false });
+
+      // Fetch favorite recipes
       const { data: favoriteRecipes } = await supabase
         .from("favorite_recipes")
         .select("*")
         .eq("user_id", user.id);
 
-      // Use cookedRecipes from hook (already fresh) + favorites
-      const allRecipes = [...cookedRecipes, ...(favoriteRecipes || [])];
+      const allRecipes = [...(freshCookedRecipes || []), ...(favoriteRecipes || [])];
 
       if (allRecipes.length === 0) {
         setInsights(null);
+        setLoading(false);
         return;
       }
 
@@ -170,8 +176,8 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
         recipeStyles.push({ style: "Variadas", count: allRecipes.length });
       }
 
-      // Determine cooking frequency
-      const totalCooked = cookedRecipes.length;
+      // Determine cooking frequency — use freshCookedRecipes to avoid stale closure
+      const totalCooked = (freshCookedRecipes || []).length;
       let cookingFrequency = "ocasional";
       if (totalCooked >= 20) cookingFrequency = "muy frecuente";
       else if (totalCooked >= 10) cookingFrequency = "frecuente";
@@ -378,7 +384,7 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => { refetchRecipes(); computeInsights(); }}
+                onClick={() => { refetchRecipes(); fetchInsights(); }}
                 disabled={loading}
                 className="h-8 px-2"
               >
