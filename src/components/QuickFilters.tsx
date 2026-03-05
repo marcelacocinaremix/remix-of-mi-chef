@@ -11,8 +11,6 @@ import {
   Vegan,
   X,
   Clock,
-  Candy,
-  Utensils
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSound } from "@/hooks/useSound";
@@ -42,11 +40,6 @@ const PREFERENCE_FILTERS: QuickFilter[] = [
   { id: "ninos", label: "Para Niños", icon: Baby, color: "bg-pink-500/20 text-pink-600 border-pink-500/30 hover:bg-pink-500/30" },
   { id: "economico", label: "Económico", icon: DollarSign, color: "bg-emerald-500/20 text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/30" },
   { id: "rapido", label: "Rápido (≤20 min)", icon: Clock, color: "bg-sky-500/20 text-sky-600 border-sky-500/30 hover:bg-sky-500/30" },
-];
-
-const SABOR_FILTERS: QuickFilter[] = [
-  { id: "dulce", label: "Dulce / Postre", icon: Candy, color: "bg-rose-500/20 text-rose-600 border-rose-500/30 hover:bg-rose-500/30" },
-  { id: "salado", label: "Salado", icon: Utensils, color: "bg-slate-500/20 text-slate-600 border-slate-500/30 hover:bg-slate-500/30" },
 ];
 
 export function QuickFilters({ activeFilters, onFiltersChange }: QuickFiltersProps) {
@@ -113,14 +106,6 @@ export function QuickFilters({ activeFilters, onFiltersChange }: QuickFiltersPro
             Limpiar
           </Button>
         )}
-      </div>
-
-      {/* Sabor filters */}
-      <div className="space-y-1.5">
-        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">🍬 Sabor</p>
-        <div className="flex flex-wrap gap-2">
-          {SABOR_FILTERS.map(renderFilterButton)}
-        </div>
       </div>
 
       {/* Diet filters */}

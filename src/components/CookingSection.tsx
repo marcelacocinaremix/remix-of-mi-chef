@@ -5,11 +5,11 @@ import {
   Sparkles, 
   RotateCcw, 
   Shuffle,
+  Candy,
+  Utensils,
 } from "lucide-react";
 import { IngredientInput } from "@/components/IngredientInput";
 import { IngredientCategorySelector } from "@/components/IngredientCategorySelector";
-
-
 import { QuickFilters } from "@/components/QuickFilters";
 import { TimeSelector } from "@/components/TimeSelector";
 import { MealTypeSelector } from "@/components/MealTypeSelector";
@@ -18,6 +18,7 @@ import { RecipeList, Recipe } from "@/components/RecipeList";
 import { LoadingRecipe } from "@/components/LoadingRecipe";
 import { RecentRecipesHistory } from "@/components/RecentRecipesHistory";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
 
 interface CookingSectionProps {
   ingredients: string[];
@@ -42,6 +43,41 @@ interface CookingSectionProps {
   showToast: (options: { title: string; description: string }) => void;
   pendingSuggestion?: { name: string; reason: string } | null;
   onClearSuggestion?: () => void;
+}
+
+const FLAVOR_OPTIONS = [
+  {
+    id: "dulce",
+    label: "Dulce / Postre",
+    emoji: "🍬",
+    icon: Candy,
+    desc: "Postres, budines, tortas…",
+    color: "border-rose-400 bg-rose-500/10 text-rose-600",
+    activeColor: "border-rose-500 bg-rose-500/20 text-rose-700 ring-2 ring-rose-400/40",
+  },
+  {
+    id: "salado",
+    label: "Salado",
+    emoji: "🧂",
+    icon: Utensils,
+    desc: "Platos principales, entradas…",
+    color: "border-slate-400 bg-slate-500/10 text-slate-600",
+    activeColor: "border-slate-500 bg-slate-500/20 text-slate-700 ring-2 ring-slate-400/40",
+  },
+];
+
+function StepHeader({ number, title, subtitle }: { number: number; title: string; subtitle: string }) {
+  return (
+    <div className="flex items-center gap-3 mb-1">
+      <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shrink-0">
+        {number}
+      </div>
+      <div>
+        <h3 className="font-semibold text-foreground">{title}</h3>
+        <p className="text-xs text-muted-foreground">{subtitle}</p>
+      </div>
+    </div>
+  );
 }
 
 export function CookingSection({
@@ -69,8 +105,20 @@ export function CookingSection({
 }: CookingSectionProps) {
   const { t } = useLanguage();
 
+  const activeFlavor = quickFilters.find(f => f === "dulce" || f === "salado") ?? null;
+
+  const toggleFlavor = (id: string) => {
+    const isActive = quickFilters.includes(id);
+    // Remove both flavor filters then add the selected one if not already active
+    const withoutFlavors = quickFilters.filter(f => f !== "dulce" && f !== "salado");
+    setQuickFilters(isActive ? withoutFlavors : [...withoutFlavors, id]);
+  };
+
+  // Diet/preference filters only (no flavor filters)
+  const dietAndPrefFilters = quickFilters.filter(f => f !== "dulce" && f !== "salado");
+
   return (
-    <div className="space-y-6 overflow-hidden">
+    <div className="space-y-4 overflow-hidden">
 
       {/* Pending Suggestion Banner */}
       {pendingSuggestion && (
@@ -103,7 +151,7 @@ export function CookingSection({
                   onClick={onClearSuggestion}
                   className="text-xs"
                 >
-                  <RotateCcw className="w-3 h-3 mr-1" />
+                  <RotateCcw className="w-3.5 h-3.5 mr-1" />
                   {t("cancel")}
                 </Button>
               </div>
@@ -112,177 +160,184 @@ export function CookingSection({
         </Card>
       )}
 
-      {/* Recipe Generation Content - Step by Step */}
-      <div className="space-y-6 animate-fade-in">
-
-        {/* STEP 1: Ingredients */}
-        <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-          <CardContent className="p-4 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shrink-0">
-                1
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">{t("whatIngredients")}</h3>
-                <p className="text-xs text-muted-foreground">{t("ingredientsStepDesc")}</p>
-              </div>
-            </div>
-            
-            <IngredientInput
-              ingredients={ingredients}
-              onIngredientsChange={setIngredients}
-            />
-            
-            <IngredientCategorySelector
-              selectedIngredients={ingredients}
-              onIngredientsChange={setIngredients}
-            />
-
-            {(quickFilters.length > 0 || mealType || time !== 30) && (
-              <button
-                onClick={() => {
-                  setQuickFilters([]);
-                  setFilters({ diet: [], difficulty: null, excludeIngredients: [], servings: null, cookingMethod: null, budget: null, maxTime: null });
-                  setMealType(null);
-                  setTime(30);
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-destructive hover:bg-destructive/10 transition-all duration-200"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                Borrar filtros
-              </button>
-            )}
-          </CardContent>
-        </Card>
-
-
-        {/* STEP 2: Quick Filters */}
-        <Card className="border-2 border-secondary/30 bg-gradient-to-br from-secondary/5 to-transparent">
-          <CardContent className="p-4 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shrink-0">
-                2
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">{t("dietaryPreferences")}</h3>
-                <p className="text-xs text-muted-foreground">{t("dietaryPreferencesDesc")}</p>
-              </div>
-            </div>
-            
-            <QuickFilters 
-              activeFilters={quickFilters}
-              onFiltersChange={(newFilters) => {
-                setQuickFilters(newFilters);
-                const newDiet = newFilters.filter(f => 
-                  ['vegetariano', 'vegano', 'sin-gluten', 'sin-lactosa', 'alto-proteina'].includes(f)
-                );
-                setFilters({ ...filters, diet: newDiet });
+      {/* STEP 1: Ingredients */}
+      <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+        <CardContent className="p-4 space-y-4">
+          <StepHeader
+            number={1}
+            title={t("whatIngredients")}
+            subtitle={t("ingredientsStepDesc")}
+          />
+          <IngredientInput
+            ingredients={ingredients}
+            onIngredientsChange={setIngredients}
+          />
+          <IngredientCategorySelector
+            selectedIngredients={ingredients}
+            onIngredientsChange={setIngredients}
+          />
+          {(quickFilters.length > 0 || mealType || time !== 30) && (
+            <button
+              onClick={() => {
+                setQuickFilters([]);
+                setFilters({ diet: [], difficulty: null, excludeIngredients: [], servings: null, cookingMethod: null, budget: null, maxTime: null });
+                setMealType(null);
+                setTime(30);
               }}
-            />
-          </CardContent>
-        </Card>
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-destructive hover:bg-destructive/10 transition-all duration-200"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Borrar filtros
+            </button>
+          )}
+        </CardContent>
+      </Card>
 
-        {/* STEP 3: Time */}
-        <Card className="border-2 border-accent/30 bg-gradient-to-br from-accent/5 to-transparent">
-          <CardContent className="p-4 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shrink-0">
-                3
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">{t("howMuchTime")}</h3>
-                <p className="text-xs text-muted-foreground">{t("timeStepDesc")}</p>
-              </div>
-            </div>
-            
-            <TimeSelector value={time} onChange={setTime} />
-          </CardContent>
-        </Card>
-
-        {/* STEP 4: Meal Type */}
-        <Card className="border-2 border-muted/50 bg-gradient-to-br from-muted/10 to-transparent">
-          <CardContent className="p-4 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shrink-0">
-                4
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">{t("mealTypeLabel")}</h3>
-                <p className="text-xs text-muted-foreground">{t("mealTypeStepDesc")}</p>
-              </div>
-            </div>
-            
-            <MealTypeSelector value={mealType} onChange={setMealType} />
-          </CardContent>
-        </Card>
-
-        {/* Advanced Filters Section (collapsible) */}
-        <AdvancedFilters 
-          filters={filters} 
-          onChange={setFilters} 
-          disabled={!isPremium}
-          onUpgradeClick={onShowPaywall}
-        />
-
-        {/* STEP 5: Generate */}
-        <Card className="border-2 border-primary/40 bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10">
-          <CardContent className="p-4 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shrink-0">
-                5
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">{t("cookingReadyStep")}</h3>
-                <p className="text-xs text-muted-foreground">{t("generateStepDesc")}</p>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 justify-center w-full">
-              <Button
-                variant="default"
-                size="xl"
-                onClick={onGenerateRecipe}
-                disabled={isLoading || ingredients.length === 0}
-                className="group flex-1 min-w-[220px] py-6 px-8 text-lg font-bold rounded-2xl bg-primary hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <Sparkles className="w-6 h-6 group-hover:animate-spin" />
-                <span>{isLoading ? t("thinking") : ingredients.length === 0 ? "Agregá ingredientes" : t("giveRecipes")}</span>
-              </Button>
-
-              {ingredients.length > 0 && (
-                <Button 
-                  variant="secondary" 
-                  size="xl" 
-                  onClick={onDecideForMe}
-                  disabled={isLoading}
-                  className="hover:scale-105 transition-transform"
+      {/* STEP 2: Flavor — Salado o Dulce */}
+      <Card className="border-2 border-rose-200/60 bg-gradient-to-br from-rose-50/40 to-transparent dark:border-rose-800/30 dark:from-rose-950/20">
+        <CardContent className="p-4 space-y-4">
+          <StepHeader
+            number={2}
+            title="¿Salado o dulce?"
+            subtitle="Opcional — filtrá por perfil de sabor"
+          />
+          <div className="grid grid-cols-2 gap-3">
+            {FLAVOR_OPTIONS.map((opt) => {
+              const Icon = opt.icon;
+              const isActive = activeFlavor === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  onClick={() => toggleFlavor(opt.id)}
+                  className={cn(
+                    "flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-200",
+                    isActive ? opt.activeColor : opt.color,
+                    "hover:scale-[1.03] active:scale-[0.97]"
+                  )}
                 >
-                  <Shuffle className="w-5 h-5" />
-                  {t("decideForMe")}
-                </Button>
-              )}
-
-              {(recipes.length > 0 || ingredients.length > 0) && (
-                <Button variant="ghost" size="xl" onClick={onReset} className="hover:scale-105 transition-transform">
-                  <RotateCcw className="w-5 h-5" />
-                  {t("startOver")}
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {isLoading && <LoadingRecipe />}
-
-        {recipes.length > 0 && !isLoading && (
-          <div className="animate-fade-in">
-            <RecipeList recipes={recipes} onSelectRecipe={onSelectRecipe} />
+                  <Icon className="w-8 h-8" strokeWidth={1.8} />
+                  <span className="font-semibold text-sm leading-tight text-center">{opt.label}</span>
+                  <span className="text-[11px] text-center opacity-70 leading-tight">{opt.desc}</span>
+                  {isActive && (
+                    <span className="w-2 h-2 rounded-full bg-current mt-0.5" />
+                  )}
+                </button>
+              );
+            })}
           </div>
-        )}
+        </CardContent>
+      </Card>
 
-        {/* Recent Recipes History */}
-        <RecentRecipesHistory onSelectRecipe={onSelectRecipe} />
-      </div>
+      {/* STEP 3: Diet & Preferences */}
+      <Card className="border-2 border-secondary/30 bg-gradient-to-br from-secondary/5 to-transparent">
+        <CardContent className="p-4 space-y-4">
+          <StepHeader
+            number={3}
+            title={t("dietaryPreferences")}
+            subtitle={t("dietaryPreferencesDesc")}
+          />
+          {/* Pass only non-flavor filters to QuickFilters and merge back */}
+          <QuickFilters
+            activeFilters={dietAndPrefFilters}
+            onFiltersChange={(newFilters) => {
+              // Keep flavor filters + replace diet/pref filters
+              const flavorFilters = quickFilters.filter(f => f === "dulce" || f === "salado");
+              const merged = [...flavorFilters, ...newFilters];
+              setQuickFilters(merged);
+              const newDiet = newFilters.filter(f =>
+                ['vegetariano', 'vegano', 'sin-gluten', 'sin-lactosa', 'alto-proteina'].includes(f)
+              );
+              setFilters({ ...filters, diet: newDiet });
+            }}
+          />
+        </CardContent>
+      </Card>
+
+      {/* STEP 4: Time */}
+      <Card className="border-2 border-accent/30 bg-gradient-to-br from-accent/5 to-transparent">
+        <CardContent className="p-4 space-y-4">
+          <StepHeader
+            number={4}
+            title={t("howMuchTime")}
+            subtitle={t("timeStepDesc")}
+          />
+          <TimeSelector value={time} onChange={setTime} />
+        </CardContent>
+      </Card>
+
+      {/* STEP 5: Meal Type */}
+      <Card className="border-2 border-muted/50 bg-gradient-to-br from-muted/10 to-transparent">
+        <CardContent className="p-4 space-y-4">
+          <StepHeader
+            number={5}
+            title={t("mealTypeLabel")}
+            subtitle={t("mealTypeStepDesc")}
+          />
+          <MealTypeSelector value={mealType} onChange={setMealType} />
+        </CardContent>
+      </Card>
+
+      {/* Advanced Filters (collapsible, outside numbered steps) */}
+      <AdvancedFilters
+        filters={filters}
+        onChange={setFilters}
+        disabled={!isPremium}
+        onUpgradeClick={onShowPaywall}
+      />
+
+      {/* STEP 6: Generate */}
+      <Card className="border-2 border-primary/40 bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10">
+        <CardContent className="p-4 space-y-4">
+          <StepHeader
+            number={6}
+            title={t("cookingReadyStep")}
+            subtitle={t("generateStepDesc")}
+          />
+          <div className="flex flex-col sm:flex-row gap-3 justify-center w-full">
+            <Button
+              variant="default"
+              size="xl"
+              onClick={onGenerateRecipe}
+              disabled={isLoading || ingredients.length === 0}
+              className="group flex-1 min-w-[220px] py-6 px-8 text-lg font-bold rounded-2xl bg-primary hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <Sparkles className="w-6 h-6 group-hover:animate-spin" />
+              <span>{isLoading ? t("thinking") : ingredients.length === 0 ? "Agregá ingredientes" : t("giveRecipes")}</span>
+            </Button>
+
+            {ingredients.length > 0 && (
+              <Button
+                variant="secondary"
+                size="xl"
+                onClick={onDecideForMe}
+                disabled={isLoading}
+                className="hover:scale-105 transition-transform"
+              >
+                <Shuffle className="w-5 h-5" />
+                {t("decideForMe")}
+              </Button>
+            )}
+
+            {(recipes.length > 0 || ingredients.length > 0) && (
+              <Button variant="ghost" size="xl" onClick={onReset} className="hover:scale-105 transition-transform">
+                <RotateCcw className="w-5 h-5" />
+                {t("startOver")}
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {isLoading && <LoadingRecipe />}
+
+      {recipes.length > 0 && !isLoading && (
+        <div className="animate-fade-in">
+          <RecipeList recipes={recipes} onSelectRecipe={onSelectRecipe} />
+        </div>
+      )}
+
+      {/* Recent Recipes History */}
+      <RecentRecipesHistory onSelectRecipe={onSelectRecipe} />
     </div>
   );
 }
