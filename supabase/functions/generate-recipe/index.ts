@@ -378,20 +378,20 @@ async function searchCachedRecipes(
       getIngredientVariants(i)
     );
     
+    // ONLY check actual recipe ingredients list — NOT steps/tips/variations
+    // This prevents false matches like "you can serve with arroz" in steps
+    const actualIngredients: string[] = (recipe.recipe_data as any)?.ingredients || [];
+    const recipeIngText = removeAccents(actualIngredients.join(' ').toLowerCase());
+    
     // How many of the USER's SPECIFIC ingredients does this recipe use?
-    // Use specific variant matching (not full canonical group)
     let matchedUserCount = 0;
     for (let idx = 0; idx < ingredients.length; idx++) {
       const rawIng = removeAccents(ingredients[idx].toLowerCase().replace(/_/g, ' ').trim());
       const userCanonical = userCanonicals[idx];
       
-      // Check if the raw ingredient or its specific variants appear in the recipe
-      const recipeIngText = removeAccents((recipe.main_ingredients || []).join(' ').toLowerCase());
-      const recipeDataText = removeAccents(JSON.stringify(recipe.recipe_data).toLowerCase());
-      const combinedText = recipeIngText + ' ' + recipeDataText;
-      
+      // Check ONLY in the ingredients list, not full recipe JSON
       // Direct raw match
-      if (combinedText.includes(rawIng)) {
+      if (recipeIngText.includes(rawIng)) {
         matchedUserCount++;
         continue;
       }
