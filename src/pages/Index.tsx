@@ -292,6 +292,17 @@ export default function Index() {
         return;
       }
       
+      if (data?.error === 'no_flavor_match') {
+        toast({
+          title: "Combinación incompatible",
+          description: data?.message || "Estos ingredientes no combinan con el sabor seleccionado. Cambiá los ingredientes o el filtro de sabor.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        setIsGeneratingAI(false);
+        return;
+      }
+
       if (data?.error === 'no_food_ingredients' || (data?.recipes && data.recipes.length === 0)) {
         if (instantRecipe) {
           toast({
