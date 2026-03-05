@@ -1120,6 +1120,12 @@ REGLAS ABSOLUTAS (NUNCA violar ninguna):
    Si el usuario ingresa cosas que NO son alimentos comestibles, respondé con:
    {"recipes": [], "error": "no_food_ingredients"}
 
+1b. VALIDACIÓN DE PERFIL DE SABOR:
+   Si el usuario pide filtro "dulce" pero los ingredientes son incompatibles (carnes, pescados, ajo, cebolla como protagonistas), respondé:
+   {"recipes": [], "error": "no_flavor_match", "message": "Estos ingredientes no combinan con una receta dulce."}
+   Si el usuario pide filtro "salado" pero los ingredientes son incompatibles (chocolate, caramelo, dulce de leche como protagonistas), respondé:
+   {"recipes": [], "error": "no_flavor_match", "message": "Estos ingredientes no combinan con una receta salada."}
+
 2. UNA SOLA RECETA: Generá exactamente 1 receta. Ni más ni menos.
 
 3. TIEMPO: La receta DEBE realizarse dentro del tiempo máximo indicado. Si es corto, priorizá técnicas rápidas (sartén, wok, microondas).
