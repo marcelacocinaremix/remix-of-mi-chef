@@ -110,10 +110,7 @@ export default function Index() {
     }
   }, [user]);
 
-  // Initialize AdMob on mount
-  useEffect(() => {
-    initAdMob();
-  }, [initAdMob]);
+  // AdMob is initialized in main.tsx before the app renders
 
   // Show onboarding if first visit OR if user is not logged in
   if (isFirstVisit || !user) {
