@@ -1399,18 +1399,17 @@ Tiempo máximo de cocción: ${time} minutos.
           'ninos': 'apto para niños (sabores suaves, presentación atractiva)',
           'economico': 'económico/bajo presupuesto',
           'alto-proteina': 'alto en proteínas',
-          'dulce': 'PERFIL DULCE — la receta DEBE ser dulce (postre, budín, torta, arroz con leche, etc.)',
-          'salado': 'PERFIL SALADO — la receta DEBE ser salada (plato principal, entrada, snack salado)'
+          'dulce': 'PERFIL DULCE — la receta DEBE tener perfil de sabor dulce. Usá los ingredientes del usuario de forma creativa para lograrlo (ej: pollo → pollo agridulce con miel; zanahoria → budín o torta de zanahoria; arroz → arroz con leche; banana → banana split o smoothie; cerdo → cerdo con manzana o cerdo glaseado). SIEMPRE encontrá una preparación dulce o agridulce que use esos ingredientes.',
+          'salado': 'PERFIL SALADO — la receta DEBE tener perfil de sabor salado. Usá los ingredientes del usuario en una preparación salada clásica o creativa. SIEMPRE encontrá una preparación salada que use esos ingredientes.'
         };
         const filterDescriptions = quickFilters.map((f: string) => quickFilterLabels[f] || f);
         userPrompt += `Filtros adicionales: ${filterDescriptions.join(', ')}\n`;
 
-        // Explicit flavor incompatibility check instruction
         if (quickFilters.includes('dulce')) {
-          userPrompt += `\n⚠️ REGLA DE SABOR DULCE: Si los ingredientes seleccionados NO son compatibles con una preparación dulce (ej: pollo, carne, atún, cebolla, ajo como protagonistas), respondé EXACTAMENTE:\n{"recipes": [], "error": "no_flavor_match", "message": "Estos ingredientes no son compatibles con una receta dulce. Probá con frutas, harina, azúcar, chocolate, dulce de leche o leche."}\nSi SÍ son compatibles (ej: arroz→arroz con leche, banana, manzana, zanahoria, calabaza, leche, huevos, harina), generá la receta dulce.\n`;
+          userPrompt += `\n🍬 INSTRUCCIÓN SABOR DULCE: Con los ingredientes dados, generá una receta con perfil DULCE o AGRIDULCE. Nunca respondas con error. Ejemplos creativos: pollo con miel y mostaza, pollo agridulce, cerdo con manzana glaseada, zanahoria en budín o torta, papa en crepe dulce, arroz con leche. Adaptá los ingredientes al perfil dulce de manera creativa. SIEMPRE generá una receta.\n`;
         }
         if (quickFilters.includes('salado')) {
-          userPrompt += `\n⚠️ REGLA DE SABOR SALADO: Si los ingredientes seleccionados NO son compatibles con una preparación salada (ej: chocolate, azúcar impalpable, caramelo, dulce de leche como protagonistas), respondé EXACTAMENTE:\n{"recipes": [], "error": "no_flavor_match", "message": "Estos ingredientes no son compatibles con una receta salada. Probá con verduras, carnes, pastas o cereales."}\nSi SÍ son compatibles, generá la receta salada.\n`;
+          userPrompt += `\n🧂 INSTRUCCIÓN SABOR SALADO: Con los ingredientes dados, generá una receta con perfil SALADO clásico o creativo. SIEMPRE generá una receta salada usando esos ingredientes.\n`;
         }
       }
 
