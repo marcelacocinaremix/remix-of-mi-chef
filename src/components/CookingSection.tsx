@@ -118,6 +118,13 @@ export function CookingSection({
   const dietAndPrefFilters = quickFilters.filter(f => f !== "dulce" && f !== "salado");
 
   const handleGenerate = () => {
+    if (ingredients.length === 0) {
+      toast.warning("Agregá ingredientes", {
+        description: "Escribí al menos un ingrediente para generar tu receta.",
+        duration: 3500,
+      });
+      return;
+    }
     if (!activeFlavor) {
       toast.warning("¿Salado o dulce?", {
         description: "Seleccioná si querés una receta salada o dulce antes de continuar.",
@@ -309,11 +316,11 @@ export function CookingSection({
               variant="default"
               size="xl"
               onClick={handleGenerate}
-              disabled={isLoading || ingredients.length === 0}
+              disabled={isLoading}
               className="group flex-1 min-w-[220px] py-6 px-8 text-lg font-bold rounded-2xl bg-primary hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
             >
               <Sparkles className="w-6 h-6 group-hover:animate-spin" />
-              <span>{isLoading ? t("thinking") : ingredients.length === 0 ? "Agregá ingredientes" : t("giveRecipes")}</span>
+              <span>{isLoading ? t("thinking") : t("giveRecipes")}</span>
             </Button>
 
             {ingredients.length > 0 && (
