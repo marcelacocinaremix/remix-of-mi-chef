@@ -2,12 +2,9 @@ import { useCallback, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
 
 // AdMob IDs
-const ADMOB_APP_ID = 'ca-app-pub-2070932144567614~2284749809';
 const INTERSTITIAL_AD_UNIT_ID = 'ca-app-pub-2070932144567614/7133653740';
-const BANNER_AD_UNIT_ID = 'ca-app-pub-2070932144567614/7836431130';
 
 let admobModule: any = null;
-let initialized = false;
 
 async function getAdMob() {
   if (admobModule) return admobModule;
@@ -23,11 +20,6 @@ async function getAdMob() {
 export function useAdMob() {
   const loadingRef = useRef(false);
 
-  const initialize = useCallback(async () => {
-    // AdMob is initialized early in main.tsx — this is a no-op guard
-    initialized = true;
-  }, []);
-
   const showInterstitial = useCallback(async (): Promise<boolean> => {
     if (!Capacitor.isNativePlatform()) {
       return true;
@@ -37,7 +29,6 @@ export function useAdMob() {
     loadingRef.current = true;
 
     try {
-      await initialize();
       const AdMob = await getAdMob();
       if (!AdMob) {
         loadingRef.current = false;
@@ -50,8 +41,9 @@ export function useAdMob() {
           adId: INTERSTITIAL_AD_UNIT_ID,
           isTesting: false,
         });
+        console.log('[AdMob] Interstitial prepared');
       } catch (prepareErr) {
-        console.warn('Interstitial prepare failed:', prepareErr);
+        console.warn('[AdMob] Interstitial prepare failed:', prepareErr);
         loadingRef.current = false;
         return true; // Continue without ad
       }
@@ -70,7 +62,7 @@ export function useAdMob() {
 
         // Safety timeout: if ad never fires events, unblock after 15s
         const timeout = setTimeout(() => {
-          console.warn('Interstitial timeout — unblocking');
+          console.warn('[AdMob] Interstitial timeout — unblocking');
           done();
         }, 15000);
 
@@ -81,20 +73,25 @@ export function useAdMob() {
 
         const failListener = AdMob.addListener(
           'onInterstitialAdFailedToShow',
-          () => { clearTimeout(timeout); done(); }
+          (err: any) => {
+            console.warn('[AdMob] Interstitial failed to show:', err);
+            clearTimeout(timeout);
+            done();
+          }
         );
 
-        AdMob.showInterstitial().catch(() => {
+        AdMob.showInterstitial().catch((err: any) => {
+          console.warn('[AdMob] showInterstitial error:', err);
           clearTimeout(timeout);
           done();
         });
       });
     } catch (e) {
-      console.warn('Interstitial error:', e);
+      console.warn('[AdMob] Interstitial error:', e);
       loadingRef.current = false;
       return true;
     }
-  }, [initialize]);
+  }, []);
 
-  return { showInterstitial, initialize };
+  return { showInterstitial };
 }
