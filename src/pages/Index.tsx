@@ -49,7 +49,7 @@ export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
   const { user } = useAuth();
   const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium } = usePremium();
-  const { showInterstitial, initialize: initAdMob } = useAdMob();
+  const { showInterstitial } = useAdMob();
   const isMobile = useIsMobile();
 
   const [ingredients, setIngredients] = useState<string[]>([]);
