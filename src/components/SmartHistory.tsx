@@ -176,8 +176,8 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
         recipeStyles.push({ style: "Variadas", count: allRecipes.length });
       }
 
-      // Determine cooking frequency
-      const totalCooked = cookedRecipes.length;
+      // Determine cooking frequency — use freshCookedRecipes to avoid stale closure
+      const totalCooked = (freshCookedRecipes || []).length;
       let cookingFrequency = "ocasional";
       if (totalCooked >= 20) cookingFrequency = "muy frecuente";
       else if (totalCooked >= 10) cookingFrequency = "frecuente";
