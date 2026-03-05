@@ -118,6 +118,13 @@ export function CookingSection({
   const dietAndPrefFilters = quickFilters.filter(f => f !== "dulce" && f !== "salado");
 
   const handleGenerate = () => {
+    if (ingredients.length === 0) {
+      toast.warning("Agregá ingredientes", {
+        description: "Escribí al menos un ingrediente para generar tu receta.",
+        duration: 3500,
+      });
+      return;
+    }
     if (!activeFlavor) {
       toast.warning("¿Salado o dulce?", {
         description: "Seleccioná si querés una receta salada o dulce antes de continuar.",
