@@ -36,14 +36,15 @@ const TRIAL_DAYS = 15;
 
 export function PremiumProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // true until first fetch completes
+  const [isInitialized, setIsInitialized] = useState(false);
   const [dailyUsage, setDailyUsage] = useState<DailyUsageInfo | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
 
   // Raw DB state
   const [dbIsPremium, setDbIsPremium] = useState(false);
-  const [planType, setPlanType] = useState<string | null>('free');
-  const [subscriptionStatus, setSubscriptionStatus] = useState('free');
+  const [planType, setPlanType] = useState<string | null>(null);
+  const [subscriptionStatus, setSubscriptionStatus] = useState('inactive');
   const [subscriptionEnd, setSubscriptionEnd] = useState<Date | null>(null);
   const [trialStartDate, setTrialStartDate] = useState<Date | null>(null);
   const [trialEndDate, setTrialEndDate] = useState<Date | null>(null);
