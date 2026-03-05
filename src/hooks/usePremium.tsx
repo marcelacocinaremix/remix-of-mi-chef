@@ -64,10 +64,11 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
 
   // Derived: trial status (fallback when premium expires)
   const isTrialActive = useMemo(() => {
+    if (!isInitialized) return false; // Don't assume active until data loaded
     if (paidPeriodActive) return false;
-    if (!trialEndDate) return true; // No trial data yet, assume active
+    if (!trialEndDate) return false; // No trial data = not in trial
     return new Date() < trialEndDate;
-  }, [paidPeriodActive, trialEndDate]);
+  }, [isInitialized, paidPeriodActive, trialEndDate]);
 
   const isTrialExpired = useMemo(() => {
     if (paidPeriodActive) return false;
