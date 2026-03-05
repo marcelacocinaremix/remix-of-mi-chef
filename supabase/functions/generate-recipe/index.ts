@@ -1037,21 +1037,24 @@ function validateRecipeIngredients(recipe: any, userIngredients: string[], filte
   }
 
   // Check that the user's SPECIFIC ingredients (not just canonicals) appear in the recipe
+  // CRITICAL: Only check the INGREDIENTS LIST — NOT steps, tips, variations, or name
+  // This prevents false matches like "you can serve with arroz" in a step
+  const ingredientsOnlyText = removeAccents((recipe.ingredients || []).join(' ').toLowerCase());
+
   let matchCount = 0;
   for (let i = 0; i < userIngredients.length; i++) {
     const rawIngredient = removeAccents(userIngredients[i].toLowerCase().replace(/_/g, ' ').trim());
     const canonical = userCanonicals[i];
     
-    // First try: exact raw ingredient name in recipe text
-    if (fullText.includes(rawIngredient)) {
+    // First try: exact raw ingredient name in ingredients list only
+    if (ingredientsOnlyText.includes(rawIngredient)) {
       matchCount++;
       continue;
     }
     
-    // Second try: check if any variant of this SPECIFIC ingredient (not the whole canonical group) is present
-    // Only allow close variants, not the entire canonical family
+    // Second try: specific variants in ingredients list only
     const specificVariants = getSpecificVariants(rawIngredient, canonical);
-    const found = specificVariants.some(v => fullText.includes(removeAccents(v)));
+    const found = specificVariants.some(v => ingredientsOnlyText.includes(removeAccents(v)));
     if (found) matchCount++;
   }
   
