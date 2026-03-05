@@ -17,6 +17,9 @@ const config: CapacitorConfig = {
       forceCodeForRefreshToken: true
     }
   }
+  // NOTE: Do NOT add server.url here for production builds.
+  // That config is only for local development and prevents
+  // native plugins (AdMob, etc.) from working correctly.
 };
 
 export default config;

@@ -49,7 +49,7 @@ export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
   const { user } = useAuth();
   const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium } = usePremium();
-  const { showInterstitial, initialize: initAdMob } = useAdMob();
+  const { showInterstitial } = useAdMob();
   const isMobile = useIsMobile();
 
   const [ingredients, setIngredients] = useState<string[]>([]);
@@ -110,10 +110,7 @@ export default function Index() {
     }
   }, [user]);
 
-  // Initialize AdMob on mount
-  useEffect(() => {
-    initAdMob();
-  }, [initAdMob]);
+  // AdMob is initialized in main.tsx before the app renders
 
   // Show onboarding if first visit OR if user is not logged in
   if (isFirstVisit || !user) {
