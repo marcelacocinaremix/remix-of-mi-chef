@@ -115,6 +115,14 @@ export function QuickFilters({ activeFilters, onFiltersChange }: QuickFiltersPro
         )}
       </div>
 
+      {/* Sabor filters */}
+      <div className="space-y-1.5">
+        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">🍬 Sabor</p>
+        <div className="flex flex-wrap gap-2">
+          {SABOR_FILTERS.map(renderFilterButton)}
+        </div>
+      </div>
+
       {/* Diet filters */}
       <div className="space-y-1.5">
         <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">🥗 Dieta</p>
