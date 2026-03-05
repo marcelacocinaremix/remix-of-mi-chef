@@ -75,6 +75,13 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
     }
   }, [user]);
 
+  // Re-run insights whenever the cooked recipes list changes (e.g. after generating a new recipe)
+  useEffect(() => {
+    if (user && cookedRecipes.length > 0) {
+      fetchInsights();
+    }
+  }, [cookedRecipes.length]);
+
   const fetchInsights = async () => {
     if (!user) return;
     setLoading(true);
