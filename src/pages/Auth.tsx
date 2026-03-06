@@ -31,9 +31,45 @@ export default function Auth() {
   const [displayName, setDisplayName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+
+  const isNative = Capacitor.isNativePlatform();
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    try {
+      const { GoogleAuth } = await import("@codetrix-studio/capacitor-google-auth");
+      const googleUser = await GoogleAuth.signIn();
+
+      if (!googleUser?.authentication?.idToken) {
+        throw new Error("No se obtuvo el token de Google");
+      }
+
+      const { error } = await supabase.auth.signInWithIdToken({
+        provider: "google",
+        token: googleUser.authentication.idToken,
+      });
+
+      if (error) throw error;
+
+      toast({ title: "¡Bienvenido/a!", description: "Sesión iniciada con Google." });
+    } catch (error: any) {
+      // User cancelled = no toast
+      if (error?.message?.includes("cancelled") || error?.message?.includes("canceled") || error?.code === 12501) {
+        return;
+      }
+      toast({
+        title: "Error con Google",
+        description: error instanceof Error ? error.message : "No se pudo iniciar sesión con Google",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
 
   const returnTo = getSafeReturnTo(location.search);
 
