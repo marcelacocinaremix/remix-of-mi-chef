@@ -800,6 +800,7 @@ export type Database = {
           total_games_played: number
           total_recipes_completed: number
           total_time_played: number
+          total_xp: number
           updated_at: string
           user_id: string
         }
@@ -812,6 +813,7 @@ export type Database = {
           total_games_played?: number
           total_recipes_completed?: number
           total_time_played?: number
+          total_xp?: number
           updated_at?: string
           user_id: string
         }
@@ -824,6 +826,7 @@ export type Database = {
           total_games_played?: number
           total_recipes_completed?: number
           total_time_played?: number
+          total_xp?: number
           updated_at?: string
           user_id?: string
         }
@@ -996,6 +999,17 @@ export type Database = {
           recipe_name: string
           share_code: string
           shared_by_name: string
+        }[]
+      }
+      get_xp_leaderboard: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          display_name: string
+          rank: number
+          total_games_played: number
+          total_xp: number
+          user_id: string
         }[]
       }
       has_active_access: { Args: { p_user_id: string }; Returns: boolean }
