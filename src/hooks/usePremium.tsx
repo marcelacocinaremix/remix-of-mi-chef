@@ -143,15 +143,20 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         setPlanType(data.plan_type || 'free');
         setSubscriptionStatus(data.subscription_status || 'inactive');
         setSubscriptionEnd(data.subscription_end ? new Date(data.subscription_end) : null);
+        setTrialUsedDb(data.trial_used === true);
         if (data.trial_start_date) setTrialStartDate(new Date(data.trial_start_date));
         if (data.trial_end_date) setTrialEndDate(new Date(data.trial_end_date));
 
-        // Daily usage
+        // ── STRICT DAILY USAGE CALCULATION ─────────────────────────────────
         const today = new Date().toISOString().split('T')[0];
         const lastUseDate = data.last_use_date;
         const usesToday = (lastUseDate === today) ? (data.daily_uses || 0) : 0;
-        const isPaid = data.is_premium && (!data.subscription_end || new Date() < new Date(data.subscription_end));
-        const userLimit = isPaid ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
+
+        // Premium: is_premium=true AND not expired
+        const strictPaid = data.is_premium === true &&
+          (!data.subscription_end || new Date() < new Date(data.subscription_end));
+        const userLimit = strictPaid ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
+
         setDailyUsage({
           usesToday,
           remaining: Math.max(0, userLimit - usesToday),
