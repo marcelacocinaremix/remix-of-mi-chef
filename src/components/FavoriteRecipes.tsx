@@ -353,7 +353,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     setTipFolders(updated); saveTipFolders(updated);
     setNewTipFolderName(""); setShowNewTipFolderInput(false);
     setActiveTipFolder(name);
-    toast({ title: "📁 Carpeta creada", description: `"${name}" lista para organizar tus tips.` });
+    toast({ title: t("favFolderCreated"), description: `"${name}" ${t("favFolderTipCreatedDesc")}` });
   };
 
   const handleCreateFolder = () => {
