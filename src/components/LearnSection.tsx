@@ -1259,8 +1259,335 @@ const learningContent: Level[] = [
         ]
       }
     ]
+  },
+  {
+    id: "especialidades",
+    name: "Especialidades",
+    description: "Postres, cocina del mundo, saludable y técnicas avanzadas",
+    color: "bg-pink-500",
+    gradient: "from-pink-500 to-rose-500",
+    categories: [
+      {
+        id: "reposteria-avanzada",
+        name: "Repostería & Postres",
+        icon: IceCream,
+        description: "Tortas, budines, cookies y mucho más",
+        lessons: [
+          {
+            id: "bizcochuelo-perfecto",
+            title: "Bizcochuelo perfecto",
+            description: "La base de todas las tortas",
+            tips: [
+              "Los huevos y la manteca deben estar a temperatura ambiente",
+              "Batí huevos y azúcar hasta triplicar el volumen (10 min)",
+              "Tamizá la harina para evitar grumos",
+              "Incorporá la harina con movimientos envolventes, no batiendo",
+              "No abras el horno antes de los 25 min",
+              "Pinchá con palillo: si sale limpio, está listo"
+            ],
+            steps: [
+              "Precalentá horno a 180°C y enmantecá el molde",
+              "Batí huevos + azúcar hasta que esté espumoso y pálido",
+              "Incorporá manteca derretida (fría) en hilo",
+              "Sumá harina tamizada con movimientos suaves",
+              "Volcá en molde y horneá 30-35 min sin abrir el horno"
+            ],
+            marcelaMessage: "Un buen bizcochuelo aireado es el secreto de toda torta espectacular 🎂",
+            funFact: "El secreto del bizcochuelo esponjoso es el aire atrapado al batir los huevos"
+          },
+          {
+            id: "cookies-crunchy",
+            title: "Cookies crujientes por fuera, tiernas por dentro",
+            description: "El balance perfecto en cada mordida",
+            tips: [
+              "Manteca pomada (no derretida) para cookies más gruesas",
+              "Más yema = más masticable, más clara = más crujiente",
+              "Azúcar negra da humedad y sabor acaramelado",
+              "Enfriá la masa 1 hora en heladera antes de hornear",
+              "Sacalas del horno cuando parezcan 'poco hechas' - terminan en la bandeja"
+            ],
+            marcelaMessage: "La cookie perfecta requiere paciencia, pero el resultado lo vale 🍪",
+            funFact: "Las cookies se inventaron como 'tazas de pastel de prueba' para verificar la temperatura del horno"
+          },
+          {
+            id: "mousse-chocolate",
+            title: "Mousse de chocolate",
+            description: "Aireado, intenso y sin horno",
+            tips: [
+              "Usá chocolate con 60-70% de cacao para sabor intenso",
+              "Las claras deben estar impecablemente limpias para montar",
+              "Incorporá las claras en 2-3 tandas para no perder aire",
+              "Enfriá mínimo 4 horas en heladera",
+              "El toque de sal potencia el chocolate"
+            ],
+            steps: [
+              "Derretí el chocolate a baño maría y dejá enfriar",
+              "Batí las claras a nieve con una pizca de sal",
+              "Montá la crema de leche a picos suaves",
+              "Mezclá chocolate con crema, luego incorporá claras",
+              "Distribuí en copas y refrigerá 4+ horas"
+            ],
+            marcelaMessage: "La mousse de chocolate es elegancia pura con pocos ingredientes 🍫"
+          },
+          {
+            id: "cheesecake-cremoso",
+            title: "Cheesecake cremoso sin horno",
+            description: "Suave, firme y delicioso",
+            tips: [
+              "Cream cheese a temperatura ambiente para evitar grumos",
+              "La gelatina sin sabor asegura que corte perfecto",
+              "La base de galletitas necesita descansar en heladera",
+              "No desmoldes apurado: mínimo 6 horas de frío",
+              "Para cortes limpios: cuchillo caliente y seco"
+            ],
+            marcelaMessage: "Sin horno, sin estrés. ¡Este cheesecake impresiona a todos! 🍰"
+          },
+          {
+            id: "budines-rapidos",
+            title: "Budines rápidos y variados",
+            description: "Merienda lista en 40 minutos",
+            tips: [
+              "Los ingredientes húmedos + secos: mezclá por separado antes de unir",
+              "No sobrebatas: unos pocos grumos están bien",
+              "El banano maduro es mejor endulzante y humectante natural",
+              "Cubrí con aluminio si se dora demasiado arriba",
+              "Enfriá en rejilla para evitar que se humedezca la base"
+            ],
+            marcelaMessage: "Un buen budín convierte ingredientes simples en algo especial 🫐"
+          }
+        ]
+      },
+      {
+        id: "cocina-mundo",
+        name: "Cocina del Mundo",
+        icon: Globe,
+        description: "Viajá sin salir de la cocina",
+        lessons: [
+          {
+            id: "cocina-italiana",
+            title: "Italia en tu cocina",
+            description: "Pastas frescas, risotto y más",
+            tips: [
+              "Pasta fresca: 100g de harina + 1 huevo por persona",
+              "Risotto: agregá el caldo caliente de a cucharones",
+              "Soffritto (cebolla, zanahoria, apio) es la base italiana",
+              "El queso parmesano se agrega fuera del fuego",
+              "La pasta se termina de cocinar EN la salsa"
+            ],
+            steps: [
+              "Hacé la pasta: harina en volcán, huevos en el centro",
+              "Amasá 10 min hasta que esté lisa y elástica",
+              "Cubrí y descansá 30 min",
+              "Estirá finísima y cortá como quieras",
+              "Cociná 2-3 min en agua con mucha sal"
+            ],
+            marcelaMessage: "La cocina italiana es simplicidad y calidad de ingredientes. ¡Menos es más! 🍝",
+            funFact: "En Italia hay más de 350 formas diferentes de pasta, cada una diseñada para un tipo de salsa"
+          },
+          {
+            id: "cocina-asiatica",
+            title: "Asia Wok & Sabores",
+            description: "Salteados, arroces y salsas asiáticas",
+            tips: [
+              "El wok debe estar bien caliente (casi rojo) antes de cocinar",
+              "Salsa de soja, jengibre y ajo = base de casi todo",
+              "El aceite de sésamo se agrega SIEMPRE al final",
+              "El arroz asiático se lava hasta que el agua salga clara",
+              "La salsa de ostras da profundidad sin ser pescado"
+            ],
+            marcelaMessage: "La cocina asiática es fuego alto, rapidez y sabores intensos. ¡Dominá el wok! 🥢"
+          },
+          {
+            id: "cocina-mexicana",
+            title: "México: especias y color",
+            description: "Tacos, guacamole y salsas vibrantes",
+            tips: [
+              "El aguacate para guacamole debe estar muy maduro",
+              "Los chiles secos se tuestan y rehidratan antes de usar",
+              "El sofrito mexicano lleva tomate, cebolla y ajo asados",
+              "Las tortillas de maíz se calientan directo sobre la llama",
+              "El limón es imprescindible para terminar casi todos los platos"
+            ],
+            marcelaMessage: "La cocina mexicana es pura alma y color. ¡Cada bocado cuenta una historia! 🌮"
+          },
+          {
+            id: "cocina-francesa",
+            title: "Francia: técnica y elegancia",
+            description: "Las bases de la cocina clásica",
+            tips: [
+              "Las salsas madre francesas son la base de todo (bechamel, velouté, espagnole)",
+              "Beurre blanc: reducción de vino + crema + manteca fría en cubos",
+              "El roux (harina + manteca) espesa sin grumos si se hace bien",
+              "Brunoise: corte en cubos de 2mm - requiere precisión",
+              "La manteca clarificada tiene mayor punto de humo"
+            ],
+            marcelaMessage: "Francia nos enseñó las técnicas que usa el mundo. ¡Valen la pena aprenderse! 🥐"
+          },
+          {
+            id: "cocina-mediterranea",
+            title: "Mediterráneo: salud y sabor",
+            description: "Hummus, falafel, tabbouleh y más",
+            tips: [
+              "El aceite de oliva extra virgen es protagonista, no actor de reparto",
+              "Las legumbres remojadas 12h reducen tiempo de cocción a la mitad",
+              "El sumac da acidez sin líquido - ideal para aderezar",
+              "Las hierbas frescas en cantidad, no como decoración",
+              "El yogur griego espeso funciona como salsa, dip y postre"
+            ],
+            marcelaMessage: "La dieta mediterránea es la más saludable y la más sabrosa del mundo 🫒"
+          }
+        ]
+      },
+      {
+        id: "cocina-fit",
+        name: "Cocina Fit & Saludable",
+        icon: Dumbbell,
+        description: "Rico, nutritivo y sin culpa",
+        lessons: [
+          {
+            id: "proteinas-magras",
+            title: "Proteínas magras bien cocinadas",
+            description: "Pechuga, pescado y legumbres sin aburrirse",
+            tips: [
+              "Marinado de 2-24h transforma cualquier proteína magra",
+              "La pechuga se seca por sobrecocción: termómetro al centro (74°C)",
+              "El pescado al limón + papel aluminio queda jugoso sin grasa",
+              "Las legumbres combinadas con arroz forman proteína completa",
+              "El tofu presado y marinado absorbe todos los sabores"
+            ],
+            marcelaMessage: "La proteína no tiene que ser aburrida. ¡Con marinado y técnica es deliciosa! 💪"
+          },
+          {
+            id: "bowls-nutritivos",
+            title: "Bowls nutritivos y coloridos",
+            description: "El armado perfecto para comer completo",
+            tips: [
+              "Base (granos): arroz, quinoa, batata, coliflor triturado",
+              "Proteína: pollo, huevo, garbanzos, tofu, atún",
+              "Verduras crudas y cocidas: para variedad de texturas",
+              "Grasa buena: palta, semillas, aceite de oliva",
+              "Aderezo ácido al final para unificar todos los sabores"
+            ],
+            marcelaMessage: "Un buen bowl es nutrición y arte en el mismo plato 🥗"
+          },
+          {
+            id: "snacks-saludables",
+            title: "Snacks saludables DIY",
+            description: "Opciones caseras para picar sin culpa",
+            tips: [
+              "Hummus casero: garbanzos + tahini + limón + ajo + aceite",
+              "Chips de batata al horno con páprika y aceite de oliva",
+              "Bolitas de avena, banana y miel sin horno en 10 min",
+              "Palitos de apio y zanahoria con dips de yogur condimentado",
+              "Granola casera: avena + miel + frutos secos al horno"
+            ],
+            marcelaMessage: "Si tenés buenos snacks en casa, no caés en lo procesado. ¡Preparalos el domingo! 🥕"
+          },
+          {
+            id: "jugos-smoothies",
+            title: "Jugos y smoothies nutritivos",
+            description: "Licuados que nutren de verdad",
+            tips: [
+              "Smoothie base: frutas congeladas + líquido + proteína",
+              "El verde sin que sepa a pasto: espinaca + banana + mango",
+              "La avena da cremosidad y fibra sin sabor fuerte",
+              "Jengibre fresco en licuado mejora digestión",
+              "Sin azúcar: el dulzor viene de las frutas"
+            ],
+            marcelaMessage: "Un smoothie equilibrado reemplaza un desayuno completo. ¡Sin azúcar agregada! 🥤"
+          },
+          {
+            id: "cocina-plant-based",
+            title: "Cocina plant-based",
+            description: "Comer vegetal sin sacrificar sabor",
+            tips: [
+              "Levadura nutricional = sabor a queso sin lácteos",
+              "Leche de coco cocida reduce y espesa como crema",
+              "Los champiñones dan textura y umami como la carne",
+              "Anacardos remojados licuados = crema vegetal perfecta",
+              "El miso en salsas da profundidad y fermentación natural"
+            ],
+            marcelaMessage: "La cocina plant-based no es renuncia, es descubrimiento de nuevos sabores 🌱"
+          }
+        ]
+      },
+      {
+        id: "tecnicas-pro",
+        name: "Técnicas Pro",
+        icon: GraduationCap,
+        description: "Elevá tu cocina al siguiente nivel",
+        lessons: [
+          {
+            id: "esferificacion-basica",
+            title: "Esferificación básica",
+            description: "Cocina molecular para impresionar",
+            tips: [
+              "Alginato de sodio + líquido = base de la esfera",
+              "Cloruro de calcio + agua = baño de gelificación",
+              "Las esferas se forman al instante - sacalas rápido",
+              "Enjuagá con agua limpia para detener la reacción",
+              "Funciona con jugos, caldos, aceites saborizados"
+            ],
+            marcelaMessage: "La cocina molecular parece magia pero es pura ciencia. ¡Impresioná con esto! 🔮"
+          },
+          {
+            id: "ahumado-casero",
+            title: "Ahumado casero",
+            description: "Sabor profundo sin ahumador profesional",
+            tips: [
+              "Astillas de madera de manzano, roble o nogal americano",
+              "Wok con tapa + rejilla + astillas = ahumador casero",
+              "Carne y pescado se ahúman en frío (bajo 25°C) o caliente",
+              "Sal ahumada: sal gruesa + 20 min de humo = sal gourmet",
+              "El tiempo de ahumado varía: pescado 20 min, cerdo 2-4h"
+            ],
+            marcelaMessage: "El humo es el condimento más primitivo y más sofisticado a la vez 🔥"
+          },
+          {
+            id: "gelificantes",
+            title: "Gelificantes naturales",
+            description: "Agar, gelatina y pectina",
+            tips: [
+              "Agar agar: vegetal, gelifica más firme que gelatina, soporta calor",
+              "Gelatina: animal, más suave y elástica",
+              "Pectina: de frutas, ideal para jaleas y mermeladas",
+              "El agar funciona en caliente, la gelatina solo en frío",
+              "1g de agar por 100ml de líquido para textura media"
+            ],
+            marcelaMessage: "Dominar los gelificantes abre un mundo de texturas y presentaciones 🧊"
+          },
+          {
+            id: "fermentacion-avanzada",
+            title: "Kimchi y fermentos asiáticos",
+            description: "El fermento más conocido del mundo",
+            tips: [
+              "Col napa + gochugaru (ají coreano) + ajo + jengibre + daikon",
+              "El sal seca la col y crea el ambiente correcto",
+              "Fermenta 1-5 días a temperatura ambiente",
+              "El gas producido es señal de que funciona - abrí el frasco a diario",
+              "El kimchi maduro (2+ semanas) se usa para cocinar"
+            ],
+            marcelaMessage: "El kimchi es probiótico, delicioso y lleva fermento de siglos. ¡Vale la pena! 🥬"
+          },
+          {
+            id: "caldo-base",
+            title: "Caldos base perfectos",
+            description: "El alma invisible de los mejores platos",
+            tips: [
+              "Caldo claro: partí en agua fría para extraer proteínas lentamente",
+              "Caldo oscuro (fondo): asá los huesos antes de hervir",
+              "Mínimo 4h para caldo de res, 2h para pollo, 45min para pescado",
+              "El skimming (espumar) da un caldo cristalino",
+              "Congelá en cubiteras para tener porciones listas"
+            ],
+            marcelaMessage: "Un buen caldo casero eleva cualquier plato. ¡Es el secreto de los chefs! 🍲"
+          }
+        ]
+      }
+    ]
   }
 ];
+
 
 
 interface LearnSectionProps {
