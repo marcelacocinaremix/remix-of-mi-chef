@@ -1996,7 +1996,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-2xl font-bold text-primary">{stats.completedLessonsCount}</p>
-              <p className="text-xs text-muted-foreground">Lecciones completadas</p>
+              <p className="text-xs text-muted-foreground">{t("learnLessonsCompleted")}</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-amber-500">{stats.totalLessons}</p>
