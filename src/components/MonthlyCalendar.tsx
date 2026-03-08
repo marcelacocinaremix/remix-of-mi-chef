@@ -255,16 +255,17 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                 className={cn(
                   "relative flex flex-col items-center justify-start p-1 min-h-[52px] sm:min-h-[64px] border-b border-r border-border/20 transition-colors",
                   inMonth ? "bg-background" : "bg-muted/30",
-                  // Proximity highlights
-                  today && "bg-primary/15 ring-2 ring-primary ring-inset",
-                  tomorrow && "bg-primary/8",
-                  isNear && inMonth && "bg-primary/4",
-                  // Stronger bg when nearby + has meals
-                  hasMeals && today && "bg-primary/20",
-                  hasMeals && tomorrow && "bg-primary/12",
-                  hasMeals && isNear && inMonth && "bg-primary/8",
+                  // Proximity highlights (no meals)
+                  !hasMeals && today && "bg-primary/15 ring-2 ring-primary ring-inset",
+                  !hasMeals && tomorrow && "bg-primary/8",
+                  !hasMeals && isNear && inMonth && "bg-primary/4",
+                  // Green bg when has meals
+                  hasMeals && "bg-emerald-500/15",
+                  hasMeals && today && "bg-emerald-500/25 ring-2 ring-emerald-500 ring-inset",
+                  hasMeals && tomorrow && "bg-emerald-500/20",
+                  hasMeals && isNear && inMonth && "bg-emerald-500/18",
                   // Selection
-                  selectedDate && isSameDay(day, selectedDate) && "bg-primary/10 ring-2 ring-primary/60 ring-inset",
+                  selectedDate && isSameDay(day, selectedDate) && "ring-2 ring-primary/60 ring-inset",
                   "hover:bg-accent/50 active:scale-95"
                 )}
               >
@@ -289,10 +290,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                     ) : (
                       <div className="flex gap-0.5">
                         {meals.map((_, j) => (
-                          <div key={j} className={cn(
-                            "w-1.5 h-1.5 rounded-full",
-                            (today || tomorrow || isNear) ? "bg-primary" : "bg-primary/60"
-                          )} />
+                          <div key={j} className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                         ))}
                       </div>
                     )}
