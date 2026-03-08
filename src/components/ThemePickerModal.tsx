@@ -14,6 +14,8 @@ const themeGradients: Record<AppTheme, string> = {
   "rose-light": "linear-gradient(135deg, #fce4ec 0%, #f8bbd9 40%, #e91e8c 100%)",
   "rose-dark": "linear-gradient(135deg, #1a0a12 0%, #3d0c24 40%, #e91e8c 100%)",
   "future": "linear-gradient(135deg, #0a1929 0%, #0d2d4a 40%, #00acc1 100%)",
+  "mono-light": "linear-gradient(135deg, #f9f9f9 0%, #e5e5e5 40%, #1a1a1a 100%)",
+  "mono-dark": "linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 40%, #e5e5e5 100%)",
 };
 
 const themePrimaryColors: Record<AppTheme, string> = {
@@ -22,6 +24,8 @@ const themePrimaryColors: Record<AppTheme, string> = {
   "rose-light": "#e91e8c",
   "rose-dark": "#e91e8c",
   "future": "#00acc1",
+  "mono-light": "#1a1a1a",
+  "mono-dark": "#e5e5e5",
 };
 
 export function ThemePickerModal({ open, onOpenChange }: ThemePickerModalProps) {
