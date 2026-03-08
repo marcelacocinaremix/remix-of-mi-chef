@@ -35,7 +35,6 @@ export const COUNTRIES: Country[] = [
   { code: "GB", name: "Reino Unido", flag: "🇬🇧" },
   { code: "AU", name: "Australia", flag: "🇦🇺" },
   { code: "JP", name: "Japón", flag: "🇯🇵" },
-  { code: "MX", name: "México", flag: "🇲🇽" },
   { code: "CN", name: "China", flag: "🇨🇳" },
   { code: "IN", name: "India", flag: "🇮🇳" },
   { code: "NG", name: "Nigeria", flag: "🇳🇬" },
@@ -44,13 +43,7 @@ export const COUNTRIES: Country[] = [
   { code: "OTHER", name: "Otro", flag: "🌍" },
 ];
 
-// Remove duplicates by code
-const seen = new Set<string>();
-export const UNIQUE_COUNTRIES = COUNTRIES.filter(c => {
-  if (seen.has(c.code)) return false;
-  seen.add(c.code);
-  return true;
-});
+export const UNIQUE_COUNTRIES = COUNTRIES;
 
 export function getCountryByCode(code: string): Country | undefined {
   return UNIQUE_COUNTRIES.find(c => c.code === code);
