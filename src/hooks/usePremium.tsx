@@ -78,7 +78,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   }, [paidPeriodActive, trialEndDate]);
 
   const trialDaysRemaining = useMemo(() => {
-    if (!trialEndDate) return TRIAL_DAYS;
+    if (!trialEndDate) return 0; // No trial set → 0 days, not 15
     const diff = trialEndDate.getTime() - Date.now();
     return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
   }, [trialEndDate]);
@@ -249,16 +249,16 @@ export function usePremium() {
       subscriptionStatus: 'free',
       subscriptionEnd: null,
       planType: 'free',
-      trialUsed: false,
+    trialUsed: false,
       daysRemaining: null,
       refetch: async () => {},
       dailyUsage: null,
       checkDailyUsage: async () => ({ allowed: true }),
-      isTrialActive: true,
+      isTrialActive: false,
       isTrialExpired: false,
-      trialDaysRemaining: TRIAL_DAYS,
+      trialDaysRemaining: 0,
       canUseFeature: () => true,
-      hasAnyAccess: true,
+      hasAnyAccess: false,
       showPaywall: false,
       setShowPaywall: () => {},
       isCancelled: false,
