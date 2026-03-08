@@ -522,7 +522,7 @@ function PantryShelf({
           </div>
           <div>
             <h4 className={cn("font-semibold text-sm", category.textColor)}>{category.label}</h4>
-            <p className="text-[10px] text-muted-foreground">{items.length} productos</p>
+            <p className="text-[10px] text-muted-foreground">{items.length} {t("pantryShelveProducts")}</p>
           </div>
         </div>
         <Button
