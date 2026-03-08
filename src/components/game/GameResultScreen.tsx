@@ -157,7 +157,7 @@ export function GameResultScreen({ score, streak, recipesCompleted, xpEarned, on
             </div>
             <div>
               <div className="font-black text-foreground">{stats.totalGamesPlayed + 1}</div>
-              <div className="text-muted-foreground">Partidas</div>
+              <div className="text-muted-foreground">{t("gamePartidas")}</div>
             </div>
           </div>
         </motion.div>
