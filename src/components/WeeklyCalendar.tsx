@@ -360,10 +360,7 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
       setMealPlans([]);
       setIngredientSuggestions([]);
       setShowClearConfirm(false);
-      toast({
-        title: "Plan borrado",
-        description: "Tu plan semanal fue eliminado. ¡Podés armarlo de nuevo!",
-      });
+      toast({ title: t("weeklyDeletedToast"), description: t("weeklyDeletedToastDesc") });
     } catch (error) {
       console.error('Error clearing week:', error);
       toast({
