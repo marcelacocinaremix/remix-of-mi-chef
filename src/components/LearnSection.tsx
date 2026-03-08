@@ -1793,7 +1793,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
           onClick={() => setActiveLesson(null)}
           className="mb-2"
         >
-          ← Volver a categorías
+          {t("learnBack")}
         </Button>
 
         <Card className="border-2 border-primary/20 overflow-hidden">
