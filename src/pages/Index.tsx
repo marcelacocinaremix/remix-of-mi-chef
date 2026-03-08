@@ -25,6 +25,7 @@ import {
   GraduationCap,
   Gamepad2,
   HeartPulse,
+  Lock,
 } from "lucide-react";
 import { NutritionalBalance } from "@/components/NutritionalBalance";
 import { CocinarGroupSection } from "@/components/CocinarGroupSection";
