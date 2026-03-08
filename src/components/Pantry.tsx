@@ -778,7 +778,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
     ));
     const item = items.find(i => i.id === id);
     toast({
-      title: item?.is_favorite ? "Quitado de favoritos" : "¡Agregado a favoritos! ⭐",
+      title: item?.is_favorite ? t("removedFromFavorites") : t("addedToFavoritesStar"),
       description: item?.ingredient_name,
     });
   };
