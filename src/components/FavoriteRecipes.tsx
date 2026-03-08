@@ -457,68 +457,35 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                       <span className="text-4xl drop-shadow-sm">{emoji}</span>
                     </div>
 
-                    {/* Info */}
-                    <div
-                      onClick={() => onSelectRecipe(fav.recipe_data)}
-                      className="p-2.5"
-                    >
-                      <p className="font-semibold text-xs text-foreground leading-tight line-clamp-2 mb-1.5">
-                        {fav.recipe_name}
-                      </p>
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <span className="flex items-center gap-0.5 text-[10px]">
-                          <Clock className="w-3 h-3" />
-                          {fav.recipe_data.time}m
-                        </span>
-                        <span className="flex items-center gap-0.5 text-[10px]">
-                          <FlameIcon className="w-3 h-3 text-orange-400" />
-                          {fav.recipe_data.nutrition?.calories || "?"}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Actions overlay */}
-                    <div className="absolute top-1.5 right-1.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setMovingRecipeId(movingRecipeId === fav.id ? null : fav.id); }}
-                        className="w-6 h-6 rounded-full bg-background/90 flex items-center justify-center shadow-sm hover:bg-background"
-                        title="Mover a carpeta"
-                      >
-                        <Folder className="w-3 h-3 text-primary" />
-                      </button>
-                      <button
-                        onClick={(e) => handleDeleteRecipe(fav.id, e)}
-                        className="w-6 h-6 rounded-full bg-background/90 flex items-center justify-center shadow-sm hover:bg-background"
-                        title="Eliminar"
-                      >
-                        <Trash2 className="w-3 h-3 text-destructive" />
-                      </button>
-                    </div>
-
-                    {/* Move folder dropdown */}
-                    {movingRecipeId === fav.id && (
+                    {/* Info + botón de acciones siempre visible */}
+                    <div className="p-2.5 flex items-start justify-between gap-1">
                       <div
-                        onClick={e => e.stopPropagation()}
-                        className="absolute top-9 right-1.5 z-20 bg-popover border border-border rounded-xl shadow-elevated p-2 min-w-[140px] animate-fade-in"
+                        onClick={() => onSelectRecipe(fav.recipe_data)}
+                        className="flex-1 min-w-0"
                       >
-                        <p className="text-xs text-muted-foreground mb-1.5 px-1 font-medium">Mover a...</p>
-                        {folders.map(f => (
-                          <button
-                            key={f}
-                            onClick={() => handleMoveRecipe(fav.id, f)}
-                            className={cn(
-                              "w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs transition-colors text-left",
-                              (folderAssignments[fav.id] || "Sin carpeta") === f
-                                ? "bg-primary/10 text-primary font-medium"
-                                : "hover:bg-muted text-foreground"
-                            )}
-                          >
-                            <Folder className="w-3 h-3 shrink-0" />
-                            {f}
-                          </button>
-                        ))}
+                        <p className="font-semibold text-xs text-foreground leading-tight line-clamp-2 mb-1.5">
+                          {fav.recipe_name}
+                        </p>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <span className="flex items-center gap-0.5 text-[10px]">
+                            <Clock className="w-3 h-3" />
+                            {fav.recipe_data.time}m
+                          </span>
+                          <span className="flex items-center gap-0.5 text-[10px]">
+                            <Flame className="w-3 h-3 text-orange-400" />
+                            {fav.recipe_data.nutrition?.calories || "?"}
+                          </span>
+                        </div>
                       </div>
-                    )}
+                      {/* Botón ⋮ siempre visible — táctil y accesible en mobile */}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setMovingRecipeId(fav.id); }}
+                        className="w-7 h-7 rounded-lg bg-muted/60 hover:bg-muted flex items-center justify-center shrink-0 transition-colors"
+                        title="Opciones"
+                      >
+                        <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
+                      </button>
+                    </div>
                   </div>
                 );
               })}
@@ -526,6 +493,69 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
           )}
         </div>
       )}
+
+      {/* ── Sheet de acciones de receta (bottom drawer) ── */}
+      {(() => {
+        const sheetRecipe = movingRecipeId ? favorites.find(f => f.id === movingRecipeId) : null;
+        return (
+          <Sheet open={!!movingRecipeId} onOpenChange={open => !open && setMovingRecipeId(null)}>
+            <SheetContent side="bottom" className="rounded-t-2xl pb-8">
+              {sheetRecipe && (
+                <>
+                  <SheetHeader className="mb-4">
+                    <SheetTitle className="text-left text-base flex items-center gap-2">
+                      <span className="text-2xl">{getRecipeEmoji(sheetRecipe.recipe_data)}</span>
+                      <span className="line-clamp-1">{sheetRecipe.recipe_name}</span>
+                    </SheetTitle>
+                    <p className="text-xs text-muted-foreground text-left">
+                      Carpeta actual: <strong>{folderAssignments[sheetRecipe.id] || "Sin carpeta"}</strong>
+                    </p>
+                  </SheetHeader>
+
+                  {/* Mover a carpeta */}
+                  <div className="space-y-2 mb-5">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                      <MoveRight className="w-3.5 h-3.5" /> Mover a carpeta
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {folders.map(f => {
+                        const isCurrent = (folderAssignments[sheetRecipe.id] || "Sin carpeta") === f;
+                        return (
+                          <button
+                            key={f}
+                            onClick={() => handleMoveRecipe(sheetRecipe.id, f)}
+                            className={cn(
+                              "flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all border",
+                              isCurrent
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-muted/50 text-foreground border-border/50 hover:bg-muted active:scale-95"
+                            )}
+                          >
+                            {isCurrent
+                              ? <Check className="w-4 h-4 shrink-0" />
+                              : <Folder className="w-4 h-4 shrink-0 text-muted-foreground" />
+                            }
+                            <span className="truncate">{f}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Eliminar */}
+                  <button
+                    onClick={(e) => { handleDeleteRecipe(sheetRecipe.id, e); setMovingRecipeId(null); }}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 active:scale-95 transition-all border border-destructive/20"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Eliminar de favoritos
+                  </button>
+                </>
+              )}
+            </SheetContent>
+          </Sheet>
+        );
+      })()}
 
       {/* ── TIPS TAB ── */}
       {activeTab === "tips" && (
