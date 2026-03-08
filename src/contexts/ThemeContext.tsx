@@ -39,7 +39,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Add new theme class
     root.classList.add(theme);
     // Handle dark mode for next-themes compatibility
-    const isDark = theme.endsWith("-dark");
+    const isDark = theme.endsWith("-dark") || theme === "future";
     if (isDark) root.classList.add("dark");
   }, [theme]);
 
