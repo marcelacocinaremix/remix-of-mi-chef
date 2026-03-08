@@ -1175,6 +1175,22 @@ export const translations = {
     favDefaultTipFolderCooking: "Cocción",
     favDefaultTipFolderNutrition: "Nutrición",
     favDefaultTipFolderSaving: "Ahorro",
+
+    // QuickFilters
+    quickFiltersDietLabel: "🥗 Dieta",
+    quickFiltersPreferencesLabel: "✨ Preferencias",
+    quickFiltersClear: "Limpiar",
+    quickFiltersActive: "filtro activo",
+    quickFiltersActivePlural: "filtros activos",
+    quickFilterVegetarian: "Vegetariano",
+    quickFilterVegan: "Vegano",
+    quickFilterGlutenFree: "Sin Gluten",
+    quickFilterLactoseFree: "Sin Lácteos",
+    quickFilterHighProtein: "Proteico",
+    quickFilterLight: "Light",
+    quickFilterKids: "Para Niños",
+    quickFilterEconomic: "Económico",
+    quickFilterFast: "Rápido (≤20 min)",
   },
   
   en: {
@@ -2352,6 +2368,22 @@ export const translations = {
     favDefaultTipFolderCooking: "Cooking",
     favDefaultTipFolderNutrition: "Nutrition",
     favDefaultTipFolderSaving: "Savings",
+
+    // QuickFilters
+    quickFiltersDietLabel: "🥗 Diet",
+    quickFiltersPreferencesLabel: "✨ Preferences",
+    quickFiltersClear: "Clear",
+    quickFiltersActive: "active filter",
+    quickFiltersActivePlural: "active filters",
+    quickFilterVegetarian: "Vegetarian",
+    quickFilterVegan: "Vegan",
+    quickFilterGlutenFree: "Gluten Free",
+    quickFilterLactoseFree: "Dairy Free",
+    quickFilterHighProtein: "High Protein",
+    quickFilterLight: "Light",
+    quickFilterKids: "For Kids",
+    quickFilterEconomic: "Budget",
+    quickFilterFast: "Quick (≤20 min)",
   },
   
   pt: {
@@ -3485,6 +3517,22 @@ export const translations = {
     favDefaultTipFolderNutrition: "Nutrição",
     favDefaultTipFolderSaving: "Economia",
 
+    // QuickFilters
+    quickFiltersDietLabel: "🥗 Dieta",
+    quickFiltersPreferencesLabel: "✨ Preferências",
+    quickFiltersClear: "Limpar",
+    quickFiltersActive: "filtro ativo",
+    quickFiltersActivePlural: "filtros ativos",
+    quickFilterVegetarian: "Vegetariano",
+    quickFilterVegan: "Vegano",
+    quickFilterGlutenFree: "Sem Glúten",
+    quickFilterLactoseFree: "Sem Lácteos",
+    quickFilterHighProtein: "Proteico",
+    quickFilterLight: "Light",
+    quickFilterKids: "Para Crianças",
+    quickFilterEconomic: "Econômico",
+    quickFilterFast: "Rápido (≤20 min)",
+
     // ─── GAME SECTION ────────────────────────────────────────────────────
     gameTitle: "Chef Arena",
     gameSubtitle: "Cozinhe receitas, ganhe XP e vire um Chef Mestre!",
@@ -4565,6 +4613,22 @@ export const translations = {
     favDefaultTipFolderCooking: "Cottura",
     favDefaultTipFolderNutrition: "Nutrizione",
     favDefaultTipFolderSaving: "Risparmio",
+
+    // QuickFilters
+    quickFiltersDietLabel: "🥗 Dieta",
+    quickFiltersPreferencesLabel: "✨ Preferenze",
+    quickFiltersClear: "Cancella",
+    quickFiltersActive: "filtro attivo",
+    quickFiltersActivePlural: "filtri attivi",
+    quickFilterVegetarian: "Vegetariano",
+    quickFilterVegan: "Vegano",
+    quickFilterGlutenFree: "Senza Glutine",
+    quickFilterLactoseFree: "Senza Latticini",
+    quickFilterHighProtein: "Alto Proteico",
+    quickFilterLight: "Light",
+    quickFilterKids: "Per Bambini",
+    quickFilterEconomic: "Economico",
+    quickFilterFast: "Veloce (≤20 min)",
   },
 
   de: {
@@ -5601,6 +5665,22 @@ export const translations = {
     favDefaultTipFolderCooking: "Kochen",
     favDefaultTipFolderNutrition: "Ernährung",
     favDefaultTipFolderSaving: "Sparen",
+
+    // QuickFilters
+    quickFiltersDietLabel: "🥗 Ernährung",
+    quickFiltersPreferencesLabel: "✨ Präferenzen",
+    quickFiltersClear: "Löschen",
+    quickFiltersActive: "aktiver Filter",
+    quickFiltersActivePlural: "aktive Filter",
+    quickFilterVegetarian: "Vegetarisch",
+    quickFilterVegan: "Vegan",
+    quickFilterGlutenFree: "Glutenfrei",
+    quickFilterLactoseFree: "Laktosefrei",
+    quickFilterHighProtein: "Proteinreich",
+    quickFilterLight: "Leicht",
+    quickFilterKids: "Für Kinder",
+    quickFilterEconomic: "Günstig",
+    quickFilterFast: "Schnell (≤20 Min)",
   },
 
   fr: {
@@ -6637,6 +6717,22 @@ export const translations = {
     favDefaultTipFolderCooking: "Cuisson",
     favDefaultTipFolderNutrition: "Nutrition",
     favDefaultTipFolderSaving: "Économies",
+
+    // QuickFilters
+    quickFiltersDietLabel: "🥗 Régime",
+    quickFiltersPreferencesLabel: "✨ Préférences",
+    quickFiltersClear: "Effacer",
+    quickFiltersActive: "filtre actif",
+    quickFiltersActivePlural: "filtres actifs",
+    quickFilterVegetarian: "Végétarien",
+    quickFilterVegan: "Végétalien",
+    quickFilterGlutenFree: "Sans Gluten",
+    quickFilterLactoseFree: "Sans Lactose",
+    quickFilterHighProtein: "Riche en protéines",
+    quickFilterLight: "Léger",
+    quickFilterKids: "Pour les Enfants",
+    quickFilterEconomic: "Économique",
+    quickFilterFast: "Rapide (≤20 min)",
   },
 } as const;
 
