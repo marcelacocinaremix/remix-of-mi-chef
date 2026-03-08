@@ -723,13 +723,7 @@ export default function Index() {
               {/* Tab: Jugar */}
               <TabsContent value="jugar" className="space-y-6 animate-fade-in">
                 <div className="max-w-lg mx-auto">
-                  <CookWithMarcela onAchievementUnlocked={() => {
-                    refetchAchievements();
-                    toast({
-                      title: "🎉 ¡Nuevo logro desbloqueado!",
-                      description: `¡Completaste una receta interactiva!`,
-                    });
-                  }} />
+                  <GameSection />
                 </div>
                 <BackToMenuButton scrollContainerRef={scrollContainerRef} />
               </TabsContent>
