@@ -13,6 +13,7 @@ import { Footer } from "@/components/Footer";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import MySummary from "@/components/MySummary";
 import { BackToMenuButton } from "@/components/BackToMenuButton";
+import { TrialNoticeModal } from "@/components/TrialNoticeModal";
 // DailyUsageIndicator removed - now only shows alert when limit reached
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import {
