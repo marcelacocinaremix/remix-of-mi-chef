@@ -25,6 +25,7 @@ import {
   GraduationCap,
   Gamepad2,
   HeartPulse,
+  Lock,
 } from "lucide-react";
 import { NutritionalBalance } from "@/components/NutritionalBalance";
 import { CocinarGroupSection } from "@/components/CocinarGroupSection";
@@ -48,7 +49,7 @@ import { useAdMob } from "@/hooks/useAdMob";
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
   const { user } = useAuth();
-  const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium } = usePremium();
+  const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium, hasAnyAccess, isTrialExpired } = usePremium();
   const { showInterstitial } = useAdMob();
   const isMobile = useIsMobile();
 
@@ -507,15 +508,15 @@ export default function Index() {
   // Menu items configuration - Reorganized into 8 main sections (2 rows of 4)
   const menuItems = [
     // Row 1
-    { id: "inicio", label: t("menuHome"), icon: Home, requiresAuth: false },
-    { id: "cocinar", label: t("menuCook"), icon: ChefHat, requiresAuth: false },
-    { id: "micocina", label: t("menuMyKitchen"), icon: Heart, requiresAuth: true },
-    { id: "planificar", label: t("menuPlan"), icon: CalendarIcon, requiresAuth: true },
+    { id: "inicio",     label: t("menuHome"),       icon: Home,          requiresAuth: false, lockedWhenExpired: false },
+    { id: "cocinar",    label: t("menuCook"),        icon: ChefHat,       requiresAuth: false, lockedWhenExpired: false },
+    { id: "micocina",   label: t("menuMyKitchen"),   icon: Heart,         requiresAuth: true,  lockedWhenExpired: false },
+    { id: "planificar", label: t("menuPlan"),        icon: CalendarIcon,  requiresAuth: true,  lockedWhenExpired: false },
     // Row 2
-    { id: "salud", label: t("subTabHealth"), icon: HeartPulse, requiresAuth: true },
-    { id: "aprender", label: t("menuLearn"), icon: GraduationCap, requiresAuth: false },
-    { id: "jugar", label: t("menuPlay"), icon: Gamepad2, requiresAuth: false },
-    { id: "marcela", label: t("menuRecipes"), icon: Youtube, requiresAuth: false },
+    { id: "salud",     label: t("subTabHealth"),    icon: HeartPulse,    requiresAuth: true,  lockedWhenExpired: true  },
+    { id: "aprender",  label: t("menuLearn"),       icon: GraduationCap, requiresAuth: false, lockedWhenExpired: true  },
+    { id: "jugar",     label: t("menuPlay"),        icon: Gamepad2,      requiresAuth: false, lockedWhenExpired: false },
+    { id: "marcela",   label: t("menuRecipes"),     icon: Youtube,       requiresAuth: false, lockedWhenExpired: false },
   ];
 
   const handleTabChange = (value: string) => {
@@ -634,14 +635,13 @@ export default function Index() {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
                     const isClicked = clickedMenuId === item.id;
-
                     return (
                       <button
                         key={item.id}
                         onClick={() => handleTabChange(item.id)}
                         className={`flex flex-col items-center justify-center gap-1 p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 min-h-[64px] sm:min-h-[78px] min-w-0 ${
-                          isActive 
-                            ? "bg-primary text-primary-foreground shadow-lg" 
+                          isActive
+                            ? "bg-primary text-primary-foreground shadow-lg"
                             : "bg-background/60 hover:bg-background active:scale-95 text-foreground"
                         }`}
                       >
@@ -662,19 +662,22 @@ export default function Index() {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
                     const isClicked = clickedMenuId === item.id;
-
+                    const showLock = item.lockedWhenExpired && user && !hasAnyAccess;
                     return (
                       <button
                         key={item.id}
                         onClick={() => handleTabChange(item.id)}
                         className={`flex flex-col items-center justify-center gap-1 p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 min-h-[64px] sm:min-h-[78px] min-w-0 ${
-                          isActive 
-                            ? "bg-primary text-primary-foreground shadow-lg" 
+                          isActive
+                            ? "bg-primary text-primary-foreground shadow-lg"
                             : "bg-background/60 hover:bg-background active:scale-95 text-foreground"
                         }`}
                       >
                         <div className={`relative flex-shrink-0 ${isClicked ? "animate-futuristic-click" : ""}`}>
                           <Icon className={`w-5 h-5 sm:w-7 sm:h-7 ${isActive ? "drop-shadow-glow" : ""} ${isClicked ? "animate-icon-pulse" : ""}`} />
+                          {showLock && (
+                            <Lock className="w-2.5 h-2.5 absolute -top-1 -right-1 text-amber-500" />
+                          )}
                           {isClicked && (
                             <span className="absolute inset-0 animate-ripple-out rounded-full border-2 border-primary/50" />
                           )}
