@@ -70,7 +70,7 @@ export function GameResultScreen({ score, streak, recipesCompleted, xpEarned, on
           {isWin ? t("gameYouWon") : t("gameGameOver")}
         </h2>
         <p className="text-muted-foreground text-sm mt-1">
-          {isWin ? "¡Cocinaste como un pro! 👨‍🍳" : "¡Seguí practicando, vas a llegar! 💪"}
+          {isWin ? t("gameWonDesc") : t("gameLostDesc")}
         </p>
       </motion.div>
 
@@ -133,7 +133,7 @@ export function GameResultScreen({ score, streak, recipesCompleted, xpEarned, on
           className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 rounded-2xl px-4 py-2"
         >
           <Crown className="w-5 h-5 text-amber-500" />
-          <span className="font-bold text-amber-600 text-sm">¡Nuevo récord personal! 🎉</span>
+          <span className="font-bold text-amber-600 text-sm">{t("gameNewRecord")}</span>
         </motion.div>
       )}
 
@@ -145,7 +145,7 @@ export function GameResultScreen({ score, streak, recipesCompleted, xpEarned, on
           transition={{ delay: 1 }}
           className="w-full bg-card rounded-2xl p-3 border border-border/30"
         >
-          <p className="text-xs text-muted-foreground text-center mb-2 font-medium">Tus récords</p>
+          <p className="text-xs text-muted-foreground text-center mb-2 font-medium">{t("gameAllTimeRecords")}</p>
           <div className="grid grid-cols-3 gap-2 text-center text-xs">
             <div>
               <div className="font-black text-foreground">{Math.max(score, stats.highScore)}</div>
@@ -157,7 +157,7 @@ export function GameResultScreen({ score, streak, recipesCompleted, xpEarned, on
             </div>
             <div>
               <div className="font-black text-foreground">{stats.totalGamesPlayed + 1}</div>
-              <div className="text-muted-foreground">Partidas</div>
+              <div className="text-muted-foreground">{t("gamePartidas")}</div>
             </div>
           </div>
         </motion.div>

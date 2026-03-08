@@ -303,7 +303,7 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
         {mode === "ingredients" && currentIngredient && (
           <div className="space-y-4">
             <div className="bg-card rounded-2xl p-5 border border-border/60 shadow-sm text-center">
-              <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wide">¿En qué receta se usa este ingrediente?</p>
+              <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wide">{t("gameIngredientQuestion")}</p>
               <motion.div
                 key={currentIngredient.id}
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -314,7 +314,9 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
                 <span className="text-lg font-black text-foreground">{currentIngredient.name}</span>
               </motion.div>
               <div className="flex items-center justify-center gap-2 mt-3">
-                <span className="text-xs text-muted-foreground">Pregunta {(ingredientQIndex % ingredientQuestions.length) + 1}</span>
+                <span className="text-xs text-muted-foreground">
+                  {t("gameQuestion")} {(ingredientQIndex % ingredientQuestions.length) + 1}
+                </span>
                 {streak > 0 && <Badge className="text-[10px] bg-orange-500/10 text-orange-600 border-orange-500/20">🔥 ×{streak}</Badge>}
               </div>
             </div>
@@ -347,7 +349,7 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
                   <div className="flex items-center gap-2 mt-1">
                     <Badge variant="secondary" className="text-xs font-semibold">{t("gameModeRecipe")}</Badge>
                     <span className="text-xs font-medium text-muted-foreground">
-                      Receta {(recipeIndex % GAME_RECIPES.length) + 1}/{GAME_RECIPES.length}
+                      {t("gameRecipeNumber")} {(recipeIndex % GAME_RECIPES.length) + 1}/{GAME_RECIPES.length}
                     </span>
                     {(currentRecipe as any).country && <span className="text-sm">{(currentRecipe as any).country}</span>}
                   </div>

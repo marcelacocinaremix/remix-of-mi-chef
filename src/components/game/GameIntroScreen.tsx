@@ -11,22 +11,24 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import marcelaCharacter from "@/assets/marcela-character.png";
 import { PLAYER_LEVELS } from "./gameConfig";
 import { formatDistanceToNow } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, enUS, pt, it, de, fr } from "date-fns/locale";
 
 interface GameIntroScreenProps {
   onStart: () => void;
 }
 
-const MODE_META: Record<string, { label: string; emoji: string }> = {
-  recipe:      { label: "Receta",       emoji: "👨‍🍳" },
-  order:       { label: "Ordenar",      emoji: "📋" },
-  ingredients: { label: "Ingredientes", emoji: "🥗" },
-};
-
 export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
   const { user } = useAuth();
   const { stats, sessions } = useGameStats();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+
+  const dateLocale = language === 'en' ? enUS : language === 'pt' ? pt : language === 'it' ? it : language === 'de' ? de : language === 'fr' ? fr : es;
+
+  const MODE_META: Record<string, { label: string; emoji: string }> = {
+    recipe:      { label: t("gameModeRecipe"),      emoji: "👨‍🍳" },
+    order:       { label: t("gameModeOrder"),        emoji: "📋" },
+    ingredients: { label: t("gameModeIngredients"), emoji: "🥗" },
+  };
 
   // XP total = recetas completadas * 50 + partidas jugadas * 20
   const totalXP = stats.totalRecipesCompleted * 50 + stats.totalGamesPlayed * 20;
@@ -170,7 +172,7 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
         >
           <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40">
             <History className="w-4 h-4 text-muted-foreground" />
-            <span className="font-bold text-foreground text-sm">Historial de partidas</span>
+            <span className="font-bold text-foreground text-sm">{t("gameHistoryTitle")}</span>
             <Badge variant="secondary" className="ml-auto text-[10px]">{sessions.length}</Badge>
           </div>
           <div className="divide-y divide-border/30 max-h-64 overflow-y-auto">
@@ -211,7 +213,7 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
                     </div>
                   </div>
                   <span className="text-[10px] text-muted-foreground flex-shrink-0">
-                    {formatDistanceToNow(new Date(session.playedAt), { addSuffix: true, locale: es })}
+                    {formatDistanceToNow(new Date(session.playedAt), { addSuffix: true, locale: dateLocale })}
                   </span>
                 </motion.div>
               );
