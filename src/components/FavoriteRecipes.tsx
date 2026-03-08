@@ -182,9 +182,10 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const filteredRecipes = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     return favorites.filter(fav => {
-      const inFolder = (folderAssignments[fav.id] || "Sin carpeta") === activeFolder;
-      if (!inFolder) return false;
-      if (!q) return true;
+      // When searching, look across ALL folders; otherwise filter by active folder
+      if (!q) {
+        return (folderAssignments[fav.id] || "Sin carpeta") === activeFolder;
+      }
       return fav.recipe_name.toLowerCase().includes(q) ||
         fav.recipe_data.ingredients?.some(i => i.toLowerCase().includes(q));
     });
