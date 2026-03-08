@@ -206,6 +206,7 @@ function StepHeader({ number, title, subtitle, highlight }: {
 export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [favorites, setFavorites] = useState<FavoriteRecipe[]>([]);
   const [favoriteTips, setFavoriteTips] = useState<FavoriteFoodTip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
