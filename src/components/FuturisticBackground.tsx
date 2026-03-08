@@ -1,7 +1,19 @@
 import { useEffect, useRef } from "react";
+import { useAppTheme } from "@/contexts/ThemeContext";
 
 export function FuturisticBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { theme } = useAppTheme();
+
+  // Opacity per theme: dark themes get very faint, future keeps full
+  const opacityMap: Record<string, number> = {
+    "cyan-light": 0.2,
+    "cyan-dark": 0.06,
+    "rose-light": 0.2,
+    "rose-dark": 0.06,
+    "future": 0.2,
+  };
+  const canvasOpacity = opacityMap[theme] ?? 0.2;
 
   useEffect(() => {
     const canvas = canvasRef.current;
