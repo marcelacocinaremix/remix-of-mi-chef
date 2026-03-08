@@ -83,6 +83,7 @@ function CookingHelpBanner({ onDismiss }: { onDismiss: () => void }) {
   );
 }
 import { IngredientInput } from "@/components/IngredientInput";
+import { DailyUsageIndicator } from "@/components/DailyUsageIndicator";
 import { IngredientCategorySelector } from "@/components/IngredientCategorySelector";
 import { QuickFilters } from "@/components/QuickFilters";
 import { TimeSelector } from "@/components/TimeSelector";
