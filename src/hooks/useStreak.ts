@@ -55,12 +55,14 @@ export function useStreak(): StreakResult {
       if (error) throw error;
 
       if (data) {
-        const today = new Date().toISOString().split("T")[0];
+        // Use local date (not UTC) to match server-side Argentina timezone logic
+        const now = new Date();
+        const todayLocal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
         setStreakData({
           currentStreak: data.current_streak,
           longestStreak: data.longest_streak,
           lastActivityDate: data.last_activity_date,
-          alreadyActiveToday: data.last_activity_date === today,
+          alreadyActiveToday: data.last_activity_date === todayLocal,
         });
       } else {
         setStreakData({
@@ -93,11 +95,12 @@ export function useStreak(): StreakResult {
         already_active_today: boolean;
       };
 
-      const today = new Date().toISOString().split("T")[0];
+      const now = new Date();
+      const todayLocal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
       setStreakData({
         currentStreak: result.current_streak,
         longestStreak: result.longest_streak,
-        lastActivityDate: today,
+        lastActivityDate: todayLocal,
         alreadyActiveToday: true,
       });
 
