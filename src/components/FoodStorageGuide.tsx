@@ -191,6 +191,7 @@ export function FoodStorageGuide() {
   const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [savedFavId, setSavedFavId] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
