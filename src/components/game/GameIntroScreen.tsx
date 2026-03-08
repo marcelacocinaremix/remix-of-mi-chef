@@ -2,8 +2,8 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Play, Trophy, Flame, Zap, ChefHat, Star, Crown, 
-  Gamepad2, Timer, SortAsc, Salad, Target, History, Clock
+  Play, Trophy, Flame, Zap, ChefHat,
+  Timer, SortAsc, Salad, Target, History, Star
 } from "lucide-react";
 import { useGameStats } from "@/hooks/useGameStats";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,19 +17,15 @@ interface GameIntroScreenProps {
   onStart: () => void;
 }
 
-const MODE_LABELS: Record<string, { label: string; icon: string; color: string }> = {
-  recipe: { label: "Receta", icon: "👨‍🍳", color: "text-primary" },
-  order: { label: "Ordenar", icon: "📋", color: "text-blue-500" },
-  ingredients: { label: "Ingredientes", icon: "🥗", color: "text-green-500" },
+const MODE_META: Record<string, { label: string; emoji: string }> = {
+  recipe:      { label: "Receta",       emoji: "👨‍🍳" },
+  order:       { label: "Ordenar",      emoji: "📋" },
+  ingredients: { label: "Ingredientes", emoji: "🥗" },
 };
-
-interface GameIntroScreenProps {
-  onStart: () => void;
-}
 
 export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
   const { user } = useAuth();
-  const { stats } = useGameStats();
+  const { stats, sessions } = useGameStats();
   const { t } = useLanguage();
 
   // XP total = recetas completadas * 50 + partidas jugadas * 20
@@ -41,10 +37,10 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
     : 100;
 
   const gameModes = [
-    { icon: ChefHat, label: t("gameModeRecipe"), color: "text-primary", bg: "bg-primary/10" },
-    { icon: Timer, label: t("gameModeTimer"), color: "text-orange-500", bg: "bg-orange-500/10" },
-    { icon: SortAsc, label: t("gameModeOrder"), color: "text-blue-500", bg: "bg-blue-500/10" },
-    { icon: Salad, label: t("gameModeIngredients"), color: "text-green-500", bg: "bg-green-500/10" },
+    { icon: ChefHat, label: t("gameModeRecipe"),      bg: "bg-primary/10" },
+    { icon: Timer,   label: t("gameModeTimer"),        bg: "bg-orange-500/10" },
+    { icon: SortAsc, label: t("gameModeOrder"),        bg: "bg-blue-500/10" },
+    { icon: Salad,   label: t("gameModeIngredients"),  bg: "bg-green-500/10" },
   ];
 
   return (
@@ -56,7 +52,6 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
         transition={{ duration: 0.6 }}
         className="w-full relative overflow-hidden rounded-3xl mb-6 bg-primary shadow-2xl"
       >
-        {/* Background decorations */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-[-20%] right-[-10%] w-64 h-64 rounded-full bg-white/5 blur-3xl" />
           <div className="absolute bottom-[-20%] left-[-10%] w-48 h-48 rounded-full bg-accent/30 blur-2xl" />
@@ -66,7 +61,6 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
         </div>
 
         <div className="relative z-10 p-6 text-center">
-          {/* Marcela avatar */}
           <motion.div
             animate={{ y: [0, -8, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
@@ -91,7 +85,6 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
             {t("gameSubtitle")}
           </p>
 
-          {/* Game Modes Grid */}
           <div className="grid grid-cols-4 gap-2 mb-6">
             {gameModes.map((mode, i) => (
               <motion.div
@@ -167,11 +160,71 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
         </motion.div>
       )}
 
+      {/* Game History */}
+      {user && sessions.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
+          className="w-full bg-card rounded-2xl border border-border/50 shadow-sm mb-4 overflow-hidden"
+        >
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40">
+            <History className="w-4 h-4 text-muted-foreground" />
+            <span className="font-bold text-foreground text-sm">Historial de partidas</span>
+            <Badge variant="secondary" className="ml-auto text-[10px]">{sessions.length}</Badge>
+          </div>
+          <div className="divide-y divide-border/30 max-h-64 overflow-y-auto">
+            {sessions.map((session, i) => {
+              const meta = MODE_META[session.mode] ?? { label: session.mode, emoji: "🎮" };
+              return (
+                <motion.div
+                  key={session.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.05 * i }}
+                  className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/30 transition-colors"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-muted/60 flex items-center justify-center text-lg flex-shrink-0">
+                    {meta.emoji}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-bold text-foreground">{meta.label}</span>
+                      {session.xpEarned > 0 && (
+                        <Badge className="bg-primary/10 text-primary border-primary/20 text-[9px] px-1.5 py-0">
+                          +{session.xpEarned} XP
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                        ⭐ {session.score}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                        👨‍🍳 {session.recipesCompleted}
+                      </span>
+                      {session.streak > 0 && (
+                        <span className="text-[10px] text-orange-500 flex items-center gap-0.5">
+                          🔥 ×{session.streak}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground flex-shrink-0">
+                    {formatDistanceToNow(new Date(session.playedAt), { addSuffix: true, locale: es })}
+                  </span>
+                </motion.div>
+              );
+            })}
+          </div>
+        </motion.div>
+      )}
+
       {/* Daily Challenge Teaser */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
+        transition={{ delay: 0.65 }}
         className="w-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-2xl p-4 border border-amber-500/20 flex items-center gap-3"
       >
         <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
