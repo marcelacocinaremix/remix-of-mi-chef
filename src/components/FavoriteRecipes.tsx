@@ -13,6 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Recipe } from "@/components/RecipeList";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -206,6 +207,7 @@ function StepHeader({ number, title, subtitle, highlight }: {
 export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [favorites, setFavorites] = useState<FavoriteRecipe[]>([]);
   const [favoriteTips, setFavoriteTips] = useState<FavoriteFoodTip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -299,7 +301,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
       const { error } = await supabase.from("favorite_recipes").delete().eq("id", id);
       if (error) throw error;
       setFavorites(prev => prev.filter(f => f.id !== id));
-      toast({ title: "Receta eliminada" });
+      toast({ title: t("favRecipeDeleted") });
     } catch { toast({ title: "Error", variant: "destructive" }); }
   };
 
@@ -310,7 +312,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
       const { error } = await (supabase as any).from("favorite_food_tips").delete().eq("id", id);
       if (error) throw error;
       setFavoriteTips(prev => prev.filter(f => f.id !== id));
-      toast({ title: "Tip eliminado" });
+      toast({ title: t("favTipDeleted") });
     } catch { toast({ title: "Error", variant: "destructive" }); }
   };
 
@@ -341,7 +343,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     saveTipFolderAssignment(tipId, folder);
     setTipFolderAssignments(prev => ({ ...prev, [tipId]: folder }));
     setMovingTipId(null);
-    toast({ title: "✅ Tip movido", description: `Movido a "${folder}".` });
+    toast({ title: t("favTipMoved"), description: `${t("favMovedTo").replace("{folder}", folder)}` });
   }, [toast]);
 
   const handleCreateTipFolder = () => {
@@ -351,7 +353,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     setTipFolders(updated); saveTipFolders(updated);
     setNewTipFolderName(""); setShowNewTipFolderInput(false);
     setActiveTipFolder(name);
-    toast({ title: "📁 Carpeta creada", description: `"${name}" lista para organizar tus tips.` });
+    toast({ title: t("favFolderCreated"), description: `"${name}" ${t("favFolderTipCreatedDesc")}` });
   };
 
   const handleCreateFolder = () => {
@@ -361,14 +363,14 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     setFolders(updated); saveFolders(updated);
     setNewFolderName(""); setShowNewFolderInput(false);
     setActiveFolder(name);
-    toast({ title: "📁 Carpeta creada", description: `"${name}" lista para organizar tus recetas.` });
+    toast({ title: t("favFolderCreated"), description: `"${name}" ${t("favFolderCreatedDesc")}` });
   };
 
   const handleMoveRecipe = useCallback((recipeId: string, folder: string) => {
     saveFolderAssignment(recipeId, folder);
     setFolderAssignments(prev => ({ ...prev, [recipeId]: folder }));
     setMovingRecipeId(null);
-    toast({ title: "✅ Receta movida", description: `Movida a "${folder}".` });
+    toast({ title: t("favRecipeMoved"), description: `${t("favMovedTo").replace("{folder}", folder)}` });
   }, [toast]);
 
   // ─── Pointer drag ────────────────────────────────────────────────────

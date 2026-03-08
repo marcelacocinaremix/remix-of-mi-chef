@@ -5,15 +5,17 @@ import {
   ListChecks, Package2, CircleCheck, ShoppingBag, ArrowRight,
   PackageCheck, X, Undo2, Clock, TrendingUp, Zap, Info
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const SUPER_HELP_KEY = "miChef_super_help_dismissed";
 
 function SuperHelpBanner({ onDismiss }: { onDismiss: () => void }) {
+  const { t } = useLanguage();
   const steps = [
-    { num: 1, emoji: "✏️", title: "Agregá productos", desc: "Escribí los productos que necesitás comprar y se organizan automáticamente por categoría." },
-    { num: 2, emoji: "✅", title: "Tachá al comprar", desc: "Tocá cada ítem para marcarlo como comprado y llevar el control en tiempo real." },
-    { num: 3, emoji: "🍳", title: "Desde recetas", desc: "Cuando generás una receta, podés agregar todos sus ingredientes a la lista con un solo toque." },
-    { num: 4, emoji: "🗑️", title: "Limpiar lista", desc: "Una vez terminado el super, limpiá los ítems comprados o toda la lista de una vez." },
+    { num: 1, emoji: "✏️", title: t("superStep1Title"), desc: t("superStep1Desc") },
+    { num: 2, emoji: "✅", title: t("superStep2Title"), desc: t("superStep2Desc") },
+    { num: 3, emoji: "🍳", title: t("superStep3Title"), desc: t("superStep3Desc") },
+    { num: 4, emoji: "🗑️", title: t("superStep4Title"), desc: t("superStep4Desc") },
   ];
   return (
     <div className="rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-accent/8 p-4 animate-fade-in">
@@ -22,7 +24,7 @@ function SuperHelpBanner({ onDismiss }: { onDismiss: () => void }) {
           <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
             <Info className="w-4 h-4 text-primary" />
           </div>
-          <span className="font-semibold text-sm text-foreground">¿Cómo funciona el Supermercado?</span>
+          <span className="font-semibold text-sm text-foreground">{t("superHowItWorks")}</span>
         </div>
         <button onClick={onDismiss} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
           <X className="w-4 h-4" />
@@ -60,20 +62,31 @@ import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { SuperSmartHistory } from "./SuperSmartHistory";
 
-const CATEGORY_CONFIG: Record<string, { emoji: string; label: string; order: number; color: string }> = {
-  verduras: { emoji: "🥬", label: "Verduras", order: 1, color: "emerald" },
-  frutas: { emoji: "🍎", label: "Frutas", order: 2, color: "rose" },
-  carnes: { emoji: "🥩", label: "Carnes", order: 3, color: "red" },
-  pescados: { emoji: "🐟", label: "Pescados", order: 4, color: "cyan" },
-  lacteos: { emoji: "🧀", label: "Lácteos", order: 5, color: "amber" },
-  huevos: { emoji: "🥚", label: "Huevos", order: 6, color: "orange" },
-  almacen: { emoji: "🏪", label: "Almacén", order: 7, color: "amber" },
-  panaderia: { emoji: "🍞", label: "Panadería", order: 8, color: "yellow" },
-  condimentos: { emoji: "🧂", label: "Condimentos", order: 9, color: "purple" },
-  bebidas: { emoji: "🥤", label: "Bebidas", order: 10, color: "blue" },
-  congelados: { emoji: "🧊", label: "Congelados", order: 11, color: "sky" },
-  otros: { emoji: "📦", label: "Otros", order: 99, color: "slate" },
+const CATEGORY_KEYS: Record<string, { emoji: string; order: number; color: string; tKey: string }> = {
+  verduras: { emoji: "🥬", order: 1, color: "emerald", tKey: "superCategoryVerduras" },
+  frutas: { emoji: "🍎", order: 2, color: "rose", tKey: "superCategoryFrutas" },
+  carnes: { emoji: "🥩", order: 3, color: "red", tKey: "superCategoryCarnes" },
+  pescados: { emoji: "🐟", order: 4, color: "cyan", tKey: "superCategoryPescados" },
+  lacteos: { emoji: "🧀", order: 5, color: "amber", tKey: "superCategoryLacteos" },
+  huevos: { emoji: "🥚", order: 6, color: "orange", tKey: "superCategoryHuevos" },
+  almacen: { emoji: "🏪", order: 7, color: "amber", tKey: "superCategoryAlmacen" },
+  panaderia: { emoji: "🍞", order: 8, color: "yellow", tKey: "superCategoryPanaderia" },
+  condimentos: { emoji: "🧂", order: 9, color: "purple", tKey: "superCategoryCondimentos" },
+  bebidas: { emoji: "🥤", order: 10, color: "blue", tKey: "superCategoryBebidas" },
+  congelados: { emoji: "🧊", order: 11, color: "sky", tKey: "superCategoryCongelados" },
+  otros: { emoji: "📦", order: 99, color: "slate", tKey: "superCategoryOtros" },
 };
+
+// Keep CATEGORY_CONFIG for backward compatibility (used in AddToPantryDialog before t() is available)
+const CATEGORY_CONFIG: Record<string, { emoji: string; label: string; order: number; color: string }> = Object.fromEntries(
+  Object.entries(CATEGORY_KEYS).map(([k, v]) => [k, { ...v, label: k }])
+);
+
+function getCategoryConfig(key: string, t: (k: any) => string) {
+  const base = CATEGORY_KEYS[key];
+  if (!base) return { emoji: "📦", label: key, order: 99, color: "slate" };
+  return { ...base, label: t(base.tKey as any) };
+}
 
 const UNIT_OPTIONS = [
   { value: "unidad", label: "unidad(es)" },
@@ -108,6 +121,7 @@ interface AddToPantryDialogProps {
 }
 
 function AddToPantryDialog({ open, onClose, items, onConfirm }: AddToPantryDialogProps) {
+  const { t } = useLanguage();
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set(items.map(i => i.id)));
 
   const toggleItem = (id: string) => {
@@ -131,20 +145,20 @@ function AddToPantryDialog({ open, onClose, items, onConfirm }: AddToPantryDialo
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <PackageCheck className="w-5 h-5 text-primary" />
-            ¿Agregar a la despensa?
+            {t("superAddToPantryTitle")}
           </DialogTitle>
           <DialogDescription>
-            Seleccioná los productos que querés agregar a tu despensa
+            {t("superAddToPantryDesc")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2 max-h-[50vh] overflow-y-auto py-2">
           <div className="flex gap-2 mb-3">
             <Button variant="outline" size="sm" onClick={selectAll} className="text-xs">
-              Seleccionar todo
+              {t("superSelectAll")}
             </Button>
             <Button variant="outline" size="sm" onClick={selectNone} className="text-xs">
-              Ninguno
+              {t("superSelectNone")}
             </Button>
           </div>
           
@@ -166,7 +180,7 @@ function AddToPantryDialog({ open, onClose, items, onConfirm }: AddToPantryDialo
                 className="pointer-events-none"
               />
               <span className="text-xl">
-                {CATEGORY_CONFIG[item.category]?.emoji || "📦"}
+                {getCategoryConfig(item.category, t)?.emoji || "📦"}
               </span>
               <div className="flex-1">
                 <span className="font-medium">{item.ingredient_name}</span>
@@ -183,7 +197,7 @@ function AddToPantryDialog({ open, onClose, items, onConfirm }: AddToPantryDialo
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={onClose}>
             <X className="w-4 h-4 mr-2" />
-            Cancelar
+            {t("cancel")}
           </Button>
           <Button 
             onClick={() => onConfirm(Array.from(selectedItems))}
@@ -191,7 +205,7 @@ function AddToPantryDialog({ open, onClose, items, onConfirm }: AddToPantryDialo
             className="bg-gradient-to-r from-primary to-primary/80"
           >
             <PackageCheck className="w-4 h-4 mr-2" />
-            Agregar {selectedItems.size > 0 && `(${selectedItems.size})`}
+            {t("superConfirmPurchase").replace("{count}", String(selectedItems.size))} {selectedItems.size > 0 && `(${selectedItems.size})`}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -201,16 +215,17 @@ function AddToPantryDialog({ open, onClose, items, onConfirm }: AddToPantryDialo
 
 type ShoppingStep = "agregar" | "lista" | "confirmar";
 
-const STEPS_CONFIG: { id: ShoppingStep; label: string; icon: React.ElementType; description: string }[] = [
-  { id: "agregar", label: "Agregar", icon: Plus, description: "Sumá productos" },
-  { id: "lista", label: "Mi Lista", icon: ListChecks, description: "Tachá al comprar" },
-  { id: "confirmar", label: "Confirmar", icon: PackageCheck, description: "Guardá en despensa" },
-];
-
 export function ShoppingListDirect() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const { items, isLoading, togglePurchased, removeItem, clearPurchased, pendingCount, addItem, updateQuantity, updateUnit, refetch } = useShoppingList();
+  
+  const STEPS_CONFIG = [
+    { id: "agregar" as ShoppingStep, label: t("superStepAdd"), icon: Plus, description: t("superStepAddDesc") },
+    { id: "lista" as ShoppingStep, label: t("superStepMyList"), icon: ListChecks, description: t("superStepMyListDesc") },
+    { id: "confirmar" as ShoppingStep, label: t("superStepConfirm"), icon: PackageCheck, description: t("superStepConfirmDesc") },
+  ];
   
   // Step state
   const [currentStep, setCurrentStep] = useState<ShoppingStep>("agregar");
@@ -308,8 +323,8 @@ export function ShoppingListDirect() {
     const success = await addItem(product.name, product.category, 1, product.unit);
     if (success) {
       toast({
-        title: `${product.emoji} ¡Agregado!`,
-        description: `${product.name} en tu lista.`,
+        title: `${product.emoji} ${t("superAddedToast")}`,
+        description: `${product.name} ${t("superAddedToastDesc")}`,
       });
     }
   };
@@ -336,8 +351,8 @@ export function ShoppingListDirect() {
   const handleConfirmAllPurchases = () => {
     if (purchasedItems.length === 0) {
       toast({
-        title: "Sin compras",
-        description: "Marcá productos como comprados primero.",
+        title: t("superNoPurchases"),
+        description: t("superNoPurchasesDesc"),
       });
       return;
     }
@@ -351,7 +366,6 @@ export function ShoppingListDirect() {
     const itemsToAdd = purchasedItems.filter(item => selectedItemIds.includes(item.id));
     
     try {
-      // Add selected items to pantry
       for (const item of itemsToAdd) {
         await supabase.from("pantry_items").insert({
           user_id: user.id,
@@ -361,20 +375,19 @@ export function ShoppingListDirect() {
         });
       }
       
-      // Clear all purchased items from shopping list
       await clearPurchased();
       
       toast({
-        title: "🎉 ¡Compra confirmada!",
+        title: t("superPurchaseConfirmed"),
         description: selectedItemIds.length > 0 
-          ? `${selectedItemIds.length} productos agregados a tu despensa.`
-          : "Lista limpiada.",
+          ? t("superPurchaseConfirmedDesc").replace("{count}", String(selectedItemIds.length))
+          : t("superListCleaned"),
       });
     } catch (error) {
       console.error("Error adding to pantry:", error);
       toast({
-        title: "Error",
-        description: "No se pudieron agregar los productos.",
+        title: t("error"),
+        description: t("superErrorAddPantry"),
         variant: "destructive",
       });
     }
@@ -391,7 +404,7 @@ export function ShoppingListDirect() {
   const copyToClipboard = () => {
     const text = sortedCategories
       .map((category) => {
-        const config = CATEGORY_CONFIG[category] || { emoji: "📦", label: category };
+        const config = getCategoryConfig(category, t);
         const categoryItems = groupedPendingItems[category];
         if (!categoryItems || categoryItems.length === 0) return null;
         return `${config.emoji} ${config.label}:\n${categoryItems.map((i) => 
@@ -402,18 +415,12 @@ export function ShoppingListDirect() {
       .join("\n\n");
 
     if (!text) {
-      toast({
-        title: "Lista vacía",
-        description: "No hay ingredientes pendientes para copiar.",
-      });
+      toast({ title: t("superEmptyList"), description: t("superEmptyListDesc") });
       return;
     }
 
     navigator.clipboard.writeText(text);
-    toast({
-      title: "📋 ¡Copiado!",
-      description: "Lista copiada al portapapeles.",
-    });
+    toast({ title: t("superCopied"), description: t("superCopiedDesc") });
   };
 
   const formatQuantity = (item: ShoppingListItem) => {
@@ -428,8 +435,8 @@ export function ShoppingListDirect() {
           <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
             <ShoppingCart className="w-10 h-10 text-primary" />
           </div>
-          <h3 className="text-lg font-semibold mb-2">Iniciá sesión</h3>
-          <p className="text-muted-foreground">Necesitás una cuenta para usar la lista de compras.</p>
+          <h3 className="text-lg font-semibold mb-2">{t("superLoginTitle")}</h3>
+          <p className="text-muted-foreground">{t("superLoginDesc")}</p>
         </CardContent>
       </Card>
     );
@@ -445,7 +452,7 @@ export function ShoppingListDirect() {
           className="animate-neon-pulse flex items-center gap-2 px-3 py-1.5 rounded-full border border-sky-400/40 bg-sky-500/5 text-sky-500 text-xs font-medium transition-colors duration-300 hover:bg-sky-500/15 hover:border-sky-400/70"
         >
           <Info className="w-3.5 h-3.5" />
-          <span>Ver cómo funciona</span>
+          <span>{ t("superHowItWorksBtn")}</span>
         </button>
       )}
       {/* Header Card with Stats */}
@@ -469,7 +476,7 @@ export function ShoppingListDirect() {
             
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-2 mb-2">
-                <h2 className="text-xl font-display font-bold">Mi Lista del Super</h2>
+                <h2 className="text-xl font-display font-bold">{t("superListTitle")}</h2>
               </div>
               
               {/* Stats Row */}
@@ -477,11 +484,11 @@ export function ShoppingListDirect() {
                 <div className="flex items-center gap-4 mb-3">
                   <div className="flex items-center gap-1.5 text-sm">
                     <Clock className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">{pendingCount} pendientes</span>
+                    <span className="text-muted-foreground">{pendingCount} {t("superPending")}</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-sm">
                     <Check className="w-4 h-4 text-emerald-500" />
-                    <span className="text-emerald-600 dark:text-emerald-400">{purchasedCount} comprados</span>
+                    <span className="text-emerald-600 dark:text-emerald-400">{purchasedCount} {t("superPurchased")}</span>
                   </div>
                 </div>
               )}
@@ -503,7 +510,7 @@ export function ShoppingListDirect() {
                     />
                   </div>
                   <p className="text-xs text-muted-foreground text-right">
-                    {Math.round(progressPercentage)}% completado
+                    {Math.round(progressPercentage)}{t("superCompleted")}
                   </p>
                 </div>
               )}
@@ -582,15 +589,15 @@ export function ShoppingListDirect() {
           {/* Add Form */}
           <Card className="border-primary/30 shadow-lg">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                Nuevo Producto
-              </CardTitle>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  {t("superNewProduct")}
+                </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
-                  ¿Qué necesitás comprar?
+                  {t("superWhatToBuy")}
                 </label>
                 <Input
                   placeholder="Ej: Tomates, Leche, Arroz..."
@@ -679,7 +686,7 @@ export function ShoppingListDirect() {
                 className="w-full h-12 gap-2 bg-gradient-to-r from-primary to-primary/80 shadow-lg"
               >
                 <Plus className="w-5 h-5" />
-                Agregar a la lista
+                {t("superAddToList")}
               </Button>
             </CardContent>
           </Card>
@@ -689,7 +696,7 @@ export function ShoppingListDirect() {
             <CardContent className="p-3">
               <div className="flex items-center gap-2 mb-2">
                 <Zap className="w-4 h-4 text-amber-500" />
-                <span className="text-sm font-medium text-muted-foreground">Agregar rápido</span>
+                <span className="text-sm font-medium text-muted-foreground">{t("superQuickAdd")}</span>
               </div>
               <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
                 {QUICK_ADD_PRODUCTS.map((product, i) => (
@@ -761,9 +768,9 @@ export function ShoppingListDirect() {
                 <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
                   <ShoppingCart className="w-10 h-10 text-muted-foreground" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Tu lista está vacía</h3>
+                <h3 className="text-lg font-semibold mb-2">{t("superEmptyState")}</h3>
                 <p className="text-muted-foreground text-sm max-w-xs mx-auto mb-4">
-                  Agregá productos desde el paso 1
+                  {t("superEmptyStateDesc")}
                 </p>
                 <Button onClick={() => setCurrentStep("agregar")} variant="outline">
                   <Plus className="w-4 h-4 mr-2" />

@@ -3,6 +3,7 @@ import {
   ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, BookOpen, X,
   Coffee, Sun, Cookie, Moon, Info
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -101,6 +102,7 @@ interface MonthlyCalendarProps {
 export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: MonthlyCalendarProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [showHelp, setShowHelp] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [allMeals, setAllMeals] = useState<Record<string, DayMeal[]>>({});
@@ -252,7 +254,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
 
       await fetchMealsForRange();
       setShowRecipeSelector(null);
-      toast({ title: "¡Receta agregada!", description: `${recipe.name} para el ${format(selectedDate, "EEEE d", { locale: es })}` });
+      toast({ title: t("calendarRecipeAdded"), description: `${recipe.name} para el ${format(selectedDate, "EEEE d", { locale: es })}` });
     } catch {
       toast({ title: "Error", description: "No se pudo agregar la receta", variant: "destructive" });
     }
@@ -263,7 +265,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
       const { error } = await supabase.from("meal_plans").delete().eq("id", mealId);
       if (error) throw error;
       await fetchMealsForRange();
-      toast({ title: "Receta eliminada" });
+      toast({ title: t("calendarRecipeRemoved") });
     } catch {
       toast({ title: "Error", description: "No se pudo eliminar", variant: "destructive" });
     }
@@ -281,7 +283,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
           className="animate-neon-pulse flex items-center gap-2 px-3 py-1.5 rounded-full border border-sky-400/40 bg-sky-500/5 text-sky-500 text-xs font-medium transition-colors duration-300 hover:bg-sky-500/15 hover:border-sky-400/70"
         >
           <Info className="w-3.5 h-3.5" />
-          <span>Ver cómo funciona</span>
+          <span>{ t("calendarHowItWorksBtn")}</span>
         </button>
       )}
       {/* Month navigation */}
@@ -389,7 +391,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
             <DialogTitle className="capitalize">
               📅 {selectedDate && format(selectedDate, "EEEE d 'de' MMMM", { locale: es })}
             </DialogTitle>
-            <DialogDescription>Organizá tus comidas del día</DialogDescription>
+            <DialogDescription>{t("calendarOrganize")}</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-3">
@@ -413,7 +415,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                         {meal.recipeName}
                       </button>
                     ) : (
-                      <p className="text-sm text-muted-foreground italic">Sin asignar</p>
+                      <p className="text-sm text-muted-foreground">{meal ? meal.recipeName : t("calendarNotAssigned")}</p>
                     )}
                   </div>
                   <div className="flex gap-1 flex-shrink-0">
@@ -481,14 +483,14 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
               size="sm"
               onClick={() => setRecipeTab("favoritos")}
             >
-              ❤️ Favoritos
+              <span className="font-semibold text-sm text-foreground">{t("calendarFavorites")}</span>
             </Button>
             <Button
               variant={recipeTab === "recientes" ? "default" : "outline"}
               size="sm"
               onClick={() => setRecipeTab("recientes")}
             >
-              🕐 Recientes
+              <span className="font-semibold text-sm text-foreground">{t("calendarRecent")}</span>
             </Button>
           </div>
 
