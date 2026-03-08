@@ -89,6 +89,10 @@ export default function Index() {
   const [activeSubTab, setActiveSubTab] = useState<string | null>(null);
   const [historyDeleted, setHistoryDeleted] = useState(false);
   const [clickedMenuId, setClickedMenuId] = useState<string | null>(null);
+  const [neonBarRow1, setNeonBarRow1] = useState<{ left: number; width: number } | null>(null);
+  const [neonBarRow2, setNeonBarRow2] = useState<{ left: number; width: number } | null>(null);
+  const menuRow1Ref = useRef<HTMLDivElement>(null);
+  const menuRow2Ref = useRef<HTMLDivElement>(null);
   
   // Interactive cooking features state
   const [quickFilters, setQuickFilters] = useState<string[]>([]);
