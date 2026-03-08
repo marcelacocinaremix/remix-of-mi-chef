@@ -273,7 +273,7 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
                 animate={{ opacity: 1 }}
                 className="py-8 text-center"
               >
-                <p className="text-muted-foreground text-sm">🎮 {t("gameHistoryEmpty") || "Aún no jugaste ninguna partida"}</p>
+                <p className="text-muted-foreground text-sm">🎮 {t("gameDailyChallengeDesc")}</p>
               </motion.div>
             )}
 
