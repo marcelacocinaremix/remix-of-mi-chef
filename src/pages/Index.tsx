@@ -45,6 +45,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
 import { useAdMob } from "@/hooks/useAdMob";
+import { useAppTheme } from "@/contexts/ThemeContext";
 
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
