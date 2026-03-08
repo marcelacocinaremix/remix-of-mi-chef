@@ -297,5 +297,5 @@ export function getIngredientsByCategory(): Record<string, NormalizedIngredient[
   return grouped;
 }
 
-export const MAX_INGREDIENTS = 5;
+export const MAX_INGREDIENTS = 7;
 export const MIN_INGREDIENTS = 1;
