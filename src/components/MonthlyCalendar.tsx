@@ -228,46 +228,73 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
     if (!user || !selectedDate) return;
 
     const { weekStart, dayOfWeek } = getWeekStartAndDay(selectedDate);
+    const dateKey = format(selectedDate, "yyyy-MM-dd");
+    const existing = getMealsForDate(selectedDate).find((m) => m.mealType === mealType);
+    const tempId = existing?.id || `temp-${Date.now()}`;
+
+    // Optimistic update
+    setAllMeals(prev => {
+      const dayMeals = prev[dateKey] || [];
+      const newMeal: DayMeal = { id: tempId, mealType, recipeName: recipe.name, recipeData: recipe };
+      return {
+        ...prev,
+        [dateKey]: existing
+          ? dayMeals.map(m => m.mealType === mealType ? newMeal : m)
+          : [...dayMeals, newMeal],
+      };
+    });
+    setShowRecipeSelector(null);
 
     try {
-      // Check if slot already has a meal
-      const existing = getMealsForDate(selectedDate).find((m) => m.mealType === mealType);
       if (existing) {
         const { error } = await supabase
           .from("meal_plans")
-          .update({
-            recipe_data: JSON.parse(JSON.stringify(recipe)),
-            recipe_name: recipe.name,
-          })
+          .update({ recipe_data: JSON.parse(JSON.stringify(recipe)), recipe_name: recipe.name })
           .eq("id", existing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("meal_plans").insert({
+        const { data, error } = await supabase.from("meal_plans").insert({
           user_id: user.id,
           week_start: weekStart,
           day_of_week: dayOfWeek,
           meal_type: mealType,
           recipe_data: JSON.parse(JSON.stringify(recipe)),
           recipe_name: recipe.name,
-        });
+        }).select().single();
         if (error) throw error;
+        // Replace temp id with real id
+        if (data) {
+          setAllMeals(prev => ({
+            ...prev,
+            [dateKey]: (prev[dateKey] || []).map(m => m.id === tempId ? { ...m, id: data.id } : m),
+          }));
+        }
       }
-
-      await fetchMealsForRange();
-      setShowRecipeSelector(null);
       toast({ title: t("calendarRecipeAdded"), description: `${recipe.name} ${t("calendarForMealType").toLowerCase()} ${format(selectedDate, "EEEE d", { locale: es })}` });
     } catch {
+      // Rollback
+      await fetchMealsForRange();
       toast({ title: t("error"), description: t("calendarAddError"), variant: "destructive" });
     }
   };
 
   const handleRemoveMeal = async (mealId: string) => {
+    // Optimistic removal
+    setAllMeals(prev => {
+      const updated = { ...prev };
+      for (const key of Object.keys(updated)) {
+        updated[key] = updated[key].filter(m => m.id !== mealId);
+      }
+      return updated;
+    });
+
     try {
       const { error } = await supabase.from("meal_plans").delete().eq("id", mealId);
       if (error) throw error;
-      await fetchMealsForRange();
       toast({ title: t("calendarRecipeRemoved") });
     } catch {
+      // Rollback
+      await fetchMealsForRange();
       toast({ title: "Error", description: "No se pudo eliminar", variant: "destructive" });
     }
   };
