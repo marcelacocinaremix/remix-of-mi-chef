@@ -103,15 +103,15 @@ export function AchievementsSection() {
     <div className="space-y-6">
       {/* How achievements work */}
       <div className="bg-card rounded-xl p-4 border border-border/50 shadow-sm">
-        <p className="text-sm font-semibold text-foreground mb-3">¿Cómo sumo logros?</p>
+        <p className="text-sm font-semibold text-foreground mb-3">{t("achievementsHowToTitle")}</p>
         <div className="space-y-2.5">
           <div className="flex items-center gap-3 bg-primary/5 rounded-lg px-3 py-2.5">
             <ChefHat className="w-5 h-5 text-primary flex-shrink-0" />
-            <p className="text-sm text-foreground">Completando el <span className="font-semibold">Modo Cocina</span></p>
+            <p className="text-sm text-foreground">{t("achievementsHowTo1")}</p>
           </div>
           <div className="flex items-center gap-3 bg-primary/5 rounded-lg px-3 py-2.5">
             <Star className="w-5 h-5 text-primary flex-shrink-0" />
-            <p className="text-sm text-foreground">Pulsando <span className="font-semibold">"Ya la cociné"</span> en la receta</p>
+            <p className="text-sm text-foreground">{t("achievementsHowTo2")}</p>
           </div>
         </div>
       </div>

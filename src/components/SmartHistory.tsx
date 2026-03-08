@@ -530,7 +530,7 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
           {loadingSuggestions ? (
             <div className="flex items-center gap-2 text-muted-foreground py-4">
               <div className="animate-spin w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full" />
-              <span className="text-sm">Generando sugerencias personalizadas...</span>
+              <span className="text-sm">{t("historyLoadingSuggestions")}</span>
             </div>
           ) : (
             <div className="space-y-3">
