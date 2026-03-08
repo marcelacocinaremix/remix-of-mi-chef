@@ -3,7 +3,8 @@ import {
   Heart, Trash2, ChevronRight, Sparkles, BookOpen, UtensilsCrossed, X, AlertTriangle,
   Lightbulb, Refrigerator, ThermometerSun, Timer, Utensils, Flame, Coins, Shield,
   Snowflake, ShoppingCart, Shuffle, Leaf, ChefHat, Search, FolderPlus, Folder,
-  FolderOpen, Clock, Check, MoreVertical, MoveRight, GripVertical,
+  FolderOpen, Clock, Check, MoreVertical, MoveRight, GripVertical, Info,
+  ArrowDown, Hand,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -44,7 +45,7 @@ interface FavoriteRecipesProps {
 }
 type ActiveTab = "recetas" | "tips";
 
-// ─── Tip category maps ────────────────────────────────────────────────
+// ─── Tip maps ────────────────────────────────────────────────────────
 const categoryLabels: Record<string, string> = {
   conservacion: "Conservación", congelacion: "Congelación", compra: "Compra",
   temperaturas: "Temperaturas", tiempos: "Tiempos", preparacion: "Preparación",
@@ -95,6 +96,7 @@ function getRecipeEmoji(recipe: Recipe) {
 const DEFAULT_FOLDERS = ["Sin carpeta", "Almuerzos", "Cenas", "Desayunos", "Postres", "Snacks"];
 const FOLDERS_KEY = "miChef_recipe_folders";
 const RECIPE_FOLDERS_KEY = "miChef_recipe_folder_assignments";
+const HELP_DISMISSED_KEY = "miChef_favorites_help_dismissed";
 
 function getFolders(): string[] {
   try { const s = localStorage.getItem(FOLDERS_KEY); if (s) return JSON.parse(s); } catch {}
@@ -111,11 +113,65 @@ function saveFolderAssignment(recipeId: string, folder: string) {
   localStorage.setItem(RECIPE_FOLDERS_KEY, JSON.stringify(a));
 }
 
+// ─── How-it-works banner ──────────────────────────────────────────────
+function HowItWorksBanner({ onDismiss }: { onDismiss: () => void }) {
+  return (
+    <div className="rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-accent/8 p-4 animate-fade-in">
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center">
+            <Info className="w-4 h-4 text-primary" />
+          </div>
+          <span className="font-semibold text-sm text-foreground">¿Cómo funciona?</span>
+        </div>
+        <button onClick={onDismiss} className="text-muted-foreground hover:text-foreground transition-colors">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+      <div className="grid grid-cols-1 gap-2.5">
+        <div className="flex items-start gap-3 p-2.5 rounded-xl bg-background/60">
+          <span className="text-lg shrink-0">❤️</span>
+          <div>
+            <p className="text-xs font-semibold text-foreground">Guardá una receta</p>
+            <p className="text-xs text-muted-foreground">Tocá el ❤️ en cualquier receta generada para agregarla acá</p>
+          </div>
+        </div>
+        <div className="flex items-start gap-3 p-2.5 rounded-xl bg-background/60">
+          <span className="text-lg shrink-0">📁</span>
+          <div>
+            <p className="text-xs font-semibold text-foreground">Creá carpetas</p>
+            <p className="text-xs text-muted-foreground">Organizá por tipo: Almuerzos, Postres, Cenas… tocá "+ Nueva"</p>
+          </div>
+        </div>
+        <div className="flex items-start gap-3 p-2.5 rounded-xl bg-background/60">
+          <Hand className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+          <div>
+            <p className="text-xs font-semibold text-foreground">Arrastrá a una carpeta</p>
+            <p className="text-xs text-muted-foreground">Mantené presionada una receta y soltala en la carpeta que quieras</p>
+          </div>
+        </div>
+        <div className="flex items-start gap-3 p-2.5 rounded-xl bg-background/60">
+          <MoreVertical className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+          <div>
+            <p className="text-xs font-semibold text-foreground">Menú rápido</p>
+            <p className="text-xs text-muted-foreground">Tocá ⋮ en cada receta para moverla o eliminarla</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── StepHeader ─────────────────────────────────────────────────────
-function StepHeader({ number, title, subtitle }: { number: number; title: string; subtitle: string }) {
+function StepHeader({ number, title, subtitle, highlight }: {
+  number: number; title: string; subtitle: string; highlight?: boolean;
+}) {
   return (
     <div className="flex items-center gap-3 mb-1">
-      <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shrink-0">
+      <div className={cn(
+        "w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0",
+        highlight ? "bg-primary text-primary-foreground animate-pulse" : "bg-primary text-primary-foreground"
+      )}>
         {number}
       </div>
       <div>
@@ -136,6 +192,9 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const [activeTab, setActiveTab] = useState<ActiveTab>("recetas");
   const [selectedTip, setSelectedTip] = useState<FavoriteFoodTip | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showHelp, setShowHelp] = useState(() => {
+    try { return !localStorage.getItem(HELP_DISMISSED_KEY); } catch { return true; }
+  });
 
   // Carpetas
   const [folders, setFolders] = useState<string[]>(getFolders());
@@ -146,14 +205,18 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const [movingRecipeId, setMovingRecipeId] = useState<string | null>(null);
   const [deletingFolder, setDeletingFolder] = useState<string | null>(null);
 
-  // Drag state (pointer-events based)
+  // Drag state
   const [draggingRecipeId, setDraggingRecipeId] = useState<string | null>(null);
   const [dragOverFolder, setDragOverFolder] = useState<string | null>(null);
   const [ghostPos, setGhostPos] = useState<{ x: number; y: number } | null>(null);
   const folderRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const dragRecipeRef = useRef<string | null>(null);
   const longPressTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
-  const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
+
+  const dismissHelp = () => {
+    localStorage.setItem(HELP_DISMISSED_KEY, "1");
+    setShowHelp(false);
+  };
 
   useEffect(() => {
     if (user) { fetchFavorites(); fetchFavoriteTips(); }
@@ -230,7 +293,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     setFolders(updated); saveFolders(updated);
     setNewFolderName(""); setShowNewFolderInput(false);
     setActiveFolder(name);
-    toast({ title: "Carpeta creada", description: `"${name}" lista para organizar tus recetas.` });
+    toast({ title: "📁 Carpeta creada", description: `"${name}" lista para organizar tus recetas.` });
   };
 
   const handleMoveRecipe = useCallback((recipeId: string, folder: string) => {
@@ -240,14 +303,12 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     toast({ title: "✅ Receta movida", description: `Movida a "${folder}".` });
   }, [toast]);
 
-  // ─── Pointer-based drag & drop ─────────────────────────────────────
+  // ─── Pointer drag ────────────────────────────────────────────────────
   const getFolderAtPoint = useCallback((x: number, y: number): string | null => {
     for (const [folder, el] of Object.entries(folderRefs.current)) {
       if (!el) continue;
       const rect = el.getBoundingClientRect();
-      if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-        return folder;
-      }
+      if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) return folder;
     }
     return null;
   }, []);
@@ -258,9 +319,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
       const targetFolder = getFolderAtPoint(x, y);
       if (targetFolder) {
         const currentFolder = getFolderAssignments()[recipeId] || "Sin carpeta";
-        if (currentFolder !== targetFolder) {
-          handleMoveRecipe(recipeId, targetFolder);
-        }
+        if (currentFolder !== targetFolder) handleMoveRecipe(recipeId, targetFolder);
       }
     }
     dragRecipeRef.current = null;
@@ -270,10 +329,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   }, [getFolderAtPoint, handleMoveRecipe]);
 
   const onPointerDown = useCallback((recipeId: string, e: React.PointerEvent) => {
-    // Only main button / single touch
     if (e.pointerType === "mouse" && e.button !== 0) return;
-    pointerDownPos.current = { x: e.clientX, y: e.clientY };
-
     longPressTimers.current[recipeId] = setTimeout(() => {
       if (navigator.vibrate) navigator.vibrate(40);
       dragRecipeRef.current = recipeId;
@@ -286,19 +342,15 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     if (!dragRecipeRef.current) return;
     e.preventDefault();
     setGhostPos({ x: e.clientX, y: e.clientY });
-    const folder = getFolderAtPoint(e.clientX, e.clientY);
-    setDragOverFolder(folder);
+    setDragOverFolder(getFolderAtPoint(e.clientX, e.clientY));
   }, [getFolderAtPoint]);
 
   const onPointerUp = useCallback((recipeId: string, e: React.PointerEvent) => {
-    // Cancel long press
     if (longPressTimers.current[recipeId]) {
       clearTimeout(longPressTimers.current[recipeId]);
       delete longPressTimers.current[recipeId];
     }
-    if (dragRecipeRef.current) {
-      endDrag(e.clientX, e.clientY);
-    }
+    if (dragRecipeRef.current) endDrag(e.clientX, e.clientY);
   }, [endDrag]);
 
   const onPointerCancel = useCallback((recipeId: string) => {
@@ -312,7 +364,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     setGhostPos(null);
   }, []);
 
-  // ─── Auth / loading guards ───────────────────────────────────────────
+  // ─── Guards ───────────────────────────────────────────────────────────
   if (!user) return (
     <div className="bg-card rounded-xl p-6 border border-border/50 text-center">
       <Heart className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
@@ -334,26 +386,25 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
       className="space-y-4"
       onPointerMove={draggingRecipeId ? onPointerMove : undefined}
     >
-      {/* ── Ghost element that follows finger/cursor while dragging ── */}
+      {/* ── Ghost flotante ── */}
       {ghostPos && draggingRecipe && (
         <div
           className="fixed pointer-events-none z-[9999] select-none"
-          style={{
-            left: ghostPos.x - 50,
-            top: ghostPos.y - 55,
-            transform: "rotate(5deg) scale(1.08)",
-          }}
+          style={{ left: ghostPos.x - 50, top: ghostPos.y - 55, transform: "rotate(5deg) scale(1.1)" }}
         >
-          <div className={cn("w-24 h-20 rounded-xl bg-gradient-to-br shadow-2xl flex items-center justify-center border-2 border-primary", getRecipeColor(draggingRecipe.recipe_name))}>
+          <div className={cn(
+            "w-24 h-20 rounded-xl bg-gradient-to-br shadow-2xl flex items-center justify-center border-2 border-primary",
+            getRecipeColor(draggingRecipe.recipe_name)
+          )}>
             <span className="text-3xl">{getRecipeEmoji(draggingRecipe.recipe_data)}</span>
           </div>
-          <p className="text-center text-xs font-bold text-foreground bg-background/90 rounded-lg px-2 py-0.5 mt-1 max-w-[96px] truncate shadow">
+          <p className="text-center text-[10px] font-bold text-foreground bg-background/90 rounded-lg px-2 py-0.5 mt-1 max-w-[96px] truncate shadow">
             {draggingRecipe.recipe_name}
           </p>
         </div>
       )}
 
-      {/* Tab Selector */}
+      {/* ── Tab Selector ── */}
       <div className="flex rounded-2xl overflow-hidden border border-border/50 bg-muted/30">
         {(["recetas", "tips"] as ActiveTab[]).map(tab => (
           <button
@@ -382,10 +433,135 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
       {activeTab === "recetas" && (
         <div className="space-y-4">
 
-          {/* PASO 1 — Buscar */}
+          {/* Panel de ayuda */}
+          {showHelp && <HowItWorksBanner onDismiss={dismissHelp} />}
+
+          {/* Botón para volver a ver ayuda */}
+          {!showHelp && (
+            <button
+              onClick={() => setShowHelp(true)}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+            >
+              <Info className="w-3.5 h-3.5" />
+              Ver cómo funciona
+            </button>
+          )}
+
+          {/* PASO 1 — Carpetas (ahora primero para que usuario entienda antes de ver recetas) */}
+          <Card className={cn(
+            "border-2 transition-all duration-200",
+            dragOverFolder
+              ? "border-primary bg-primary/5 shadow-lg"
+              : "border-secondary/40 bg-gradient-to-br from-secondary/5 to-transparent"
+          )}>
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-start justify-between gap-2">
+                <StepHeader
+                  number={1}
+                  title="Carpetas"
+                  subtitle={draggingRecipeId
+                    ? "🎯 ¡Soltá la receta aquí!"
+                    : "Tocá una carpeta para ver sus recetas"
+                  }
+                  highlight={!!draggingRecipeId}
+                />
+                <button
+                  onClick={() => setShowNewFolderInput(!showNewFolderInput)}
+                  className="flex items-center gap-1.5 text-xs bg-primary/10 hover:bg-primary/20 text-primary font-semibold px-3 py-1.5 rounded-xl transition-colors mt-0.5 shrink-0 border border-primary/20"
+                >
+                  <FolderPlus className="w-3.5 h-3.5" />
+                  + Nueva
+                </button>
+              </div>
+
+              {showNewFolderInput && (
+                <div className="flex gap-2 animate-fade-in">
+                  <Input
+                    placeholder="Ej: Mis favoritas, Navidad…"
+                    value={newFolderName}
+                    onChange={e => setNewFolderName(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && handleCreateFolder()}
+                    className="h-9 text-sm flex-1"
+                    autoFocus
+                  />
+                  <Button size="sm" onClick={handleCreateFolder} className="h-9 px-3"><Check className="w-3.5 h-3.5" /></Button>
+                  <Button variant="ghost" size="sm" onClick={() => { setShowNewFolderInput(false); setNewFolderName(""); }} className="h-9 px-3"><X className="w-3.5 h-3.5" /></Button>
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-2">
+                {folders.map(folder => {
+                  const isActive = activeFolder === folder;
+                  const isOver = dragOverFolder === folder;
+                  const count = folderCounts[folder] || 0;
+                  const isDeletable = folder !== "Sin carpeta";
+                  return (
+                    <div
+                      key={folder}
+                      ref={el => { folderRefs.current[folder] = el; }}
+                      className="flex items-center"
+                    >
+                      <button
+                        onClick={() => !draggingRecipeId && setActiveFolder(folder)}
+                        className={cn(
+                          "flex items-center gap-2 py-3 text-sm font-medium transition-all duration-150 border-2",
+                          isDeletable ? "pl-4 pr-3 rounded-l-2xl border-r-0" : "px-4 rounded-2xl",
+                          isOver
+                            ? "bg-primary text-primary-foreground border-primary scale-110 shadow-xl"
+                            : isActive
+                              ? "bg-primary text-primary-foreground border-primary shadow-md"
+                              : "bg-card text-foreground border-border hover:border-primary/40 hover:bg-primary/5"
+                        )}
+                      >
+                        {isOver
+                          ? <FolderOpen className="w-4 h-4 animate-bounce" />
+                          : isActive ? <FolderOpen className="w-4 h-4" /> : <Folder className="w-4 h-4 text-muted-foreground" />
+                        }
+                        <span className={cn(!isActive && !isOver && "text-foreground")}>{folder}</span>
+                        <span className={cn(
+                          "text-xs px-1.5 py-0.5 rounded-full font-bold min-w-[20px] text-center tabular-nums",
+                          isActive || isOver
+                            ? "bg-primary-foreground/20 text-primary-foreground"
+                            : "bg-muted text-muted-foreground"
+                        )}>
+                          {count}
+                        </span>
+                      </button>
+                      {isDeletable && (
+                        <button
+                          onClick={() => setDeletingFolder(folder)}
+                          className={cn(
+                            "flex items-center justify-center w-7 h-[46px] rounded-r-2xl border-2 border-l-0 transition-all",
+                            isOver || isActive
+                              ? "bg-primary border-primary text-primary-foreground/70 hover:text-primary-foreground"
+                              : "bg-card border-border text-muted-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                          )}
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Drag hint — solo se muestra si hay recetas */}
+              {!draggingRecipeId && favorites.length > 0 && (
+                <div className="flex items-center gap-2 mt-1 p-2.5 rounded-xl bg-muted/40 border border-border/40">
+                  <Hand className="w-4 h-4 text-primary shrink-0" />
+                  <p className="text-xs text-muted-foreground">
+                    <span className="font-medium text-foreground">Arrastrá recetas aquí:</span>{" "}
+                    mantené presionada una receta y soltala en la carpeta deseada
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* PASO 2 — Buscar */}
           <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
             <CardContent className="p-4 space-y-3">
-              <StepHeader number={1} title="Buscar receta" subtitle="Filtrá por nombre o ingrediente" />
+              <StepHeader number={2} title="Buscar en mis recetas" subtitle="Filtrá por nombre o ingrediente" />
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -403,139 +579,68 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
             </CardContent>
           </Card>
 
-          {/* PASO 2 — Carpeta (drop targets) */}
-          <Card className={cn(
-            "border-2 transition-all duration-200",
-            dragOverFolder
-              ? "border-primary bg-primary/5 shadow-lg"
-              : "border-secondary/40 bg-gradient-to-br from-secondary/5 to-transparent"
-          )}>
-            <CardContent className="p-4 space-y-3">
-              <div className="flex items-start justify-between gap-2">
-                <StepHeader
-                  number={2}
-                  title="Elegir carpeta"
-                  subtitle={draggingRecipeId
-                    ? "🎯 Soltá la receta sobre una carpeta"
-                    : "Organizá tus recetas en colecciones"
-                  }
-                />
-                <button
-                  onClick={() => setShowNewFolderInput(!showNewFolderInput)}
-                  className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium transition-colors mt-1 shrink-0"
-                >
-                  <FolderPlus className="w-3.5 h-3.5" />
-                  Nueva
-                </button>
-              </div>
-
-              {showNewFolderInput && (
-                <div className="flex gap-2 animate-fade-in">
-                  <Input
-                    placeholder="Nombre de la carpeta…"
-                    value={newFolderName}
-                    onChange={e => setNewFolderName(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && handleCreateFolder()}
-                    className="h-9 text-sm flex-1"
-                    autoFocus
-                  />
-                  <Button size="sm" onClick={handleCreateFolder} className="h-9 px-3"><Check className="w-3.5 h-3.5" /></Button>
-                  <Button variant="ghost" size="sm" onClick={() => { setShowNewFolderInput(false); setNewFolderName(""); }} className="h-9 px-3"><X className="w-3.5 h-3.5" /></Button>
-                </div>
-              )}
-
-              <div className="flex flex-wrap gap-2.5">
-                {folders.map(folder => {
-                  const isActive = activeFolder === folder;
-                  const isOver = dragOverFolder === folder;
-                  const count = folderCounts[folder] || 0;
-                  const isDeletable = folder !== "Sin carpeta";
-                  return (
-                    <div
-                      key={folder}
-                      ref={el => { folderRefs.current[folder] = el; }}
-                      className="flex items-center"
-                    >
-                      <button
-                        onClick={() => !draggingRecipeId && setActiveFolder(folder)}
-                        className={cn(
-                          "flex items-center gap-2 py-3 text-sm font-medium transition-all border-2",
-                          isDeletable ? "pl-4 pr-3 rounded-l-2xl border-r-0" : "px-4 rounded-2xl",
-                          isOver
-                            ? "bg-primary/20 border-primary text-primary scale-105 shadow-lg"
-                            : isActive
-                              ? "bg-primary text-primary-foreground border-primary shadow-md"
-                              : "bg-muted/50 text-muted-foreground border-border/50 hover:bg-muted hover:text-foreground"
-                        )}
-                      >
-                        {isOver
-                          ? <FolderOpen className="w-4 h-4 animate-bounce" />
-                          : isActive ? <FolderOpen className="w-4 h-4" /> : <Folder className="w-4 h-4" />
-                        }
-                        <span>{folder}</span>
-                        <span className={cn(
-                          "text-xs px-1.5 py-0.5 rounded-full font-bold min-w-[20px] text-center",
-                          isActive && !isOver ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground"
-                        )}>
-                          {count}
-                        </span>
-                      </button>
-                      {isDeletable && (
-                        <button
-                          onClick={() => setDeletingFolder(folder)}
-                          className={cn(
-                            "flex items-center justify-center w-7 h-[46px] rounded-r-2xl border-2 border-l-0 transition-all",
-                            isOver
-                              ? "bg-primary/20 border-primary text-primary"
-                              : isActive
-                                ? "bg-primary border-primary text-primary-foreground/70 hover:text-primary-foreground"
-                                : "bg-muted/50 border-border/50 text-muted-foreground hover:bg-destructive/15 hover:text-destructive"
-                          )}
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {!draggingRecipeId && favorites.length > 0 && (
-                <p className="text-xs text-muted-foreground/60 flex items-center gap-1 mt-1">
-                  <GripVertical className="w-3 h-3" />
-                  Mantené presionada una receta y arrastrala hasta una carpeta
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
           {/* PASO 3 — Recetas */}
           <Card className="border-2 border-accent/30 bg-gradient-to-br from-accent/5 to-transparent">
             <CardContent className="p-4 space-y-3">
-              <StepHeader
-                number={3}
-                title="Tus recetas guardadas"
-                subtitle={
-                  filteredRecipes.length > 0
-                    ? `${filteredRecipes.length} receta${filteredRecipes.length !== 1 ? "s" : ""} en "${activeFolder}"`
-                    : `Carpeta "${activeFolder}"`
-                }
-              />
+              <div className="flex items-center justify-between">
+                <StepHeader
+                  number={3}
+                  title={`📂 ${activeFolder}`}
+                  subtitle={
+                    filteredRecipes.length > 0
+                      ? `${filteredRecipes.length} receta${filteredRecipes.length !== 1 ? "s" : ""} guardada${filteredRecipes.length !== 1 ? "s" : ""}`
+                      : "Esta carpeta está vacía"
+                  }
+                />
+              </div>
 
               {favorites.length === 0 ? (
-                <div className="text-center py-8">
-                  <Heart className="w-10 h-10 text-muted-foreground mx-auto mb-3 opacity-40" />
-                  <p className="text-muted-foreground text-sm font-medium">Aún no guardaste recetas favoritas</p>
-                  <p className="text-muted-foreground/60 text-xs mt-1">Tocá el ❤️ en cualquier receta para guardarla</p>
+                /* Estado vacío con instrucciones claras */
+                <div className="py-6 space-y-4">
+                  <div className="text-center">
+                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                      <Heart className="w-8 h-8 text-primary opacity-60" />
+                    </div>
+                    <p className="font-semibold text-foreground">Aún no guardaste recetas</p>
+                    <p className="text-muted-foreground text-sm mt-1">Seguí estos pasos para empezar:</p>
+                  </div>
+                  <div className="space-y-2">
+                    {[
+                      { emoji: "🍳", text: "Generá una receta en la sección Cocinar" },
+                      { emoji: "❤️", text: "Tocá el corazón para guardarla como favorita" },
+                      { emoji: "📁", text: "Volvé acá y organizala en carpetas" },
+                    ].map((step, i) => (
+                      <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl bg-muted/40 border border-border/30">
+                        <span className="text-xl shrink-0">{step.emoji}</span>
+                        <p className="text-sm text-foreground">{step.text}</p>
+                        {i < 2 && <ArrowDown className="w-3.5 h-3.5 text-muted-foreground ml-auto shrink-0" />}
+                        {i === 2 && <Check className="w-3.5 h-3.5 text-primary ml-auto shrink-0" />}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : filteredRecipes.length === 0 ? (
                 <div className="text-center py-8">
-                  <Search className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-40" />
-                  <p className="text-muted-foreground text-sm">
-                    {searchQuery ? "Sin resultados para tu búsqueda" : "Esta carpeta está vacía"}
+                  <div className="w-12 h-12 rounded-xl bg-muted/50 flex items-center justify-center mx-auto mb-3">
+                    <FolderOpen className="w-6 h-6 text-muted-foreground opacity-50" />
+                  </div>
+                  <p className="text-foreground text-sm font-medium">
+                    {searchQuery ? `Sin resultados para "${searchQuery}"` : "Esta carpeta está vacía"}
                   </p>
                   {!searchQuery && (
-                    <p className="text-muted-foreground/60 text-xs mt-1">Arrastrá recetas desde otras carpetas o usá el menú ⋮</p>
+                    <div className="mt-3 space-y-1.5">
+                      <p className="text-muted-foreground text-xs">Para agregar recetas:</p>
+                      <div className="flex flex-col items-center gap-1.5 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1.5 bg-muted/40 px-3 py-1.5 rounded-xl">
+                          <Hand className="w-3.5 h-3.5 text-primary" />
+                          Arrastrá una receta desde otra carpeta
+                        </span>
+                        <span className="flex items-center gap-1.5 bg-muted/40 px-3 py-1.5 rounded-xl">
+                          <MoreVertical className="w-3.5 h-3.5 text-primary" />
+                          Usá el menú ⋮ en cada receta
+                        </span>
+                      </div>
+                    </div>
                   )}
                 </div>
               ) : (
@@ -552,53 +657,48 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                         onPointerCancel={() => onPointerCancel(fav.id)}
                         style={{ touchAction: "none" }}
                         className={cn(
-                          "rounded-xl overflow-hidden border bg-card transition-all duration-200 select-none",
+                          "rounded-xl overflow-hidden border bg-card transition-all duration-200 select-none cursor-grab active:cursor-grabbing",
                           isDragging
                             ? "border-primary shadow-lg opacity-40 scale-95"
-                            : "border-border/50 hover:shadow-md active:scale-[0.97]"
+                            : "border-border/50 hover:shadow-md hover:border-primary/30"
                         )}
                       >
-                        {/* Card image area */}
                         <div className="relative">
                           <div
                             onClick={!isDragging ? () => onSelectRecipe(fav.recipe_data) : undefined}
-                            className={cn(
-                              "h-28 flex items-center justify-center bg-gradient-to-br cursor-pointer",
-                              gradient
-                            )}
+                            className={cn("h-28 flex items-center justify-center bg-gradient-to-br", gradient)}
                           >
                             <span className="text-4xl drop-shadow-sm">{emoji}</span>
                           </div>
-                          {/* Grip hint */}
-                          <div className="absolute top-1.5 right-1.5 bg-black/30 rounded-md p-0.5 opacity-50">
+                          {/* Grip icon */}
+                          <div className="absolute top-1.5 left-1.5 bg-black/25 rounded-md p-1 opacity-70">
                             <GripVertical className="w-3 h-3 text-white" />
                           </div>
-                        </div>
-                        <div className="p-2.5 flex items-start justify-between gap-1">
-                          <div
-                            onClick={!isDragging ? () => onSelectRecipe(fav.recipe_data) : undefined}
-                            className="flex-1 min-w-0 cursor-pointer"
-                          >
-                            <p className="font-semibold text-xs text-foreground leading-tight line-clamp-2 mb-1.5">
-                              {fav.recipe_name}
-                            </p>
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <span className="flex items-center gap-0.5 text-[10px]">
-                                <Clock className="w-3 h-3" />{fav.recipe_data.time}m
-                              </span>
-                              <span className="flex items-center gap-0.5 text-[10px]">
-                                <Flame className="w-3 h-3 text-orange-400" />
-                                {fav.recipe_data.nutrition?.calories || "?"}
-                              </span>
-                            </div>
-                          </div>
+                          {/* Menu button */}
                           <button
                             onPointerDown={e => e.stopPropagation()}
                             onClick={e => { e.stopPropagation(); setMovingRecipeId(fav.id); }}
-                            className="w-7 h-7 rounded-lg bg-muted/60 hover:bg-muted flex items-center justify-center shrink-0 transition-colors"
+                            className="absolute top-1.5 right-1.5 w-7 h-7 rounded-lg bg-black/25 hover:bg-black/40 flex items-center justify-center transition-colors"
                           >
-                            <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
+                            <MoreVertical className="w-3.5 h-3.5 text-white" />
                           </button>
+                        </div>
+                        <div
+                          onClick={!isDragging ? () => onSelectRecipe(fav.recipe_data) : undefined}
+                          className="p-2.5 cursor-pointer"
+                        >
+                          <p className="font-semibold text-xs text-foreground leading-tight line-clamp-2 mb-1.5">
+                            {fav.recipe_name}
+                          </p>
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <span className="flex items-center gap-0.5 text-[10px]">
+                              <Clock className="w-3 h-3" />{fav.recipe_data.time}m
+                            </span>
+                            <span className="flex items-center gap-0.5 text-[10px]">
+                              <Flame className="w-3 h-3 text-orange-400" />
+                              {fav.recipe_data.nutrition?.calories || "?"}kcal
+                            </span>
+                          </div>
                         </div>
                       </div>
                     );
@@ -628,7 +728,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                 <div className="text-center py-8">
                   <BookOpen className="w-10 h-10 text-muted-foreground mx-auto mb-3 opacity-40" />
                   <p className="text-muted-foreground text-sm font-medium">Aún no guardaste tips</p>
-                  <p className="text-muted-foreground/60 text-xs mt-1">Guardá tips desde la sección de Guía de Alimentos</p>
+                  <p className="text-muted-foreground/60 text-xs mt-1">Guardá tips desde la sección "Aprende"</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -682,7 +782,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              ¿Eliminar la carpeta <strong>"{deletingFolder}"</strong>?
+              ¿Eliminar <strong>"{deletingFolder}"</strong>?
               {deletingFolder && (folderCounts[deletingFolder] || 0) > 0 && (
                 <span> Las <strong>{folderCounts[deletingFolder]}</strong> recetas se moverán a "Sin carpeta".</span>
               )}
@@ -704,15 +804,13 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                   setDeletingFolder(null);
                   toast({ title: "Carpeta eliminada" });
                 }}
-              >
-                Eliminar
-              </Button>
+              >Eliminar</Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* ── Sheet de acciones de receta (bottom drawer) ── */}
+      {/* ── Sheet de acciones ── */}
       {(() => {
         const sheetRecipe = movingRecipeId ? favorites.find(f => f.id === movingRecipeId) : null;
         return (
