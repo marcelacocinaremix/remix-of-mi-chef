@@ -328,10 +328,7 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
         }
 
         await fetchMealPlans();
-        toast({
-          title: "¡Semana armada!",
-          description: "Tu plan semanal está listo con recetas que aprovechan ingredientes",
-        });
+      toast({ title: t("weeklyBuildDone"), description: t("weeklyBuildDoneDesc") });
       }
     } catch (error) {
       console.error('Error generating AI plan:', error);
