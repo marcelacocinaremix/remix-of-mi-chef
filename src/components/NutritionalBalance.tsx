@@ -165,14 +165,12 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                 <Lock className="w-5 h-5 text-amber-600" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-foreground">Tu prueba gratuita terminó</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Las secciones <span className="font-medium">Tu Objetivo</span>, <span className="font-medium">Nutrición</span>, <span className="font-medium">Actividad</span> y <span className="font-medium">Resumen</span> son de solo lectura. Pasate a Premium para desbloquear todo.
-                </p>
+                <p className="text-sm font-semibold text-foreground">{t("balanceTrialEnded")}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("balanceTrialEndedDesc")}</p>
               </div>
               <Button size="sm" onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs flex-shrink-0">
                 <Crown className="w-3.5 h-3.5 mr-1" />
-                Premium
+                {t("balancePremium")}
               </Button>
             </div>
           </CardContent>
