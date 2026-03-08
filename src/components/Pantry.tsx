@@ -698,8 +698,8 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
     if (!user) {
       toast({
-        title: "Iniciá sesión",
-        description: "Necesitás una cuenta para guardar tu despensa.",
+        title: t("logInForPantry"),
+        description: t("loginPantryDesc"),
         variant: "destructive",
       });
       return;
