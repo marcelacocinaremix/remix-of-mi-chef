@@ -421,6 +421,8 @@ export default function Index() {
       setIsLoading(false);
       setIsGeneratingAI(false);
       refetchPremium();
+      // Trigger 1: generate recipe
+      recordStreak();
     }
   };
 
