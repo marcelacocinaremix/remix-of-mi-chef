@@ -3,13 +3,25 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   Play, Trophy, Flame, Zap, ChefHat, Star, Crown, 
-  Gamepad2, Timer, SortAsc, Salad, Target 
+  Gamepad2, Timer, SortAsc, Salad, Target, History, Clock
 } from "lucide-react";
 import { useGameStats } from "@/hooks/useGameStats";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import marcelaCharacter from "@/assets/marcela-character.png";
 import { PLAYER_LEVELS } from "./gameConfig";
+import { formatDistanceToNow } from "date-fns";
+import { es } from "date-fns/locale";
+
+interface GameIntroScreenProps {
+  onStart: () => void;
+}
+
+const MODE_LABELS: Record<string, { label: string; icon: string; color: string }> = {
+  recipe: { label: "Receta", icon: "👨‍🍳", color: "text-primary" },
+  order: { label: "Ordenar", icon: "📋", color: "text-blue-500" },
+  ingredients: { label: "Ingredientes", icon: "🥗", color: "text-green-500" },
+};
 
 interface GameIntroScreenProps {
   onStart: () => void;
