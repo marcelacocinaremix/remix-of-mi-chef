@@ -12,15 +12,6 @@ export interface GameStats {
   lastPlayedAt: string | null;
 }
 
-export interface LeaderboardEntry {
-  userId: string;
-  displayName: string;
-  avatarUrl: string | null;
-  totalXP: number;
-  totalGamesPlayed: number;
-  rank: number;
-}
-
 export interface GameSession {
   id: string;
   mode: string;
@@ -32,6 +23,15 @@ export interface GameSession {
   playedAt: string;
 }
 
+export interface LeaderboardEntry {
+  userId: string;
+  displayName: string;
+  avatarUrl: string | null;
+  totalXP: number;
+  totalGamesPlayed: number;
+  rank: number;
+}
+
 export function useGameStats() {
   const { user } = useAuth();
   const [stats, setStats] = useState<GameStats>({
@@ -40,6 +40,7 @@ export function useGameStats() {
     bestStreak: 0,
     totalRecipesCompleted: 0,
     totalTimePlayed: 0,
+    totalXP: 0,
     lastPlayedAt: null,
   });
   const [sessions, setSessions] = useState<GameSession[]>([]);
@@ -47,7 +48,7 @@ export function useGameStats() {
 
   const fetchStats = useCallback(async () => {
     if (!user) {
-      setStats({ highScore: 0, totalGamesPlayed: 0, bestStreak: 0, totalRecipesCompleted: 0, totalTimePlayed: 0, lastPlayedAt: null });
+      setStats({ highScore: 0, totalGamesPlayed: 0, bestStreak: 0, totalRecipesCompleted: 0, totalTimePlayed: 0, totalXP: 0, lastPlayedAt: null });
       setSessions([]);
       setIsLoading(false);
       return;
@@ -66,6 +67,7 @@ export function useGameStats() {
           bestStreak: statsRes.data.best_streak || 0,
           totalRecipesCompleted: statsRes.data.total_recipes_completed || 0,
           totalTimePlayed: statsRes.data.total_time_played || 0,
+          totalXP: (statsRes.data as any).total_xp || 0,
           lastPlayedAt: statsRes.data.last_played_at,
         });
       }
@@ -108,6 +110,7 @@ export function useGameStats() {
       const newTotalGames = (currentStats?.total_games_played || 0) + 1;
       const newTotalRecipes = (currentStats?.total_recipes_completed || 0) + recipesCompleted;
       const newTotalTime = (currentStats?.total_time_played || 0) + timePlayed;
+      const newTotalXP = ((currentStats as any)?.total_xp || 0) + xpEarned;
 
       await Promise.all([
         currentStats
@@ -115,12 +118,14 @@ export function useGameStats() {
               high_score: newHighScore, best_streak: newBestStreak,
               total_games_played: newTotalGames, total_recipes_completed: newTotalRecipes,
               total_time_played: newTotalTime, last_played_at: new Date().toISOString(),
-            }).eq("user_id", user.id)
+              total_xp: newTotalXP,
+            } as any).eq("user_id", user.id)
           : supabase.from("user_game_stats").insert({
               user_id: user.id, high_score: score, best_streak: streak,
               total_games_played: 1, total_recipes_completed: recipesCompleted,
               total_time_played: timePlayed, last_played_at: new Date().toISOString(),
-            }),
+              total_xp: xpEarned,
+            } as any),
         supabase.from("game_sessions").insert({
           user_id: user.id,
           mode,
@@ -135,7 +140,7 @@ export function useGameStats() {
       setStats({
         highScore: newHighScore, totalGamesPlayed: newTotalGames, bestStreak: newBestStreak,
         totalRecipesCompleted: newTotalRecipes, totalTimePlayed: newTotalTime,
-        lastPlayedAt: new Date().toISOString(),
+        totalXP: newTotalXP, lastPlayedAt: new Date().toISOString(),
       });
 
       // Refresh sessions list
@@ -159,4 +164,36 @@ export function useGameStats() {
   }, [fetchStats]);
 
   return { stats, sessions, isLoading, saveGameResult, refetch: fetchStats };
+}
+
+export function useGameLeaderboard() {
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        const { data, error } = await supabase.rpc("get_xp_leaderboard" as any);
+        if (error) throw error;
+        if (data) {
+          setLeaderboard((data as any[]).map((row) => ({
+            userId: row.user_id,
+            displayName: row.display_name || "Chef",
+            avatarUrl: row.avatar_url,
+            totalXP: row.total_xp,
+            totalGamesPlayed: row.total_games_played,
+            rank: Number(row.rank),
+          })));
+        }
+      } catch (error) {
+        console.error("Error fetching leaderboard:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLeaderboard();
+  }, []);
+
+  return { leaderboard, isLoading };
 }
