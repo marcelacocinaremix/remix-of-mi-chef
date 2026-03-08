@@ -62,6 +62,7 @@ interface SmartHistoryProps {
 const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: SmartHistoryProps = {}) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const { cookedRecipes, isLoading: loadingRecipes, refetch: refetchRecipes } = useCookedRecipes();
   const [insights, setInsights] = useState<HistoryInsights | null>(null);
   const [suggestions, setSuggestions] = useState<RecipeSuggestion[]>([]);
