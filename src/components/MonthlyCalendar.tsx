@@ -622,6 +622,46 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Long press preview modal */}
+      <Dialog open={!!longPressDay} onOpenChange={(open) => !open && setLongPressDay(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="capitalize text-base">
+              📅 {longPressDay && format(longPressDay, "EEEE d 'de' MMMM", { locale: es })}
+            </DialogTitle>
+            <DialogDescription>Vista rápida de las comidas del día</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            {longPressDay && getMealsForDate(longPressDay).map((meal) => {
+              const mt = MEAL_TYPES.find((m) => m.id === meal.mealType);
+              const Icon = mt?.icon ?? Sun;
+              return (
+                <div key={meal.id} className="flex items-start gap-3 p-3 rounded-xl border border-border/50 bg-muted/30">
+                  <Icon className={cn("w-4 h-4 mt-0.5 flex-shrink-0", mt?.color)} />
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">{mt?.label}</p>
+                    <p className="text-sm font-semibold leading-snug">{meal.recipeName}</p>
+                    {meal.recipeData?.time && (
+                      <p className="text-xs text-muted-foreground mt-0.5">{meal.recipeData.time} min · {meal.recipeData.difficulty}</p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <Button
+            className="w-full mt-1"
+            onClick={() => {
+              if (longPressDay) setSelectedDate(longPressDay);
+              setLongPressDay(null);
+            }}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Editar día
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
