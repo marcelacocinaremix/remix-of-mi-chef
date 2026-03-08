@@ -300,8 +300,8 @@ export function FuturisticBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.2 }}
+      className="fixed inset-0 pointer-events-none z-0 transition-opacity duration-700"
+      style={{ opacity: canvasOpacity }}
     />
   );
 }
