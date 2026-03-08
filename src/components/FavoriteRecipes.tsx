@@ -1170,7 +1170,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                     onClick={async (e) => { await handleDeleteTip(sheetTip.id, e as React.MouseEvent); setMovingTipId(null); }}
                     className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 active:scale-95 transition-all border border-destructive/20"
                   >
-                    <Trash2 className="w-4 h-4" /> Eliminar tip
+                    <Trash2 className="w-4 h-4" /> {t("favDeleteTip")}
                   </button>
                 </>
               )}
