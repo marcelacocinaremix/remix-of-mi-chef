@@ -37,7 +37,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const root = document.documentElement;
     // Remove all theme classes
-    root.classList.remove("cyan-light", "cyan-dark", "rose-light", "rose-dark", "future", "dark");
+    root.classList.remove("cyan-light", "cyan-dark", "rose-light", "rose-dark", "future", "mono-light", "mono-dark", "dark");
     // Add new theme class
     root.classList.add(theme);
     // Handle dark mode for next-themes compatibility
