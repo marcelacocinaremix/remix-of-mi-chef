@@ -219,14 +219,12 @@ export function StreakLeaderboard() {
 
   return (
     <div className="space-y-2 pb-2">
-      {/* Podium */}
-      {top3.length >= 2 && (
-        <div className="flex items-end justify-center gap-3 py-4 mb-2">
-          {top3.length >= 2 && <PodiumEntry entry={top3[1]} size="md" barHeight={48} />}
-          <PodiumEntry entry={top3[0]} size="lg" barHeight={64} />
-          {top3.length >= 3 && <PodiumEntry entry={top3[2]} size="sm" barHeight={40} />}
-        </div>
-      )}
+      {/* Podium — muestra aunque haya 1 solo usuario */}
+      <div className="flex items-end justify-center gap-3 py-4 mb-2">
+        {top3[1] && <PodiumEntry entry={top3[1]} size="md" barHeight={48} />}
+        {top3[0] && <PodiumEntry entry={top3[0]} size="lg" barHeight={64} />}
+        {top3[2] && <PodiumEntry entry={top3[2]} size="sm" barHeight={40} />}
+      </div>
 
       {/* Rest */}
       <div className="space-y-1.5">
