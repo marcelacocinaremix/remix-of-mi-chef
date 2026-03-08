@@ -740,11 +740,11 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
             <>
               <Button variant="outline" onClick={() => setShowShoppingList(true)}>
                 <ShoppingCart className="w-4 h-4" />
-                Ver lista de compras
+                {t("weeklyViewList")}
               </Button>
               <Button variant="outline" onClick={handleAddToShoppingList}>
                 <Plus className="w-4 h-4" />
-                Agregar todo al super
+                {t("weeklyAddToGrocery")}
               </Button>
               <Button 
                 variant="outline" 
@@ -752,7 +752,7 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
                 className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
               >
                 <Trash2 className="w-4 h-4" />
-                Borrar plan
+                {t("weeklyDeletePlan")}
               </Button>
             </>
           )}
