@@ -28,7 +28,7 @@ export function BackToMenuButton({ className, scrollContainerRef }: BackToMenuBu
         className="gap-2 rounded-full border-primary/30 hover:bg-primary/10 hover:border-primary/50"
       >
         <ArrowUp className="w-4 h-4" />
-        Volver al menú
+        {t("backToMenu")}
       </Button>
     </div>
   );

@@ -18,33 +18,35 @@ import {
 const COOKING_HELP_KEY = "miChef_cooking_help_dismissed";
 
 function CookingHelpBanner({ onDismiss }: { onDismiss: () => void }) {
+  const { t } = useLanguage();
+
   const steps = [
     {
       num: 1,
       emoji: "✨",
-      title: "Genera una receta",
-      desc: 'Completa los pasos de abajo y toca "Dame recetas" para que la IA cree tu receta personalizada.',
+      title: t("cookingStep1Title"),
+      desc: t("cookingStep1Desc"),
       color: "bg-primary/10 text-primary border-primary/20",
     },
     {
       num: 2,
       emoji: "❤️",
-      title: "Guardala en favoritos",
-      desc: 'Toca el corazon en la receta generada para guardarla en "Mi Cocina" y organizarla en carpetas.',
+      title: t("cookingStep2Title"),
+      desc: t("cookingStep2Desc"),
       color: "bg-rose-500/10 text-rose-500 border-rose-500/20",
     },
     {
       num: 3,
       emoji: "👨‍🍳",
-      title: "Usa el Modo Cocina",
-      desc: 'Abre la receta y toca "Modo Cocina" para seguir el paso a paso mientras cocinas.',
+      title: t("cookingStep3Title"),
+      desc: t("cookingStep3Desc"),
       color: "bg-amber-500/10 text-amber-600 border-amber-500/20",
     },
     {
       num: 4,
       emoji: "🏆",
-      title: 'Apreta "Ya la cocine"',
-      desc: "Una vez lista, toca el boton para registrar la coccion y desbloquear logros.",
+      title: t("cookingStep4Title"),
+      desc: t("cookingStep4Desc"),
       color: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
     },
   ];
@@ -56,7 +58,7 @@ function CookingHelpBanner({ onDismiss }: { onDismiss: () => void }) {
           <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
             <Info className="w-4 h-4 text-primary" />
           </div>
-          <span className="font-semibold text-sm text-foreground">¿Cómo funciona?</span>
+          <span className="font-semibold text-sm text-foreground">{t("cookingHowItWorks")}</span>
         </div>
         <button onClick={onDismiss} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
           <X className="w-4 h-4" />
