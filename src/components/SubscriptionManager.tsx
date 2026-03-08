@@ -83,8 +83,8 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
                   {isPremium ? "10 recetas por día" : "3 recetas por día"}
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className={isPremium ? "text-amber-500" : "text-green-500"}>✓</span>
-                  Calendario semanal {isPremium ? "completo" : ""} {!isPremium && isTrialExpired && <Badge variant="outline" className="text-[10px] px-1">Solo lectura</Badge>}
+                  <span className="text-green-500">✓</span>
+                  Calendario semanal
                 </li>
                 <li className="flex items-center gap-2">
                   <span className={isPremium ? "text-amber-500" : "text-green-500"}>✓</span>
