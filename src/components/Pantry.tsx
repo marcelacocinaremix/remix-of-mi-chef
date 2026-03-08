@@ -994,7 +994,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Vencimiento</label>
+                <label className="text-sm font-medium mb-2 block">{t("pantryExpiry")}</label>
                 <Input
                   type="date"
                   value={expirationDate}
