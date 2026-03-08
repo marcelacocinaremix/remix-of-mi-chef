@@ -220,14 +220,10 @@ export function CookingSection({
       {!showHelp && (
         <button
           onClick={() => setShowHelp(true)}
-          className="group flex items-center gap-2 px-3 py-1.5 rounded-full border border-sky-400/40 bg-sky-500/5 text-sky-500 text-xs font-medium transition-all duration-300 hover:bg-sky-500/15 hover:border-sky-400/70"
-          style={{
-            boxShadow: "0 0 8px 1px hsl(199 89% 48% / 0.25), 0 0 20px 2px hsl(199 89% 48% / 0.12), inset 0 0 8px hsl(199 89% 48% / 0.08)",
-            animation: "neon-pulse 2.5s ease-in-out infinite",
-          }}
+          className="animate-neon-pulse group flex items-center gap-2 px-3 py-1.5 rounded-full border border-sky-400/40 bg-sky-500/5 text-sky-500 text-xs font-medium transition-colors duration-300 hover:bg-sky-500/15 hover:border-sky-400/70"
         >
-          <Info className="w-3.5 h-3.5 drop-shadow-[0_0_4px_hsl(199_89%_48%/0.8)]" />
-          <span className="drop-shadow-[0_0_6px_hsl(199_89%_48%/0.6)]">Ver cómo funciona</span>
+          <Info className="w-3.5 h-3.5" />
+          <span>Ver cómo funciona</span>
         </button>
       )}
 
