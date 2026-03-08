@@ -500,8 +500,8 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
               {(recipeTab === "favoritos" ? favoriteRecipes : recentRecipes).length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-8">
                   {recipeTab === "favoritos"
-                    ? "No tenés recetas favoritas todavía"
-                    : "No cocinaste recetas todavía"}
+                    ? t("calendarNoFavorites")
+                    : t("calendarNoRecent")}
                 </p>
               ) : (
                 (recipeTab === "favoritos" ? favoriteRecipes : recentRecipes).map((recipe, i) => (
