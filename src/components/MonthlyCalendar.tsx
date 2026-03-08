@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
   ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, BookOpen, X,
   Coffee, Sun, Cookie, Moon
@@ -72,6 +72,27 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
   const [recentRecipes, setRecentRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [recipeTab, setRecipeTab] = useState<"favoritos" | "recientes">("favoritos");
+
+  // Long press preview state
+  const [longPressDay, setLongPressDay] = useState<Date | null>(null);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressFired = useRef(false);
+
+  const startLongPress = useCallback((day: Date, meals: DayMeal[]) => {
+    if (meals.length === 0) return;
+    longPressFired.current = false;
+    longPressTimer.current = setTimeout(() => {
+      longPressFired.current = true;
+      setLongPressDay(day);
+    }, 500);
+  }, []);
+
+  const cancelLongPress = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
 
   // Calendar grid
   const monthStart = startOfMonth(currentMonth);
@@ -251,9 +272,17 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
             return (
               <button
                 key={i}
-                onClick={() => setSelectedDate(day)}
+                onClick={() => {
+                  if (!longPressFired.current) setSelectedDate(day);
+                }}
+                onMouseDown={() => startLongPress(day, meals)}
+                onMouseUp={cancelLongPress}
+                onMouseLeave={cancelLongPress}
+                onTouchStart={() => startLongPress(day, meals)}
+                onTouchEnd={cancelLongPress}
+                onTouchMove={cancelLongPress}
                 className={cn(
-                  "relative flex flex-col items-center justify-start p-1 min-h-[52px] sm:min-h-[64px] border-b border-r border-border/20 transition-colors",
+                  "relative flex flex-col items-center justify-start p-1 min-h-[52px] sm:min-h-[64px] border-b border-r border-border/20 transition-colors select-none",
                   inMonth ? "bg-background" : "bg-muted/30",
                   // Proximity highlights (no meals)
                   !hasMeals && today && "bg-primary/15 ring-2 ring-primary ring-inset",
@@ -591,6 +620,46 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
               </Button>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Long press preview modal */}
+      <Dialog open={!!longPressDay} onOpenChange={(open) => !open && setLongPressDay(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="capitalize text-base">
+              📅 {longPressDay && format(longPressDay, "EEEE d 'de' MMMM", { locale: es })}
+            </DialogTitle>
+            <DialogDescription>Vista rápida de las comidas del día</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            {longPressDay && getMealsForDate(longPressDay).map((meal) => {
+              const mt = MEAL_TYPES.find((m) => m.id === meal.mealType);
+              const Icon = mt?.icon ?? Sun;
+              return (
+                <div key={meal.id} className="flex items-start gap-3 p-3 rounded-xl border border-border/50 bg-muted/30">
+                  <Icon className={cn("w-4 h-4 mt-0.5 flex-shrink-0", mt?.color)} />
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">{mt?.label}</p>
+                    <p className="text-sm font-semibold leading-snug">{meal.recipeName}</p>
+                    {meal.recipeData?.time && (
+                      <p className="text-xs text-muted-foreground mt-0.5">{meal.recipeData.time} min · {meal.recipeData.difficulty}</p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <Button
+            className="w-full mt-1"
+            onClick={() => {
+              if (longPressDay) setSelectedDate(longPressDay);
+              setLongPressDay(null);
+            }}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Editar día
+          </Button>
         </DialogContent>
       </Dialog>
     </div>
