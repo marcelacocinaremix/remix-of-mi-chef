@@ -240,35 +240,37 @@ function ProductItem({
     setIsMenuOpen(false);
   };
 
+  const { t } = useLanguage();
+
   const menuActions = [
     {
       icon: ChefHat,
-      label: "Cocinar",
+      label: t("pantryCookAction"),
       variant: "default" as const,
       action: onUseIngredient,
     },
     {
       icon: Calendar,
-      label: "Vencimiento",
+      label: t("pantryExpiryAction"),
       variant: "secondary" as const,
       action: onEditExpiration,
     },
     {
       icon: Star,
-      label: item.is_favorite ? "Quitar ★" : "Favorito",
+      label: item.is_favorite ? t("pantryFavoriteRemove") : t("pantryFavoriteAdd"),
       variant: (item.is_favorite ? "secondary" : "outline") as "secondary" | "outline",
       action: onToggleFavorite,
       filled: item.is_favorite,
     },
     {
       icon: ShoppingCart,
-      label: "A lista",
+      label: t("pantryToListAction"),
       variant: "outline" as const,
       action: onAddToShoppingList,
     },
     {
       icon: X,
-      label: "Quitar",
+      label: t("pantryRemoveAction"),
       variant: "destructive" as const,
       action: onRemove,
     },
