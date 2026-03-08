@@ -95,20 +95,32 @@ interface Level {
 function getLearningContent(language: string): Level[] {
   const isEn = language === 'en';
   const isPt = language === 'pt';
+  const isIt = language === 'it';
+  const isDe = language === 'de';
+  const isFr = language === 'fr';
+
+  const l = (es: string, en: string, pt: string, it: string, de: string, fr: string) => {
+    if (isEn) return en;
+    if (isPt) return pt;
+    if (isIt) return it;
+    if (isDe) return de;
+    if (isFr) return fr;
+    return es;
+  };
 
   return [
   {
     id: "principiante",
-    name: isEn ? "Beginner" : isPt ? "Iniciante" : "Principiante",
-    description: isEn ? "Start from scratch with cooking basics" : isPt ? "Comece do zero com o básico da cozinha" : "Empezá desde cero con lo básico de la cocina",
+    name: l("Principiante", "Beginner", "Iniciante", "Principiante", "Anfänger", "Débutant"),
+    description: l("Empezá desde cero con lo básico de la cocina", "Start from scratch with cooking basics", "Comece do zero com o básico da cozinha", "Parti da zero con le basi della cucina", "Starte von Null mit den Grundlagen des Kochens", "Commencez de zéro avec les bases de la cuisine"),
     color: "bg-emerald-500",
     gradient: "from-emerald-500 to-teal-500",
     categories: [
       {
         id: "tecnicas-basicas",
-        name: isEn ? "Basic Techniques" : isPt ? "Técnicas Básicas" : "Técnicas Básicas",
+        name: l("Técnicas Básicas", "Basic Techniques", "Técnicas Básicas", "Tecniche Base", "Grundtechniken", "Techniques de Base"),
         icon: ChefHat,
-        description: isEn ? "The fundamentals every cook must know" : isPt ? "Os fundamentos que todo cozinheiro deve conhecer" : "Los fundamentos que todo cocinero debe conocer",
+        description: l("Los fundamentos que todo cocinero debe conocer", "The fundamentals every cook must know", "Os fundamentos que todo cozinheiro deve conhecer", "I fondamenti che ogni cuoco deve conoscere", "Die Grundlagen, die jeder Koch kennen muss", "Les fondamentaux que tout cuisinier doit connaître"),
         lessons: [
           {
             id: "cortar-verduras",
@@ -196,9 +208,9 @@ function getLearningContent(language: string): Level[] {
       },
       {
         id: "metodos-coccion-basicos",
-        name: "Métodos de Cocción Básicos",
+        name: l("Métodos de Cocción Básicos", "Basic Cooking Methods", "Métodos de Cozimento Básicos", "Metodi di Cottura Base", "Grundlegende Kochmethoden", "Méthodes de Cuisson de Base"),
         icon: Flame,
-        description: "Las técnicas fundamentales para transformar ingredientes",
+        description: l("Las técnicas fundamentales para transformar ingredientes", "Fundamental techniques to transform ingredients", "As técnicas fundamentais para transformar ingredientes", "Le tecniche fondamentali per trasformare gli ingredienti", "Grundlegende Techniken zur Zubereitung von Zutaten", "Les techniques fondamentales pour transformer les ingrédients"),
         lessons: [
           {
             id: "hervir",
@@ -285,9 +297,9 @@ function getLearningContent(language: string): Level[] {
       },
       {
         id: "condimentos-basicos",
-        name: "Condimentos Básicos",
+        name: l("Condimentos Básicos", "Basic Seasonings", "Condimentos Básicos", "Condimenti Base", "Grundlegende Gewürze", "Assaisonnements de Base"),
         icon: Sparkles,
-        description: "Los sabores que transforman cualquier plato",
+        description: l("Los sabores que transforman cualquier plato", "The flavors that transform any dish", "Os sabores que transformam qualquer prato", "I sapori che trasformano qualsiasi piatto", "Die Aromen, die jedes Gericht verwandeln", "Les saveurs qui transforment n'importe quel plat"),
         lessons: [
           {
             id: "sal-pimienta",
@@ -359,9 +371,9 @@ function getLearningContent(language: string): Level[] {
       },
       {
         id: "huevos",
-        name: "Huevos Perfectos",
+        name: l("Huevos Perfectos", "Perfect Eggs", "Ovos Perfeitos", "Uova Perfette", "Perfekte Eier", "Œufs Parfaits"),
         icon: Egg,
-        description: "El ingrediente más versátil de la cocina",
+        description: l("El ingrediente más versátil de la cocina", "The most versatile ingredient in the kitchen", "O ingrediente mais versátil da cozinha", "L'ingrediente più versatile della cucina", "Die vielseitigste Zutat in der Küche", "L'ingrédient le plus polyvalent de la cuisine"),
         lessons: [
           {
             id: "huevo-frito",
