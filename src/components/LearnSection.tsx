@@ -1935,7 +1935,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
             )}
           >
             <BookOpen className={cn("w-6 h-6", activeSubMenu === "aprender" && "animate-bounce")} />
-            <span className="text-xs">Aprender</span>
+            <span className="text-xs">{t("learnTabAprender")}</span>
           </button>
           <button
             onClick={() => {
