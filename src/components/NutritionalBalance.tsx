@@ -182,32 +182,32 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
         <CardContent className="py-4 px-4">
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-semibold text-foreground">¿Cómo funciona?</span>
+            <span className="text-sm font-semibold text-foreground">{t("balanceHowItWorks")}</span>
           </div>
           <div className="grid grid-cols-4 gap-2">
             <div className="flex flex-col items-center text-center">
               <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center mb-1">
                 <Target className="w-5 h-5 text-primary" />
               </div>
-              <span className="text-[10px] text-muted-foreground leading-tight">Agregá tu objetivo</span>
+              <span className="text-[10px] text-muted-foreground leading-tight">{t("balanceStep1")}</span>
             </div>
             <div className="flex flex-col items-center text-center">
               <div className="w-10 h-10 rounded-full bg-amber-500/15 flex items-center justify-center mb-1">
                 <BarChart3 className="w-5 h-5 text-amber-500" />
               </div>
-              <span className="text-[10px] text-muted-foreground leading-tight">Registrá tus comidas</span>
+              <span className="text-[10px] text-muted-foreground leading-tight">{t("balanceStep2")}</span>
             </div>
             <div className="flex flex-col items-center text-center">
               <div className="w-10 h-10 rounded-full bg-emerald-500/15 flex items-center justify-center mb-1">
                 <Dumbbell className="w-5 h-5 text-emerald-500" />
               </div>
-              <span className="text-[10px] text-muted-foreground leading-tight">Registrá entrenamientos</span>
+              <span className="text-[10px] text-muted-foreground leading-tight">{t("balanceStep3")}</span>
             </div>
             <div className="flex flex-col items-center text-center">
               <div className="w-10 h-10 rounded-full bg-purple-500/15 flex items-center justify-center mb-1">
                 <LayoutDashboard className="w-5 h-5 text-purple-500" />
               </div>
-              <span className="text-[10px] text-muted-foreground leading-tight">Obtené tu resumen</span>
+              <span className="text-[10px] text-muted-foreground leading-tight">{t("balanceStep4")}</span>
             </div>
           </div>
         </CardContent>
@@ -228,7 +228,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
         <div className="flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-primary/10 border border-primary/20">
           <Target className="w-4 h-4 text-primary" />
           <span className="text-xs font-medium text-primary">
-            Objetivo activo: {goal.goal === "lose_fat" ? "Bajar de peso" : goal.goal === "gain_muscle" ? "Ganar músculo" : goal.goal === "improve_performance" ? "Mejorar rendimiento" : "Mantener peso"}
+            {t("balanceActiveGoal")} {goal.goal === "lose_fat" ? t("balanceGoalLoseFat") : goal.goal === "gain_muscle" ? t("balanceGoalGainMuscle") : goal.goal === "improve_performance" ? t("balanceGoalImprovePerformance") : t("balanceGoalStayActive")}
           </span>
         </div>
       )}
