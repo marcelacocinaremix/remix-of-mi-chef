@@ -20,10 +20,12 @@ interface GameEngineProps {
 }
 
 const MARCELA_MSGS = {
-  correct: ["¡Excelente!", "¡Así se hace! 🔥", "¡Perfecto!", "¡Sos un crack! 💪", "¡Top! ⭐"],
-  wrong: ["Mmm, ese no...", "¡Casi! 🤔", "Intentá de nuevo", "¡Probá otro!"],
+  start: ["¡Elegí los ingredientes! 👆", "¿Cuáles van en esta receta? 🤔", "¡A cocinar! Seleccioná los ingredientes"],
+  correct: ["¡Excelente! 🎉", "¡Así se hace! 🔥", "¡Perfecto! ⭐", "¡Sos un crack! 💪", "¡Muy bien! 👏"],
+  wrong: ["Mmm, ese no... 😅", "¡Casi! Intentá otro 🤔", "No es ese ingrediente", "¡Seguí probando! 💪"],
   streak: ["¡En racha! 🔥🔥", "¡Imparable! 💥", "¡Sos un genio! 👑"],
   complete: ["🎉 ¡Receta lista!", "¡Bravo! 👨‍🍳", "¡Lo lograste! 🏆"],
+  order: ["Ordená los pasos correctamente 👆", "¿En qué orden se hace? 🤔", "¡Ordená los pasos!"],
 };
 
 export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
@@ -37,7 +39,7 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
   const [lives, setLives] = useState(3);
   const [timeLeft, setTimeLeft] = useState(90);
   const [completedRecipes, setCompletedRecipes] = useState<string[]>([]);
-  const [marcelaMsg, setMarcelaMsg] = useState(MARCELA_MSGS.correct[0]);
+  const [marcelaMsg, setMarcelaMsg] = useState(MARCELA_MSGS.start[0]);
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [gameOver, setGameOver] = useState(false);
@@ -59,10 +61,13 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
 
   const [ingredientOptions, setIngredientOptions] = useState(shuffledIngredients);
 
-  // Shuffled order steps
+  // Shuffled order steps + reset message on new recipe
   useEffect(() => {
     if (mode === "order") {
       setOrderSteps([...currentRecipe.steps].sort(() => Math.random() - 0.5));
+      setMarcelaMsg(MARCELA_MSGS.order[Math.floor(Math.random() * MARCELA_MSGS.order.length)]);
+    } else {
+      setMarcelaMsg(MARCELA_MSGS.start[Math.floor(Math.random() * MARCELA_MSGS.start.length)]);
     }
     setIngredientOptions(shuffledIngredients());
     setSelectedIngredients([]);
