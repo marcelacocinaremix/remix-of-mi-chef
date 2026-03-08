@@ -298,7 +298,7 @@ export function CookingSection({
       </Card>
 
       {/* STEP 2: Flavor — Salado o Dulce */}
-      <Card className="border-2 border-rose-200/60 bg-gradient-to-br from-rose-50/40 to-transparent dark:border-rose-800/30 dark:from-rose-950/20">
+      <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent dark:border-primary/20 dark:from-primary/10">
         <CardContent className="p-4 space-y-4">
           <StepHeader
             number={2}
