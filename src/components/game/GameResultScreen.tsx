@@ -133,7 +133,7 @@ export function GameResultScreen({ score, streak, recipesCompleted, xpEarned, on
           className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 rounded-2xl px-4 py-2"
         >
           <Crown className="w-5 h-5 text-amber-500" />
-          <span className="font-bold text-amber-600 text-sm">¡Nuevo récord personal! 🎉</span>
+          <span className="font-bold text-amber-600 text-sm">{t("gameNewRecord")}</span>
         </motion.div>
       )}
 
