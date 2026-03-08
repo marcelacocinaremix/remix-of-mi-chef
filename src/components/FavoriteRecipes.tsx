@@ -98,6 +98,26 @@ const FOLDERS_KEY = "miChef_recipe_folders";
 const RECIPE_FOLDERS_KEY = "miChef_recipe_folder_assignments";
 const HELP_DISMISSED_KEY = "miChef_favorites_help_dismissed";
 
+// Tips folders
+const DEFAULT_TIP_FOLDERS = ["Sin carpeta", "Conservación", "Cocción", "Nutrición", "Ahorro"];
+const TIP_FOLDERS_KEY = "miChef_tip_folders";
+const TIP_FOLDER_ASSIGNMENTS_KEY = "miChef_tip_folder_assignments";
+
+function getTipFolders(): string[] {
+  try { const s = localStorage.getItem(TIP_FOLDERS_KEY); if (s) return JSON.parse(s); } catch {}
+  return DEFAULT_TIP_FOLDERS;
+}
+function saveTipFolders(f: string[]) { localStorage.setItem(TIP_FOLDERS_KEY, JSON.stringify(f)); }
+function getTipFolderAssignments(): Record<string, string> {
+  try { const s = localStorage.getItem(TIP_FOLDER_ASSIGNMENTS_KEY); if (s) return JSON.parse(s); } catch {}
+  return {};
+}
+function saveTipFolderAssignment(tipId: string, folder: string) {
+  const a = getTipFolderAssignments();
+  a[tipId] = folder;
+  localStorage.setItem(TIP_FOLDER_ASSIGNMENTS_KEY, JSON.stringify(a));
+}
+
 function getFolders(): string[] {
   try { const s = localStorage.getItem(FOLDERS_KEY); if (s) return JSON.parse(s); } catch {}
   return DEFAULT_FOLDERS;
