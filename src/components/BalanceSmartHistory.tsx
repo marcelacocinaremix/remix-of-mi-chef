@@ -32,6 +32,7 @@ interface BalanceSmartHistoryProps {
 }
 
 export function BalanceSmartHistory({ weeklyRecipes, totals, allCookedRecipes }: BalanceSmartHistoryProps) {
+  const { t } = useLanguage();
   // Calculate comprehensive stats
   const stats = useMemo(() => {
     // This week stats
