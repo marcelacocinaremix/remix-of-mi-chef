@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
   ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, BookOpen, X,
   Coffee, Sun, Cookie, Moon
