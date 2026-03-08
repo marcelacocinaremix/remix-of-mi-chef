@@ -696,7 +696,7 @@ export function ShoppingListDirect() {
             <CardContent className="p-3">
               <div className="flex items-center gap-2 mb-2">
                 <Zap className="w-4 h-4 text-amber-500" />
-                <span className="text-sm font-medium text-muted-foreground">Agregar rápido</span>
+                <span className="text-sm font-medium text-muted-foreground">{t("superQuickAdd")}</span>
               </div>
               <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
                 {QUICK_ADD_PRODUCTS.map((product, i) => (
