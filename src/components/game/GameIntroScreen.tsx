@@ -1,0 +1,316 @@
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Play, Trophy, Flame, Zap, ChefHat,
+  SortAsc, Salad, Target, History, Star
+} from "lucide-react";
+import { useGameStats } from "@/hooks/useGameStats";
+import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
+import marcelaCharacter from "@/assets/marcela-character.png";
+import { PLAYER_LEVELS } from "./gameConfig";
+import { GameLeaderboard } from "./GameLeaderboard";
+import { formatDistanceToNow } from "date-fns";
+import { es, enUS, pt, it, de, fr } from "date-fns/locale";
+
+interface GameIntroScreenProps {
+  onStart: () => void;
+}
+
+type Tab = "stats" | "ranking" | "history";
+
+export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
+  const { user } = useAuth();
+  const { stats, sessions } = useGameStats();
+  const { t, language } = useLanguage();
+  const [activeTab, setActiveTab] = useState<Tab>("stats");
+
+  const dateLocale = language === 'en' ? enUS : language === 'pt' ? pt : language === 'it' ? it : language === 'de' ? de : language === 'fr' ? fr : es;
+
+  const MODE_META: Record<string, { label: string; emoji: string }> = {
+    recipe:      { label: t("gameModeRecipe"),      emoji: "👨‍🍳" },
+    order:       { label: t("gameModeOrder"),        emoji: "📋" },
+    ingredients: { label: t("gameModeIngredients"), emoji: "🥗" },
+  };
+
+  const totalXP = stats.totalXP;
+  const currentLevel = PLAYER_LEVELS.reduce((acc, lvl) => totalXP >= lvl.minXP ? lvl : acc, PLAYER_LEVELS[0]);
+  const nextLevel = PLAYER_LEVELS.find(l => l.minXP > totalXP);
+  const xpProgress = nextLevel
+    ? ((totalXP - currentLevel.minXP) / (nextLevel.minXP - currentLevel.minXP)) * 100
+    : 100;
+
+  const gameModes = [
+    { icon: ChefHat, label: t("gameModeRecipe"),      bg: "bg-primary/10" },
+    { icon: SortAsc, label: t("gameModeOrder"),        bg: "bg-blue-500/10" },
+    { icon: Salad,   label: t("gameModeIngredients"),  bg: "bg-green-500/10" },
+  ];
+
+  const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
+    { id: "stats", label: t("gameHighScore"), icon: <Star className="w-3.5 h-3.5" /> },
+    { id: "ranking", label: t("gameLeaderboardTitle"), icon: <Trophy className="w-3.5 h-3.5" /> },
+    { id: "history", label: t("gameHistoryTitle"), icon: <History className="w-3.5 h-3.5" /> },
+  ];
+
+  return (
+    <div className="min-h-[80vh] flex flex-col items-center justify-start pb-8 px-1">
+      {/* Hero Section */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full relative overflow-hidden rounded-3xl mb-6 bg-primary shadow-2xl"
+      >
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-[-20%] right-[-10%] w-64 h-64 rounded-full bg-white/5 blur-3xl" />
+          <div className="absolute bottom-[-20%] left-[-10%] w-48 h-48 rounded-full bg-accent/30 blur-2xl" />
+          <div className="absolute top-4 left-4 text-white/10 text-6xl">🍳</div>
+          <div className="absolute bottom-4 right-8 text-white/10 text-5xl">👨‍🍳</div>
+          <div className="absolute top-1/2 right-4 text-white/10 text-4xl">🏆</div>
+        </div>
+
+        <div className="relative z-10 p-6 text-center">
+          <motion.div
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            className="relative inline-block mb-4"
+          >
+            <div className="w-24 h-24 mx-auto rounded-full overflow-hidden border-4 border-white/40 shadow-xl">
+              <img src={marcelaCharacter} alt="Marcela" className="w-full h-full object-cover" />
+            </div>
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+              className="absolute -top-2 -right-2 text-2xl"
+            >
+              ⭐
+            </motion.div>
+          </motion.div>
+
+          <h1 className="text-3xl font-black text-white mb-1 tracking-tight">
+            {t("gameTitle")}
+          </h1>
+          <p className="text-white/80 text-sm mb-5 max-w-xs mx-auto">
+            {t("gameSubtitle")}
+          </p>
+
+          <div className="grid grid-cols-4 gap-2 mb-6">
+            {gameModes.map((mode, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.1 * i + 0.3 }}
+                className="bg-white/10 backdrop-blur-sm rounded-xl p-2 flex flex-col items-center gap-1 border border-white/20"
+              >
+                <mode.icon className="w-5 h-5 text-white" />
+                <span className="text-white/90 text-[10px] font-medium leading-tight text-center">{mode.label}</span>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              size="lg"
+              onClick={onStart}
+              className="bg-white text-primary hover:bg-white/90 font-black text-lg px-10 py-6 rounded-2xl shadow-2xl border-0"
+            >
+              <Play className="w-6 h-6 mr-2 fill-primary" />
+              {t("gamePlay")}
+            </Button>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Tabs */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="w-full bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden mb-4"
+      >
+        {/* Tab headers */}
+        <div className="flex border-b border-border/40">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-semibold transition-colors ${
+                activeTab === tab.id
+                  ? "text-primary border-b-2 border-primary bg-primary/5"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {tab.icon}
+              <span className="hidden sm:inline">{tab.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Tab content */}
+        <div className="p-4">
+          <AnimatePresence mode="wait">
+            {activeTab === "stats" && user && (
+              <motion.div
+                key="stats"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+              >
+                {/* XP Level progress */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-xl shadow">
+                    {currentLevel.icon}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-foreground text-sm">{t(currentLevel.nameKey as any)}</span>
+                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Zap className="w-3 h-3 text-amber-500" />
+                        {totalXP} XP
+                      </span>
+                    </div>
+                    {nextLevel && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${xpProgress}%` }}
+                            transition={{ duration: 1, delay: 0.3 }}
+                            className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
+                          />
+                        </div>
+                        <span className="text-[10px] text-muted-foreground">{nextLevel.minXP} XP</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="text-center bg-muted/40 rounded-xl p-2">
+                    <Trophy className="w-4 h-4 text-amber-500 mx-auto mb-1" />
+                    <div className="text-lg font-black text-foreground">{stats.highScore}</div>
+                    <div className="text-[10px] text-muted-foreground">{t("gameHighScore")}</div>
+                  </div>
+                  <div className="text-center bg-muted/40 rounded-xl p-2">
+                    <Flame className="w-4 h-4 text-orange-500 mx-auto mb-1" />
+                    <div className="text-lg font-black text-foreground">{stats.bestStreak}</div>
+                    <div className="text-[10px] text-muted-foreground">{t("gameBestStreak")}</div>
+                  </div>
+                  <div className="text-center bg-muted/40 rounded-xl p-2">
+                    <ChefHat className="w-4 h-4 text-primary mx-auto mb-1" />
+                    <div className="text-lg font-black text-foreground">{stats.totalRecipesCompleted}</div>
+                    <div className="text-[10px] text-muted-foreground">{t("gameRecipesDone")}</div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "ranking" && (
+              <motion.div
+                key="ranking"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+              >
+                <GameLeaderboard />
+              </motion.div>
+            )}
+
+            {activeTab === "history" && user && sessions.length > 0 && (
+              <motion.div
+                key="history"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+                className="divide-y divide-border/30 max-h-72 overflow-y-auto -mx-4 px-4"
+              >
+                {sessions.map((session, i) => {
+                  const meta = MODE_META[session.mode] ?? { label: session.mode, emoji: "🎮" };
+                  return (
+                    <motion.div
+                      key={session.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.05 * i }}
+                      className="flex items-center gap-3 py-2.5 hover:bg-muted/30 transition-colors"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-muted/60 flex items-center justify-center text-lg flex-shrink-0">
+                        {meta.emoji}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-foreground">{meta.label}</span>
+                          {session.xpEarned > 0 && (
+                            <Badge className="bg-primary/10 text-primary border-primary/20 text-[9px] px-1.5 py-0">
+                              +{session.xpEarned} XP
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">⭐ {session.score}</span>
+                          <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">👨‍🍳 {session.recipesCompleted}</span>
+                          {session.streak > 0 && (
+                            <span className="text-[10px] text-orange-500 flex items-center gap-0.5">🔥 ×{session.streak}</span>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground flex-shrink-0">
+                        {formatDistanceToNow(new Date(session.playedAt), { addSuffix: true, locale: dateLocale })}
+                      </span>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            )}
+
+            {activeTab === "history" && (!user || sessions.length === 0) && (
+              <motion.div
+                key="history-empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="py-8 text-center"
+              >
+                <p className="text-muted-foreground text-sm">🎮 {t("gameDailyChallengeDesc")}</p>
+              </motion.div>
+            )}
+
+            {activeTab === "stats" && !user && (
+              <motion.div
+                key="stats-nouser"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="py-8 text-center"
+              >
+                <p className="text-muted-foreground text-sm">{t("loginRequired")}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.div>
+
+      {/* Daily Challenge Teaser */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="w-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-2xl p-4 border border-amber-500/20 flex items-center gap-3"
+      >
+        <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+          <Target className="w-5 h-5 text-amber-500" />
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold text-foreground">{t("gameDailyChallenge")}</span>
+            <Badge className="bg-amber-500/20 text-amber-600 border-amber-500/30 text-[10px]">
+              {t("gameNew")}
+            </Badge>
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5">{t("gameDailyChallengeDesc")}</p>
+        </div>
+        <Zap className="w-4 h-4 text-amber-500 flex-shrink-0" />
+      </motion.div>
+    </div>
+  );
+}

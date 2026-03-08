@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
   ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, BookOpen, X,
-  Coffee, Sun, Cookie, Moon
+  Coffee, Sun, Cookie, Moon, Info
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -16,13 +17,53 @@ import {
   isSameDay, isToday, isTomorrow, addMonths, subMonths, startOfWeek, endOfWeek,
   getDay, differenceInCalendarDays
 } from "date-fns";
+
+const CALENDAR_HELP_KEY = "miChef_calendar_help_dismissed";
+
+function CalendarHelpBanner({ onDismiss }: { onDismiss: () => void }) {
+  const { t } = useLanguage();
+  const steps = [
+    { num: 1, emoji: "📅", title: t("calendarStep1Title"), desc: t("calendarStep1Desc") },
+    { num: 2, emoji: "➕", title: t("calendarStep2Title"), desc: t("calendarStep2Desc") },
+    { num: 3, emoji: "🟢", title: t("calendarStep3Title"), desc: t("calendarStep3Desc") },
+    { num: 4, emoji: "👆", title: t("calendarStep4Title"), desc: t("calendarStep4Desc") },
+  ];
+  return (
+    <div className="rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-accent/8 p-4 animate-fade-in">
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+            <Info className="w-4 h-4 text-primary" />
+          </div>
+          <span className="font-semibold text-sm text-foreground">{t("calendarHowItWorks")}</span>
+        </div>
+        <button onClick={onDismiss} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+      <div className="grid grid-cols-1 gap-2.5">
+        {steps.map((s) => (
+          <div key={s.num} className="flex items-start gap-3 p-3 rounded-xl border border-border bg-background/70">
+            <div className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border border-primary/20 bg-primary/10 text-primary">
+              {s.num}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground flex items-center gap-1.5"><span>{s.emoji}</span> {s.title}</p>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{s.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 import { es } from "date-fns/locale";
 
-const MEAL_TYPES = [
-  { id: "desayuno", label: "Desayuno", icon: Coffee, color: "text-amber-500" },
-  { id: "almuerzo", label: "Almuerzo", icon: Sun, color: "text-orange-500" },
-  { id: "merienda", label: "Merienda", icon: Cookie, color: "text-pink-500" },
-  { id: "cena", label: "Cena", icon: Moon, color: "text-indigo-500" },
+  const MEAL_TYPES = [
+  { id: "desayuno", labelKey: "breakfast", icon: Coffee, color: "text-amber-500" },
+  { id: "almuerzo", labelKey: "lunch", icon: Sun, color: "text-orange-500" },
+  { id: "merienda", labelKey: "snack", icon: Cookie, color: "text-pink-500" },
+  { id: "cena", labelKey: "dinner", icon: Moon, color: "text-indigo-500" },
 ] as const;
 
 type MealType = typeof MEAL_TYPES[number]["id"];
@@ -62,6 +103,8 @@ interface MonthlyCalendarProps {
 export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: MonthlyCalendarProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
+  const [showHelp, setShowHelp] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [allMeals, setAllMeals] = useState<Record<string, DayMeal[]>>({});
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -72,6 +115,27 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
   const [recentRecipes, setRecentRecipes] = useState<Recipe[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [recipeTab, setRecipeTab] = useState<"favoritos" | "recientes">("favoritos");
+
+  // Long press preview state
+  const [longPressDay, setLongPressDay] = useState<Date | null>(null);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressFired = useRef(false);
+
+  const startLongPress = useCallback((day: Date, meals: DayMeal[]) => {
+    if (meals.length === 0) return;
+    longPressFired.current = false;
+    longPressTimer.current = setTimeout(() => {
+      longPressFired.current = true;
+      setLongPressDay(day);
+    }, 500);
+  }, []);
+
+  const cancelLongPress = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
 
   // Calendar grid
   const monthStart = startOfMonth(currentMonth);
@@ -164,46 +228,85 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
     if (!user || !selectedDate) return;
 
     const { weekStart, dayOfWeek } = getWeekStartAndDay(selectedDate);
+    const dateKey = format(selectedDate, "yyyy-MM-dd");
+    const existing = getMealsForDate(selectedDate).find((m) => m.mealType === mealType);
+    // Only treat as existing if it has a real DB id (not a temp id)
+    const hasRealId = existing && !existing.id.startsWith("temp-");
+    const tempId = `temp-${Date.now()}`;
+
+    // Optimistic update
+    setAllMeals(prev => {
+      const dayMeals = prev[dateKey] || [];
+      const newMeal: DayMeal = { id: hasRealId ? existing.id : tempId, mealType, recipeName: recipe.name, recipeData: recipe };
+      return {
+        ...prev,
+        [dateKey]: hasRealId
+          ? dayMeals.map(m => m.mealType === mealType ? newMeal : m)
+          : [...dayMeals.filter(m => m.mealType !== mealType), newMeal],
+      };
+    });
+    setShowRecipeSelector(null);
 
     try {
-      // Check if slot already has a meal
-      const existing = getMealsForDate(selectedDate).find((m) => m.mealType === mealType);
-      if (existing) {
+      if (hasRealId) {
         const { error } = await supabase
           .from("meal_plans")
-          .update({
-            recipe_data: JSON.parse(JSON.stringify(recipe)),
-            recipe_name: recipe.name,
-          })
+          .update({ recipe_data: JSON.parse(JSON.stringify(recipe)), recipe_name: recipe.name })
           .eq("id", existing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("meal_plans").insert({
+        // If there's a stale temp entry for this meal type, delete it first
+        if (existing) {
+          await supabase.from("meal_plans")
+            .delete()
+            .eq("user_id", user.id)
+            .eq("week_start", weekStart)
+            .eq("day_of_week", dayOfWeek)
+            .eq("meal_type", mealType);
+        }
+        const { data, error } = await supabase.from("meal_plans").insert({
           user_id: user.id,
           week_start: weekStart,
           day_of_week: dayOfWeek,
           meal_type: mealType,
           recipe_data: JSON.parse(JSON.stringify(recipe)),
           recipe_name: recipe.name,
-        });
+        }).select().single();
         if (error) throw error;
+        // Replace temp id with real id
+        if (data) {
+          setAllMeals(prev => ({
+            ...prev,
+            [dateKey]: (prev[dateKey] || []).map(m => m.id === tempId ? { ...m, id: data.id } : m),
+          }));
+        }
       }
-
+      toast({ title: t("calendarRecipeAdded"), description: `${recipe.name} · ${format(selectedDate, "EEEE d", { locale: es })}` });
+    } catch (err) {
+      console.error("Error adding recipe to calendar:", err);
+      // Rollback
       await fetchMealsForRange();
-      setShowRecipeSelector(null);
-      toast({ title: "¡Receta agregada!", description: `${recipe.name} para el ${format(selectedDate, "EEEE d", { locale: es })}` });
-    } catch {
-      toast({ title: "Error", description: "No se pudo agregar la receta", variant: "destructive" });
+      toast({ title: t("error"), description: t("calendarAddError"), variant: "destructive" });
     }
   };
 
   const handleRemoveMeal = async (mealId: string) => {
+    // Optimistic removal
+    setAllMeals(prev => {
+      const updated = { ...prev };
+      for (const key of Object.keys(updated)) {
+        updated[key] = updated[key].filter(m => m.id !== mealId);
+      }
+      return updated;
+    });
+
     try {
       const { error } = await supabase.from("meal_plans").delete().eq("id", mealId);
       if (error) throw error;
-      await fetchMealsForRange();
-      toast({ title: "Receta eliminada" });
+      toast({ title: t("calendarRecipeRemoved") });
     } catch {
+      // Rollback
+      await fetchMealsForRange();
       toast({ title: "Error", description: "No se pudo eliminar", variant: "destructive" });
     }
   };
@@ -212,6 +315,17 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
 
   return (
     <div className="space-y-4">
+      {/* Help banner */}
+      {showHelp && <CalendarHelpBanner onDismiss={() => { localStorage.setItem(CALENDAR_HELP_KEY, "1"); setShowHelp(false); }} />}
+      {!showHelp && (
+        <button
+          onClick={() => setShowHelp(true)}
+          className="animate-neon-pulse flex items-center gap-2 px-3 py-1.5 rounded-full border border-sky-400/40 bg-sky-500/5 text-sky-500 text-xs font-medium transition-colors duration-300 hover:bg-sky-500/15 hover:border-sky-400/70"
+        >
+          <Info className="w-3.5 h-3.5" />
+          <span>{ t("calendarHowItWorksBtn")}</span>
+        </button>
+      )}
       {/* Month navigation */}
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="icon" onClick={() => setCurrentMonth((m) => subMonths(m, 1))}>
@@ -251,20 +365,29 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
             return (
               <button
                 key={i}
-                onClick={() => setSelectedDate(day)}
+                onClick={() => {
+                  if (!longPressFired.current) setSelectedDate(day);
+                }}
+                onMouseDown={() => startLongPress(day, meals)}
+                onMouseUp={cancelLongPress}
+                onMouseLeave={cancelLongPress}
+                onTouchStart={() => startLongPress(day, meals)}
+                onTouchEnd={cancelLongPress}
+                onTouchMove={cancelLongPress}
                 className={cn(
-                  "relative flex flex-col items-center justify-start p-1 min-h-[52px] sm:min-h-[64px] border-b border-r border-border/20 transition-colors",
+                  "relative flex flex-col items-center justify-start p-1 min-h-[52px] sm:min-h-[64px] border-b border-r border-border/20 transition-colors select-none",
                   inMonth ? "bg-background" : "bg-muted/30",
-                  // Proximity highlights
-                  today && "bg-primary/15 ring-2 ring-primary ring-inset",
-                  tomorrow && "bg-primary/8",
-                  isNear && inMonth && "bg-primary/4",
-                  // Stronger bg when nearby + has meals
-                  hasMeals && today && "bg-primary/20",
-                  hasMeals && tomorrow && "bg-primary/12",
-                  hasMeals && isNear && inMonth && "bg-primary/8",
+                  // Proximity highlights (no meals)
+                  !hasMeals && today && "bg-primary/15 ring-2 ring-primary ring-inset",
+                  !hasMeals && tomorrow && "bg-primary/8",
+                  !hasMeals && isNear && inMonth && "bg-primary/4",
+                  // Green bg when has meals
+                  hasMeals && "bg-emerald-500/15",
+                  hasMeals && today && "bg-emerald-500/25 ring-2 ring-emerald-500 ring-inset",
+                  hasMeals && tomorrow && "bg-emerald-500/20",
+                  hasMeals && isNear && inMonth && "bg-emerald-500/18",
                   // Selection
-                  selectedDate && isSameDay(day, selectedDate) && "bg-primary/10 ring-2 ring-primary/60 ring-inset",
+                  selectedDate && isSameDay(day, selectedDate) && "ring-2 ring-primary/60 ring-inset",
                   "hover:bg-accent/50 active:scale-95"
                 )}
               >
@@ -289,10 +412,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                     ) : (
                       <div className="flex gap-0.5">
                         {meals.map((_, j) => (
-                          <div key={j} className={cn(
-                            "w-1.5 h-1.5 rounded-full",
-                            (today || tomorrow || isNear) ? "bg-primary" : "bg-primary/60"
-                          )} />
+                          <div key={j} className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                         ))}
                       </div>
                     )}
@@ -311,7 +431,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
             <DialogTitle className="capitalize">
               📅 {selectedDate && format(selectedDate, "EEEE d 'de' MMMM", { locale: es })}
             </DialogTitle>
-            <DialogDescription>Organizá tus comidas del día</DialogDescription>
+            <DialogDescription>{t("calendarOrganize")}</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-3">
@@ -326,7 +446,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                 >
                   <Icon className={cn("w-5 h-5 flex-shrink-0", mt.color)} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-muted-foreground">{mt.label}</p>
+                    <p className="text-xs font-medium text-muted-foreground">{t(mt.labelKey as any)}</p>
                     {meal ? (
                       <button
                         className="text-sm font-semibold truncate text-left hover:text-primary transition-colors"
@@ -335,7 +455,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                         {meal.recipeName}
                       </button>
                     ) : (
-                      <p className="text-sm text-muted-foreground italic">Sin asignar</p>
+                      <p className="text-sm text-muted-foreground">{meal ? meal.recipeName : t("calendarNotAssigned")}</p>
                     )}
                   </div>
                   <div className="flex gap-1 flex-shrink-0">
@@ -380,7 +500,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
               }}
             >
               <Sparkles className="w-4 h-4 mr-1" />
-              Generar receta
+              {t("calendarGenerateRecipe")}
             </Button>
           </div>
         </DialogContent>
@@ -390,9 +510,9 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
       <Dialog open={!!showRecipeSelector && !previewRecipe} onOpenChange={(open) => !open && setShowRecipeSelector(null)}>
         <DialogContent className="max-w-md max-h-[85vh]">
           <DialogHeader>
-            <DialogTitle>Elegir receta</DialogTitle>
+            <DialogTitle>{t("calendarChooseRecipe")}</DialogTitle>
             <DialogDescription>
-              {showRecipeSelector && `Para ${MEAL_TYPES.find((m) => m.id === showRecipeSelector)?.label}`}
+              {showRecipeSelector && `${t("calendarForMealType")} ${t(MEAL_TYPES.find((m) => m.id === showRecipeSelector)?.labelKey as any)}`}
             </DialogDescription>
           </DialogHeader>
 
@@ -403,14 +523,14 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
               size="sm"
               onClick={() => setRecipeTab("favoritos")}
             >
-              ❤️ Favoritos
+              <span className="font-semibold text-sm text-foreground">{t("calendarFavorites")}</span>
             </Button>
             <Button
               variant={recipeTab === "recientes" ? "default" : "outline"}
               size="sm"
               onClick={() => setRecipeTab("recientes")}
             >
-              🕐 Recientes
+              <span className="font-semibold text-sm text-foreground">{t("calendarRecent")}</span>
             </Button>
           </div>
 
@@ -419,8 +539,8 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
               {(recipeTab === "favoritos" ? favoriteRecipes : recentRecipes).length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-8">
                   {recipeTab === "favoritos"
-                    ? "No tenés recetas favoritas todavía"
-                    : "No cocinaste recetas todavía"}
+                    ? t("calendarNoFavorites")
+                    : t("calendarNoRecent")}
                 </p>
               ) : (
                 (recipeTab === "favoritos" ? favoriteRecipes : recentRecipes).map((recipe, i) => (
@@ -450,7 +570,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
             }}
           >
             <Sparkles className="w-4 h-4 mr-1" />
-            Generar nueva receta
+            {t("calendarGenerateNew")}
           </Button>
         </DialogContent>
       </Dialog>
@@ -473,7 +593,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                 <div>
                   <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
                     <BookOpen className="w-4 h-4 text-primary" />
-                    Ingredientes
+                    {t("calendarIngredients")}
                   </h4>
                   <ul className="space-y-1">
                     {previewRecipe.ingredients.map((ing, j) => (
@@ -491,7 +611,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                 <div>
                   <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
                     <Sparkles className="w-4 h-4 text-primary" />
-                    Preparación
+                    {t("calendarPreparation")}
                   </h4>
                   <ol className="space-y-2">
                     {previewRecipe.steps.map((step, j) => (
@@ -514,7 +634,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                   onClick={() => setPreviewRecipe(null)}
                 >
                   <ChevronLeft className="w-4 h-4 mr-1" />
-                  Volver
+                  {t("calendarBack")}
                 </Button>
                 <Button
                   className="flex-1"
@@ -526,7 +646,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                   }}
                 >
                   <Plus className="w-4 h-4 mr-1" />
-                  Agregar
+                  {t("calendarAdd")}
                 </Button>
               </div>
             </div>
@@ -551,7 +671,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                 <div>
                   <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
                     <BookOpen className="w-4 h-4 text-primary" />
-                    Ingredientes
+                    {t("calendarIngredients")}
                   </h4>
                   <ul className="space-y-1">
                     {viewingAssignedRecipe.ingredients.map((ing, j) => (
@@ -568,7 +688,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                 <div>
                   <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
                     <Sparkles className="w-4 h-4 text-primary" />
-                    Preparación
+                    {t("calendarPreparation")}
                   </h4>
                   <ol className="space-y-2">
                     {viewingAssignedRecipe.steps.map((step, j) => (
@@ -589,10 +709,50 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                 onClick={() => setViewingAssignedRecipe(null)}
               >
                 <ChevronLeft className="w-4 h-4 mr-1" />
-                Volver
+                {t("calendarBack")}
               </Button>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Long press preview modal */}
+      <Dialog open={!!longPressDay} onOpenChange={(open) => !open && setLongPressDay(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="capitalize text-base">
+              📅 {longPressDay && format(longPressDay, "EEEE d 'de' MMMM", { locale: es })}
+            </DialogTitle>
+            <DialogDescription>{t("calendarQuickView")}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            {longPressDay && getMealsForDate(longPressDay).map((meal) => {
+              const mt = MEAL_TYPES.find((m) => m.id === meal.mealType);
+              const Icon = mt?.icon ?? Sun;
+              return (
+                <div key={meal.id} className="flex items-start gap-3 p-3 rounded-xl border border-border/50 bg-muted/30">
+                  <Icon className={cn("w-4 h-4 mt-0.5 flex-shrink-0", mt?.color)} />
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">{mt ? t(mt.labelKey as any) : ""}</p>
+                    <p className="text-sm font-semibold leading-snug">{meal.recipeName}</p>
+                    {meal.recipeData?.time && (
+                      <p className="text-xs text-muted-foreground mt-0.5">{meal.recipeData.time} min · {meal.recipeData.difficulty}</p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <Button
+            className="w-full mt-1"
+            onClick={() => {
+              if (longPressDay) setSelectedDate(longPressDay);
+              setLongPressDay(null);
+            }}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            {t("calendarEditDay")}
+          </Button>
         </DialogContent>
       </Dialog>
     </div>

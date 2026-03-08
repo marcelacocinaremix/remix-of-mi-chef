@@ -5,15 +5,15 @@ const config: CapacitorConfig = {
   appName: 'Mi Chef - Marcela Cocina',
   webDir: 'dist',
   android: {
-    backgroundColor: '#FDF6F0'
+    backgroundColor: '#000000'
   },
   ios: {
-    backgroundColor: '#FDF6F0'
+    backgroundColor: '#000000'
   },
   plugins: {
     GoogleAuth: {
       scopes: ['profile', 'email'],
-      serverClientId: '917075133002-au4d.apps.googleusercontent.com',
+      serverClientId: '917075133002-au4dtihjutpgfktgdbjrq3c05ifsde6p.apps.googleusercontent.com',
       forceCodeForRefreshToken: true
     }
   }

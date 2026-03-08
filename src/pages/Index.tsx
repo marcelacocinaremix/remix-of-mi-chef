@@ -13,6 +13,7 @@ import { Footer } from "@/components/Footer";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import MySummary from "@/components/MySummary";
 import { BackToMenuButton } from "@/components/BackToMenuButton";
+import { TrialNoticeModal } from "@/components/TrialNoticeModal";
 // DailyUsageIndicator removed - now only shows alert when limit reached
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import {
@@ -25,14 +26,15 @@ import {
   GraduationCap,
   Gamepad2,
   HeartPulse,
+  Lock,
 } from "lucide-react";
 import { NutritionalBalance } from "@/components/NutritionalBalance";
 import { CocinarGroupSection } from "@/components/CocinarGroupSection";
-import { CookWithMarcela } from "@/components/CookWithMarcela";
 import { PlanificarSection } from "@/components/PlanificarSection";
 import { MiCocinaSection } from "@/components/MiCocinaSection";
 import { MarcelaSection } from "@/components/MarcelaSection";
 import { LearnSection } from "@/components/LearnSection";
+import { GameSection } from "@/components/game/GameSection";
 import { useToast } from "@/hooks/use-toast";
 import { useSound } from "@/hooks/useSound";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -44,13 +46,18 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
 import { useAdMob } from "@/hooks/useAdMob";
+import { useAppTheme } from "@/contexts/ThemeContext";
+import { useStreakContext } from "@/contexts/StreakContext";
+import { StreakDisplay } from "@/components/StreakDisplay";
 
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
   const { user } = useAuth();
-  const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium } = usePremium();
+  const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium, hasAnyAccess, isTrialExpired } = usePremium();
   const { showInterstitial } = useAdMob();
   const isMobile = useIsMobile();
+  const { theme } = useAppTheme();
+  const isFuture = theme === "future";
 
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [time, setTime] = useState<number>(30);
@@ -77,6 +84,7 @@ export default function Index() {
   const { getRecentRecipeNames, refetch: refetchCookedRecipes, addCookedRecipe } = useCookedRecipes();
   const shoppingList = useShoppingList();
   const { recordCookedRecipe, refetch: refetchAchievements } = useAchievements();
+  const { recordActivity: recordStreak } = useStreakContext();
   const [isButtonAnimating, setIsButtonAnimating] = useState(false);
   const [isCharacterAnimating, setIsCharacterAnimating] = useState(false);
   const [showShoppingListModal, setShowShoppingListModal] = useState(false);
@@ -413,6 +421,8 @@ export default function Index() {
       setIsLoading(false);
       setIsGeneratingAI(false);
       refetchPremium();
+      // Trigger 1: generate recipe
+      recordStreak();
     }
   };
 
@@ -507,15 +517,15 @@ export default function Index() {
   // Menu items configuration - Reorganized into 8 main sections (2 rows of 4)
   const menuItems = [
     // Row 1
-    { id: "inicio", label: t("menuHome"), icon: Home, requiresAuth: false },
-    { id: "cocinar", label: t("menuCook"), icon: ChefHat, requiresAuth: false },
-    { id: "micocina", label: t("menuMyKitchen"), icon: Heart, requiresAuth: true },
-    { id: "planificar", label: t("menuPlan"), icon: CalendarIcon, requiresAuth: true },
+    { id: "inicio",     label: t("menuHome"),       icon: Home,          requiresAuth: false, lockedWhenExpired: false },
+    { id: "cocinar",    label: t("menuCook"),        icon: ChefHat,       requiresAuth: false, lockedWhenExpired: false },
+    { id: "micocina",   label: t("menuMyKitchen"),   icon: Heart,         requiresAuth: true,  lockedWhenExpired: false },
+    { id: "planificar", label: t("menuPlan"),        icon: CalendarIcon,  requiresAuth: true,  lockedWhenExpired: false },
     // Row 2
-    { id: "salud", label: t("subTabHealth"), icon: HeartPulse, requiresAuth: true },
-    { id: "aprender", label: t("menuLearn"), icon: GraduationCap, requiresAuth: false },
-    { id: "jugar", label: t("menuPlay"), icon: Gamepad2, requiresAuth: false },
-    { id: "marcela", label: t("menuRecipes"), icon: Youtube, requiresAuth: false },
+    { id: "salud",     label: t("subTabHealth"),    icon: HeartPulse,    requiresAuth: true,  lockedWhenExpired: true  },
+    { id: "aprender",  label: t("menuLearn"),       icon: GraduationCap, requiresAuth: false, lockedWhenExpired: false },
+    { id: "jugar",     label: t("menuPlay"),        icon: Gamepad2,      requiresAuth: false, lockedWhenExpired: false },
+    { id: "marcela",   label: t("menuRecipes"),     icon: Youtube,       requiresAuth: false, lockedWhenExpired: false },
   ];
 
   const handleTabChange = (value: string) => {
@@ -537,6 +547,11 @@ export default function Index() {
     setActiveTab(value);
     setActiveSubTab(null); // Reset sub-tab when main tab changes
     
+    // Streak: visiting aprender, planificar, salud tabs counts as daily activity
+    if (user && ["aprender", "planificar", "salud"].includes(value)) {
+      recordStreak();
+    }
+
     // Trigger tracking states for grouped sections
     if (value === "planificar") {
       setPantryOpened(true);
@@ -634,14 +649,15 @@ export default function Index() {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
                     const isClicked = clickedMenuId === item.id;
-
                     return (
                       <button
                         key={item.id}
                         onClick={() => handleTabChange(item.id)}
-                        className={`flex flex-col items-center justify-center gap-1 p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 min-h-[64px] sm:min-h-[78px] min-w-0 ${
-                          isActive 
-                            ? "bg-primary text-primary-foreground shadow-lg" 
+                        className={`future-nav-btn flex flex-col items-center justify-center gap-1 p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 min-h-[64px] sm:min-h-[78px] min-w-0 ${
+                          isActive
+                            ? isFuture
+                              ? "bg-transparent border-2 border-primary text-primary shadow-[0_0_12px_hsl(195_100%_50%/0.6),inset_0_0_12px_hsl(195_100%_50%/0.08)] animate-neon-pulse"
+                              : "bg-primary text-primary-foreground shadow-lg"
                             : "bg-background/60 hover:bg-background active:scale-95 text-foreground"
                         }`}
                       >
@@ -662,19 +678,24 @@ export default function Index() {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
                     const isClicked = clickedMenuId === item.id;
-
+                    const showLock = item.lockedWhenExpired && user && !hasAnyAccess;
                     return (
                       <button
                         key={item.id}
                         onClick={() => handleTabChange(item.id)}
-                        className={`flex flex-col items-center justify-center gap-1 p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 min-h-[64px] sm:min-h-[78px] min-w-0 ${
-                          isActive 
-                            ? "bg-primary text-primary-foreground shadow-lg" 
+                        className={`future-nav-btn flex flex-col items-center justify-center gap-1 p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 min-h-[64px] sm:min-h-[78px] min-w-0 ${
+                          isActive
+                            ? isFuture
+                              ? "bg-transparent border-2 border-primary text-primary shadow-[0_0_12px_hsl(195_100%_50%/0.6),inset_0_0_12px_hsl(195_100%_50%/0.08)] animate-neon-pulse"
+                              : "bg-primary text-primary-foreground shadow-lg"
                             : "bg-background/60 hover:bg-background active:scale-95 text-foreground"
                         }`}
                       >
                         <div className={`relative flex-shrink-0 ${isClicked ? "animate-futuristic-click" : ""}`}>
                           <Icon className={`w-5 h-5 sm:w-7 sm:h-7 ${isActive ? "drop-shadow-glow" : ""} ${isClicked ? "animate-icon-pulse" : ""}`} />
+                          {showLock && (
+                            <Lock className="w-2.5 h-2.5 absolute -top-1 -right-1 text-amber-500" />
+                          )}
                           {isClicked && (
                             <span className="absolute inset-0 animate-ripple-out rounded-full border-2 border-primary/50" />
                           )}
@@ -723,13 +744,7 @@ export default function Index() {
               {/* Tab: Jugar */}
               <TabsContent value="jugar" className="space-y-6 animate-fade-in">
                 <div className="max-w-lg mx-auto">
-                  <CookWithMarcela onAchievementUnlocked={() => {
-                    refetchAchievements();
-                    toast({
-                      title: "🎉 ¡Nuevo logro desbloqueado!",
-                      description: `¡Completaste una receta interactiva!`,
-                    });
-                  }} />
+                  <GameSection />
                 </div>
                 <BackToMenuButton scrollContainerRef={scrollContainerRef} />
               </TabsContent>
@@ -847,6 +862,9 @@ export default function Index() {
             </div>
           </div>
         )}
+
+        {/* Trial period notice modals */}
+        <TrialNoticeModal />
 
         <Footer />
       </div>

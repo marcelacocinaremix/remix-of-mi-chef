@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LogOut, User, Globe, Settings, Crown, Clock, Sparkles } from "lucide-react";
+import { LogOut, User, Globe, Settings, Crown, Clock, Sparkles, Palette } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 import { LanguageSettingsModal } from "@/components/LanguageSettingsModal";
 import { UserProfileModal } from "@/components/UserProfileModal";
 import { SubscriptionManager } from "@/components/SubscriptionManager";
+import { ThemePickerModal } from "@/components/ThemePickerModal";
+import { useAppTheme, THEMES } from "@/contexts/ThemeContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,15 +23,22 @@ export function UserMenu() {
   const { user, signOut } = useAuth();
   const { t, language } = useLanguage();
   const { isPremium, isTrialActive, trialDaysRemaining } = usePremium();
+  const { theme } = useAppTheme();
   const navigate = useNavigate();
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
+  const [showThemePicker, setShowThemePicker] = useState(false);
+
+  const currentThemeLabel = THEMES.find(t => t.id === theme)?.label ?? "Tema";
 
   const languageFlags: Record<string, string> = {
     es: "🇦🇷",
     en: "🇺🇸",
     pt: "🇧🇷",
+    it: "🇮🇹",
+    de: "🇩🇪",
+    fr: "🇫🇷",
   };
 
   if (!user) {
@@ -89,7 +98,7 @@ export function UserMenu() {
               <span className="hidden sm:inline">{displayName}</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuContent align="end" className="w-52">
             <DropdownMenuItem onClick={() => setShowProfileModal(true)}>
               <Settings className="w-4 h-4 mr-2" />
               {t("myProfile")}
@@ -97,6 +106,10 @@ export function UserMenu() {
             <DropdownMenuItem onClick={() => setShowLanguageModal(true)}>
               <Globe className="w-4 h-4 mr-2" />
               {t("language")}: {languageFlags[language]}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setShowThemePicker(true)}>
+              <Palette className="w-4 h-4 mr-2" />
+              Tema: {currentThemeLabel}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setShowSubscription(true)}>
               <Crown className="w-4 h-4 mr-2" />
@@ -113,6 +126,7 @@ export function UserMenu() {
       <LanguageSettingsModal open={showLanguageModal} onOpenChange={setShowLanguageModal} />
       <UserProfileModal open={showProfileModal} onOpenChange={setShowProfileModal} />
       <SubscriptionManager open={showSubscription} onOpenChange={setShowSubscription} />
+      <ThemePickerModal open={showThemePicker} onOpenChange={setShowThemePicker} />
     </>
   );
 }

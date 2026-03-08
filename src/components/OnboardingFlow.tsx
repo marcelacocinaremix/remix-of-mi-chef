@@ -56,6 +56,9 @@ const LANGUAGES: { code: Language; name: string; flag: string; greeting: string 
   { code: "es", name: "Español", flag: "🇦🇷", greeting: "¡Hola!" },
   { code: "en", name: "English", flag: "🇺🇸", greeting: "Hello!" },
   { code: "pt", name: "Português", flag: "🇧🇷", greeting: "Olá!" },
+  { code: "it", name: "Italiano", flag: "🇮🇹", greeting: "Ciao!" },
+  { code: "de", name: "Deutsch", flag: "🇩🇪", greeting: "Hallo!" },
+  { code: "fr", name: "Français", flag: "🇫🇷", greeting: "Bonjour!" },
 ];
 
 const getFeatureSlides = (t: (key: TranslationKey) => string) => [
@@ -168,15 +171,25 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     setIsLoading(true);
     try {
       if (authMode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const finalName = displayName.trim() || email.split("@")[0];
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: { display_name: displayName || email.split("@")[0] },
+            data: { display_name: finalName },
             emailRedirectTo: `${window.location.origin}/`,
           },
         });
         if (error) throw error;
+        // Also save display_name directly to profiles (in case trigger is delayed)
+        if (signUpData.user) {
+          await supabase.from("profiles").upsert({
+            id: signUpData.user.id,
+            display_name: finalName,
+            language: selectedLanguage,
+            updated_at: new Date().toISOString(),
+          });
+        }
         toast({
           title: t("authAccountCreated"),
           description: t("authWelcome"),
@@ -392,24 +405,24 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleLanguageSelect(lang.code)}
                     className={cn(
-                      "w-full flex items-center gap-4 p-5 rounded-2xl border-2 transition-all duration-300",
+                      "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-all duration-300",
                       selectedLanguage === lang.code
                         ? "border-white/60 bg-white/10 shadow-lg shadow-white/5"
                         : "border-white/20 hover:border-white/40 hover:bg-white/5"
                     )}
                   >
                     <motion.span 
-                      className="text-4xl"
+                      className="text-2xl"
                       animate={selectedLanguage === lang.code ? { scale: [1, 1.2, 1] } : {}}
                       transition={{ duration: 0.3 }}
                     >
                       {lang.flag}
                     </motion.span>
                     <div className="flex-1 text-left">
-                      <span className="block font-semibold text-white text-lg">
+                      <span className="block font-semibold text-white text-sm">
                         {lang.name}
                       </span>
-                      <span className="text-sm text-white/60">
+                      <span className="text-xs text-white/60">
                         {lang.greeting}
                       </span>
                     </div>
@@ -419,9 +432,9 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                           exit={{ scale: 0 }}
-                          className="w-8 h-8 rounded-full bg-white flex items-center justify-center"
+                          className="w-6 h-6 rounded-full bg-white flex items-center justify-center"
                         >
-                          <Check className="w-5 h-5 text-black" />
+                          <Check className="w-3.5 h-3.5 text-black" />
                         </motion.div>
                       )}
                     </AnimatePresence>

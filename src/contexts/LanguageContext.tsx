@@ -26,7 +26,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return !localStorage.getItem(FIRST_VISIT_KEY);
   });
 
-  // Load language from user profile when authenticated
+  // Load language from user profile when authenticated — profile is always the source of truth
   useEffect(() => {
     if (user) {
       const loadUserLanguage = async () => {
@@ -42,9 +42,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         }
       };
       
-      setTimeout(() => loadUserLanguage(), 0);
+      loadUserLanguage();
     }
-  }, [user]);
+  }, [user?.id]);
 
   const setLanguage = async (lang: Language) => {
     setLanguageState(lang);

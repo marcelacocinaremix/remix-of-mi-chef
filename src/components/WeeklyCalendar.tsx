@@ -5,6 +5,7 @@ import {
   Sun, Moon, ChevronLeft, ChevronRight, Trash2, Save, AlertTriangle,
   GripVertical, Copy
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Recipe } from "@/components/RecipeList";
@@ -73,6 +74,7 @@ const initialFilters: FiltersState = {
 export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateChange }: WeeklyCalendarProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const shoppingList = useShoppingList();
   
   const [currentWeek, setCurrentWeek] = useState<Date>(getWeekStart(new Date()));
@@ -193,25 +195,26 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
 
     const { day, meal } = showRecipeSelector;
     const weekStartStr = currentWeek.toISOString().split('T')[0];
+    const existingPlan = getMealForSlot(day, meal);
+    const tempId = existingPlan?.id || `temp-${Date.now()}`;
+
+    // Optimistic update
+    const newPlan: MealPlan = { id: tempId, dayOfWeek: day, mealType: meal, recipe };
+    setMealPlans(prev => existingPlan
+      ? prev.map(p => p.dayOfWeek === day && p.mealType === meal ? newPlan : p)
+      : [...prev, newPlan]
+    );
+    setShowRecipeSelector(null);
 
     try {
-      // Check if exists
-      const existingPlan = getMealForSlot(day, meal);
-
       if (existingPlan?.id) {
-        // Update
         const { error } = await supabase
           .from('meal_plans')
-          .update({
-            recipe_data: JSON.parse(JSON.stringify(recipe)),
-            recipe_name: recipe.name,
-          })
+          .update({ recipe_data: JSON.parse(JSON.stringify(recipe)), recipe_name: recipe.name })
           .eq('id', existingPlan.id);
-
         if (error) throw error;
       } else {
-        // Insert
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('meal_plans')
           .insert({
             user_id: user.id,
@@ -220,24 +223,17 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
             meal_type: meal,
             recipe_data: JSON.parse(JSON.stringify(recipe)),
             recipe_name: recipe.name,
-          });
-
+          }).select().single();
         if (error) throw error;
+        if (data) {
+          setMealPlans(prev => prev.map(p => p.id === tempId ? { ...p, id: data.id } : p));
+        }
       }
-
-      await fetchMealPlans();
-      setShowRecipeSelector(null);
-      toast({
-        title: "¡Receta agregada!",
-        description: `${recipe.name} agregada para el ${DAYS[day].name}`,
-      });
+      toast({ title: "¡Receta agregada!", description: `${recipe.name} agregada para el ${DAYS[day].name}` });
     } catch (error) {
       console.error('Error adding recipe:', error);
-      toast({
-        title: "Error",
-        description: "No se pudo agregar la receta",
-        variant: "destructive",
-      });
+      await fetchMealPlans();
+      toast({ title: "Error", description: "No se pudo agregar la receta", variant: "destructive" });
     }
   };
 
@@ -245,26 +241,17 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
     const plan = getMealForSlot(dayIndex, mealType);
     if (!plan?.id) return;
 
+    // Optimistic removal
+    setMealPlans(prev => prev.filter(p => !(p.dayOfWeek === dayIndex && p.mealType === mealType)));
+
     try {
-      const { error } = await supabase
-        .from('meal_plans')
-        .delete()
-        .eq('id', plan.id);
-
+      const { error } = await supabase.from('meal_plans').delete().eq('id', plan.id);
       if (error) throw error;
-
-      await fetchMealPlans();
-      toast({
-        title: "Receta eliminada",
-        description: "Se quitó la receta del calendario",
-      });
+      toast({ title: "Receta eliminada", description: "Se quitó la receta del calendario" });
     } catch (error) {
       console.error('Error removing recipe:', error);
-      toast({
-        title: "Error",
-        description: "No se pudo eliminar la receta",
-        variant: "destructive",
-      });
+      await fetchMealPlans();
+      toast({ title: "Error", description: "No se pudo eliminar la receta", variant: "destructive" });
     }
   };
 
@@ -326,10 +313,7 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
         }
 
         await fetchMealPlans();
-        toast({
-          title: "¡Semana armada!",
-          description: "Tu plan semanal está listo con recetas que aprovechan ingredientes",
-        });
+      toast({ title: t("weeklyBuildDone"), description: t("weeklyBuildDoneDesc") });
       }
     } catch (error) {
       console.error('Error generating AI plan:', error);
@@ -361,10 +345,7 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
       setMealPlans([]);
       setIngredientSuggestions([]);
       setShowClearConfirm(false);
-      toast({
-        title: "Plan borrado",
-        description: "Tu plan semanal fue eliminado. ¡Podés armarlo de nuevo!",
-      });
+      toast({ title: t("weeklyDeletedToast"), description: t("weeklyDeletedToastDesc") });
     } catch (error) {
       console.error('Error clearing week:', error);
       toast({
@@ -431,10 +412,7 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
       }
     }
 
-    toast({
-      title: "¡Lista actualizada!",
-      description: `Se agregaron ${count} ingredientes a tu lista de compras`,
-    });
+      toast({ title: `${t("weeklyListUpdated")}`, description: `${t("weeklyListUpdatedDesc").replace("{count}", String(count))}` });
   };
 
   const navigateWeek = (direction: 'prev' | 'next') => {
@@ -685,7 +663,7 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
     <div className="animate-slide-up space-y-6">
       <Button variant="ghost" onClick={onBack} className="mb-4">
         <ArrowLeft className="w-4 h-4 mr-2" />
-        Volver al inicio
+        {t("weeklyBackToHome")}
       </Button>
 
       <div className={cn(
@@ -697,7 +675,7 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
           <div className="flex items-center gap-3">
             <Calendar className="w-7 h-7 text-primary" />
             <h2 className="font-display text-xl md:text-2xl font-bold text-foreground">
-              Plan Semanal
+              {t("weeklyPlanTitle")}
             </h2>
           </div>
 
@@ -735,7 +713,7 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
             className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 hover:from-purple-600 hover:via-pink-600 hover:to-orange-500 text-white"
           >
             <Sparkles className={cn("w-4 h-4", isGeneratingAI && "animate-spin")} />
-            {isGeneratingAI ? "Armando..." : "Armarme la semana"}
+            {isGeneratingAI ? t("weeklyBuilding") : t("weeklyBuildAI")}
           </Button>
           
           <WeekTemplates 
@@ -747,11 +725,11 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
             <>
               <Button variant="outline" onClick={() => setShowShoppingList(true)}>
                 <ShoppingCart className="w-4 h-4" />
-                Ver lista de compras
+                {t("weeklyViewList")}
               </Button>
               <Button variant="outline" onClick={handleAddToShoppingList}>
                 <Plus className="w-4 h-4" />
-                Agregar todo al super
+                {t("weeklyAddToGrocery")}
               </Button>
               <Button 
                 variant="outline" 
@@ -759,7 +737,7 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
                 className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
               >
                 <Trash2 className="w-4 h-4" />
-                Borrar plan
+                {t("weeklyDeletePlan")}
               </Button>
             </>
           )}
@@ -839,7 +817,7 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
           <div className="text-center py-8 mt-4">
             <Utensils className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
             <p className="text-muted-foreground">
-              Tu calendario está vacío. ¡Agregá recetas o usá "Armarme la semana"!
+              {t("weeklyEmptyCalendar")}
             </p>
           </div>
         )}
@@ -851,7 +829,7 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <ChefHat className="w-5 h-5 text-primary" />
-              Elegir receta para {showRecipeSelector && DAYS[showRecipeSelector.day].name} - {showRecipeSelector?.meal === 'almuerzo' ? 'Almuerzo' : 'Cena'}
+              Elegir receta para {showRecipeSelector && DAYS[showRecipeSelector.day].name} - {showRecipeSelector?.meal === 'almuerzo' ? t("lunch") : t("dinner")}
             </DialogTitle>
           </DialogHeader>
           

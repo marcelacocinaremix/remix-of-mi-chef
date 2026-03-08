@@ -54,6 +54,7 @@ import {
   Coins,
   Clock,
   ArrowRight,
+  Globe,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
@@ -91,19 +92,35 @@ interface Level {
   categories: Category[];
 }
 
-const learningContent: Level[] = [
+function getLearningContent(language: string): Level[] {
+  const isEn = language === 'en';
+  const isPt = language === 'pt';
+  const isIt = language === 'it';
+  const isDe = language === 'de';
+  const isFr = language === 'fr';
+
+  const l = (es: string, en: string, pt: string, it: string, de: string, fr: string) => {
+    if (isEn) return en;
+    if (isPt) return pt;
+    if (isIt) return it;
+    if (isDe) return de;
+    if (isFr) return fr;
+    return es;
+  };
+
+  return [
   {
     id: "principiante",
-    name: "Principiante",
-    description: "Empezá desde cero con lo básico de la cocina",
+    name: l("Principiante", "Beginner", "Iniciante", "Principiante", "Anfänger", "Débutant"),
+    description: l("Empezá desde cero con lo básico de la cocina", "Start from scratch with cooking basics", "Comece do zero com o básico da cozinha", "Parti da zero con le basi della cucina", "Starte von Null mit den Grundlagen des Kochens", "Commencez de zéro avec les bases de la cuisine"),
     color: "bg-emerald-500",
     gradient: "from-emerald-500 to-teal-500",
     categories: [
       {
         id: "tecnicas-basicas",
-        name: "Técnicas Básicas",
+        name: l("Técnicas Básicas", "Basic Techniques", "Técnicas Básicas", "Tecniche Base", "Grundtechniken", "Techniques de Base"),
         icon: ChefHat,
-        description: "Los fundamentos que todo cocinero debe conocer",
+        description: l("Los fundamentos que todo cocinero debe conocer", "The fundamentals every cook must know", "Os fundamentos que todo cozinheiro deve conhecer", "I fondamenti che ogni cuoco deve conoscere", "Die Grundlagen, die jeder Koch kennen muss", "Les fondamentaux que tout cuisinier doit connaître"),
         lessons: [
           {
             id: "cortar-verduras",
@@ -191,9 +208,9 @@ const learningContent: Level[] = [
       },
       {
         id: "metodos-coccion-basicos",
-        name: "Métodos de Cocción Básicos",
+        name: l("Métodos de Cocción Básicos", "Basic Cooking Methods", "Métodos de Cozimento Básicos", "Metodi di Cottura Base", "Grundlegende Kochmethoden", "Méthodes de Cuisson de Base"),
         icon: Flame,
-        description: "Las técnicas fundamentales para transformar ingredientes",
+        description: l("Las técnicas fundamentales para transformar ingredientes", "Fundamental techniques to transform ingredients", "As técnicas fundamentais para transformar ingredientes", "Le tecniche fondamentali per trasformare gli ingredienti", "Grundlegende Techniken zur Zubereitung von Zutaten", "Les techniques fondamentales pour transformer les ingrédients"),
         lessons: [
           {
             id: "hervir",
@@ -280,9 +297,9 @@ const learningContent: Level[] = [
       },
       {
         id: "condimentos-basicos",
-        name: "Condimentos Básicos",
+        name: l("Condimentos Básicos", "Basic Seasonings", "Condimentos Básicos", "Condimenti Base", "Grundlegende Gewürze", "Assaisonnements de Base"),
         icon: Sparkles,
-        description: "Los sabores que transforman cualquier plato",
+        description: l("Los sabores que transforman cualquier plato", "The flavors that transform any dish", "Os sabores que transformam qualquer prato", "I sapori che trasformano qualsiasi piatto", "Die Aromen, die jedes Gericht verwandeln", "Les saveurs qui transforment n'importe quel plat"),
         lessons: [
           {
             id: "sal-pimienta",
@@ -354,9 +371,9 @@ const learningContent: Level[] = [
       },
       {
         id: "huevos",
-        name: "Huevos Perfectos",
+        name: l("Huevos Perfectos", "Perfect Eggs", "Ovos Perfeitos", "Uova Perfette", "Perfekte Eier", "Œufs Parfaits"),
         icon: Egg,
-        description: "El ingrediente más versátil de la cocina",
+        description: l("El ingrediente más versátil de la cocina", "The most versatile ingredient in the kitchen", "O ingrediente mais versátil da cozinha", "L'ingrediente più versatile della cucina", "Die vielseitigste Zutat in der Küche", "L'ingrédient le plus polyvalent de la cuisine"),
         lessons: [
           {
             id: "huevo-frito",
@@ -421,9 +438,9 @@ const learningContent: Level[] = [
       },
       {
         id: "arroz-pastas",
-        name: "Arroz y Pastas",
+        name: l("Arroz y Pastas", "Rice & Pasta", "Arroz e Massas", "Riso e Pasta", "Reis & Pasta", "Riz et Pâtes"),
         icon: Wheat,
-        description: "Carbohidratos perfectos siempre",
+        description: l("Carbohidratos perfectos siempre", "Perfect carbohydrates every time", "Carboidratos perfeitos sempre", "Carboidrati perfetti ogni volta", "Perfekte Kohlenhydrate immer", "Des glucides parfaits à chaque fois"),
         lessons: [
           {
             id: "arroz-blanco",
@@ -468,9 +485,9 @@ const learningContent: Level[] = [
       },
       {
         id: "seguridad",
-        name: "Seguridad en la Cocina",
+        name: l("Seguridad en la Cocina", "Kitchen Safety", "Segurança na Cozinha", "Sicurezza in Cucina", "Küchensicherheit", "Sécurité en Cuisine"),
         icon: Shield,
-        description: "Cocinando seguro, cocinás mejor",
+        description: l("Cocinando seguro, cocinás mejor", "Cook safely, cook better", "Cozinhando com segurança, você cozinha melhor", "Cucinare in sicurezza è cucinare meglio", "Sicher kochen, besser kochen", "Cuisiner en sécurité, c'est cuisiner mieux"),
         lessons: [
           {
             id: "temperaturas-seguras",
@@ -1259,8 +1276,337 @@ const learningContent: Level[] = [
         ]
       }
     ]
+  },
+  {
+    id: "especialidades",
+    name: "Especialidades",
+    description: "Postres, cocina del mundo, saludable y técnicas avanzadas",
+    color: "bg-pink-500",
+    gradient: "from-pink-500 to-rose-500",
+    categories: [
+      {
+        id: "reposteria-avanzada",
+        name: "Repostería & Postres",
+        icon: IceCream,
+        description: "Tortas, budines, cookies y mucho más",
+        lessons: [
+          {
+            id: "bizcochuelo-perfecto",
+            title: "Bizcochuelo perfecto",
+            description: "La base de todas las tortas",
+            tips: [
+              "Los huevos y la manteca deben estar a temperatura ambiente",
+              "Batí huevos y azúcar hasta triplicar el volumen (10 min)",
+              "Tamizá la harina para evitar grumos",
+              "Incorporá la harina con movimientos envolventes, no batiendo",
+              "No abras el horno antes de los 25 min",
+              "Pinchá con palillo: si sale limpio, está listo"
+            ],
+            steps: [
+              "Precalentá horno a 180°C y enmantecá el molde",
+              "Batí huevos + azúcar hasta que esté espumoso y pálido",
+              "Incorporá manteca derretida (fría) en hilo",
+              "Sumá harina tamizada con movimientos suaves",
+              "Volcá en molde y horneá 30-35 min sin abrir el horno"
+            ],
+            marcelaMessage: "Un buen bizcochuelo aireado es el secreto de toda torta espectacular 🎂",
+            funFact: "El secreto del bizcochuelo esponjoso es el aire atrapado al batir los huevos"
+          },
+          {
+            id: "cookies-crunchy",
+            title: "Cookies crujientes por fuera, tiernas por dentro",
+            description: "El balance perfecto en cada mordida",
+            tips: [
+              "Manteca pomada (no derretida) para cookies más gruesas",
+              "Más yema = más masticable, más clara = más crujiente",
+              "Azúcar negra da humedad y sabor acaramelado",
+              "Enfriá la masa 1 hora en heladera antes de hornear",
+              "Sacalas del horno cuando parezcan 'poco hechas' - terminan en la bandeja"
+            ],
+            marcelaMessage: "La cookie perfecta requiere paciencia, pero el resultado lo vale 🍪",
+            funFact: "Las cookies se inventaron como 'tazas de pastel de prueba' para verificar la temperatura del horno"
+          },
+          {
+            id: "mousse-chocolate",
+            title: "Mousse de chocolate",
+            description: "Aireado, intenso y sin horno",
+            tips: [
+              "Usá chocolate con 60-70% de cacao para sabor intenso",
+              "Las claras deben estar impecablemente limpias para montar",
+              "Incorporá las claras en 2-3 tandas para no perder aire",
+              "Enfriá mínimo 4 horas en heladera",
+              "El toque de sal potencia el chocolate"
+            ],
+            steps: [
+              "Derretí el chocolate a baño maría y dejá enfriar",
+              "Batí las claras a nieve con una pizca de sal",
+              "Montá la crema de leche a picos suaves",
+              "Mezclá chocolate con crema, luego incorporá claras",
+              "Distribuí en copas y refrigerá 4+ horas"
+            ],
+            marcelaMessage: "La mousse de chocolate es elegancia pura con pocos ingredientes 🍫"
+          },
+          {
+            id: "cheesecake-cremoso",
+            title: "Cheesecake cremoso sin horno",
+            description: "Suave, firme y delicioso",
+            tips: [
+              "Cream cheese a temperatura ambiente para evitar grumos",
+              "La gelatina sin sabor asegura que corte perfecto",
+              "La base de galletitas necesita descansar en heladera",
+              "No desmoldes apurado: mínimo 6 horas de frío",
+              "Para cortes limpios: cuchillo caliente y seco"
+            ],
+            marcelaMessage: "Sin horno, sin estrés. ¡Este cheesecake impresiona a todos! 🍰"
+          },
+          {
+            id: "budines-rapidos",
+            title: "Budines rápidos y variados",
+            description: "Merienda lista en 40 minutos",
+            tips: [
+              "Los ingredientes húmedos + secos: mezclá por separado antes de unir",
+              "No sobrebatas: unos pocos grumos están bien",
+              "El banano maduro es mejor endulzante y humectante natural",
+              "Cubrí con aluminio si se dora demasiado arriba",
+              "Enfriá en rejilla para evitar que se humedezca la base"
+            ],
+            marcelaMessage: "Un buen budín convierte ingredientes simples en algo especial 🫐"
+          }
+        ]
+      },
+      {
+        id: "cocina-mundo",
+        name: "Cocina del Mundo",
+        icon: Globe,
+        description: "Viajá sin salir de la cocina",
+        lessons: [
+          {
+            id: "cocina-italiana",
+            title: "Italia en tu cocina",
+            description: "Pastas frescas, risotto y más",
+            tips: [
+              "Pasta fresca: 100g de harina + 1 huevo por persona",
+              "Risotto: agregá el caldo caliente de a cucharones",
+              "Soffritto (cebolla, zanahoria, apio) es la base italiana",
+              "El queso parmesano se agrega fuera del fuego",
+              "La pasta se termina de cocinar EN la salsa"
+            ],
+            steps: [
+              "Hacé la pasta: harina en volcán, huevos en el centro",
+              "Amasá 10 min hasta que esté lisa y elástica",
+              "Cubrí y descansá 30 min",
+              "Estirá finísima y cortá como quieras",
+              "Cociná 2-3 min en agua con mucha sal"
+            ],
+            marcelaMessage: "La cocina italiana es simplicidad y calidad de ingredientes. ¡Menos es más! 🍝",
+            funFact: "En Italia hay más de 350 formas diferentes de pasta, cada una diseñada para un tipo de salsa"
+          },
+          {
+            id: "cocina-asiatica",
+            title: "Asia Wok & Sabores",
+            description: "Salteados, arroces y salsas asiáticas",
+            tips: [
+              "El wok debe estar bien caliente (casi rojo) antes de cocinar",
+              "Salsa de soja, jengibre y ajo = base de casi todo",
+              "El aceite de sésamo se agrega SIEMPRE al final",
+              "El arroz asiático se lava hasta que el agua salga clara",
+              "La salsa de ostras da profundidad sin ser pescado"
+            ],
+            marcelaMessage: "La cocina asiática es fuego alto, rapidez y sabores intensos. ¡Dominá el wok! 🥢"
+          },
+          {
+            id: "cocina-mexicana",
+            title: "México: especias y color",
+            description: "Tacos, guacamole y salsas vibrantes",
+            tips: [
+              "El aguacate para guacamole debe estar muy maduro",
+              "Los chiles secos se tuestan y rehidratan antes de usar",
+              "El sofrito mexicano lleva tomate, cebolla y ajo asados",
+              "Las tortillas de maíz se calientan directo sobre la llama",
+              "El limón es imprescindible para terminar casi todos los platos"
+            ],
+            marcelaMessage: "La cocina mexicana es pura alma y color. ¡Cada bocado cuenta una historia! 🌮"
+          },
+          {
+            id: "cocina-francesa",
+            title: "Francia: técnica y elegancia",
+            description: "Las bases de la cocina clásica",
+            tips: [
+              "Las salsas madre francesas son la base de todo (bechamel, velouté, espagnole)",
+              "Beurre blanc: reducción de vino + crema + manteca fría en cubos",
+              "El roux (harina + manteca) espesa sin grumos si se hace bien",
+              "Brunoise: corte en cubos de 2mm - requiere precisión",
+              "La manteca clarificada tiene mayor punto de humo"
+            ],
+            marcelaMessage: "Francia nos enseñó las técnicas que usa el mundo. ¡Valen la pena aprenderse! 🥐"
+          },
+          {
+            id: "cocina-mediterranea",
+            title: "Mediterráneo: salud y sabor",
+            description: "Hummus, falafel, tabbouleh y más",
+            tips: [
+              "El aceite de oliva extra virgen es protagonista, no actor de reparto",
+              "Las legumbres remojadas 12h reducen tiempo de cocción a la mitad",
+              "El sumac da acidez sin líquido - ideal para aderezar",
+              "Las hierbas frescas en cantidad, no como decoración",
+              "El yogur griego espeso funciona como salsa, dip y postre"
+            ],
+            marcelaMessage: "La dieta mediterránea es la más saludable y la más sabrosa del mundo 🫒"
+          }
+        ]
+      },
+      {
+        id: "cocina-fit",
+        name: "Cocina Fit & Saludable",
+        icon: Dumbbell,
+        description: "Rico, nutritivo y sin culpa",
+        lessons: [
+          {
+            id: "proteinas-magras",
+            title: "Proteínas magras bien cocinadas",
+            description: "Pechuga, pescado y legumbres sin aburrirse",
+            tips: [
+              "Marinado de 2-24h transforma cualquier proteína magra",
+              "La pechuga se seca por sobrecocción: termómetro al centro (74°C)",
+              "El pescado al limón + papel aluminio queda jugoso sin grasa",
+              "Las legumbres combinadas con arroz forman proteína completa",
+              "El tofu presado y marinado absorbe todos los sabores"
+            ],
+            marcelaMessage: "La proteína no tiene que ser aburrida. ¡Con marinado y técnica es deliciosa! 💪"
+          },
+          {
+            id: "bowls-nutritivos",
+            title: "Bowls nutritivos y coloridos",
+            description: "El armado perfecto para comer completo",
+            tips: [
+              "Base (granos): arroz, quinoa, batata, coliflor triturado",
+              "Proteína: pollo, huevo, garbanzos, tofu, atún",
+              "Verduras crudas y cocidas: para variedad de texturas",
+              "Grasa buena: palta, semillas, aceite de oliva",
+              "Aderezo ácido al final para unificar todos los sabores"
+            ],
+            marcelaMessage: "Un buen bowl es nutrición y arte en el mismo plato 🥗"
+          },
+          {
+            id: "snacks-saludables",
+            title: "Snacks saludables DIY",
+            description: "Opciones caseras para picar sin culpa",
+            tips: [
+              "Hummus casero: garbanzos + tahini + limón + ajo + aceite",
+              "Chips de batata al horno con páprika y aceite de oliva",
+              "Bolitas de avena, banana y miel sin horno en 10 min",
+              "Palitos de apio y zanahoria con dips de yogur condimentado",
+              "Granola casera: avena + miel + frutos secos al horno"
+            ],
+            marcelaMessage: "Si tenés buenos snacks en casa, no caés en lo procesado. ¡Preparalos el domingo! 🥕"
+          },
+          {
+            id: "jugos-smoothies",
+            title: "Jugos y smoothies nutritivos",
+            description: "Licuados que nutren de verdad",
+            tips: [
+              "Smoothie base: frutas congeladas + líquido + proteína",
+              "El verde sin que sepa a pasto: espinaca + banana + mango",
+              "La avena da cremosidad y fibra sin sabor fuerte",
+              "Jengibre fresco en licuado mejora digestión",
+              "Sin azúcar: el dulzor viene de las frutas"
+            ],
+            marcelaMessage: "Un smoothie equilibrado reemplaza un desayuno completo. ¡Sin azúcar agregada! 🥤"
+          },
+          {
+            id: "cocina-plant-based",
+            title: "Cocina plant-based",
+            description: "Comer vegetal sin sacrificar sabor",
+            tips: [
+              "Levadura nutricional = sabor a queso sin lácteos",
+              "Leche de coco cocida reduce y espesa como crema",
+              "Los champiñones dan textura y umami como la carne",
+              "Anacardos remojados licuados = crema vegetal perfecta",
+              "El miso en salsas da profundidad y fermentación natural"
+            ],
+            marcelaMessage: "La cocina plant-based no es renuncia, es descubrimiento de nuevos sabores 🌱"
+          }
+        ]
+      },
+      {
+        id: "tecnicas-pro",
+        name: "Técnicas Pro",
+        icon: GraduationCap,
+        description: "Elevá tu cocina al siguiente nivel",
+        lessons: [
+          {
+            id: "esferificacion-basica",
+            title: "Esferificación básica",
+            description: "Cocina molecular para impresionar",
+            tips: [
+              "Alginato de sodio + líquido = base de la esfera",
+              "Cloruro de calcio + agua = baño de gelificación",
+              "Las esferas se forman al instante - sacalas rápido",
+              "Enjuagá con agua limpia para detener la reacción",
+              "Funciona con jugos, caldos, aceites saborizados"
+            ],
+            marcelaMessage: "La cocina molecular parece magia pero es pura ciencia. ¡Impresioná con esto! 🔮"
+          },
+          {
+            id: "ahumado-casero",
+            title: "Ahumado casero",
+            description: "Sabor profundo sin ahumador profesional",
+            tips: [
+              "Astillas de madera de manzano, roble o nogal americano",
+              "Wok con tapa + rejilla + astillas = ahumador casero",
+              "Carne y pescado se ahúman en frío (bajo 25°C) o caliente",
+              "Sal ahumada: sal gruesa + 20 min de humo = sal gourmet",
+              "El tiempo de ahumado varía: pescado 20 min, cerdo 2-4h"
+            ],
+            marcelaMessage: "El humo es el condimento más primitivo y más sofisticado a la vez 🔥"
+          },
+          {
+            id: "gelificantes",
+            title: "Gelificantes naturales",
+            description: "Agar, gelatina y pectina",
+            tips: [
+              "Agar agar: vegetal, gelifica más firme que gelatina, soporta calor",
+              "Gelatina: animal, más suave y elástica",
+              "Pectina: de frutas, ideal para jaleas y mermeladas",
+              "El agar funciona en caliente, la gelatina solo en frío",
+              "1g de agar por 100ml de líquido para textura media"
+            ],
+            marcelaMessage: "Dominar los gelificantes abre un mundo de texturas y presentaciones 🧊"
+          },
+          {
+            id: "fermentacion-avanzada",
+            title: "Kimchi y fermentos asiáticos",
+            description: "El fermento más conocido del mundo",
+            tips: [
+              "Col napa + gochugaru (ají coreano) + ajo + jengibre + daikon",
+              "El sal seca la col y crea el ambiente correcto",
+              "Fermenta 1-5 días a temperatura ambiente",
+              "El gas producido es señal de que funciona - abrí el frasco a diario",
+              "El kimchi maduro (2+ semanas) se usa para cocinar"
+            ],
+            marcelaMessage: "El kimchi es probiótico, delicioso y lleva fermento de siglos. ¡Vale la pena! 🥬"
+          },
+          {
+            id: "caldo-base",
+            title: "Caldos base perfectos",
+            description: "El alma invisible de los mejores platos",
+            tips: [
+              "Caldo claro: partí en agua fría para extraer proteínas lentamente",
+              "Caldo oscuro (fondo): asá los huesos antes de hervir",
+              "Mínimo 4h para caldo de res, 2h para pollo, 45min para pescado",
+              "El skimming (espumar) da un caldo cristalino",
+              "Congelá en cubiteras para tener porciones listas"
+            ],
+            marcelaMessage: "Un buen caldo casero eleva cualquier plato. ¡Es el secreto de los chefs! 🍲"
+          }
+        ]
+      }
+    ]
   }
-];
+  ];
+}
+
+
 
 interface LearnSectionProps {
   onNavigateToCooking?: () => void;
@@ -1269,7 +1615,8 @@ interface LearnSectionProps {
 }
 
 export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabChange }: LearnSectionProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const learningContent = getLearningContent(language);
   const { user } = useAuth();
   const { toast } = useToast();
   const { play } = useSound();
@@ -1461,10 +1808,10 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
       <div className="space-y-6 animate-fade-in">
         <Button
           variant="ghost"
-          onClick={() => setActiveLesson(null)}
+          onClick={() => { setActiveLesson(null); setActiveSubMenu("aprender"); }}
           className="mb-2"
         >
-          ← Volver a categorías
+          {t("learnBack")}
         </Button>
 
         <Card className="border-2 border-primary/20 overflow-hidden">
@@ -1481,12 +1828,12 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                 </CardTitle>
                 <p className="text-muted-foreground">{activeLesson.description}</p>
               </div>
-              {isCompleted && (
-                <Badge className="bg-emerald-500 shrink-0">
-                  <CheckCircle2 className="h-3 w-3 mr-1" />
-                  Completado
-                </Badge>
-              )}
+                {isCompleted && (
+                  <Badge className="bg-emerald-500 shrink-0">
+                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                    {t("learnCompleted")}
+                  </Badge>
+                )}
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -1495,7 +1842,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
               <div className="space-y-3">
                 <h3 className="font-semibold flex items-center gap-2">
                   <ArrowRight className="h-4 w-4 text-primary" />
-                  Paso a paso
+                  {t("learnStepByStep")}
                 </h3>
                 <ol className="space-y-2 list-decimal list-inside">
                   {activeLesson.steps.map((step, index) => (
@@ -1511,7 +1858,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
             <div className="space-y-3">
               <h3 className="font-semibold flex items-center gap-2">
                 <Lightbulb className="h-4 w-4 text-amber-500" />
-                Tips importantes
+                {t("learnImportantTips")}
               </h3>
               <ul className="space-y-2">
                 {activeLesson.tips.map((tip, index) => (
@@ -1532,7 +1879,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                       <Zap className="h-4 w-4 text-amber-500" />
                     </div>
                     <div>
-                      <p className="font-medium text-sm text-amber-600 dark:text-amber-400">¿Sabías que...?</p>
+                      <p className="font-medium text-sm text-amber-600 dark:text-amber-400">{t("learnDidYouKnow")}</p>
                       <p className="text-sm mt-1">{activeLesson.funFact}</p>
                     </div>
                   </div>
@@ -1548,7 +1895,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                     <ChefHat className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-medium text-sm text-primary">Marcela dice:</p>
+                    <p className="font-medium text-sm text-primary">{t("learnMarcelaSays")}</p>
                     <p className="text-sm mt-1">{activeLesson.marcelaMessage}</p>
                   </div>
                 </div>
@@ -1563,7 +1910,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                   className="flex-1"
                 >
                   <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Marcar como completado
+                  {t("learnMarkComplete")}
                 </Button>
               )}
             </div>
@@ -1584,8 +1931,8 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent flex items-center">
           <div className="px-5">
-            <h3 className="text-white font-bold text-xl drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>Aprender</h3>
-            <p className="text-white text-sm drop-shadow-md" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>Dominá la cocina con Marcela</p>
+            <h3 className="text-white font-bold text-xl drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>{t("learnBannerTitle")}</h3>
+            <p className="text-white text-sm drop-shadow-md" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{t("learnBannerSubtitle")}</p>
           </div>
         </div>
       </div>
@@ -1606,7 +1953,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
             )}
           >
             <BookOpen className={cn("w-6 h-6", activeSubMenu === "aprender" && "animate-bounce")} />
-            <span className="text-xs">Aprender</span>
+            <span className="text-xs">{t("learnTabAprender")}</span>
           </button>
           <button
             onClick={() => {
@@ -1620,8 +1967,13 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                 : "bg-background/60 hover:bg-background text-foreground"
             )}
           >
-            <Lightbulb className={cn("w-6 h-6", activeSubMenu === "guia" && "animate-pulse")} />
-            <span className="text-xs">Guía de Alimentos</span>
+            <div className="relative">
+              <Lightbulb className={cn("w-6 h-6", activeSubMenu === "guia" && "animate-pulse")} />
+              {learnBlocked && (
+                <Lock className="w-2.5 h-2.5 absolute -top-1 -right-1 text-amber-500" />
+              )}
+            </div>
+            <span className="text-xs">{t("learnTabGuia")}</span>
           </button>
         </div>
       </div>
@@ -1662,15 +2014,15 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-2xl font-bold text-primary">{stats.completedLessonsCount}</p>
-              <p className="text-xs text-muted-foreground">Lecciones completadas</p>
+              <p className="text-xs text-muted-foreground">{t("learnLessonsCompleted")}</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-amber-500">{stats.totalLessons}</p>
-              <p className="text-xs text-muted-foreground">Lecciones totales</p>
+              <p className="text-xs text-muted-foreground">{t("learnTotalLessons")}</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-emerald-500">{stats.totalCategories}</p>
-              <p className="text-xs text-muted-foreground">Categorías</p>
+              <p className="text-xs text-muted-foreground">{t("learnCategories")}</p>
             </div>
           </div>
           
@@ -1687,7 +2039,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
           
           <div className="flex items-center justify-center gap-2 mt-2">
             <p className="text-xs text-muted-foreground">
-              {Math.round(animatedProgress)}% completado
+              {Math.round(animatedProgress)}{t("learnPercentDone")}
             </p>
             {animatedProgress === 100 && (
               <span className="text-xs animate-bounce">🎉</span>
@@ -1735,7 +2087,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-bold">{getLevelProgress(level.id)}%</p>
-                    <p className="text-xs text-white/80">completado</p>
+                    <p className="text-xs text-white/80">{t("learnCompleted100")}</p>
                   </div>
                 </div>
                 <Progress 
@@ -1843,7 +2195,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
       {/* Motivational Footer */}
       <div className="text-center py-4">
         <p className="text-sm text-muted-foreground italic">
-          "La cocina es un arte que se aprende practicando. ¡Cada error te acerca más a la maestría!" - Marcela
+          {t("learnMotivational")}
         </p>
       </div>
         </div>
@@ -1856,8 +2208,8 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
             <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center gap-3 mb-4">
               <Lock className="w-5 h-5 text-amber-600 flex-shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium">Tu prueba gratuita terminó</p>
-                <p className="text-xs text-muted-foreground">La Guía de Alimentos es de solo lectura. Desbloqueá con Premium.</p>
+                <p className="text-sm font-medium">{t("learnTrialEnded")}</p>
+                <p className="text-xs text-muted-foreground">{t("learnGuideReadOnly")}</p>
               </div>
               <Button size="sm" onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs">
                 Premium
@@ -1874,7 +2226,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
       {!isPremium && isTrialActive && (
         <div className="text-center py-2">
           <span className="text-xs text-muted-foreground">
-            🎁 Prueba gratuita: {trialDaysRemaining} días restantes
+            {t("learnTrialActive")} {trialDaysRemaining} {t("learnTrialDays")}
           </span>
         </div>
       )}

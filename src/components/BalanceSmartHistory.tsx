@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface NutritionalData {
   proteinas: number;
@@ -31,6 +32,7 @@ interface BalanceSmartHistoryProps {
 }
 
 export function BalanceSmartHistory({ weeklyRecipes, totals, allCookedRecipes }: BalanceSmartHistoryProps) {
+  const { t } = useLanguage();
   // Calculate comprehensive stats
   const stats = useMemo(() => {
     // This week stats
@@ -180,9 +182,9 @@ export function BalanceSmartHistory({ weeklyRecipes, totals, allCookedRecipes }:
             <Activity className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <span className="font-display">Historial Inteligente</span>
+            <span className="font-display">{t("balSmartTitle")}</span>
             <p className="text-xs text-muted-foreground font-normal mt-0.5">
-              Análisis de tu balance nutricional
+              {t("balSmartSubtitle")}
             </p>
           </div>
           <Sparkles className="w-4 h-4 text-yellow-500 ml-auto animate-pulse" />
@@ -199,7 +201,7 @@ export function BalanceSmartHistory({ weeklyRecipes, totals, allCookedRecipes }:
           >
             <div className="flex items-center gap-2 mb-1">
               <ChefHat className="w-4 h-4 text-primary" />
-              <span className="text-xs text-muted-foreground">Esta semana</span>
+              <span className="text-xs text-muted-foreground">{t("balSmartThisWeek")}</span>
             </div>
             <div className="flex items-center gap-2">
               <p className="text-2xl font-bold text-primary">{stats.thisWeekCount}</p>
@@ -215,7 +217,7 @@ export function BalanceSmartHistory({ weeklyRecipes, totals, allCookedRecipes }:
           >
             <div className="flex items-center gap-2 mb-1">
               <Flame className="w-4 h-4 text-orange-500" />
-              <span className="text-xs text-muted-foreground">Kcal/día</span>
+              <span className="text-xs text-muted-foreground">{t("balSmartKcalDay")}</span>
             </div>
             <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats.avgCaloriesPerDay}</p>
           </motion.div>
@@ -228,7 +230,7 @@ export function BalanceSmartHistory({ weeklyRecipes, totals, allCookedRecipes }:
           >
             <div className="flex items-center gap-2 mb-1">
               <Zap className="w-4 h-4 text-blue-500" />
-              <span className="text-xs text-muted-foreground">Alta proteína</span>
+              <span className="text-xs text-muted-foreground">{t("balSmartHighProtein")}</span>
             </div>
             <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.highProteinMeals}</p>
           </motion.div>
@@ -241,7 +243,7 @@ export function BalanceSmartHistory({ weeklyRecipes, totals, allCookedRecipes }:
           >
             <div className="flex items-center gap-2 mb-1">
               <Target className="w-4 h-4 text-emerald-500" />
-              <span className="text-xs text-muted-foreground">Balanceadas</span>
+              <span className="text-xs text-muted-foreground">{t("balSmartBalanced")}</span>
             </div>
             <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.balancedMeals}</p>
           </motion.div>
@@ -256,7 +258,7 @@ export function BalanceSmartHistory({ weeklyRecipes, totals, allCookedRecipes }:
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <Trophy className="w-5 h-5 text-yellow-500" />
-              <span className="font-medium">Puntuación de Balance</span>
+              <span className="font-medium">{t("balSmartBalanceScore")}</span>
             </div>
             <Badge 
               className={cn(
@@ -271,10 +273,10 @@ export function BalanceSmartHistory({ weeklyRecipes, totals, allCookedRecipes }:
           <Progress value={stats.balanceScore} className="h-2.5" />
           <p className="text-xs text-muted-foreground mt-2">
             {stats.balanceScore >= 70 
-              ? "🏆 ¡Excelente balance! Tu alimentación es muy equilibrada" 
+              ? t("balSmartExcellentBalance")
               : stats.balanceScore >= 50 
-                ? "👍 Buen balance, con pequeños ajustes llegas al ideal" 
-                : "💪 Intentá variar más tus comidas para mejor balance"}
+                ? t("balSmartGoodBalance")
+                : t("balSmartPoorBalance")}
           </p>
         </motion.div>
 
@@ -283,23 +285,23 @@ export function BalanceSmartHistory({ weeklyRecipes, totals, allCookedRecipes }:
           <div className="space-y-2">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-muted-foreground" />
-              Comparado con la semana anterior
+              {t("balSmartVsPrevWeek")}
             </h4>
             <div className="grid grid-cols-2 gap-2">
               <div className="flex items-center justify-between p-2 rounded-lg bg-muted/30">
-                <span className="text-sm">Proteínas</span>
+                <span className="text-sm">{t("balSmartProtein")}</span>
                 <ChangeIndicator value={stats.proteinChange} suffix="g" />
               </div>
               <div className="flex items-center justify-between p-2 rounded-lg bg-muted/30">
-                <span className="text-sm">Carbohidratos</span>
+                <span className="text-sm">{t("balSmartCarbs")}</span>
                 <ChangeIndicator value={stats.carbsChange} suffix="g" />
               </div>
               <div className="flex items-center justify-between p-2 rounded-lg bg-muted/30">
-                <span className="text-sm">Grasas</span>
+                <span className="text-sm">{t("balSmartFats")}</span>
                 <ChangeIndicator value={stats.fatsChange} suffix="g" />
               </div>
               <div className="flex items-center justify-between p-2 rounded-lg bg-muted/30">
-                <span className="text-sm">Calorías</span>
+                <span className="text-sm">{t("balSmartCalories")}</span>
                 <ChangeIndicator value={stats.caloriesChange} />
               </div>
             </div>
@@ -310,25 +312,25 @@ export function BalanceSmartHistory({ weeklyRecipes, totals, allCookedRecipes }:
         <div className="space-y-2">
           <h4 className="text-sm font-medium flex items-center gap-2">
             <Star className="w-4 h-4 text-yellow-500" />
-            Insights
+            {t("balSmartInsights")}
           </h4>
           <div className="flex flex-wrap gap-2">
             {stats.streak > 0 && (
               <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/30">
                 <Calendar className="w-3 h-3 mr-1" />
-                {stats.streak} días cocinando
+                {t("balSmartDaysCooking").replace("{count}", String(stats.streak))}
               </Badge>
             )}
             {stats.topRecipeType && (
               <Badge variant="secondary" className="bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30">
                 <ChefHat className="w-3 h-3 mr-1" />
-                Favorito: {stats.topRecipeType.name}
+                {t("balSmartFavorite")} {stats.topRecipeType.name}
               </Badge>
             )}
             {stats.bestDay && (
               <Badge variant="secondary" className="bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30">
                 <Sparkles className="w-3 h-3 mr-1" />
-                Mejor día: {stats.bestDay.name}
+                {t("balSmartBestDay")} {stats.bestDay.name}
               </Badge>
             )}
           </div>
@@ -339,10 +341,10 @@ export function BalanceSmartHistory({ weeklyRecipes, totals, allCookedRecipes }:
           <Award className="w-5 h-5 text-yellow-500" />
           <div className="flex-1">
             <p className="text-sm">
-              <span className="font-medium">{stats.totalRecipesEver}</span> recetas cocinadas en total
+              <span className="font-medium">{stats.totalRecipesEver}</span> {t("balSmartTotalRecipes").replace("{count}", "").trim().replace(/^\d+\s*/, "")}
             </p>
             <p className="text-xs text-muted-foreground">
-              ¡Seguí sumando recetas caseras!
+              {t("balSmartKeepAdding")}
             </p>
           </div>
         </div>

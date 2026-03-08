@@ -16,12 +16,12 @@ import superBanner from "@/assets/super-banner.jpg";
 
 type SubTab = "calendario" | "despensa" | "super";
 
-// Banner images for each sub-tab with title and description
-const bannerImages: Record<SubTab, { src: string; alt: string; title: string; description: string }> = {
-  calendario: { src: calendarBanner, alt: "Planificador de comidas", title: "Calendario", description: "Planificá tus comidas de la semana" },
-  despensa: { src: pantryBanner, alt: "Tu despensa", title: "Tu Despensa", description: "Gestioná tus ingredientes" },
-  super: { src: superBanner, alt: "Lista de supermercado", title: "Lista de Super", description: "Organizá tus compras" },
-};
+// Banner images are built dynamically using translations — see component below
+const getBannerImages = (t: (key: any) => string): Record<SubTab, { src: string; alt: string; title: string; description: string }> => ({
+  calendario: { src: calendarBanner, alt: t("planBannerCalendarTitle"), title: t("planBannerCalendarTitle"), description: t("planBannerCalendarDesc") },
+  despensa: { src: pantryBanner, alt: t("planBannerPantryTitle"), title: t("planBannerPantryTitle"), description: t("planBannerPantryDesc") },
+  super: { src: superBanner, alt: t("planBannerShoppingTitle"), title: t("planBannerShoppingTitle"), description: t("planBannerShoppingDesc") },
+});
 
 interface PlanificarSectionProps {
   ingredients: string[];
@@ -43,9 +43,10 @@ export const PlanificarSection = ({
   const [activeSubTab, setActiveSubTab] = useState<SubTab>("calendario");
   const { toast } = useToast();
   const { t } = useLanguage();
-  const { canUseFeature, isTrialActive, trialDaysRemaining, isPremium } = usePremium();
+  const { isTrialActive, trialDaysRemaining, isPremium, hasAnyAccess } = usePremium();
   const [showPaywall, setShowPaywall] = useState(false);
-  const planBlocked = !canUseFeature('planificador_modify');
+  // Despensa and Super require premium OR active trial; Calendario is always free
+  const currentTabBlocked = !hasAnyAccess && (activeSubTab === "despensa" || activeSubTab === "super");
 
   const subTabs = [
     { id: "calendario" as SubTab, label: t("subTabCalendar"), icon: CalendarDays },
@@ -53,12 +54,13 @@ export const PlanificarSection = ({
     { id: "super" as SubTab, label: t("subTabGrocery"), icon: ShoppingCart },
   ];
 
+  const bannerImages = getBannerImages(t);
   const currentBanner = bannerImages[activeSubTab];
 
   return (
     <div className="space-y-6">
-      {/* Blocked banner - shown FIRST above tabs */}
-      {planBlocked && (
+      {/* Blocked banner - shown FIRST above tabs, only for Despensa/Super */}
+      {currentTabBlocked && (
         <Card className="border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 shadow-md">
           <CardContent className="py-5 px-4">
             <div className="flex items-start gap-3">
@@ -66,9 +68,9 @@ export const PlanificarSection = ({
                 <Lock className="w-5 h-5 text-amber-600" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-foreground">Tu prueba gratuita terminó</p>
+                <p className="text-sm font-semibold text-foreground">Función Premium</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Las secciones <span className="font-medium">Calendario</span>, <span className="font-medium">Despensa</span> y <span className="font-medium">Super</span> son de solo lectura. Pasate a Premium para desbloquear todo.
+                  <span className="font-medium">Despensa</span> y <span className="font-medium">Super</span> son funciones Premium. Pasate a Premium para desbloquear todo.
                 </p>
               </div>
               <Button size="sm" onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs flex-shrink-0">
@@ -85,6 +87,8 @@ export const PlanificarSection = ({
         <div className="grid grid-cols-3 gap-1.5">
           {subTabs.map((tab) => {
             const Icon = tab.icon;
+            const isPremiumTab = tab.id === "despensa" || tab.id === "super";
+            const isTabBlocked = !hasAnyAccess && isPremiumTab;
             return (
               <button
                 key={tab.id}
@@ -93,13 +97,18 @@ export const PlanificarSection = ({
                   onSubTabChange?.(tab.id);
                 }}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 py-2.5 px-2 rounded-xl font-medium text-xs transition-all duration-300",
+                  "future-nav-btn flex flex-col items-center justify-center gap-1 py-2.5 px-2 rounded-xl font-medium text-xs transition-all duration-300",
                   activeSubTab === tab.id
                     ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]"
                     : "bg-background/60 hover:bg-background text-foreground"
                 )}
               >
-                <Icon className={cn("w-4 h-4", activeSubTab === tab.id && "animate-bounce")} />
+                <div className="relative">
+                  <Icon className={cn("w-4 h-4", activeSubTab === tab.id && "animate-bounce")} />
+                  {isTabBlocked && (
+                    <Lock className="w-2.5 h-2.5 absolute -top-1 -right-1 text-amber-500" />
+                  )}
+                </div>
                 <span className="truncate">{tab.label}</span>
               </button>
             );
@@ -128,11 +137,10 @@ export const PlanificarSection = ({
 
       {/* Content with overlay when blocked */}
       <div className="relative">
-        <div className={cn("animate-fade-in", planBlocked && "opacity-60")}>
+        <div className={cn("animate-fade-in", currentTabBlocked && "opacity-60")}>
           {activeSubTab === "calendario" && (
             <MonthlyCalendar
               onNavigateToCooking={onNavigateToCooking || (() => {})}
-              onBlockedAction={planBlocked ? () => setShowPaywall(true) : undefined}
             />
           )}
 
@@ -149,8 +157,8 @@ export const PlanificarSection = ({
           )}
         </div>
 
-        {/* Transparent clickable overlay */}
-        {planBlocked && (
+        {/* Transparent clickable overlay only for Despensa/Super */}
+        {currentTabBlocked && (
           <div
             className="absolute inset-0 z-10 cursor-pointer"
             onClick={() => setShowPaywall(true)}

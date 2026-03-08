@@ -44,7 +44,9 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isMarkingCooked, setIsMarkingCooked] = useState(false);
+  // hasMarkedCooked tracks whether this recipe was already logged (via "Ya la cociné" OR CookingMode)
   const [hasMarkedCooked, setHasMarkedCooked] = useState(false);
+  const [cookedVia, setCookedVia] = useState<"button" | "cookingMode" | null>(null);
   const [showCookingMode, setShowCookingMode] = useState(false);
   const [hasUsedCookingMode, setHasUsedCookingMode] = useState(false);
   const [showSubstitutions, setShowSubstitutions] = useState(false);
@@ -109,8 +111,8 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
   const handleToggleFavorite = async () => {
     if (!user) {
       toast({
-        title: "Iniciá sesión",
-        description: "Necesitás una cuenta para guardar recetas.",
+        title: t("loginRequired"),
+        description: t("loginRequiredSave"),
         variant: "destructive",
       });
       return;
@@ -135,8 +137,8 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
 
         setIsSaved(false);
         toast({
-          title: "Receta eliminada",
-          description: `${recipe.name} se quitó de tus favoritas.`,
+          title: t("recipeRemovedFromFav"),
+          description: `${recipe.name} ${t("recipeRemovedFromFavDesc")}`,
         });
       } else {
         // Check if already exists before saving
@@ -150,8 +152,8 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
         if (existing) {
           setIsSaved(true);
           toast({
-            title: "Ya está guardada",
-            description: "Esta receta ya está en tus favoritos.",
+            title: t("recipeAlreadySaved"),
+            description: t("recipeAlreadySavedDesc"),
           });
           return;
         }
@@ -166,14 +168,14 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
 
         setIsSaved(true);
         toast({
-          title: "¡Receta guardada!",
-          description: `${recipe.name} se agregó a tus favoritas.`,
+          title: t("recipeSaved"),
+          description: `${recipe.name} ${t("recipeAddedToFavorites")}`,
         });
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: isSaved ? "No se pudo quitar la receta." : "No se pudo guardar la receta.",
+        title: t("error"),
+        description: isSaved ? t("recipeRemovedFromFavDesc") : t("loginRequiredSave"),
         variant: "destructive",
       });
     } finally {
@@ -185,9 +187,20 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
   const handleMarkAsCooked = async () => {
     if (!user) {
       toast({
-        title: "Iniciá sesión",
-        description: "Necesitás una cuenta para registrar recetas cocinadas.",
+        title: t("loginRequired"),
+        description: t("loginRequiredCooked"),
         variant: "destructive",
+      });
+      return;
+    }
+
+    // Already logged via CookingMode — just inform the user
+    if (hasMarkedCooked) {
+      toast({
+        title: cookedVia === "cookingMode" ? t("recipeAlreadyLoggedMode") : t("recipeAlreadyLogged"),
+        description: cookedVia === "cookingMode"
+          ? t("cookingModeDescription")
+          : t("success"),
       });
       return;
     }
@@ -208,6 +221,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
       });
 
       setHasMarkedCooked(true);
+      setCookedVia("button");
       onRecipeCooked?.();
     } catch (error) {
       console.error("Error marking recipe as cooked:", error);
@@ -241,9 +255,18 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
   if (showCookingMode) {
     return (
       <CookingMode 
-        recipe={recipe} 
-        onClose={() => setShowCookingMode(false)}
-        onMarkAsCooked={onRecipeCooked}
+        recipe={recipe}
+        alreadyCooked={hasMarkedCooked}
+        onClose={() => {
+          setShowCookingMode(false);
+          setHasUsedCookingMode(true);
+        }}
+        onMarkAsCooked={() => {
+          setHasMarkedCooked(true);
+          setCookedVia("cookingMode");
+          setHasUsedCookingMode(true);
+          onRecipeCooked?.();
+        }}
       />
     );
   }
@@ -528,7 +551,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
             {/* Ya la cociné */}
             <Button
               onClick={handleMarkAsCooked}
-              disabled={isMarkingCooked || hasMarkedCooked}
+              disabled={isMarkingCooked}
               size="lg"
               variant={hasMarkedCooked ? "outline" : "default"}
               className={cn(
@@ -539,7 +562,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               {hasMarkedCooked ? (
                 <>
                   <Check className="w-5 h-5" />
-                  ¡Registrada! 🎉
+                  {cookedVia === "cookingMode" ? "Registrada en Modo Cocina ✓" : "¡Registrada! 🎉"}
                 </>
               ) : (
                 <>
@@ -549,7 +572,11 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               )}
             </Button>
             <p className="text-xs text-muted-foreground text-center -mt-1">
-              {hasMarkedCooked ? "Receta sumada a tus logros" : "Registrá esta receta para desbloquear logros"}
+              {hasMarkedCooked
+                ? cookedVia === "cookingMode"
+                  ? "Ya sumaste esta receta a tus logros al completar el Modo Cocina"
+                  : "Receta sumada a tus logros"
+                : "Registrá esta receta para desbloquear logros"}
             </p>
             
             
@@ -580,16 +607,14 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               className="w-full"
             >
               <Copy className="w-5 h-5" />
-              {isCopying ? "Copiando..." : hasCopied ? "Copiados ✓" : "Copiar ingredientes"}
+              {isCopying ? t("copyingLabel") : hasCopied ? t("copiedLabel") : t("copyIngredientsLabel")}
             </Button>
           </div>
 
           {/* Footer message */}
           <div className="pt-4 border-t border-border text-center">
             <p className="text-muted-foreground italic text-sm">
-              "Espero que disfrutes esta receta. En{" "}
-              <span className="text-primary font-medium">MARCELACOCINA</span>{" "}
-              tenés muchas más ideas fáciles para el día a día."
+              {t("recipeFooterMsg")}
             </p>
           </div>
 
@@ -597,7 +622,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
           <div className="pt-2">
             <Button variant="outline" onClick={() => { onBack(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="w-full">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Volver al menú
+              {t("backToMenu")}
             </Button>
           </div>
         </div>

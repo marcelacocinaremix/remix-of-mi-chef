@@ -24,53 +24,91 @@ async function checkUserLimits(req: Request): Promise<{
   
   const authHeader = req.headers.get('Authorization');
   
-  if (!authHeader) {
-    return { allowed: true, userId: null, usesToday: 0, remaining: DAILY_LIMIT_FREE, isPremium: false };
+  if (!authHeader?.startsWith('Bearer ')) {
+    return { allowed: false, userId: null, usesToday: 0, remaining: 0, isPremium: false, message: 'AUTH_REQUIRED' };
   }
 
   const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
     global: { headers: { Authorization: authHeader } }
   });
 
+  const token = authHeader.replace('Bearer ', '');
+  const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+  
+  if (claimsError || !claimsData?.claims) {
+    return { allowed: false, userId: null, usesToday: 0, remaining: 0, isPremium: false, message: 'AUTH_REQUIRED' };
+  }
+
+  const userId = claimsData.claims.sub;
   const { data: { user } } = await supabaseClient.auth.getUser();
   
   if (!user) {
-    return { allowed: true, userId: null, usesToday: 0, remaining: DAILY_LIMIT_FREE, isPremium: false };
+    return { allowed: false, userId: null, usesToday: 0, remaining: 0, isPremium: false, message: 'AUTH_REQUIRED' };
   }
 
   const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-  // Check if user is premium to set proper limit
+  // Fetch subscription data
   const { data: subData } = await supabaseAdmin
     .from('user_subscriptions')
-    .select('is_premium, daily_uses, last_use_date, subscription_end, trial_end_date')
+    .select('is_premium, daily_uses, last_use_date, subscription_end, trial_end_date, subscription_status, trial_used')
     .eq('user_id', user.id)
     .maybeSingle();
 
   const now = new Date();
-  // Premium is active only if is_premium=true AND subscription hasn't expired
+
+  // ── STRICT PREMIUM CHECK ──────────────────────────────────────────────────
+  // Premium is active ONLY if is_premium=true AND subscription hasn't expired
   const paidActive = subData?.is_premium === true &&
     (!subData?.subscription_end || new Date(subData.subscription_end) > now);
-  // Trial active only if trial_end_date is in the future
+
+  // ── STRICT TRIAL CHECK ────────────────────────────────────────────────────
+  // Trial is active ONLY if:
+  //   1. trial_used = true (trial was actually started)
+  //   2. trial_end_date exists
+  //   3. trial_end_date is in the future (not expired)
+  //   4. NOT currently in a paid period
   const trialActive = !paidActive &&
-    (subData?.trial_end_date ? new Date(subData.trial_end_date) > now : false);
-  const isPremium = paidActive; // true premium = paid period active
+    subData?.trial_used === true &&
+    subData?.trial_end_date != null &&
+    new Date(subData.trial_end_date) > now;
+
+  // ── ACCESS GATE ───────────────────────────────────────────────────────────
+  // Users must have EITHER an active paid subscription OR an active trial
+  // to generate recipes. Free users (trial expired or never started) are
+  // blocked from generating recipes beyond their daily free limit.
+  const isPremium = paidActive;
   const hasAnyAccess = paidActive || trialActive;
+
+  // Daily limit: premium users get 10/day, everyone else gets 3/day
   const userLimit = paidActive ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
-  
-  // Calculate current uses (reset if new day)
+
+  // ── SUBSCRIPTION STATUS BLOCK ─────────────────────────────────────────────
+  // If user had a trial that has now expired, block them explicitly
+  if (subData?.trial_used && subData?.trial_end_date && !trialActive && !paidActive) {
+    const trialExpiredAt = new Date(subData.trial_end_date);
+    console.log(`⛔ Trial expired for user ${user.id} at ${trialExpiredAt.toISOString()}`);
+    // Still allow DAILY_LIMIT_FREE uses per day (don't fully block)
+  }
+
+  // ── DAILY USAGE CHECK ─────────────────────────────────────────────────────
   const today = new Date().toISOString().split('T')[0];
   const lastUseDate = subData?.last_use_date;
   const currentUses = (!lastUseDate || lastUseDate < today) ? 0 : (subData?.daily_uses || 0);
-  
+
   if (currentUses >= userLimit) {
+    const isPaidOrTrial = paidActive || trialActive;
+    const message = isPaidOrTrial
+      ? `¡Alcanzaste el límite de ${userLimit} recetas de hoy! Volvé mañana 🍳`
+      : `Hoy ya usaste tus ${DAILY_LIMIT_FREE} recetas gratuitas. ¡Suscribite para generar más! 🌟`;
+
     return {
       allowed: false,
       userId: user.id,
       usesToday: currentUses,
       remaining: 0,
       isPremium,
-      message: '¡Se acabaron tus recetas de hoy! Volvé mañana para seguir cocinando 🍳'
+      message
     };
   }
 
@@ -1248,6 +1286,17 @@ serve(async (req) => {
 
     // STEP 1: Check daily limit (READ ONLY - no credit consumed yet)
     const limitCheck = await checkUserLimits(req);
+
+    // Block unauthenticated requests — no anonymous AI generation allowed
+    if (!limitCheck.userId) {
+      return new Response(JSON.stringify({
+        error: 'Necesitás iniciar sesión para generar recetas',
+        code: 'AUTH_REQUIRED'
+      }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     
     if (!useCacheOnly && !limitCheck.allowed) {
       return new Response(JSON.stringify({

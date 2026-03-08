@@ -1,15 +1,16 @@
-import { Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
+import { Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAppTheme, THEMES } from "@/contexts/ThemeContext";
+import { useState } from "react";
+import { ThemePickerModal } from "@/components/ThemePickerModal";
 
 export function Header() {
-  const { theme, setTheme } = useTheme();
+  const { theme } = useAppTheme();
   const { t } = useLanguage();
+  const [showThemePicker, setShowThemePicker] = useState(false);
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
+  const currentTheme = THEMES.find(t => t.id === theme);
 
   return (
     <header className="text-center mb-10 md:mb-14 animate-fade-in relative pt-8">
@@ -18,15 +19,12 @@ export function Header() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={toggleTheme}
+          onClick={() => setShowThemePicker(true)}
           className="rounded-full bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card shadow-sm"
-          aria-label={theme === "dark" ? t("darkModeLabel") : t("lightModeLabel")}
+          aria-label="Cambiar tema de color"
+          title={`Tema: ${currentTheme?.label}`}
         >
-          {theme === "dark" ? (
-            <Sun className="h-5 w-5 text-amber-400" />
-          ) : (
-            <Moon className="h-5 w-5 text-primary" />
-          )}
+          <Palette className="h-5 w-5 text-primary" />
         </Button>
       </div>
 
@@ -47,6 +45,8 @@ export function Header() {
           {t("headerDescription")}
         </p>
       </div>
+
+      <ThemePickerModal open={showThemePicker} onOpenChange={setShowThemePicker} />
     </header>
   );
 }

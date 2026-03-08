@@ -290,6 +290,42 @@ export type Database = {
         }
         Relationships: []
       }
+      game_sessions: {
+        Row: {
+          id: string
+          mode: string
+          played_at: string
+          recipes_completed: number
+          score: number
+          streak: number
+          time_played: number
+          user_id: string
+          xp_earned: number
+        }
+        Insert: {
+          id?: string
+          mode: string
+          played_at?: string
+          recipes_completed?: number
+          score?: number
+          streak?: number
+          time_played?: number
+          user_id: string
+          xp_earned?: number
+        }
+        Update: {
+          id?: string
+          mode?: string
+          played_at?: string
+          recipes_completed?: number
+          score?: number
+          streak?: number
+          time_played?: number
+          user_id?: string
+          xp_earned?: number
+        }
+        Relationships: []
+      }
       meal_logs: {
         Row: {
           calories: number
@@ -473,6 +509,7 @@ export type Database = {
           bio: string | null
           birth_date: string | null
           cooking_skill: string | null
+          country: string | null
           created_at: string
           diet_type: string | null
           display_name: string | null
@@ -489,6 +526,7 @@ export type Database = {
           bio?: string | null
           birth_date?: string | null
           cooking_skill?: string | null
+          country?: string | null
           created_at?: string
           diet_type?: string | null
           display_name?: string | null
@@ -505,6 +543,7 @@ export type Database = {
           bio?: string | null
           birth_date?: string | null
           cooking_skill?: string | null
+          country?: string | null
           created_at?: string
           diet_type?: string | null
           display_name?: string | null
@@ -764,6 +803,7 @@ export type Database = {
           total_games_played: number
           total_recipes_completed: number
           total_time_played: number
+          total_xp: number
           updated_at: string
           user_id: string
         }
@@ -776,6 +816,7 @@ export type Database = {
           total_games_played?: number
           total_recipes_completed?: number
           total_time_played?: number
+          total_xp?: number
           updated_at?: string
           user_id: string
         }
@@ -788,6 +829,7 @@ export type Database = {
           total_games_played?: number
           total_recipes_completed?: number
           total_time_played?: number
+          total_xp?: number
           updated_at?: string
           user_id?: string
         }
@@ -824,6 +866,39 @@ export type Database = {
           id?: string
           lesson_id?: string
           level?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_streaks: {
+        Row: {
+          created_at: string
+          current_streak: number
+          id: string
+          last_activity_date: string | null
+          last_celebrated_milestone: number
+          longest_streak: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          last_celebrated_milestone?: number
+          longest_streak?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          last_celebrated_milestone?: number
+          longest_streak?: number
           updated_at?: string
           user_id?: string
         }
@@ -962,13 +1037,42 @@ export type Database = {
           shared_by_name: string
         }[]
       }
+      get_streak_leaderboard: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          country: string
+          current_streak: number
+          display_name: string
+          longest_streak: number
+          rank: number
+          user_id: string
+        }[]
+      }
+      get_xp_leaderboard: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          country: string
+          display_name: string
+          rank: number
+          total_games_played: number
+          total_xp: number
+          user_id: string
+        }[]
+      }
       has_active_access: { Args: { p_user_id: string }; Returns: boolean }
       has_write_access: { Args: { p_user_id: string }; Returns: boolean }
       increment_recipe_uses:
         | { Args: never; Returns: number }
         | { Args: { p_user_id: string }; Returns: number }
       is_subscription_active: { Args: { p_user_id: string }; Returns: boolean }
+      record_streak_activity: { Args: never; Returns: Json }
       start_trial: { Args: { p_user_id: string }; Returns: Json }
+      unlock_achievement: {
+        Args: { p_achievement_type: string; p_recipe_count?: number }
+        Returns: boolean
+      }
     }
     Enums: {
       fitness_goal:

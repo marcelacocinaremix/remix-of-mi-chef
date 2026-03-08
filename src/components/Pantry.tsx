@@ -3,8 +3,49 @@ import { createPortal } from "react-dom";
 import {
   Plus, X, Package, Search, Star, ShoppingCart, ChefHat,
   Calendar, AlertTriangle, Sparkles, Trophy, Gift, Heart,
-  ArrowRight, Lightbulb, Filter, Grid3X3, List, DoorOpen, Refrigerator, Check
+  ArrowRight, Lightbulb, Filter, Grid3X3, List, DoorOpen, Refrigerator, Check, Info
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const PANTRY_HELP_KEY = "miChef_pantry_help_dismissed";
+
+function PantryHelpBanner({ onDismiss }: { onDismiss: () => void }) {
+  const { t } = useLanguage();
+  const steps = [
+    { num: 1, emoji: "➕", title: t("pantryStep1Title"), desc: t("pantryStep1Desc") },
+    { num: 2, emoji: "📦", title: t("pantryStep2Title"), desc: t("pantryStep2Desc") },
+    { num: 3, emoji: "⚠️", title: t("pantryStep3Title"), desc: t("pantryStep3Desc") },
+    { num: 4, emoji: "🍳", title: t("pantryStep4Title"), desc: t("pantryStep4Desc") },
+  ];
+  return (
+    <div className="rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-accent/8 p-4 animate-fade-in">
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+            <Info className="w-4 h-4 text-primary" />
+          </div>
+          <span className="font-semibold text-sm text-foreground">{t("pantryHowItWorks")}</span>
+        </div>
+        <button onClick={onDismiss} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+      <div className="grid grid-cols-1 gap-2.5">
+        {steps.map((s) => (
+          <div key={s.num} className="flex items-start gap-3 p-3 rounded-xl border border-border bg-background/70">
+            <div className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border border-primary/20 bg-primary/10 text-primary">
+              {s.num}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground flex items-center gap-1.5"><span>{s.emoji}</span> {s.title}</p>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{s.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,35 +87,11 @@ const CATEGORIES = [
   { id: "otros", label: "Otros", emoji: "📦", color: "from-gray-500 to-slate-600", bgColor: "bg-gray-50 dark:bg-gray-950/30", textColor: "text-gray-700 dark:text-gray-300", shelfColor: "from-gray-100 to-gray-50 dark:from-gray-900/40 dark:to-gray-950/20" },
 ];
 
-const UNITS = ["unidades", "kg", "g", "litros", "ml", "paquetes", "latas"];
-
-const MARCELA_TIPS = [
-  "💡 Los tomates maduran mejor fuera de la heladera",
-  "💡 Guardá las hierbas en agua para que duren más",
-  "💡 El pan se conserva mejor congelado",
-  "💡 Separá las bananas para que no maduren tan rápido",
-  "💡 Las papas duran más en lugares oscuros y frescos",
-  "💡 El ajo se conserva mejor fuera de la heladera",
-  "💡 Los huevos duran más con la punta hacia abajo",
-];
-
-const ACHIEVEMENTS = [
-  { id: "starter", name: "Principiante", icon: "🌱", requirement: 5, description: "Agregá 5 ingredientes" },
-  { id: "organized", name: "Organizado", icon: "📋", requirement: 10, description: "Agregá 10 ingredientes" },
-  { id: "chef", name: "Chef Preparado", icon: "👨‍🍳", requirement: 20, description: "Agregá 20 ingredientes" },
-  { id: "master", name: "Maestro de Despensa", icon: "🏆", requirement: 50, description: "Agregá 50 ingredientes" },
-];
+const UNITS_KEYS = ["unidades", "kg", "g", "litros", "ml", "paquetes", "latas"];
 
 interface PantryProps {
   onSelectIngredients: (ingredients: string[]) => void;
 }
-
-// Step definitions for guided flow
-const PANTRY_STEPS = [
-  { id: 1, label: "Agregar", description: "Sumá productos a tu despensa", icon: Plus },
-  { id: 2, label: "Mi Despensa", description: "Organizá y gestioná tus productos", icon: Package },
-  { id: 3, label: "Usar", description: "Seleccioná ingredientes para cocinar", icon: ChefHat },
-];
 
 // Helper function to calculate days until expiration
 function getDaysUntilExpiration(expirationDate: string | null | undefined): number | null {
@@ -223,35 +240,37 @@ function ProductItem({
     setIsMenuOpen(false);
   };
 
+  const { t } = useLanguage();
+
   const menuActions = [
     {
       icon: ChefHat,
-      label: "Cocinar",
+      label: t("pantryCookAction"),
       variant: "default" as const,
       action: onUseIngredient,
     },
     {
       icon: Calendar,
-      label: "Vencimiento",
+      label: t("pantryExpiryAction"),
       variant: "secondary" as const,
       action: onEditExpiration,
     },
     {
       icon: Star,
-      label: item.is_favorite ? "Quitar ★" : "Favorito",
+      label: item.is_favorite ? t("pantryFavoriteRemove") : t("pantryFavoriteAdd"),
       variant: (item.is_favorite ? "secondary" : "outline") as "secondary" | "outline",
       action: onToggleFavorite,
       filled: item.is_favorite,
     },
     {
       icon: ShoppingCart,
-      label: "A lista",
+      label: t("pantryToListAction"),
       variant: "outline" as const,
       action: onAddToShoppingList,
     },
     {
       icon: X,
-      label: "Quitar",
+      label: t("pantryRemoveAction"),
       variant: "destructive" as const,
       action: onRemove,
     },
@@ -411,12 +430,12 @@ function ProductItem({
                   )}
                 >
                   {daysLeft < 0
-                    ? `Venció hace ${Math.abs(daysLeft)} días`
+                    ? t("pantryExpiredAgo").replace("{days}", String(Math.abs(daysLeft)))
                     : daysLeft === 0
-                      ? "Vence hoy"
+                      ? t("pantryExpiredTodayLabel")
                       : daysLeft === 1
-                        ? "Vence mañana"
-                        : `Vence en ${daysLeft} días`}
+                        ? t("pantryExpiredTomorrowLabel")
+                        : t("pantryExpiredInDays").replace("{days}", String(daysLeft))}
                 </p>
               )}
             </div>
@@ -478,6 +497,7 @@ function PantryShelf({
   onUseCategoryIngredients: () => void;
   index: number;
 }) {
+  const { t } = useLanguage();
   return (
     <div 
       className={cn(
@@ -502,7 +522,7 @@ function PantryShelf({
           </div>
           <div>
             <h4 className={cn("font-semibold text-sm", category.textColor)}>{category.label}</h4>
-            <p className="text-[10px] text-muted-foreground">{items.length} productos</p>
+            <p className="text-[10px] text-muted-foreground">{items.length} {t("pantryShelveProducts")}</p>
           </div>
         </div>
         <Button
@@ -511,7 +531,7 @@ function PantryShelf({
           className="text-xs gap-1 h-7"
           onClick={onUseCategoryIngredients}
         >
-          Usar todos <ArrowRight className="w-3 h-3" />
+          {t("pantryUseAllCategory")} <ArrowRight className="w-3 h-3" />
         </Button>
       </div>
 
@@ -559,7 +579,7 @@ function PantryShelf({
             {/* Empty shelf message */}
             {items.length === 0 && (
               <div className="w-full text-center py-4 text-muted-foreground text-sm">
-                Estante vacío
+                {t("emptyShelf")}
               </div>
             )}
           </div>
@@ -581,6 +601,34 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const { addItem: addToShoppingList } = useShoppingList();
+  const { t } = useLanguage();
+
+  // Dynamic i18n constants
+  const MARCELA_TIPS = [
+    `💡 ${t("pantryTip1")}`,
+    `💡 ${t("pantryTip2")}`,
+    `💡 ${t("pantryTip3")}`,
+    `💡 ${t("pantryTip4")}`,
+    `💡 ${t("pantryTip5")}`,
+    `💡 ${t("pantryTip6")}`,
+    `💡 ${t("pantryTip7")}`,
+  ];
+
+  const ACHIEVEMENTS = [
+    { id: "starter", name: t("starterAchievement"), icon: "🌱", requirement: 5, description: t("addIngredientAchievement").replace("{count}", "5") },
+    { id: "organized", name: t("organizedAchievement"), icon: "📋", requirement: 10, description: t("addIngredientAchievement").replace("{count}", "10") },
+    { id: "chef", name: t("chefAchievement"), icon: "👨‍🍳", requirement: 20, description: t("addIngredientAchievement").replace("{count}", "20") },
+    { id: "master", name: t("masterAchievement"), icon: "🏆", requirement: 50, description: t("addIngredientAchievement").replace("{count}", "50") },
+  ];
+
+  const PANTRY_STEPS = [
+    { id: 1, label: t("pantryStepAdd"), description: t("pantryStepAddDesc"), icon: Plus },
+    { id: 2, label: t("pantryStepMyPantry"), description: t("pantryStepMyPantryDesc"), icon: Package },
+    { id: 3, label: t("pantryStepUse"), description: t("pantryStepUseDesc"), icon: ChefHat },
+  ];
+
+  const UNITS = [t("units"), t("kg"), t("g"), t("liters"), t("ml"), t("packages"), t("cans")];
+
   
   // Step state for guided flow
   const [currentStep, setCurrentStep] = useState(2); // Default to "Mi Despensa"
@@ -594,6 +642,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
+  const [showHelp, setShowHelp] = useState(false);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [currentTip, setCurrentTip] = useState(0);
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -644,16 +693,16 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
     }
   };
 
-  const handleAddIngredient = async () => {
-    if (!newIngredient.trim()) return;
+  const handleAddIngredient = async (): Promise<boolean> => {
+    if (!newIngredient.trim()) return false;
 
     if (!user) {
       toast({
-        title: "Iniciá sesión",
-        description: "Necesitás una cuenta para guardar tu despensa.",
+        title: t("logInForPantry"),
+        description: t("loginPantryDesc"),
         variant: "destructive",
       });
-      return;
+      return false;
     }
 
     try {
@@ -679,47 +728,59 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
         is_favorite: false,
       };
 
-      setItems([...items, newItem]);
+      setItems(prev => [...prev, newItem]);
       setNewIngredient("");
       setQuantity("1");
       setExpirationDate("");
       setShowAddDialog(false);
       
       toast({
-        title: "¡Agregado al estante! 🎉",
-        description: `${newIngredient} se agregó a tu despensa.`,
+        title: `${t("addedToShelf")} 🎉`,
+        description: `${newIngredient.trim()} ${t("addedToPantryDesc")}`,
       });
 
       checkAchievements(items.length + 1);
+      return true;
     } catch (error) {
       toast({
         title: "Error",
         description: "No se pudo agregar el ingrediente.",
         variant: "destructive",
       });
+      return false;
     }
   };
 
   const handleRemoveIngredient = async (id: string) => {
+    // Optimistic removal
+    setItems(prev => prev.filter((item) => item.id !== id));
     try {
       const { error } = await supabase
         .from("pantry_items")
         .delete()
         .eq("id", id);
-
       if (error) throw error;
-
-      setItems(items.filter((item) => item.id !== id));
-      toast({
-        title: "Producto retirado",
-        description: "Se quitó del estante",
-      });
+      toast({ title: t("productRemoved"), description: t("removedFromShelf") });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo eliminar el ingrediente.",
-        variant: "destructive",
-      });
+      // Rollback
+      await fetchPantryItems();
+      toast({ title: "Error", description: "No se pudo eliminar el ingrediente.", variant: "destructive" });
+    }
+  };
+
+  const handleRemoveExpiredBatch = async (ids: string[]) => {
+    // Optimistic removal
+    setItems(prev => prev.filter(item => !ids.includes(item.id)));
+    try {
+      const { error } = await supabase
+        .from("pantry_items")
+        .delete()
+        .in("id", ids);
+      if (error) throw error;
+      toast({ title: `${ids.length} producto${ids.length > 1 ? 's' : ''} descartado${ids.length > 1 ? 's' : ''}` });
+    } catch {
+      await fetchPantryItems();
+      toast({ title: "Error", description: "No se pudo eliminar los productos.", variant: "destructive" });
     }
   };
 
@@ -729,7 +790,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
     ));
     const item = items.find(i => i.id === id);
     toast({
-      title: item?.is_favorite ? "Quitado de favoritos" : "¡Agregado a favoritos! ⭐",
+      title: item?.is_favorite ? t("removedFromFavorites") : t("addedToFavoritesStar"),
       description: item?.ingredient_name,
     });
   };
@@ -742,8 +803,8 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
     const ingredientNames = items.map((item) => item.ingredient_name);
     onSelectIngredients(ingredientNames);
     toast({
-      title: "¡Listo!",
-      description: `Se agregaron ${ingredientNames.length} ingredientes para cocinar.`,
+      title: t("done"),
+      description: `${t("addedToList")} ${ingredientNames.length} ${t("ingredients")}.`,
     });
   };
 
@@ -752,8 +813,8 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
     const ingredientNames = categoryItems.map(item => item.ingredient_name);
     onSelectIngredients(ingredientNames);
     toast({
-      title: "¡Listo!",
-      description: `Se agregaron ${ingredientNames.length} ingredientes de esta categoría.`,
+      title: t("done"),
+      description: `${t("addedToList")} ${ingredientNames.length} ${t("ingredients")}.`,
     });
   };
 
@@ -761,7 +822,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
     const achievement = ACHIEVEMENTS.find(a => a.requirement === count);
     if (achievement) {
       toast({
-        title: `🏆 ¡Logro desbloqueado!`,
+        title: t("pantryAchievementUnlocked"),
         description: `${achievement.icon} ${achievement.name}: ${achievement.description}`,
       });
     }
@@ -810,15 +871,15 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
       setEditingItem(null);
       
       toast({
-        title: "Vencimiento actualizado",
+        title: t("pantryExpiryUpdated"),
         description: editExpirationDate 
-          ? `Vence el ${new Date(editExpirationDate).toLocaleDateString('es-AR')}`
-          : "Se quitó la fecha de vencimiento",
+          ? t("pantryExpiryUpdatedDesc").replace("{date}", new Date(editExpirationDate).toLocaleDateString())
+          : t("pantryExpiryRemoved"),
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "No se pudo actualizar el vencimiento.",
+        title: t("error"),
+        description: t("pantryExpiryUpdated"),
         variant: "destructive",
       });
     }
@@ -858,9 +919,9 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
         "text-center"
       )}>
         <Package className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-        <h3 className="font-display text-lg font-semibold mb-2">Tu Despensa</h3>
+        <h3 className="font-display text-lg font-semibold mb-2">{t("pantryLoginTitle")}</h3>
         <p className="text-muted-foreground text-sm mb-4">
-          Iniciá sesión para guardar tus ingredientes y no tener que escribirlos cada vez.
+          {t("pantryLoginDesc")}
         </p>
       </div>
     );
@@ -868,6 +929,17 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
   return (
     <div className="space-y-4">
+      {/* Help banner */}
+      {showHelp && <PantryHelpBanner onDismiss={() => { localStorage.setItem(PANTRY_HELP_KEY, "1"); setShowHelp(false); }} />}
+      {!showHelp && (
+        <button
+          onClick={() => setShowHelp(true)}
+          className="animate-neon-pulse flex items-center gap-2 px-3 py-1.5 rounded-full border border-sky-400/40 bg-sky-500/5 text-sky-500 text-xs font-medium transition-colors duration-300 hover:bg-sky-500/15 hover:border-sky-400/70"
+        >
+          <Info className="w-3.5 h-3.5" />
+          <span>Ver cómo funciona</span>
+        </button>
+      )}
       {/* Dialog always rendered */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="sm:max-w-md">
@@ -879,9 +951,9 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Ingrediente</label>
+              <label className="text-sm font-medium mb-2 block">{t("pantryIngredientLabel")}</label>
               <Input
-                placeholder="Ej: Tomates, Arroz, Leche..."
+                placeholder={t("pantryIngredientPlaceholder")}
                 value={newIngredient}
                 onChange={(e) => setNewIngredient(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddIngredient()}
@@ -889,7 +961,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
             </div>
             
             <div>
-              <label className="text-sm font-medium mb-2 block">Estante (Categoría)</label>
+              <label className="text-sm font-medium mb-2 block">{t("pantryShelfCategory")}</label>
               <div className="grid grid-cols-3 gap-2">
                 {CATEGORIES.map((cat) => (
                   <button
@@ -912,7 +984,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Cantidad</label>
+                <label className="text-sm font-medium mb-2 block">{t("pantryCantidad")}</label>
                 <div className="flex gap-2">
                   <Input
                     type="text"
@@ -934,7 +1006,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Vencimiento</label>
+                <label className="text-sm font-medium mb-2 block">{t("pantryExpiry")}</label>
                 <Input
                   type="date"
                   value={expirationDate}
@@ -945,7 +1017,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
             <Button onClick={handleAddIngredient} className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600">
               <Plus className="w-4 h-4" />
-              Poner en el Estante
+              {t("pantryPutOnShelf")}
             </Button>
           </div>
         </DialogContent>
@@ -1151,9 +1223,9 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
             </div>
 
             <Button 
-              onClick={() => {
-                handleAddIngredient();
-                setCurrentStep(2);
+              onClick={async () => {
+                const success = await handleAddIngredient();
+                if (success) setCurrentStep(2);
               }} 
               className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg py-6"
             >
@@ -1345,7 +1417,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                     size="sm" 
                     variant="destructive"
                     onClick={() => {
-                      expiredItems.forEach(item => handleRemoveIngredient(item.id));
+                      handleRemoveExpiredBatch(expiredItems.map(i => i.id));
                     }}
                   >
                     Descartar
