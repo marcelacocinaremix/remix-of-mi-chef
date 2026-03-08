@@ -347,6 +347,37 @@ export default function Auth() {
               </div>
             )}
 
+            {!isLogin && (
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-muted-foreground" />
+                  País <span className="text-muted-foreground font-normal">(opcional)</span>
+                </Label>
+                <Select value={country} onValueChange={setCountry}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="¿De dónde sos?">
+                      {country ? (
+                        <span className="flex items-center gap-2">
+                          <span>{UNIQUE_COUNTRIES.find(c => c.code === country)?.flag}</span>
+                          <span>{UNIQUE_COUNTRIES.find(c => c.code === country)?.name}</span>
+                        </span>
+                      ) : null}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    {UNIQUE_COUNTRIES.map((c) => (
+                      <SelectItem key={c.code} value={c.code}>
+                        <span className="flex items-center gap-2">
+                          <span className="text-base">{c.flag}</span>
+                          <span>{c.name}</span>
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
