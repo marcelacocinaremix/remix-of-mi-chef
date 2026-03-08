@@ -180,10 +180,10 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
 
       // Determine cooking frequency — use freshCookedRecipes to avoid stale closure
       const totalCooked = (freshCookedRecipes || []).length;
-      let cookingFrequency = "ocasional";
-      if (totalCooked >= 20) cookingFrequency = "muy frecuente";
-      else if (totalCooked >= 10) cookingFrequency = "frecuente";
-      else if (totalCooked >= 5) cookingFrequency = "regular";
+      let cookingFrequency = t("historyFreqOccasional");
+      if (totalCooked >= 20) cookingFrequency = t("historyFreqVeryOften");
+      else if (totalCooked >= 10) cookingFrequency = t("historyFreqOften");
+      else if (totalCooked >= 5) cookingFrequency = t("historyFreqRegular");
 
       // Get favorite day
       const favoriteDay = Object.entries(dayCounts)
