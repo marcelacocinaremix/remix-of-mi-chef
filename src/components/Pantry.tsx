@@ -693,8 +693,8 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
     }
   };
 
-  const handleAddIngredient = async () => {
-    if (!newIngredient.trim()) return;
+  const handleAddIngredient = async (): Promise<boolean> => {
+    if (!newIngredient.trim()) return false;
 
     if (!user) {
       toast({
@@ -702,7 +702,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
         description: t("loginPantryDesc"),
         variant: "destructive",
       });
-      return;
+      return false;
     }
 
     try {
@@ -728,7 +728,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
         is_favorite: false,
       };
 
-      setItems([...items, newItem]);
+      setItems(prev => [...prev, newItem]);
       setNewIngredient("");
       setQuantity("1");
       setExpirationDate("");
@@ -736,16 +736,18 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
       
       toast({
         title: `${t("addedToShelf")} 🎉`,
-        description: `${newIngredient} ${t("addedToPantryDesc")}`,
+        description: `${newIngredient.trim()} ${t("addedToPantryDesc")}`,
       });
 
       checkAchievements(items.length + 1);
+      return true;
     } catch (error) {
       toast({
         title: "Error",
         description: "No se pudo agregar el ingrediente.",
         variant: "destructive",
       });
+      return false;
     }
   };
 
