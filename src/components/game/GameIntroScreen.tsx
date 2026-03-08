@@ -26,7 +26,9 @@ const MODE_META: Record<string, { label: string; emoji: string }> = {
 export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
   const { user } = useAuth();
   const { stats, sessions } = useGameStats();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+
+  const dateLocale = language === 'en' ? enUS : language === 'pt' ? pt : language === 'it' ? it : language === 'de' ? de : language === 'fr' ? fr : es;
 
   // XP total = recetas completadas * 50 + partidas jugadas * 20
   const totalXP = stats.totalRecipesCompleted * 50 + stats.totalGamesPlayed * 20;
