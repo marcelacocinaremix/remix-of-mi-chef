@@ -351,8 +351,8 @@ export function ShoppingListDirect() {
   const handleConfirmAllPurchases = () => {
     if (purchasedItems.length === 0) {
       toast({
-        title: "Sin compras",
-        description: "Marcá productos como comprados primero.",
+        title: t("superNoPurchases"),
+        description: t("superNoPurchasesDesc"),
       });
       return;
     }
@@ -366,7 +366,6 @@ export function ShoppingListDirect() {
     const itemsToAdd = purchasedItems.filter(item => selectedItemIds.includes(item.id));
     
     try {
-      // Add selected items to pantry
       for (const item of itemsToAdd) {
         await supabase.from("pantry_items").insert({
           user_id: user.id,
@@ -376,20 +375,19 @@ export function ShoppingListDirect() {
         });
       }
       
-      // Clear all purchased items from shopping list
       await clearPurchased();
       
       toast({
-        title: "🎉 ¡Compra confirmada!",
+        title: t("superPurchaseConfirmed"),
         description: selectedItemIds.length > 0 
-          ? `${selectedItemIds.length} productos agregados a tu despensa.`
-          : "Lista limpiada.",
+          ? t("superPurchaseConfirmedDesc").replace("{count}", String(selectedItemIds.length))
+          : t("superListCleaned"),
       });
     } catch (error) {
       console.error("Error adding to pantry:", error);
       toast({
-        title: "Error",
-        description: "No se pudieron agregar los productos.",
+        title: t("error"),
+        description: t("superErrorAddPantry"),
         variant: "destructive",
       });
     }
