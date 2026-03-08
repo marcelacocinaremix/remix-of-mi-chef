@@ -290,10 +290,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                     ) : (
                       <div className="flex gap-0.5">
                         {meals.map((_, j) => (
-                          <div key={j} className={cn(
-                            "w-1.5 h-1.5 rounded-full",
-                            (today || tomorrow || isNear) ? "bg-primary" : "bg-primary/60"
-                          )} />
+                          <div key={j} className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                         ))}
                       </div>
                     )}
