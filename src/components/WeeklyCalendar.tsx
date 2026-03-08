@@ -690,7 +690,7 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
           <div className="flex items-center gap-3">
             <Calendar className="w-7 h-7 text-primary" />
             <h2 className="font-display text-xl md:text-2xl font-bold text-foreground">
-              Plan Semanal
+              {t("weeklyPlanTitle")}
             </h2>
           </div>
 
