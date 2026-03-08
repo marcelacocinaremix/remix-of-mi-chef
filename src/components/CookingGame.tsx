@@ -611,8 +611,8 @@ export function CookingGame({ onAchievementUnlocked }: CookingGameProps) {
       {/* Progress */}
       <div className="space-y-1">
         <div className="flex justify-between text-xs text-muted-foreground">
-          <span>Receta {currentRecipeIndex + 1} de {GAME_RECIPES.length}</span>
-          <span>{streak > 0 && `🔥 Racha: ${streak}`}</span>
+          <span>{t("searchRecipe")} {currentRecipeIndex + 1} / {GAME_RECIPES.length}</span>
+          <span>{streak > 0 && `🔥 ${t("currentStreak")}: ${streak}`}</span>
         </div>
         <Progress value={(currentRecipeIndex / GAME_RECIPES.length) * 100} className="h-2" />
       </div>
