@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface UserProfileModalProps {
   open: boolean;
@@ -21,6 +22,7 @@ interface UserProfileModalProps {
 
 export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(false);
@@ -46,6 +48,9 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
       if (data) {
         setDisplayName(data.display_name || "");
         setAvatarUrl(data.avatar_url || "");
+      } else {
+        // fallback to auth metadata
+        setDisplayName(user.user_metadata?.display_name || "");
       }
     } catch (error) {
       console.error("Error loading profile:", error);
@@ -59,7 +64,7 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
     if (!file || !user) return;
 
     if (file.size > 2 * 1024 * 1024) {
-      toast.error("La imagen debe ser menor a 2MB");
+      toast.error(t("profilePhotoSizeError"));
       return;
     }
 
@@ -79,10 +84,10 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
         .getPublicUrl(fileName);
 
       setAvatarUrl(urlData.publicUrl + `?t=${Date.now()}`);
-      toast.success("¡Foto actualizada!");
+      toast.success(t("profilePhotoUpdated"));
     } catch (error) {
       console.error("Error uploading avatar:", error);
-      toast.error("Error al subir la foto");
+      toast.error(t("profilePhotoError"));
     } finally {
       setUploading(false);
     }
@@ -92,6 +97,7 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
     if (!user) return;
     setLoading(true);
     try {
+      // Save to profiles table
       const { error } = await supabase
         .from("profiles")
         .upsert({
@@ -102,11 +108,17 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
         });
 
       if (error) throw error;
-      toast.success("¡Perfil guardado!");
+
+      // Also sync to auth user metadata so UserMenu reflects name immediately
+      await supabase.auth.updateUser({
+        data: { display_name: displayName },
+      });
+
+      toast.success(t("profileSaved"));
       onOpenChange(false);
     } catch (error) {
       console.error("Error saving profile:", error);
-      toast.error("Error al guardar el perfil");
+      toast.error(t("profileSaveError"));
     } finally {
       setLoading(false);
     }
@@ -118,7 +130,7 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
         <DialogHeader>
           <DialogTitle className="text-lg font-bold flex items-center gap-2">
             <User className="w-5 h-5 text-primary" />
-            Mi Perfil
+            {t("myProfile")}
           </DialogTitle>
         </DialogHeader>
 
@@ -156,17 +168,17 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
                   onChange={handleAvatarUpload}
                 />
               </div>
-              <p className="text-xs text-muted-foreground">Tocá el ícono para cambiar tu foto</p>
+              <p className="text-xs text-muted-foreground">{t("profilePhotoHint")}</p>
             </div>
 
             {/* Nombre */}
             <div>
-              <Label htmlFor="display_name">Nombre</Label>
+              <Label htmlFor="display_name">{t("profileName")}</Label>
               <Input
                 id="display_name"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Tu nombre"
+                placeholder={t("profileNamePlaceholder")}
                 className="mt-1"
               />
             </div>
@@ -175,7 +187,7 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
             <div className="flex gap-3 pt-2 border-t">
               <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
                 <X className="w-4 h-4 mr-2" />
-                Cancelar
+                {t("cancel")}
               </Button>
               <Button className="flex-1" onClick={handleSave} disabled={loading || uploading}>
                 {loading ? (
@@ -183,7 +195,7 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
                 ) : (
                   <Save className="w-4 h-4 mr-2" />
                 )}
-                Guardar
+                {t("save")}
               </Button>
             </div>
           </div>
