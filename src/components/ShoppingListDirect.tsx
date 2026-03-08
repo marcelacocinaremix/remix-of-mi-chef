@@ -435,8 +435,8 @@ export function ShoppingListDirect() {
           <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
             <ShoppingCart className="w-10 h-10 text-primary" />
           </div>
-          <h3 className="text-lg font-semibold mb-2">Iniciá sesión</h3>
-          <p className="text-muted-foreground">Necesitás una cuenta para usar la lista de compras.</p>
+          <h3 className="text-lg font-semibold mb-2">{t("superLoginTitle")}</h3>
+          <p className="text-muted-foreground">{t("superLoginDesc")}</p>
         </CardContent>
       </Card>
     );
