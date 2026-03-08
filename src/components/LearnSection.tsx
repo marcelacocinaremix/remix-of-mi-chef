@@ -2177,7 +2177,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
       {/* Motivational Footer */}
       <div className="text-center py-4">
         <p className="text-sm text-muted-foreground italic">
-          "La cocina es un arte que se aprende practicando. ¡Cada error te acerca más a la maestría!" - Marcela
+          {t("learnMotivational")}
         </p>
       </div>
         </div>
