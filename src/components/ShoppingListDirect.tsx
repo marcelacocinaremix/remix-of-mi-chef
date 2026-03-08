@@ -476,7 +476,7 @@ export function ShoppingListDirect() {
             
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-2 mb-2">
-                <h2 className="text-xl font-display font-bold">Mi Lista del Super</h2>
+                <h2 className="text-xl font-display font-bold">{t("superListTitle")}</h2>
               </div>
               
               {/* Stats Row */}
