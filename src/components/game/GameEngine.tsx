@@ -303,7 +303,7 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
         {mode === "ingredients" && currentIngredient && (
           <div className="space-y-4">
             <div className="bg-card rounded-2xl p-5 border border-border/60 shadow-sm text-center">
-              <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wide">¿En qué receta se usa este ingrediente?</p>
+              <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wide">{t("gameIngredientQuestion")}</p>
               <motion.div
                 key={currentIngredient.id}
                 initial={{ scale: 0.8, opacity: 0 }}
