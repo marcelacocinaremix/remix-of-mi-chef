@@ -395,24 +395,24 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleLanguageSelect(lang.code)}
                     className={cn(
-                      "w-full flex items-center gap-4 p-5 rounded-2xl border-2 transition-all duration-300",
+                      "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-all duration-300",
                       selectedLanguage === lang.code
                         ? "border-white/60 bg-white/10 shadow-lg shadow-white/5"
                         : "border-white/20 hover:border-white/40 hover:bg-white/5"
                     )}
                   >
                     <motion.span 
-                      className="text-4xl"
+                      className="text-2xl"
                       animate={selectedLanguage === lang.code ? { scale: [1, 1.2, 1] } : {}}
                       transition={{ duration: 0.3 }}
                     >
                       {lang.flag}
                     </motion.span>
                     <div className="flex-1 text-left">
-                      <span className="block font-semibold text-white text-lg">
+                      <span className="block font-semibold text-white text-sm">
                         {lang.name}
                       </span>
-                      <span className="text-sm text-white/60">
+                      <span className="text-xs text-white/60">
                         {lang.greeting}
                       </span>
                     </div>
@@ -422,9 +422,9 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                           exit={{ scale: 0 }}
-                          className="w-8 h-8 rounded-full bg-white flex items-center justify-center"
+                          className="w-6 h-6 rounded-full bg-white flex items-center justify-center"
                         >
-                          <Check className="w-5 h-5 text-black" />
+                          <Check className="w-3.5 h-3.5 text-black" />
                         </motion.div>
                       )}
                     </AnimatePresence>
