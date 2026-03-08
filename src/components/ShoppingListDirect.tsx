@@ -323,8 +323,8 @@ export function ShoppingListDirect() {
     const success = await addItem(product.name, product.category, 1, product.unit);
     if (success) {
       toast({
-        title: `${product.emoji} ¡Agregado!`,
-        description: `${product.name} en tu lista.`,
+        title: `${product.emoji} ${t("superAddedToast")}`,
+        description: `${product.name} ${t("superAddedToastDesc")}`,
       });
     }
   };
