@@ -276,11 +276,10 @@ export function useAchievements() {
     
     if (existing) return; // Already unlocked
     
-    // Insert new achievement
-    await supabase.from("user_achievements").insert({
-      user_id: user.id,
-      achievement_type: achievementType,
-      recipe_count_at_unlock: stats.totalRecipesCooked,
+    // Insert via validated server-side function
+    await supabase.rpc("unlock_achievement", {
+      p_achievement_type: achievementType,
+      p_recipe_count: stats.totalRecipesCooked,
     });
     
     // Refresh achievements
