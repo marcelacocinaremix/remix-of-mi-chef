@@ -693,8 +693,8 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
     }
   };
 
-  const handleAddIngredient = async () => {
-    if (!newIngredient.trim()) return;
+  const handleAddIngredient = async (): Promise<boolean> => {
+    if (!newIngredient.trim()) return false;
 
     if (!user) {
       toast({
@@ -702,7 +702,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
         description: t("loginPantryDesc"),
         variant: "destructive",
       });
-      return;
+      return false;
     }
 
     try {
@@ -728,7 +728,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
         is_favorite: false,
       };
 
-      setItems([...items, newItem]);
+      setItems(prev => [...prev, newItem]);
       setNewIngredient("");
       setQuantity("1");
       setExpirationDate("");
@@ -736,39 +736,51 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
       
       toast({
         title: `${t("addedToShelf")} 🎉`,
-        description: `${newIngredient} ${t("addedToPantryDesc")}`,
+        description: `${newIngredient.trim()} ${t("addedToPantryDesc")}`,
       });
 
       checkAchievements(items.length + 1);
+      return true;
     } catch (error) {
       toast({
         title: "Error",
         description: "No se pudo agregar el ingrediente.",
         variant: "destructive",
       });
+      return false;
     }
   };
 
   const handleRemoveIngredient = async (id: string) => {
+    // Optimistic removal
+    setItems(prev => prev.filter((item) => item.id !== id));
     try {
       const { error } = await supabase
         .from("pantry_items")
         .delete()
         .eq("id", id);
-
       if (error) throw error;
-
-      setItems(items.filter((item) => item.id !== id));
-      toast({
-        title: t("productRemoved"),
-        description: t("removedFromShelf"),
-      });
+      toast({ title: t("productRemoved"), description: t("removedFromShelf") });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo eliminar el ingrediente.",
-        variant: "destructive",
-      });
+      // Rollback
+      await fetchPantryItems();
+      toast({ title: "Error", description: "No se pudo eliminar el ingrediente.", variant: "destructive" });
+    }
+  };
+
+  const handleRemoveExpiredBatch = async (ids: string[]) => {
+    // Optimistic removal
+    setItems(prev => prev.filter(item => !ids.includes(item.id)));
+    try {
+      const { error } = await supabase
+        .from("pantry_items")
+        .delete()
+        .in("id", ids);
+      if (error) throw error;
+      toast({ title: `${ids.length} producto${ids.length > 1 ? 's' : ''} descartado${ids.length > 1 ? 's' : ''}` });
+    } catch {
+      await fetchPantryItems();
+      toast({ title: "Error", description: "No se pudo eliminar los productos.", variant: "destructive" });
     }
   };
 
@@ -1211,9 +1223,9 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
             </div>
 
             <Button 
-              onClick={() => {
-                handleAddIngredient();
-                setCurrentStep(2);
+              onClick={async () => {
+                const success = await handleAddIngredient();
+                if (success) setCurrentStep(2);
               }} 
               className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg py-6"
             >
@@ -1405,7 +1417,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                     size="sm" 
                     variant="destructive"
                     onClick={() => {
-                      expiredItems.forEach(item => handleRemoveIngredient(item.id));
+                      handleRemoveExpiredBatch(expiredItems.map(i => i.id));
                     }}
                   >
                     Descartar

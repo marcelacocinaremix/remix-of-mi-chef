@@ -894,7 +894,7 @@ export function ShoppingListDirect() {
                                   )}
                                 </div>
 
-                                <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="flex items-center gap-0.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                   <Button
                                     variant="ghost"
                                     size="icon"
@@ -919,7 +919,7 @@ export function ShoppingListDirect() {
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => removeItem(item.id)}
-                                  className="w-8 h-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"
+                                  className="w-8 h-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity rounded-lg"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </Button>
