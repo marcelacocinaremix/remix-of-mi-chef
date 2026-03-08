@@ -130,11 +130,10 @@ export const PlanificarSection = ({
 
       {/* Content with overlay when blocked */}
       <div className="relative">
-        <div className={cn("animate-fade-in", planBlocked && "opacity-60")}>
+        <div className={cn("animate-fade-in", currentTabBlocked && "opacity-60")}>
           {activeSubTab === "calendario" && (
             <MonthlyCalendar
               onNavigateToCooking={onNavigateToCooking || (() => {})}
-              onBlockedAction={planBlocked ? () => setShowPaywall(true) : undefined}
             />
           )}
 
@@ -151,8 +150,8 @@ export const PlanificarSection = ({
           )}
         </div>
 
-        {/* Transparent clickable overlay */}
-        {planBlocked && (
+        {/* Transparent clickable overlay only for Despensa/Super */}
+        {currentTabBlocked && (
           <div
             className="absolute inset-0 z-10 cursor-pointer"
             onClick={() => setShowPaywall(true)}
