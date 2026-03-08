@@ -59,11 +59,11 @@ function CalendarHelpBanner({ onDismiss }: { onDismiss: () => void }) {
 }
 import { es } from "date-fns/locale";
 
-const MEAL_TYPES = [
-  { id: "desayuno", label: "Desayuno", icon: Coffee, color: "text-amber-500" },
-  { id: "almuerzo", label: "Almuerzo", icon: Sun, color: "text-orange-500" },
-  { id: "merienda", label: "Merienda", icon: Cookie, color: "text-pink-500" },
-  { id: "cena", label: "Cena", icon: Moon, color: "text-indigo-500" },
+  const MEAL_TYPES = [
+  { id: "desayuno", labelKey: "breakfast", icon: Coffee, color: "text-amber-500" },
+  { id: "almuerzo", labelKey: "lunch", icon: Sun, color: "text-orange-500" },
+  { id: "merienda", labelKey: "snack", icon: Cookie, color: "text-pink-500" },
+  { id: "cena", labelKey: "dinner", icon: Moon, color: "text-indigo-500" },
 ] as const;
 
 type MealType = typeof MEAL_TYPES[number]["id"];
