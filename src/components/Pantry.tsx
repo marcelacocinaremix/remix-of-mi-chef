@@ -633,6 +633,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
+  const [showHelp, setShowHelp] = useState(() => { try { return !localStorage.getItem(PANTRY_HELP_KEY); } catch { return true; } });
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [currentTip, setCurrentTip] = useState(0);
   const [showAddDialog, setShowAddDialog] = useState(false);

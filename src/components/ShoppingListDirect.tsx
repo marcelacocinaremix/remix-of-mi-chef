@@ -222,6 +222,7 @@ export function ShoppingListDirect() {
   const [selectedCategory, setSelectedCategory] = useState("otros");
   
   // UI state
+  const [showHelp, setShowHelp] = useState(() => { try { return !localStorage.getItem(SUPER_HELP_KEY); } catch { return true; } });
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [showPurchased, setShowPurchased] = useState(false);
