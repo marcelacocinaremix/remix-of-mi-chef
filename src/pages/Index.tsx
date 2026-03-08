@@ -47,6 +47,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
 import { useAdMob } from "@/hooks/useAdMob";
 import { useAppTheme } from "@/contexts/ThemeContext";
+import { useStreakContext } from "@/contexts/StreakContext";
+import { StreakDisplay } from "@/components/StreakDisplay";
 
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
