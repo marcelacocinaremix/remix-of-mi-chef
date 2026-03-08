@@ -1955,7 +1955,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                 <Lock className="w-2.5 h-2.5 absolute -top-1 -right-1 text-amber-500" />
               )}
             </div>
-            <span className="text-xs">Guía de Alimentos</span>
+            <span className="text-xs">{t("learnTabGuia")}</span>
           </button>
         </div>
       </div>
