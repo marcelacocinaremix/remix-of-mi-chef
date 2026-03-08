@@ -510,7 +510,7 @@ export function ShoppingListDirect() {
                     />
                   </div>
                   <p className="text-xs text-muted-foreground text-right">
-                    {Math.round(progressPercentage)}% completado
+                    {Math.round(progressPercentage)}{t("superCompleted")}
                   </p>
                 </div>
               )}
