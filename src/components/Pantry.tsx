@@ -760,8 +760,8 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
       setItems(items.filter((item) => item.id !== id));
       toast({
-        title: "Producto retirado",
-        description: "Se quitó del estante",
+        title: t("productRemoved"),
+        description: t("removedFromShelf"),
       });
     } catch (error) {
       toast({
