@@ -54,6 +54,7 @@ import {
   Coins,
   Clock,
   ArrowRight,
+  Globe,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
