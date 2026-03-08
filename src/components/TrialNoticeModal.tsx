@@ -123,9 +123,10 @@ export function TrialNoticeModal() {
           </DialogDescription>
           <div className="flex flex-col gap-2 pt-2">
             {config.showPremiumBtn && (
-              <Button
+            <Button
                 onClick={handleViewPremium}
-                className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold"
+                className="w-full font-semibold"
+                variant="default"
               >
                 Ver Premium
               </Button>
