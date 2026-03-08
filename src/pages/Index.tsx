@@ -853,6 +853,9 @@ export default function Index() {
           </div>
         )}
 
+        {/* Trial period notice modals */}
+        <TrialNoticeModal />
+
         <Footer />
       </div>
     </div>
