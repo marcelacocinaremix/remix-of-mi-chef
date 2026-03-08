@@ -274,14 +274,14 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
       onHistoryDeleted?.();
       
       toast({
-        title: "Historial borrado",
-        description: "Tu historial de recetas cocinadas fue eliminado.",
+        title: t("historyDeleted"),
+        description: t("historyDeletedDesc"),
       });
     } catch (error) {
       console.error("Error deleting history:", error);
       toast({
-        title: "Error",
-        description: "No se pudo borrar el historial.",
+        title: t("error"),
+        description: t("historyDeleteError"),
         variant: "destructive",
       });
     } finally {
@@ -290,12 +290,10 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
   };
 
   const getFrequencyColor = (frequency: string) => {
-    switch (frequency) {
-      case "muy frecuente": return "bg-green-500/10 text-green-600 dark:text-green-400";
-      case "frecuente": return "bg-blue-500/10 text-blue-600 dark:text-blue-400";
-      case "regular": return "bg-amber-500/10 text-amber-600 dark:text-amber-400";
-      default: return "bg-muted text-muted-foreground";
-    }
+    if (frequency === t("historyFreqVeryOften")) return "bg-green-500/10 text-green-600 dark:text-green-400";
+    if (frequency === t("historyFreqOften")) return "bg-blue-500/10 text-blue-600 dark:text-blue-400";
+    if (frequency === t("historyFreqRegular")) return "bg-amber-500/10 text-amber-600 dark:text-amber-400";
+    return "bg-muted text-muted-foreground";
   };
 
   if (!user) return null;
@@ -306,7 +304,7 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
         <CardContent className="py-8 text-center">
           <div className="flex items-center justify-center gap-2 text-muted-foreground">
             <div className="animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full" />
-            <span>Analizando tu historial...</span>
+            <span>{t("historyAnalyzing")}</span>
           </div>
         </CardContent>
       </Card>
@@ -319,7 +317,7 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
         <CardContent className="py-8 text-center">
           <ChefHat className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
           <p className="text-muted-foreground">
-            ¡Empezá a cocinar recetas para ver tu historial inteligente!
+            {t("historyEmpty")}
           </p>
         </CardContent>
       </Card>
@@ -336,13 +334,13 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-green-500" />
-              Recetas Generadas
+              {t("historyGeneratedRecipes")}
               <Badge variant="secondary" className="text-xs ml-auto">
                 {cookedRecipes.length}
               </Badge>
             </CardTitle>
             <p className="text-xs text-muted-foreground">
-              Recetas que generaste en la sección Cocinar
+              {t("historyGeneratedDesc")}
             </p>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -378,12 +376,12 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
                 {showAllRecipes ? (
                   <>
                     <ChevronUp className="w-4 h-4 mr-1" />
-                    Ver menos
+                    {t("historyShowLess")}
                   </>
                 ) : (
                   <>
                     <ChevronDown className="w-4 h-4 mr-1" />
-                    Ver {cookedRecipes.length - 5} más
+                    {t("historyShowMore").replace("{count}", String(cookedRecipes.length - 5))}
                   </>
                 )}
               </Button>
@@ -397,7 +395,7 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
           <div className="flex items-center justify-between">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
               <BarChart3 className="w-5 h-5 text-primary" />
-              Tu Historial Inteligente
+              {t("historySmartTitle")}
             </CardTitle>
             <div className="flex items-center gap-1">
               <Button
@@ -422,18 +420,18 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>¿Borrar historial?</AlertDialogTitle>
+                    <AlertDialogTitle>{t("historyDeleteTitle")}</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Esta acción eliminará todas tus recetas cocinadas. Perderás tus estadísticas y el análisis de tus preferencias. Esta acción no se puede deshacer.
+                      {t("historyDeleteDesc")}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={handleDeleteHistory}
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     >
-                      {isDeleting ? "Borrando..." : "Borrar historial"}
+                      {isDeleting ? t("historyDeleting") : t("historyDeleteConfirm")}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -447,24 +445,24 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
             <div className="text-center p-3 rounded-lg bg-background/50 border border-border/50">
               <Flame className="w-5 h-5 mx-auto mb-1 text-orange-500" />
               <p className="text-2xl font-bold text-foreground">{insights.totalRecipesCooked}</p>
-              <p className="text-xs text-muted-foreground">Recetas cocinadas</p>
+              <p className="text-xs text-muted-foreground">{t("historyRecipesCooked")}</p>
             </div>
             <div className="text-center p-3 rounded-lg bg-background/50 border border-border/50">
               <Clock className="w-5 h-5 mx-auto mb-1 text-blue-500" />
               <p className="text-2xl font-bold text-foreground">{insights.averageCookingTime}</p>
-              <p className="text-xs text-muted-foreground">Tiempo promedio</p>
+              <p className="text-xs text-muted-foreground">{t("historyAvgTime")}</p>
             </div>
             <div className="text-center p-3 rounded-lg bg-background/50 border border-border/50">
               <Calendar className="w-5 h-5 mx-auto mb-1 text-purple-500" />
               <p className="text-lg font-bold text-foreground">{insights.favoriteDay}</p>
-              <p className="text-xs text-muted-foreground">Día preferido</p>
+              <p className="text-xs text-muted-foreground">{t("historyFavoriteDay")}</p>
             </div>
           </div>
 
           {/* Cooking Frequency Badge */}
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Frecuencia de cocina:</span>
+            <span className="text-sm text-muted-foreground">{t("historyCookingFreq")}</span>
             <Badge className={getFrequencyColor(insights.cookingFrequency)}>
               {insights.cookingFrequency}
             </Badge>
@@ -475,7 +473,7 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Leaf className="w-4 h-4 text-green-500" />
-                <span className="text-sm font-medium text-foreground">Ingredientes más usados</span>
+                <span className="text-sm font-medium text-foreground">{t("historyTopIngredients")}</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {insights.topIngredients.map((ing, idx) => (
@@ -496,7 +494,7 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Utensils className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-foreground">Tu estilo de recetas</span>
+                <span className="text-sm font-medium text-foreground">{t("historyRecipeStyle")}</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {insights.recipeStyles.map((style, idx) => (
@@ -519,13 +517,13 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-amber-500" />
-            Recetas sugeridas para vos
+            {t("historyAISuggestions")}
             <Badge variant="secondary" className="text-xs ml-auto">
               IA
             </Badge>
           </CardTitle>
           <p className="text-xs text-muted-foreground">
-            Basadas en tu historial y preferencias
+            {t("historyAISuggestionsDesc")}
           </p>
         </CardHeader>
         <CardContent>
