@@ -2000,7 +2000,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
             </div>
             <div>
               <p className="text-2xl font-bold text-amber-500">{stats.totalLessons}</p>
-              <p className="text-xs text-muted-foreground">Lecciones totales</p>
+              <p className="text-xs text-muted-foreground">{t("learnTotalLessons")}</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-emerald-500">{stats.totalCategories}</p>
