@@ -9,6 +9,9 @@ const LANGUAGES: { code: Language; name: string; flag: string }[] = [
   { code: "es", name: "Español", flag: "🇦🇷" },
   { code: "en", name: "English", flag: "🇺🇸" },
   { code: "pt", name: "Português", flag: "🇧🇷" },
+  { code: "it", name: "Italiano", flag: "🇮🇹" },
+  { code: "de", name: "Deutsch", flag: "🇩🇪" },
+  { code: "fr", name: "Français", flag: "🇫🇷" },
 ];
 
 interface LanguageSelectorProps {

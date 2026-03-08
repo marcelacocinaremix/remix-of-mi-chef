@@ -56,6 +56,9 @@ const LANGUAGES: { code: Language; name: string; flag: string; greeting: string 
   { code: "es", name: "Español", flag: "🇦🇷", greeting: "¡Hola!" },
   { code: "en", name: "English", flag: "🇺🇸", greeting: "Hello!" },
   { code: "pt", name: "Português", flag: "🇧🇷", greeting: "Olá!" },
+  { code: "it", name: "Italiano", flag: "🇮🇹", greeting: "Ciao!" },
+  { code: "de", name: "Deutsch", flag: "🇩🇪", greeting: "Hallo!" },
+  { code: "fr", name: "Français", flag: "🇫🇷", greeting: "Bonjour!" },
 ];
 
 const getFeatureSlides = (t: (key: TranslationKey) => string) => [
