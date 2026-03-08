@@ -16,7 +16,7 @@ export function StreakDisplay() {
   const currentStreak = streakData?.currentStreak ?? 0;
   const alreadyActiveToday = streakData?.alreadyActiveToday ?? false;
 
-  const { currentStreak, alreadyActiveToday } = streakData;
+
 
   return (
     <>
