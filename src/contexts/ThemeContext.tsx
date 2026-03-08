@@ -19,7 +19,7 @@ export const THEMES: { id: AppTheme; label: string; description: string; primary
   { id: "cyan-dark", label: "Cyan Oscuro", description: "Azul profundo y elegante", primary: "hsl(195 100% 50%)", bg: "#0a1929", dark: true },
   { id: "rose-light", label: "Rosa Claro", description: "Rosa suave y cálido", primary: "hsl(340 85% 55%)", bg: "#fff0f5", dark: false },
   { id: "rose-dark", label: "Rosa Oscuro", description: "Rosa intenso y dramático", primary: "hsl(340 80% 55%)", bg: "#1a0a12", dark: true },
-  { id: "future", label: "Futuro", description: "Próximamente...", primary: "hsl(195 100% 50%)", bg: "#0a1929", dark: true },
+  { id: "future", label: "Futuro", description: "Cyberpunk neón", primary: "hsl(195 100% 50%)", bg: "#0a1929", dark: true },
 ];
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
