@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   Play, Trophy, Flame, Zap, ChefHat,
-  Timer, SortAsc, Salad, Target, History, Star
+  SortAsc, Salad, Target, History, Star
 } from "lucide-react";
 import { useGameStats } from "@/hooks/useGameStats";
 import { useAuth } from "@/hooks/useAuth";
