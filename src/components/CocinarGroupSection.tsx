@@ -3,7 +3,6 @@ import { FiltersState } from "./AdvancedFilters";
 import { Recipe } from "./RecipeList";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { DailyUsageIndicator } from "./DailyUsageIndicator";
 import cookingBanner from "@/assets/cooking-banner.jpg";
 
 interface CocinarSectionProps {
