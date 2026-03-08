@@ -182,10 +182,9 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const filteredRecipes = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     return favorites.filter(fav => {
-      // When searching, look across ALL folders; otherwise filter by active folder
-      if (!q) {
-        return (folderAssignments[fav.id] || "Sin carpeta") === activeFolder;
-      }
+      const inFolder = (folderAssignments[fav.id] || "Sin carpeta") === activeFolder;
+      if (!inFolder) return false;
+      if (!q) return true;
       return fav.recipe_name.toLowerCase().includes(q) ||
         fav.recipe_data.ingredients?.some(i => i.toLowerCase().includes(q));
     });
@@ -387,11 +386,9 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                 number={3}
                 title="Tus recetas guardadas"
                 subtitle={
-                  searchQuery
-                    ? `${filteredRecipes.length} resultado${filteredRecipes.length !== 1 ? "s" : ""} en todas las carpetas`
-                    : filteredRecipes.length > 0
-                      ? `${filteredRecipes.length} receta${filteredRecipes.length !== 1 ? "s" : ""} en "${activeFolder}"`
-                      : `Carpeta "${activeFolder}"`
+                  filteredRecipes.length > 0
+                    ? `${filteredRecipes.length} receta${filteredRecipes.length !== 1 ? "s" : ""} en "${activeFolder}"`
+                    : `Carpeta "${activeFolder}"`
                 }
               />
 
