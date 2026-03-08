@@ -1591,7 +1591,8 @@ function getLearningContent(language: string): Level[] {
       }
     ]
   }
-];
+  ];
+}
 
 
 
