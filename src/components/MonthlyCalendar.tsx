@@ -273,6 +273,17 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
 
   return (
     <div className="space-y-4">
+      {/* Help banner */}
+      {showHelp && <CalendarHelpBanner onDismiss={() => { localStorage.setItem(CALENDAR_HELP_KEY, "1"); setShowHelp(false); }} />}
+      {!showHelp && (
+        <button
+          onClick={() => setShowHelp(true)}
+          className="animate-neon-pulse flex items-center gap-2 px-3 py-1.5 rounded-full border border-sky-400/40 bg-sky-500/5 text-sky-500 text-xs font-medium transition-colors duration-300 hover:bg-sky-500/15 hover:border-sky-400/70"
+        >
+          <Info className="w-3.5 h-3.5" />
+          <span>Ver cómo funciona</span>
+        </button>
+      )}
       {/* Month navigation */}
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="icon" onClick={() => setCurrentMonth((m) => subMonths(m, 1))}>

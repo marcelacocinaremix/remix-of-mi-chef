@@ -437,6 +437,17 @@ export function ShoppingListDirect() {
 
   return (
     <div className="space-y-4 pb-6">
+      {/* Help banner */}
+      {showHelp && <SuperHelpBanner onDismiss={() => { localStorage.setItem(SUPER_HELP_KEY, "1"); setShowHelp(false); }} />}
+      {!showHelp && (
+        <button
+          onClick={() => setShowHelp(true)}
+          className="animate-neon-pulse flex items-center gap-2 px-3 py-1.5 rounded-full border border-sky-400/40 bg-sky-500/5 text-sky-500 text-xs font-medium transition-colors duration-300 hover:bg-sky-500/15 hover:border-sky-400/70"
+        >
+          <Info className="w-3.5 h-3.5" />
+          <span>Ver cómo funciona</span>
+        </button>
+      )}
       {/* Header Card with Stats */}
       <Card className="overflow-hidden border-0 shadow-card bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <CardContent className="p-4">
