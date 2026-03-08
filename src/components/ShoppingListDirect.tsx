@@ -10,11 +10,12 @@ import { useLanguage } from "@/contexts/LanguageContext";
 const SUPER_HELP_KEY = "miChef_super_help_dismissed";
 
 function SuperHelpBanner({ onDismiss }: { onDismiss: () => void }) {
+  const { t } = useLanguage();
   const steps = [
-    { num: 1, emoji: "✏️", title: "Agregá productos", desc: "Escribí los productos que necesitás comprar y se organizan automáticamente por categoría." },
-    { num: 2, emoji: "✅", title: "Tachá al comprar", desc: "Tocá cada ítem para marcarlo como comprado y llevar el control en tiempo real." },
-    { num: 3, emoji: "🍳", title: "Desde recetas", desc: "Cuando generás una receta, podés agregar todos sus ingredientes a la lista con un solo toque." },
-    { num: 4, emoji: "🗑️", title: "Limpiar lista", desc: "Una vez terminado el super, limpiá los ítems comprados o toda la lista de una vez." },
+    { num: 1, emoji: "✏️", title: t("superStep1Title"), desc: t("superStep1Desc") },
+    { num: 2, emoji: "✅", title: t("superStep2Title"), desc: t("superStep2Desc") },
+    { num: 3, emoji: "🍳", title: t("superStep3Title"), desc: t("superStep3Desc") },
+    { num: 4, emoji: "🗑️", title: t("superStep4Title"), desc: t("superStep4Desc") },
   ];
   return (
     <div className="rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-accent/8 p-4 animate-fade-in">
@@ -23,7 +24,7 @@ function SuperHelpBanner({ onDismiss }: { onDismiss: () => void }) {
           <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
             <Info className="w-4 h-4 text-primary" />
           </div>
-          <span className="font-semibold text-sm text-foreground">¿Cómo funciona el Supermercado?</span>
+          <span className="font-semibold text-sm text-foreground">{t("superHowItWorks")}</span>
         </div>
         <button onClick={onDismiss} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
           <X className="w-4 h-4" />
