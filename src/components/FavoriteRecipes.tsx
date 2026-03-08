@@ -94,13 +94,11 @@ function getRecipeEmoji(recipe: Recipe) {
 }
 
 // ─── Folder persistence ────────────────────────────────────────────────
-const DEFAULT_FOLDERS = ["Sin carpeta", "Almuerzos", "Cenas", "Desayunos", "Postres", "Snacks"];
 const FOLDERS_KEY = "miChef_recipe_folders";
 const RECIPE_FOLDERS_KEY = "miChef_recipe_folder_assignments";
 const HELP_DISMISSED_KEY = "miChef_favorites_help_dismissed";
 
 // Tips folders
-const DEFAULT_TIP_FOLDERS = ["Sin carpeta", "Conservación", "Cocción", "Nutrición", "Ahorro"];
 const TIP_FOLDERS_KEY = "miChef_tip_folders";
 const TIP_FOLDER_ASSIGNMENTS_KEY = "miChef_tip_folder_assignments";
 
