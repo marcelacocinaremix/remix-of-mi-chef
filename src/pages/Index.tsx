@@ -53,6 +53,8 @@ export default function Index() {
   const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium, hasAnyAccess, isTrialExpired } = usePremium();
   const { showInterstitial } = useAdMob();
   const isMobile = useIsMobile();
+  const { theme } = useAppTheme();
+  const isFuture = theme === "future";
 
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [time, setTime] = useState<number>(30);
