@@ -684,7 +684,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
             <DialogTitle className="capitalize text-base">
               📅 {longPressDay && format(longPressDay, "EEEE d 'de' MMMM", { locale: es })}
             </DialogTitle>
-            <DialogDescription>Vista rápida de las comidas del día</DialogDescription>
+            <DialogDescription>{t("calendarQuickView")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
             {longPressDay && getMealsForDate(longPressDay).map((meal) => {
@@ -712,7 +712,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
             }}
           >
             <Plus className="w-4 h-4 mr-2" />
-            Editar día
+            {t("calendarEditDay")}
           </Button>
         </DialogContent>
       </Dialog>
