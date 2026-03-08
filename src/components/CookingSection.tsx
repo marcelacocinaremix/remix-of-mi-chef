@@ -389,7 +389,7 @@ export function CookingSection({
       <AdvancedFilters
         filters={filters}
         onChange={setFilters}
-        disabled={!isPremium && !isTrialActive}
+        disabled={!hasAnyAccess}
         onUpgradeClick={onShowPaywall}
       />
 
