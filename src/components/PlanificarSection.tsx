@@ -59,8 +59,8 @@ export const PlanificarSection = ({
 
   return (
     <div className="space-y-6">
-      {/* Blocked banner - shown FIRST above tabs */}
-      {planBlocked && (
+      {/* Blocked banner - shown FIRST above tabs, only for Despensa/Super */}
+      {currentTabBlocked && (
         <Card className="border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 shadow-md">
           <CardContent className="py-5 px-4">
             <div className="flex items-start gap-3">
@@ -68,9 +68,9 @@ export const PlanificarSection = ({
                 <Lock className="w-5 h-5 text-amber-600" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-foreground">Tu prueba gratuita terminó</p>
+                <p className="text-sm font-semibold text-foreground">Función Premium</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Las secciones <span className="font-medium">Calendario</span>, <span className="font-medium">Despensa</span> y <span className="font-medium">Super</span> son de solo lectura. Pasate a Premium para desbloquear todo.
+                  <span className="font-medium">Despensa</span> y <span className="font-medium">Super</span> son funciones Premium. Pasate a Premium para desbloquear todo.
                 </p>
               </div>
               <Button size="sm" onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs flex-shrink-0">
