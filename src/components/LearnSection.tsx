@@ -1262,6 +1262,7 @@ const learningContent: Level[] = [
   }
 ];
 
+
 interface LearnSectionProps {
   onNavigateToCooking?: () => void;
   onNavigateToGame?: () => void;
