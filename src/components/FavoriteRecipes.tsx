@@ -437,14 +437,14 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   if (!user) return (
     <div className="bg-card rounded-xl p-6 border border-border/50 text-center">
       <Heart className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-      <h3 className="font-display text-lg font-semibold mb-2">Tus favoritos</h3>
-      <p className="text-muted-foreground text-sm">Iniciá sesión para guardar tus favoritos</p>
+      <h3 className="font-display text-lg font-semibold mb-2">{t("favTitle")}</h3>
+      <p className="text-muted-foreground text-sm">{t("favLoginDesc")}</p>
     </div>
   );
 
   if (isLoading) return (
     <div className="bg-card rounded-xl p-6 border border-border/50 text-center">
-      <p className="text-muted-foreground">Cargando favoritos...</p>
+      <p className="text-muted-foreground">{t("favLoading")}</p>
     </div>
   );
 
@@ -487,7 +487,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
             )}
           >
             {tab === "recetas" ? <UtensilsCrossed className="w-4 h-4" /> : <BookOpen className="w-4 h-4" />}
-            {tab === "recetas" ? "Mis Recetas" : "Mis Tips"}
+            {tab === "recetas" ? t("favMyRecipes") : t("favMyTips")}
             <span className={cn(
               "text-xs px-1.5 py-0.5 rounded-full font-semibold",
               activeTab === tab ? "bg-primary-foreground/20" : "bg-muted text-muted-foreground"
@@ -512,7 +512,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
               className="animate-neon-pulse flex items-center gap-2 px-3 py-1.5 rounded-full border border-sky-400/40 bg-sky-500/5 text-sky-500 text-xs font-medium transition-colors duration-300 hover:bg-sky-500/15 hover:border-sky-400/70"
             >
               <Info className="w-3.5 h-3.5" />
-              <span>Ver cómo funciona</span>
+              <span>{t("favViewHowItWorks")}</span>
             </button>
           )}
 
@@ -995,17 +995,17 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
               {sheetRecipe && (
                 <>
                   <SheetHeader className="mb-4">
-                    <SheetTitle className="text-left text-base flex items-center gap-2">
+                  <SheetTitle className="text-left text-base flex items-center gap-2">
                       <span className="text-2xl">{getRecipeEmoji(sheetRecipe.recipe_data)}</span>
                       <span className="line-clamp-1">{sheetRecipe.recipe_name}</span>
                     </SheetTitle>
                     <p className="text-xs text-muted-foreground text-left">
-                      Carpeta actual: <strong>{folderAssignments[sheetRecipe.id] || "Sin carpeta"}</strong>
+                      {t("favFolderCurrentLabel")} <strong>{folderAssignments[sheetRecipe.id] || t("favDefaultFolderNoFolder")}</strong>
                     </p>
                   </SheetHeader>
                   <div className="space-y-2 mb-5">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
-                      <MoveRight className="w-3.5 h-3.5" /> Mover a carpeta
+                      <MoveRight className="w-3.5 h-3.5" /> {t("favMoveToFolder")}
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                       {folders.map(f => {
@@ -1070,11 +1070,11 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                       </div>
                     )}
                   </div>
-                  <button
+                    <button
                     onClick={e => { handleDeleteRecipe(sheetRecipe.id, e); setMovingRecipeId(null); }}
                     className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 active:scale-95 transition-all border border-destructive/20"
                   >
-                    <Trash2 className="w-4 h-4" /> Eliminar de favoritos
+                    <Trash2 className="w-4 h-4" /> {t("favDeleteFromFavorites")}
                   </button>
                 </>
               )}
@@ -1170,7 +1170,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                     onClick={async (e) => { await handleDeleteTip(sheetTip.id, e as React.MouseEvent); setMovingTipId(null); }}
                     className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 active:scale-95 transition-all border border-destructive/20"
                   >
-                    <Trash2 className="w-4 h-4" /> Eliminar tip
+                    <Trash2 className="w-4 h-4" /> {t("favDeleteTip")}
                   </button>
                 </>
               )}
