@@ -92,19 +92,23 @@ interface Level {
   categories: Category[];
 }
 
-const learningContent: Level[] = [
+function getLearningContent(language: string): Level[] {
+  const isEn = language === 'en';
+  const isPt = language === 'pt';
+
+  return [
   {
     id: "principiante",
-    name: "Principiante",
-    description: "Empezá desde cero con lo básico de la cocina",
+    name: isEn ? "Beginner" : isPt ? "Iniciante" : "Principiante",
+    description: isEn ? "Start from scratch with cooking basics" : isPt ? "Comece do zero com o básico da cozinha" : "Empezá desde cero con lo básico de la cocina",
     color: "bg-emerald-500",
     gradient: "from-emerald-500 to-teal-500",
     categories: [
       {
         id: "tecnicas-basicas",
-        name: "Técnicas Básicas",
+        name: isEn ? "Basic Techniques" : isPt ? "Técnicas Básicas" : "Técnicas Básicas",
         icon: ChefHat,
-        description: "Los fundamentos que todo cocinero debe conocer",
+        description: isEn ? "The fundamentals every cook must know" : isPt ? "Os fundamentos que todo cozinheiro deve conhecer" : "Los fundamentos que todo cocinero debe conocer",
         lessons: [
           {
             id: "cortar-verduras",
@@ -1587,7 +1591,8 @@ const learningContent: Level[] = [
       }
     ]
   }
-];
+  ];
+}
 
 
 
@@ -1598,7 +1603,8 @@ interface LearnSectionProps {
 }
 
 export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabChange }: LearnSectionProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const learningContent = getLearningContent(language);
   const { user } = useAuth();
   const { toast } = useToast();
   const { play } = useSound();
