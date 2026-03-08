@@ -194,7 +194,18 @@ export function CookingSection({
   return (
     <div className="space-y-4 overflow-hidden">
 
-      {/* Pending Suggestion Banner */}
+      {/* Help Banner */}
+      {showHelp && <CookingHelpBanner onDismiss={dismissHelp} />}
+      {!showHelp && (
+        <button
+          onClick={() => setShowHelp(true)}
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+        >
+          <Info className="w-3.5 h-3.5" />
+          Ver cómo funciona
+        </button>
+      )}
+
       {pendingSuggestion && (
         <Card className="border-2 border-primary/30 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 animate-fade-in">
           <CardContent className="p-4">
