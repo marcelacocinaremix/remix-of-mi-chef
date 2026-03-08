@@ -3101,9 +3101,8 @@ export const translations = {
     recipeAlreadyLoggedMode: "Já registrada 🏆",
     recipeFooterMsg: "\"Espero que você aproveite esta receita. No MARCELACOCINA tem muito mais ideias fáceis para o dia a dia.\"",
 
-    // CookingGame
+    // CookingGame (legacy keys kept for compat)
     playAgain: "Jogar de Novo",
-    gameBackToMenu: "Voltar ao Menu",
 
     // ShoppingListDirect help
     shoppingHowItWorks: "Como funciona a Lista de Compras?",
