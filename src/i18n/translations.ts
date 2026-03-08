@@ -2387,6 +2387,12 @@ export const translations = {
     profilePhotoHint: "Tap the icon to change your photo",
     profileName: "Name",
     profileNamePlaceholder: "Your name",
+    profileCountry: "Country",
+    profileCountryPlaceholder: "Select your country",
+    gameCountryPromptTitle: "Where are you playing from?",
+    gameCountryPromptDesc: "Choose your country to appear on the global ranking",
+    gameCountryPromptSkip: "Not now",
+    gameCountryPromptSave: "Save & play",
     recipeFooterMsg: "\"I hope you enjoy this recipe. On MARCELACOCINA you'll find many more easy everyday ideas.\"",
 
     // CookingGame
