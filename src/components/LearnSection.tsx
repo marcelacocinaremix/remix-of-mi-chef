@@ -1808,7 +1808,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
       <div className="space-y-6 animate-fade-in">
         <Button
           variant="ghost"
-          onClick={() => setActiveLesson(null)}
+          onClick={() => { setActiveLesson(null); setActiveSubMenu("aprender"); }}
           className="mb-2"
         >
           {t("learnBack")}
