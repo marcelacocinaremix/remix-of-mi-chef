@@ -217,6 +217,8 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const [folderAssignments, setFolderAssignments] = useState<Record<string, string>>(getFolderAssignments());
   const [newFolderName, setNewFolderName] = useState("");
   const [showNewFolderInput, setShowNewFolderInput] = useState(false);
+  const [showSheetNewFolder, setShowSheetNewFolder] = useState(false);
+  const [sheetNewFolderName, setSheetNewFolderName] = useState("");
   const [movingRecipeId, setMovingRecipeId] = useState<string | null>(null);
   const [deletingFolder, setDeletingFolder] = useState<string | null>(null);
 
