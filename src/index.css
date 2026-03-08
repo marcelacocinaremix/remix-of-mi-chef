@@ -400,6 +400,15 @@
     animation: ripple-out 0.6s ease-out forwards;
   }
 
+  @keyframes neon-pulse {
+    0%, 100% {
+      box-shadow: 0 0 6px 1px hsl(199 89% 48% / 0.3), 0 0 16px 2px hsl(199 89% 48% / 0.15), inset 0 0 6px hsl(199 89% 48% / 0.08);
+    }
+    50% {
+      box-shadow: 0 0 12px 3px hsl(199 89% 48% / 0.55), 0 0 28px 6px hsl(199 89% 48% / 0.25), inset 0 0 10px hsl(199 89% 48% / 0.15);
+    }
+  }
+
   /* Hide all video controls */
   video::-webkit-media-controls,
   video::-webkit-media-controls-panel,
