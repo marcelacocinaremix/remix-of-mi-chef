@@ -1865,7 +1865,31 @@ export const translations = {
     tipsLearnByDoing: "Want to practice?",
     tipsPracticeDesc: "The best way to learn is by cooking",
     tipsPracticeButton: "Let's cook!",
+
+    // LearnSection UI
+    learnBack: "← Back to categories",
+    learnCompleted: "Completed",
+    learnStepByStep: "Step by step",
+    learnImportantTips: "Important tips",
+    learnDidYouKnow: "Did you know...?",
+    learnMarcelaSays: "Marcela says:",
+    learnMarkComplete: "Mark as completed",
+    learnLessonsCompleted: "Lessons completed",
+    learnTotalLessons: "Total lessons",
+    learnCategories: "Categories",
+    learnPercentDone: "% completed",
+    learnCompleted100: "completed",
+    learnTabAprender: "Learn",
+    learnTabGuia: "Food Guide",
+    learnBannerTitle: "Learn",
+    learnBannerSubtitle: "Master cooking with Marcela",
+    learnMotivational: "\"Cooking is an art learned through practice. Every mistake brings you closer to mastery!\" - Marcela",
+    learnTrialDays: "days remaining",
+    learnTrialActive: "🎁 Free trial:",
+    learnTrialEnded: "Your free trial has ended",
+    learnGuideReadOnly: "The Food Guide is read-only. Unlock with Premium.",
     
+
     // Tips Category Names
     tipsCuts: "Cuts",
     tipsTemperatures: "Temperatures",
