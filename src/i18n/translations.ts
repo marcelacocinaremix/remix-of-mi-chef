@@ -3598,8 +3598,7 @@ export const translations = {
     calendarRecipeAdded: "Receita adicionada!",
     calendarRecipeRemoved: "Receita removida",
     calendarWeekDays: "Seg,Ter,Qua,Qui,Sex,Sáb,Dom",
-
-    // FavoriteRecipes
+    calendarForMealType: "Para",
     favTitle: "Seus favoritos",
     favLoginDesc: "Faça login para salvar seus favoritos",
     favLoading: "Carregando favoritos...",
