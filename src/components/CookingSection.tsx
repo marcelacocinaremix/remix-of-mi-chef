@@ -174,9 +174,7 @@ export function CookingSection({
 }: CookingSectionProps) {
   const { t } = useLanguage();
 
-  const [showHelp, setShowHelp] = useState(() => {
-    try { return !localStorage.getItem(COOKING_HELP_KEY); } catch { return true; }
-  });
+  const [showHelp, setShowHelp] = useState(false);
 
   const dismissHelp = () => {
     localStorage.setItem(COOKING_HELP_KEY, "1");
