@@ -165,14 +165,12 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                 <Lock className="w-5 h-5 text-amber-600" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-foreground">Tu prueba gratuita terminó</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Las secciones <span className="font-medium">Tu Objetivo</span>, <span className="font-medium">Nutrición</span>, <span className="font-medium">Actividad</span> y <span className="font-medium">Resumen</span> son de solo lectura. Pasate a Premium para desbloquear todo.
-                </p>
+                <p className="text-sm font-semibold text-foreground">{t("balanceTrialEnded")}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("balanceTrialEndedDesc")}</p>
               </div>
               <Button size="sm" onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs flex-shrink-0">
                 <Crown className="w-3.5 h-3.5 mr-1" />
-                Premium
+                {t("balancePremium")}
               </Button>
             </div>
           </CardContent>
@@ -184,32 +182,32 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
         <CardContent className="py-4 px-4">
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-semibold text-foreground">¿Cómo funciona?</span>
+            <span className="text-sm font-semibold text-foreground">{t("balanceHowItWorks")}</span>
           </div>
           <div className="grid grid-cols-4 gap-2">
             <div className="flex flex-col items-center text-center">
               <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center mb-1">
                 <Target className="w-5 h-5 text-primary" />
               </div>
-              <span className="text-[10px] text-muted-foreground leading-tight">Agregá tu objetivo</span>
+              <span className="text-[10px] text-muted-foreground leading-tight">{t("balanceStep1")}</span>
             </div>
             <div className="flex flex-col items-center text-center">
               <div className="w-10 h-10 rounded-full bg-amber-500/15 flex items-center justify-center mb-1">
                 <BarChart3 className="w-5 h-5 text-amber-500" />
               </div>
-              <span className="text-[10px] text-muted-foreground leading-tight">Registrá tus comidas</span>
+              <span className="text-[10px] text-muted-foreground leading-tight">{t("balanceStep2")}</span>
             </div>
             <div className="flex flex-col items-center text-center">
               <div className="w-10 h-10 rounded-full bg-emerald-500/15 flex items-center justify-center mb-1">
                 <Dumbbell className="w-5 h-5 text-emerald-500" />
               </div>
-              <span className="text-[10px] text-muted-foreground leading-tight">Registrá entrenamientos</span>
+              <span className="text-[10px] text-muted-foreground leading-tight">{t("balanceStep3")}</span>
             </div>
             <div className="flex flex-col items-center text-center">
               <div className="w-10 h-10 rounded-full bg-purple-500/15 flex items-center justify-center mb-1">
                 <LayoutDashboard className="w-5 h-5 text-purple-500" />
               </div>
-              <span className="text-[10px] text-muted-foreground leading-tight">Obtené tu resumen</span>
+              <span className="text-[10px] text-muted-foreground leading-tight">{t("balanceStep4")}</span>
             </div>
           </div>
         </CardContent>
@@ -230,7 +228,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
         <div className="flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-primary/10 border border-primary/20">
           <Target className="w-4 h-4 text-primary" />
           <span className="text-xs font-medium text-primary">
-            Objetivo activo: {goal.goal === "lose_fat" ? "Bajar de peso" : goal.goal === "gain_muscle" ? "Ganar músculo" : goal.goal === "improve_performance" ? "Mejorar rendimiento" : "Mantener peso"}
+            {t("balanceActiveGoal")} {goal.goal === "lose_fat" ? t("balanceGoalLoseFat") : goal.goal === "gain_muscle" ? t("balanceGoalGainMuscle") : goal.goal === "improve_performance" ? t("balanceGoalImprovePerformance") : t("balanceGoalStayActive")}
           </span>
         </div>
       )}
@@ -323,10 +321,10 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
               <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent flex items-center">
                 <div className="px-4">
                   <h3 className="text-white font-bold text-lg">
-                    {balanceSubTab === "guia" ? "Guía de Alimentos" : balanceSubTab === "graficos" ? "Gráficos" : "Mi Nutrición"}
+                    {balanceSubTab === "guia" ? t("balanceBannerGuide") : balanceSubTab === "graficos" ? t("balanceBannerCharts") : t("balanceBannerTitle")}
                   </h3>
                   <p className="text-white/80 text-sm">
-                    {balanceSubTab === "guia" ? "Información nutricional" : balanceSubTab === "graficos" ? "Visualizá tu balance" : "Registrá lo que comés"}
+                    {balanceSubTab === "guia" ? t("balanceBannerGuideSubtitle") : balanceSubTab === "graficos" ? t("balanceBannerChartsSubtitle") : t("balanceBannerSubtitle")}
                   </p>
                 </div>
               </div>
@@ -344,7 +342,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                 )}
               >
                 <ChefHat className="w-3.5 h-3.5" />
-                Registro
+                {t("balanceTabRegistro")}
               </button>
               <button
                 onClick={() => setBalanceSubTab("graficos")}
@@ -356,7 +354,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                 )}
               >
                 <BarChart3 className="w-3.5 h-3.5" />
-                Gráficos
+                {t("balanceTabGraficos")}
               </button>
               <button
                 onClick={() => setBalanceSubTab("guia")}
@@ -368,7 +366,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                 )}
               >
                 <BookOpen className="w-3.5 h-3.5" />
-                Guía
+                {t("balanceTabGuia")}
               </button>
             </div>
 
@@ -410,7 +408,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                           : "text-muted-foreground hover:text-foreground"
                       )}
                     >
-                      {p === "day" ? "Día" : p === "week" ? "Semana" : p === "month" ? "Mes" : "Año"}
+                      {p === "day" ? t("balancePeriodDay") : p === "week" ? t("balancePeriodWeek") : p === "month" ? t("balancePeriodMonth") : t("balancePeriodYear")}
                     </button>
                   ))}
                 </div>
@@ -431,10 +429,10 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                   <CardContent className="pt-4 pb-4">
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm font-medium">
-                        Resumen {nutritionPeriod === "day" ? "del día" : nutritionPeriod === "week" ? "semanal" : nutritionPeriod === "month" ? "mensual" : "anual"}
+                        {t("balanceSummaryTitle")} {nutritionPeriod === "day" ? t("balanceSummaryDaily") : nutritionPeriod === "week" ? t("balanceSummaryWeekly") : nutritionPeriod === "month" ? t("balanceSummaryMonthly") : t("balanceSummaryYearly")}
                       </span>
                       <Badge variant="secondary" className="text-xs">
-                        {periodMeals.length} comidas
+                        {periodMeals.length} {t("balanceMeals")}
                       </Badge>
                     </div>
                     <div className="grid grid-cols-4 gap-2">
@@ -443,28 +441,28 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                           <Flame className="w-4 h-4 text-orange-500" />
                         </div>
                         <p className="text-lg font-bold">{Math.round(periodTotals.calories)}</p>
-                        <p className="text-[10px] text-muted-foreground">Calorías</p>
+                        <p className="text-[10px] text-muted-foreground">{t("balanceCalories")}</p>
                       </div>
                       <div className="text-center">
                         <div className="w-8 h-8 mx-auto mb-1 rounded-full bg-chart-1/20 flex items-center justify-center">
                           <Beef className="w-4 h-4 text-chart-1" />
                         </div>
                         <p className="text-lg font-bold text-chart-1">{Math.round(periodTotals.protein)}g</p>
-                        <p className="text-[10px] text-muted-foreground">Proteínas</p>
+                        <p className="text-[10px] text-muted-foreground">{t("balanceProtein")}</p>
                       </div>
                       <div className="text-center">
                         <div className="w-8 h-8 mx-auto mb-1 rounded-full bg-chart-2/20 flex items-center justify-center">
                           <Wheat className="w-4 h-4 text-chart-2" />
                         </div>
                         <p className="text-lg font-bold text-chart-2">{Math.round(periodTotals.carbs)}g</p>
-                        <p className="text-[10px] text-muted-foreground">Carbos</p>
+                        <p className="text-[10px] text-muted-foreground">{t("balanceCarbs")}</p>
                       </div>
                       <div className="text-center">
                         <div className="w-8 h-8 mx-auto mb-1 rounded-full bg-chart-3/20 flex items-center justify-center">
                           <Droplets className="w-4 h-4 text-chart-3" />
                         </div>
                         <p className="text-lg font-bold text-chart-3">{Math.round(periodTotals.fats)}g</p>
-                        <p className="text-[10px] text-muted-foreground">Grasas</p>
+                        <p className="text-[10px] text-muted-foreground">{t("balanceFats")}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -478,7 +476,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                       <CardHeader className="pb-0">
                         <CardTitle className="text-base flex items-center gap-2">
                           <Target className="w-4 h-4 text-primary" />
-                          Distribución de Macros
+                          {t("balanceMacroDistribution")}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="pb-4 pt-3">
@@ -527,7 +525,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                       <CardHeader className="pb-2">
                         <CardTitle className="text-base flex items-center gap-2">
                           <TrendingUp className="w-4 h-4 text-primary" />
-                          Evolución Semanal
+                          {t("balanceWeeklyEvolution")}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="pb-4">
@@ -539,7 +537,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                               <Tooltip
                                 contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '10px', fontSize: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                                 formatter={(value: number, name: string) => {
-                                  const labels: { [key: string]: string } = { proteinas: 'Proteínas', carbohidratos: 'Carbos', grasas: 'Grasas' };
+                                  const labels: { [key: string]: string } = { proteinas: t("balSmartProtein"), carbohidratos: t("balSmartCarbs"), grasas: t("balSmartFats") };
                                   return [`${Math.round(value)}g`, labels[name] || name];
                                 }}
                               />
@@ -566,9 +564,9 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                       <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
                         <ChefHat className="w-8 h-8 text-muted-foreground" />
                       </div>
-                      <h3 className="font-semibold mb-2">Todavía no hay datos</h3>
+                      <h3 className="font-semibold mb-2">{t("balanceNoData")}</h3>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Registrá comidas para ver tus gráficos nutricionales
+                        {t("balanceNoDataDesc")}
                       </p>
                     </CardContent>
                   </Card>
@@ -589,7 +587,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                     <CardHeader className="pb-2">
                       <CardTitle className="text-base flex items-center gap-2">
                         <ChefHat className="w-4 h-4" />
-                        Comidas registradas
+                        {t("balanceRegisteredMeals")}
                         <Badge variant="secondary" className="ml-auto text-xs">
                           {periodMeals.length}
                         </Badge>
@@ -615,7 +613,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                         ))}
                         {periodMeals.length > 8 && (
                           <p className="text-xs text-center text-muted-foreground pt-2">
-                            +{periodMeals.length - 8} comidas más
+                            +{periodMeals.length - 8} {t("balanceMeals")}
                           </p>
                         )}
                       </div>
@@ -626,7 +624,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                 {/* Disclaimer */}
                 <p className="text-xs text-center text-muted-foreground flex items-center justify-center gap-1">
                   <AlertCircle className="w-3 h-3" />
-                  Los valores son estimaciones orientativas, no información nutricional exacta.
+                  {t("balanceDisclaimer")}
                 </p>
               </div>
             )}
@@ -644,8 +642,8 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
               <img src={actividadBanner} alt="Actividad física" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent flex items-center">
                 <div className="px-4">
-                  <h3 className="text-white font-bold text-lg">Tu Actividad</h3>
-                  <p className="text-white/80 text-sm">Registra y sigue tu progreso</p>
+                  <h3 className="text-white font-bold text-lg">{t("balanceActivityTitle")}</h3>
+                  <p className="text-white/80 text-sm">{t("balanceActivitySubtitle")}</p>
                 </div>
               </div>
             </div>
@@ -658,7 +656,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
       {!isPremium && isTrialActive && (
         <div className="text-center py-2">
           <span className="text-xs text-muted-foreground">
-            🎁 Prueba gratuita: {trialDaysRemaining} días restantes
+            🎁 {t("activityTitle")}: {trialDaysRemaining} {t("activityDays")}
           </span>
         </div>
       )}
