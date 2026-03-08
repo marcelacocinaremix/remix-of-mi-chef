@@ -17,18 +17,18 @@ interface GameIntroScreenProps {
   onStart: () => void;
 }
 
-  const MODE_META: Record<string, { label: string; emoji: string }> = {
-    recipe:      { label: t("gameModeRecipe"),      emoji: "👨‍🍳" },
-    order:       { label: t("gameModeOrder"),        emoji: "📋" },
-    ingredients: { label: t("gameModeIngredients"), emoji: "🥗" },
-  };
-
 export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
   const { user } = useAuth();
   const { stats, sessions } = useGameStats();
   const { t, language } = useLanguage();
 
   const dateLocale = language === 'en' ? enUS : language === 'pt' ? pt : language === 'it' ? it : language === 'de' ? de : language === 'fr' ? fr : es;
+
+  const MODE_META: Record<string, { label: string; emoji: string }> = {
+    recipe:      { label: t("gameModeRecipe"),      emoji: "👨‍🍳" },
+    order:       { label: t("gameModeOrder"),        emoji: "📋" },
+    ingredients: { label: t("gameModeIngredients"), emoji: "🥗" },
+  };
 
   // XP total = recetas completadas * 50 + partidas jugadas * 20
   const totalXP = stats.totalRecipesCompleted * 50 + stats.totalGamesPlayed * 20;
