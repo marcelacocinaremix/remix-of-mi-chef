@@ -243,10 +243,10 @@
             drop-shadow(0 0 8px hsl(195 80% 50% / 0.25));
   }
 
-  /* ===== FUTURE — Active buttons: transparent + neon border only ===== */
-  /* Override ALL active/selected menu and submenu buttons */
-  .future button.bg-primary,
-  .future button[class*="bg-primary"] {
+  /* ===== FUTURE — Active NAV buttons: transparent + neon border only ===== */
+  /* Only target navigation menu buttons (not folder/action buttons) */
+  .future .future-nav-btn.bg-primary,
+  .future .future-nav-btn[class*="bg-primary"] {
     background: transparent !important;
     border: 2px solid hsl(var(--primary)) !important;
     color: hsl(var(--primary)) !important;
