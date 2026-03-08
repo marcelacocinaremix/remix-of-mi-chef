@@ -1031,6 +1031,105 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
 
       {/* ── Tip Detail Modal ── */}
       <Dialog open={!!selectedTip} onOpenChange={open => !open && setSelectedTip(null)}>
+
+      {/* ── Confirm delete TIP folder ── */}
+      <Dialog open={!!deletingTipFolder} onOpenChange={open => !open && setDeletingTipFolder(null)}>
+        <DialogContent className="max-w-sm" aria-describedby={undefined}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Trash2 className="w-5 h-5 text-destructive" /> Eliminar carpeta
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              ¿Eliminar <strong>"{deletingTipFolder}"</strong>?
+              {deletingTipFolder && (tipFolderCounts[deletingTipFolder] || 0) > 0 && (
+                <span> Los <strong>{tipFolderCounts[deletingTipFolder]}</strong> tips se moverán a "Sin carpeta".</span>
+              )}
+            </p>
+            <div className="flex gap-2">
+              <Button variant="ghost" className="flex-1" onClick={() => setDeletingTipFolder(null)}>Cancelar</Button>
+              <Button
+                variant="destructive"
+                className="flex-1"
+                onClick={() => {
+                  if (!deletingTipFolder) return;
+                  const updated = { ...tipFolderAssignments };
+                  favoriteTips.forEach(t => { if ((updated[t.id] || "Sin carpeta") === deletingTipFolder) updated[t.id] = "Sin carpeta"; });
+                  localStorage.setItem(TIP_FOLDER_ASSIGNMENTS_KEY, JSON.stringify(updated));
+                  setTipFolderAssignments(updated);
+                  const newFolders = tipFolders.filter(f => f !== deletingTipFolder);
+                  setTipFolders(newFolders); saveTipFolders(newFolders);
+                  if (activeTipFolder === deletingTipFolder) setActiveTipFolder("Sin carpeta");
+                  setDeletingTipFolder(null);
+                  toast({ title: "Carpeta eliminada" });
+                }}
+              >Eliminar</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Sheet acciones de tips ── */}
+      {(() => {
+        const sheetTip = movingTipId ? favoriteTips.find(t => t.id === movingTipId) : null;
+        const Icon = sheetTip ? (categoryIcons[sheetTip.category] || Lightbulb) : Lightbulb;
+        const colorClass = sheetTip ? (categoryColors[sheetTip.category] || "text-primary bg-primary") : "text-primary bg-primary";
+        const [textColor] = colorClass.split(" ");
+        return (
+          <Sheet open={!!movingTipId} onOpenChange={open => !open && setMovingTipId(null)}>
+            <SheetContent side="bottom" className="rounded-t-2xl pb-8">
+              {sheetTip && (
+                <>
+                  <SheetHeader className="mb-4">
+                    <SheetTitle className="text-left text-base flex items-center gap-2">
+                      <Icon className={cn("w-5 h-5 shrink-0", textColor)} />
+                      <span className="capitalize line-clamp-1">{sheetTip.food_name}</span>
+                    </SheetTitle>
+                    <p className="text-xs text-muted-foreground text-left">
+                      Carpeta actual: <strong>{tipFolderAssignments[sheetTip.id] || "Sin carpeta"}</strong>
+                    </p>
+                  </SheetHeader>
+                  <div className="space-y-2 mb-5">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                      <MoveRight className="w-3.5 h-3.5" /> Mover a carpeta
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {tipFolders.map(f => {
+                        const isCurrent = (tipFolderAssignments[sheetTip.id] || "Sin carpeta") === f;
+                        return (
+                          <button
+                            key={f}
+                            onClick={() => handleMoveTip(sheetTip.id, f)}
+                            className={cn(
+                              "flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all border",
+                              isCurrent
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-muted/50 text-foreground border-border/50 hover:bg-muted active:scale-95"
+                            )}
+                          >
+                            {isCurrent ? <Check className="w-4 h-4 shrink-0" /> : <Folder className="w-4 h-4 shrink-0 text-muted-foreground" />}
+                            <span className="truncate">{f}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <button
+                    onClick={async (e) => { await handleDeleteTip(sheetTip.id, e as React.MouseEvent); setMovingTipId(null); }}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 active:scale-95 transition-all border border-destructive/20"
+                  >
+                    <Trash2 className="w-4 h-4" /> Eliminar tip
+                  </button>
+                </>
+              )}
+            </SheetContent>
+          </Sheet>
+        );
+      })()}
+
+      {/* ── Tip Detail Modal ── */}
+      <Dialog open={!!selectedTip} onOpenChange={open => !open && setSelectedTip(null)}>
         <DialogContent className="max-w-md max-h-[80vh]" aria-describedby={undefined}>
           {selectedTip && (() => {
             const Icon = categoryIcons[selectedTip.category] || Lightbulb;
