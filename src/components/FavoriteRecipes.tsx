@@ -157,6 +157,9 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const [showNewFolderInput, setShowNewFolderInput] = useState(false);
   const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
   const [movingRecipeId, setMovingRecipeId] = useState<string | null>(null);
+  const [deletingFolder, setDeletingFolder] = useState<string | null>(null);
+
+  const handleDeleteFolder = (folder: string) => setDeletingFolder(folder);
 
   useEffect(() => {
     if (user) {
