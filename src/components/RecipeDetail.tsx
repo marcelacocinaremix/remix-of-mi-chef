@@ -111,8 +111,8 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
   const handleToggleFavorite = async () => {
     if (!user) {
       toast({
-        title: "Iniciá sesión",
-        description: "Necesitás una cuenta para guardar recetas.",
+        title: t("loginRequired"),
+        description: t("loginRequiredSave"),
         variant: "destructive",
       });
       return;
@@ -137,8 +137,8 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
 
         setIsSaved(false);
         toast({
-          title: "Receta eliminada",
-          description: `${recipe.name} se quitó de tus favoritas.`,
+          title: t("recipeRemovedFromFav"),
+          description: `${recipe.name} ${t("recipeRemovedFromFavDesc")}`,
         });
       } else {
         // Check if already exists before saving
@@ -152,8 +152,8 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
         if (existing) {
           setIsSaved(true);
           toast({
-            title: "Ya está guardada",
-            description: "Esta receta ya está en tus favoritos.",
+            title: t("recipeAlreadySaved"),
+            description: t("recipeAlreadySavedDesc"),
           });
           return;
         }
@@ -168,14 +168,14 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
 
         setIsSaved(true);
         toast({
-          title: "¡Receta guardada!",
-          description: `${recipe.name} se agregó a tus favoritas.`,
+          title: t("recipeSaved"),
+          description: `${recipe.name} ${t("recipeAddedToFavorites")}`,
         });
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: isSaved ? "No se pudo quitar la receta." : "No se pudo guardar la receta.",
+        title: t("error"),
+        description: isSaved ? t("recipeRemovedFromFavDesc") : t("loginRequiredSave"),
         variant: "destructive",
       });
     } finally {
@@ -187,8 +187,8 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
   const handleMarkAsCooked = async () => {
     if (!user) {
       toast({
-        title: "Iniciá sesión",
-        description: "Necesitás una cuenta para registrar recetas cocinadas.",
+        title: t("loginRequired"),
+        description: t("loginRequiredCooked"),
         variant: "destructive",
       });
       return;
@@ -197,10 +197,10 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
     // Already logged via CookingMode — just inform the user
     if (hasMarkedCooked) {
       toast({
-        title: cookedVia === "cookingMode" ? "Ya registrada 🏆" : "Ya registrada 🎉",
+        title: cookedVia === "cookingMode" ? t("recipeAlreadyLoggedMode") : t("recipeAlreadyLogged"),
         description: cookedVia === "cookingMode"
-          ? "Esta receta ya fue sumada a tus logros al completar el Modo Cocina."
-          : "Esta receta ya fue registrada en tus logros.",
+          ? t("cookingModeDescription")
+          : t("success"),
       });
       return;
     }
