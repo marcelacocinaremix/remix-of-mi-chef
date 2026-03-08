@@ -86,6 +86,8 @@ export const PlanificarSection = ({
         <div className="grid grid-cols-3 gap-1.5">
           {subTabs.map((tab) => {
             const Icon = tab.icon;
+            const isPremiumTab = tab.id === "despensa" || tab.id === "super";
+            const isTabBlocked = !hasAnyAccess && isPremiumTab;
             return (
               <button
                 key={tab.id}
@@ -100,7 +102,12 @@ export const PlanificarSection = ({
                     : "bg-background/60 hover:bg-background text-foreground"
                 )}
               >
-                <Icon className={cn("w-4 h-4", activeSubTab === tab.id && "animate-bounce")} />
+                <div className="relative">
+                  <Icon className={cn("w-4 h-4", activeSubTab === tab.id && "animate-bounce")} />
+                  {isTabBlocked && (
+                    <Lock className="w-2.5 h-2.5 absolute -top-1 -right-1 text-amber-500" />
+                  )}
+                </div>
                 <span className="truncate">{tab.label}</span>
               </button>
             );
