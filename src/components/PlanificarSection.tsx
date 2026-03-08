@@ -46,6 +46,8 @@ export const PlanificarSection = ({
   const { canUseFeature, isTrialActive, trialDaysRemaining, isPremium } = usePremium();
   const [showPaywall, setShowPaywall] = useState(false);
   const planBlocked = !canUseFeature('planificador_modify');
+  // Calendario is always free; Despensa and Super require premium
+  const currentTabBlocked = planBlocked && (activeSubTab === "despensa" || activeSubTab === "super");
 
   const subTabs = [
     { id: "calendario" as SubTab, label: t("subTabCalendar"), icon: CalendarDays },
