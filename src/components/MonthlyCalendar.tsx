@@ -415,7 +415,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                         {meal.recipeName}
                       </button>
                     ) : (
-                      <p className="text-sm text-muted-foreground italic">Sin asignar</p>
+                      <p className="text-sm text-muted-foreground">{meal ? meal.recipeName : t("calendarNotAssigned")}</p>
                     )}
                   </div>
                   <div className="flex gap-1 flex-shrink-0">
