@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-export type AppTheme = "cyan-light" | "cyan-dark" | "rose-light" | "rose-dark";
+export type AppTheme = "cyan-light" | "cyan-dark" | "rose-light" | "rose-dark" | "future";
 
 interface ThemeContextType {
   theme: AppTheme;
@@ -19,6 +19,7 @@ export const THEMES: { id: AppTheme; label: string; description: string; primary
   { id: "cyan-dark", label: "Cyan Oscuro", description: "Azul profundo y elegante", primary: "hsl(195 100% 50%)", bg: "#0a1929", dark: true },
   { id: "rose-light", label: "Rosa Claro", description: "Rosa suave y cálido", primary: "hsl(340 85% 55%)", bg: "#fff0f5", dark: false },
   { id: "rose-dark", label: "Rosa Oscuro", description: "Rosa intenso y dramático", primary: "hsl(340 80% 55%)", bg: "#1a0a12", dark: true },
+  { id: "future", label: "Futuro", description: "Próximamente...", primary: "hsl(195 100% 50%)", bg: "#0a1929", dark: true },
 ];
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -34,11 +35,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const root = document.documentElement;
     // Remove all theme classes
-    root.classList.remove("cyan-light", "cyan-dark", "rose-light", "rose-dark", "dark");
+    root.classList.remove("cyan-light", "cyan-dark", "rose-light", "rose-dark", "future", "dark");
     // Add new theme class
     root.classList.add(theme);
     // Handle dark mode for next-themes compatibility
-    const isDark = theme.endsWith("-dark");
+    const isDark = theme.endsWith("-dark") || theme === "future";
     if (isDark) root.classList.add("dark");
   }, [theme]);
 
