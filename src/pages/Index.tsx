@@ -508,15 +508,15 @@ export default function Index() {
   // Menu items configuration - Reorganized into 8 main sections (2 rows of 4)
   const menuItems = [
     // Row 1
-    { id: "inicio", label: t("menuHome"), icon: Home, requiresAuth: false },
-    { id: "cocinar", label: t("menuCook"), icon: ChefHat, requiresAuth: false },
-    { id: "micocina", label: t("menuMyKitchen"), icon: Heart, requiresAuth: true },
-    { id: "planificar", label: t("menuPlan"), icon: CalendarIcon, requiresAuth: true },
+    { id: "inicio",     label: t("menuHome"),       icon: Home,          requiresAuth: false, lockedWhenExpired: false },
+    { id: "cocinar",    label: t("menuCook"),        icon: ChefHat,       requiresAuth: false, lockedWhenExpired: false },
+    { id: "micocina",   label: t("menuMyKitchen"),   icon: Heart,         requiresAuth: true,  lockedWhenExpired: false },
+    { id: "planificar", label: t("menuPlan"),        icon: CalendarIcon,  requiresAuth: true,  lockedWhenExpired: false },
     // Row 2
-    { id: "salud", label: t("subTabHealth"), icon: HeartPulse, requiresAuth: true },
-    { id: "aprender", label: t("menuLearn"), icon: GraduationCap, requiresAuth: false },
-    { id: "jugar", label: t("menuPlay"), icon: Gamepad2, requiresAuth: false },
-    { id: "marcela", label: t("menuRecipes"), icon: Youtube, requiresAuth: false },
+    { id: "salud",     label: t("subTabHealth"),    icon: HeartPulse,    requiresAuth: true,  lockedWhenExpired: true  },
+    { id: "aprender",  label: t("menuLearn"),       icon: GraduationCap, requiresAuth: false, lockedWhenExpired: true  },
+    { id: "jugar",     label: t("menuPlay"),        icon: Gamepad2,      requiresAuth: false, lockedWhenExpired: false },
+    { id: "marcela",   label: t("menuRecipes"),     icon: Youtube,       requiresAuth: false, lockedWhenExpired: false },
   ];
 
   const handleTabChange = (value: string) => {
