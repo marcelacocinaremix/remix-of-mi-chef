@@ -11,6 +11,17 @@ export interface GameStats {
   lastPlayedAt: string | null;
 }
 
+export interface GameSession {
+  id: string;
+  mode: string;
+  score: number;
+  streak: number;
+  recipesCompleted: number;
+  timePlayed: number;
+  xpEarned: number;
+  playedAt: string;
+}
+
 export function useGameStats() {
   const { user } = useAuth();
   const [stats, setStats] = useState<GameStats>({
