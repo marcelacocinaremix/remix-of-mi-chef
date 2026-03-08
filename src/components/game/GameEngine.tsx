@@ -13,8 +13,6 @@ import marcelaCharacter from "@/assets/marcela-character.png";
 
 type GameMode = "recipe" | "order" | "ingredients";
 
-type GameMode = "recipe" | "order" | "ingredients";
-
 interface GameEngineProps {
   mode: GameMode;
   onClose: () => void;
