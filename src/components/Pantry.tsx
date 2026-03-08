@@ -972,7 +972,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Cantidad</label>
+                <label className="text-sm font-medium mb-2 block">{t("pantryCantidad")}</label>
                 <div className="flex gap-2">
                   <Input
                     type="text"
