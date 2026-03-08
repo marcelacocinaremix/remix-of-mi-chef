@@ -7,7 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Check, X } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Check, X, Globe } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { UNIQUE_COUNTRIES } from "@/data/countries";
 import logo from "@/assets/logo.png";
 
 function getSafeReturnTo(search: string) {
@@ -29,6 +37,7 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [country, setCountry] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -155,13 +164,14 @@ export default function Auth() {
       } else {
         const redirectUrl = `${window.location.origin}${returnTo}`;
 
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: redirectUrl,
             data: {
               display_name: displayName,
+              country: country || null,
             },
           },
         });
@@ -171,6 +181,13 @@ export default function Auth() {
             throw new Error("Este email ya está registrado. Probá iniciar sesión.");
           }
           throw error;
+        }
+
+        // Save country to profile if provided
+        if (country && signUpData.user) {
+          await supabase
+            .from("profiles")
+            .upsert({ id: signUpData.user.id, country, updated_at: new Date().toISOString() });
         }
 
         toast({
@@ -327,6 +344,37 @@ export default function Auth() {
                     className="pl-10"
                   />
                 </div>
+              </div>
+            )}
+
+            {!isLogin && (
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-muted-foreground" />
+                  País <span className="text-muted-foreground font-normal">(opcional)</span>
+                </Label>
+                <Select value={country} onValueChange={setCountry}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="¿De dónde sos?">
+                      {country ? (
+                        <span className="flex items-center gap-2">
+                          <span>{UNIQUE_COUNTRIES.find(c => c.code === country)?.flag}</span>
+                          <span>{UNIQUE_COUNTRIES.find(c => c.code === country)?.name}</span>
+                        </span>
+                      ) : null}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    {UNIQUE_COUNTRIES.map((c) => (
+                      <SelectItem key={c.code} value={c.code}>
+                        <span className="flex items-center gap-2">
+                          <span className="text-base">{c.flag}</span>
+                          <span>{c.name}</span>
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
 
