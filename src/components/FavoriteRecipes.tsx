@@ -387,9 +387,11 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                 number={3}
                 title="Tus recetas guardadas"
                 subtitle={
-                  filteredRecipes.length > 0
-                    ? `${filteredRecipes.length} receta${filteredRecipes.length !== 1 ? "s" : ""} en "${activeFolder}"`
-                    : `Carpeta "${activeFolder}"`
+                  searchQuery
+                    ? `${filteredRecipes.length} resultado${filteredRecipes.length !== 1 ? "s" : ""} en todas las carpetas`
+                    : filteredRecipes.length > 0
+                      ? `${filteredRecipes.length} receta${filteredRecipes.length !== 1 ? "s" : ""} en "${activeFolder}"`
+                      : `Carpeta "${activeFolder}"`
                 }
               />
 
