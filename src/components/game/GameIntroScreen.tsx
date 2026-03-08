@@ -17,11 +17,11 @@ interface GameIntroScreenProps {
   onStart: () => void;
 }
 
-const MODE_META: Record<string, { label: string; emoji: string }> = {
-  recipe:      { label: "Receta",       emoji: "👨‍🍳" },
-  order:       { label: "Ordenar",      emoji: "📋" },
-  ingredients: { label: "Ingredientes", emoji: "🥗" },
-};
+  const MODE_META: Record<string, { label: string; emoji: string }> = {
+    recipe:      { label: t("gameModeRecipe"),      emoji: "👨‍🍳" },
+    order:       { label: t("gameModeOrder"),        emoji: "📋" },
+    ingredients: { label: t("gameModeIngredients"), emoji: "🥗" },
+  };
 
 export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
   const { user } = useAuth();
