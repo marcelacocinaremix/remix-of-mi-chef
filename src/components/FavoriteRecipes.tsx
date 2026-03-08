@@ -216,7 +216,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     try { return !localStorage.getItem(HELP_DISMISSED_KEY); } catch { return true; }
   });
 
-  // Carpetas
+  // Carpetas recetas
   const [folders, setFolders] = useState<string[]>(getFolders());
   const [activeFolder, setActiveFolder] = useState<string>("Sin carpeta");
   const [folderAssignments, setFolderAssignments] = useState<Record<string, string>>(getFolderAssignments());
@@ -224,6 +224,16 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const [showNewFolderInput, setShowNewFolderInput] = useState(false);
   const [movingRecipeId, setMovingRecipeId] = useState<string | null>(null);
   const [deletingFolder, setDeletingFolder] = useState<string | null>(null);
+
+  // Carpetas tips
+  const [tipFolders, setTipFolders] = useState<string[]>(getTipFolders());
+  const [activeTipFolder, setActiveTipFolder] = useState<string>("Sin carpeta");
+  const [tipFolderAssignments, setTipFolderAssignments] = useState<Record<string, string>>(getTipFolderAssignments());
+  const [newTipFolderName, setNewTipFolderName] = useState("");
+  const [showNewTipFolderInput, setShowNewTipFolderInput] = useState(false);
+  const [movingTipId, setMovingTipId] = useState<string | null>(null);
+  const [deletingTipFolder, setDeletingTipFolder] = useState<string | null>(null);
+  const [tipSearchQuery, setTipSearchQuery] = useState("");
 
   // Drag state
   const [draggingRecipeId, setDraggingRecipeId] = useState<string | null>(null);
