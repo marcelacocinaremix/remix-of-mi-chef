@@ -44,7 +44,9 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isMarkingCooked, setIsMarkingCooked] = useState(false);
+  // hasMarkedCooked tracks whether this recipe was already logged (via "Ya la cociné" OR CookingMode)
   const [hasMarkedCooked, setHasMarkedCooked] = useState(false);
+  const [cookedVia, setCookedVia] = useState<"button" | "cookingMode" | null>(null);
   const [showCookingMode, setShowCookingMode] = useState(false);
   const [hasUsedCookingMode, setHasUsedCookingMode] = useState(false);
   const [showSubstitutions, setShowSubstitutions] = useState(false);
