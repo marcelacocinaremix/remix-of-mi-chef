@@ -183,15 +183,15 @@ export function CookingSection({
 
   const handleGenerate = () => {
     if (ingredients.length === 0) {
-      toast.warning("Agregá ingredientes", {
-        description: "Escribí al menos un ingrediente para generar tu receta.",
+      toast.warning(t("ingredientsRequired"), {
+        description: t("ingredientsRequiredDesc"),
         duration: 3500,
       });
       return;
     }
     if (!activeFlavor) {
-      toast.warning("¿Salado o dulce?", {
-        description: "Seleccioná si querés una receta salada o dulce antes de continuar.",
+      toast.warning(t("flavorRequired"), {
+        description: t("flavorRequiredDesc"),
         duration: 3500,
       });
       return;
@@ -207,10 +207,10 @@ export function CookingSection({
       {!showHelp && (
         <button
           onClick={() => setShowHelp(true)}
-          className="animate-neon-pulse group flex items-center gap-2 px-3 py-1.5 rounded-full border border-sky-400/40 bg-sky-500/5 text-sky-500 text-xs font-medium transition-colors duration-300 hover:bg-sky-500/15 hover:border-sky-400/70"
+          className="animate-neon-pulse group flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/40 bg-primary/5 text-primary text-xs font-medium transition-colors duration-300 hover:bg-primary/15 hover:border-primary/70"
         >
           <Info className="w-3.5 h-3.5" />
-          <span>Ver cómo funciona</span>
+          <span>{t("cookingViewHowItWorks")}</span>
         </button>
       )}
 
@@ -280,22 +280,25 @@ export function CookingSection({
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-destructive hover:bg-destructive/10 transition-all duration-200"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              Borrar filtros
+              {t("cookingClearFilters")}
             </button>
           )}
         </CardContent>
       </Card>
 
-      {/* STEP 2: Flavor — Salado o Dulce */}
+      {/* STEP 2: Flavor — Savory or Sweet */}
       <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent dark:border-primary/20 dark:from-primary/10">
         <CardContent className="p-4 space-y-4">
           <StepHeader
             number={2}
-            title="¿Salado o dulce?"
-            subtitle="Opcional — filtrá por perfil de sabor"
+            title={t("flavorTitle")}
+            subtitle={t("flavorSubtitle")}
           />
           <div className="grid grid-cols-2 gap-3">
-            {FLAVOR_OPTIONS.map((opt) => {
+            {[
+              { id: "salado", label: t("flavorSavory"), emoji: "🧂", icon: Utensils, desc: t("flavorSavoryDesc") },
+              { id: "dulce", label: t("flavorSweet"), emoji: "🍬", icon: Candy, desc: t("flavorSweetDesc") },
+            ].map((opt) => {
               const Icon = opt.icon;
               const isActive = activeFlavor === opt.id;
               return (
