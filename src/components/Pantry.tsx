@@ -1005,7 +1005,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
             <Button onClick={handleAddIngredient} className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600">
               <Plus className="w-4 h-4" />
-              Poner en el Estante
+              {t("pantryPutOnShelf")}
             </Button>
           </div>
         </DialogContent>
