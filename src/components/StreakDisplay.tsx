@@ -68,21 +68,14 @@ export function StreakDisplay() {
 
       {/* Leaderboard Sheet */}
       <Sheet open={showLeaderboard} onOpenChange={setShowLeaderboard}>
-        <SheetContent
-          side="bottom"
-          className="h-[90vh] flex flex-col rounded-t-2xl"
-          onPointerDownOutside={(e) => e.preventDefault()}
-          onInteractOutside={(e) => e.preventDefault()}
-        >
-          <SheetHeader className="pb-2 flex-shrink-0">
+        <SheetContent side="bottom" className="max-h-[70vh] overflow-y-auto rounded-t-2xl px-4 pb-6">
+          <SheetHeader className="pb-3">
             <SheetTitle className="flex items-center gap-2 text-base">
               <Flame className="h-5 w-5 text-orange-500" />
               Ranking de Rachas
             </SheetTitle>
           </SheetHeader>
-          <div className="flex-1 overflow-y-auto">
-            <StreakLeaderboard />
-          </div>
+          <StreakLeaderboard />
         </SheetContent>
       </Sheet>
     </>
