@@ -135,7 +135,7 @@ export function StreakLeaderboard() {
           <p className="text-sm font-semibold text-foreground mb-1">¡Sé el primero!</p>
           <p className="text-xs text-muted-foreground">Nadie tiene racha activa todavía. Empezá hoy.</p>
         </div>
-        <MyStreakFooter />
+        {renderMyStreakFooter()}
       </div>
     );
   }
