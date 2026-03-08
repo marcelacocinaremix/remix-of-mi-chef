@@ -3,8 +3,47 @@ import { createPortal } from "react-dom";
 import {
   Plus, X, Package, Search, Star, ShoppingCart, ChefHat,
   Calendar, AlertTriangle, Sparkles, Trophy, Gift, Heart,
-  ArrowRight, Lightbulb, Filter, Grid3X3, List, DoorOpen, Refrigerator, Check
+  ArrowRight, Lightbulb, Filter, Grid3X3, List, DoorOpen, Refrigerator, Check, Info
 } from "lucide-react";
+
+const PANTRY_HELP_KEY = "miChef_pantry_help_dismissed";
+
+function PantryHelpBanner({ onDismiss }: { onDismiss: () => void }) {
+  const steps = [
+    { num: 1, emoji: "➕", title: "Agregá ingredientes", desc: "Escribí o seleccioná ingredientes para llevar el control de tu despensa." },
+    { num: 2, emoji: "📦", title: "Organizá por categoría", desc: "Los ingredientes se agrupan automáticamente (frutas, verduras, lácteos…)." },
+    { num: 3, emoji: "⚠️", title: "Control de vencimientos", desc: "Asigná fechas de vencimiento y recibí alertas antes de que un producto expire." },
+    { num: 4, emoji: "🍳", title: "Generá recetas desde tu despensa", desc: "Tocá 'Usar en receta' para enviar tus ingredientes directo al generador de recetas." },
+  ];
+  return (
+    <div className="rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-accent/8 p-4 animate-fade-in">
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+            <Info className="w-4 h-4 text-primary" />
+          </div>
+          <span className="font-semibold text-sm text-foreground">¿Cómo funciona la Despensa?</span>
+        </div>
+        <button onClick={onDismiss} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+      <div className="grid grid-cols-1 gap-2.5">
+        {steps.map((s) => (
+          <div key={s.num} className="flex items-start gap-3 p-3 rounded-xl border border-border bg-background/70">
+            <div className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border border-primary/20 bg-primary/10 text-primary">
+              {s.num}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground flex items-center gap-1.5"><span>{s.emoji}</span> {s.title}</p>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{s.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
