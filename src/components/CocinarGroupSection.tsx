@@ -54,10 +54,6 @@ export const CocinarGroupSection = ({
 
   return (
     <div className="space-y-6">
-      {/* Daily Usage Counter */}
-      <div className="flex justify-end">
-        <DailyUsageIndicator />
-      </div>
 
       {/* Section Banner Image */}
       <div className="relative w-full h-32 md:h-40 rounded-2xl overflow-hidden shadow-lg">
