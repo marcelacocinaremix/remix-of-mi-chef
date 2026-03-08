@@ -487,7 +487,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
             )}
           >
             {tab === "recetas" ? <UtensilsCrossed className="w-4 h-4" /> : <BookOpen className="w-4 h-4" />}
-            {tab === "recetas" ? "Mis Recetas" : "Mis Tips"}
+            {tab === "recetas" ? t("favMyRecipes") : t("favMyTips")}
             <span className={cn(
               "text-xs px-1.5 py-0.5 rounded-full font-semibold",
               activeTab === tab ? "bg-primary-foreground/20" : "bg-muted text-muted-foreground"
