@@ -587,7 +587,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                     <CardHeader className="pb-2">
                       <CardTitle className="text-base flex items-center gap-2">
                         <ChefHat className="w-4 h-4" />
-                        Comidas registradas
+                        {t("balanceRegisteredMeals")}
                         <Badge variant="secondary" className="ml-auto text-xs">
                           {periodMeals.length}
                         </Badge>
@@ -613,7 +613,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                         ))}
                         {periodMeals.length > 8 && (
                           <p className="text-xs text-center text-muted-foreground pt-2">
-                            +{periodMeals.length - 8} comidas más
+                            +{periodMeals.length - 8} {t("balanceMeals")}
                           </p>
                         )}
                       </div>
@@ -624,7 +624,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                 {/* Disclaimer */}
                 <p className="text-xs text-center text-muted-foreground flex items-center justify-center gap-1">
                   <AlertCircle className="w-3 h-3" />
-                  Los valores son estimaciones orientativas, no información nutricional exacta.
+                  {t("balanceDisclaimer")}
                 </p>
               </div>
             )}
@@ -642,8 +642,8 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
               <img src={actividadBanner} alt="Actividad física" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent flex items-center">
                 <div className="px-4">
-                  <h3 className="text-white font-bold text-lg">Tu Actividad</h3>
-                  <p className="text-white/80 text-sm">Registra y sigue tu progreso</p>
+                  <h3 className="text-white font-bold text-lg">{t("balanceActivityTitle")}</h3>
+                  <p className="text-white/80 text-sm">{t("balanceActivitySubtitle")}</p>
                 </div>
               </div>
             </div>
@@ -656,7 +656,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
       {!isPremium && isTrialActive && (
         <div className="text-center py-2">
           <span className="text-xs text-muted-foreground">
-            🎁 Prueba gratuita: {trialDaysRemaining} días restantes
+            🎁 {t("activityTitle")}: {trialDaysRemaining} {t("activityDays")}
           </span>
         </div>
       )}
