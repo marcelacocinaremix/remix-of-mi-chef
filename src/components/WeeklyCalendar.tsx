@@ -427,10 +427,7 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
       }
     }
 
-    toast({
-      title: "¡Lista actualizada!",
-      description: `Se agregaron ${count} ingredientes a tu lista de compras`,
-    });
+      toast({ title: `${t("weeklyListUpdated")}`, description: `${t("weeklyListUpdatedDesc").replace("{count}", String(count))}` });
   };
 
   const navigateWeek = (direction: 'prev' | 'next') => {
