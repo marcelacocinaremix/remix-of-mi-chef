@@ -48,7 +48,7 @@ interface NutritionalBalanceProps {
 }
 
 export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, onSubTabChange }: NutritionalBalanceProps) {
-  const { meals, getTotalsForPeriod, getMealsForPeriod, refetch: refetchMeals } = useMealLogs();
+  const { meals, getTotalsForPeriod, getMealsForPeriod, deleteMeal, refetch: refetchMeals } = useMealLogs();
   const { canUseFeature, isTrialExpired, trialDaysRemaining, isTrialActive, isPremium } = usePremium();
   const [showPaywall, setShowPaywall] = useState(false);
   const balanceBlocked = !canUseFeature('balance_add');
