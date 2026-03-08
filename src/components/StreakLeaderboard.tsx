@@ -18,21 +18,37 @@ interface StreakLeaderboardEntry {
   rank: number;
 }
 
+interface MyStreakData {
+  currentStreak: number;
+  longestStreak: number;
+}
+
 const RANK_MEDALS: Record<number, string> = { 1: "🥇", 2: "🥈", 3: "🥉" };
 
 export function StreakLeaderboard() {
   const { user } = useAuth();
   const [leaderboard, setLeaderboard] = useState<StreakLeaderboardEntry[]>([]);
+  const [myStreak, setMyStreak] = useState<MyStreakData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const { data, error } = await supabase.rpc("get_streak_leaderboard" as any);
-        if (error) throw error;
-        if (data) {
+        const [lbRes, myRes] = await Promise.all([
+          supabase.rpc("get_streak_leaderboard" as any),
+          user
+            ? supabase
+                .from("user_streaks")
+                .select("current_streak, longest_streak")
+                .eq("user_id", user.id)
+                .maybeSingle()
+            : Promise.resolve({ data: null }),
+        ]);
+
+        if (lbRes.error) throw lbRes.error;
+        if (lbRes.data) {
           setLeaderboard(
-            (data as any[]).map((row) => ({
+            (lbRes.data as any[]).map((row) => ({
               userId: row.user_id,
               displayName: row.display_name || "Chef",
               avatarUrl: row.avatar_url,
@@ -43,6 +59,14 @@ export function StreakLeaderboard() {
             }))
           );
         }
+
+        if ((myRes as any).data) {
+          const d = (myRes as any).data;
+          setMyStreak({
+            currentStreak: d.current_streak ?? 0,
+            longestStreak: d.longest_streak ?? 0,
+          });
+        }
       } catch (err) {
         console.error("Error fetching streak leaderboard:", err);
       } finally {
@@ -50,7 +74,7 @@ export function StreakLeaderboard() {
       }
     };
     fetchLeaderboard();
-  }, []);
+  }, [user]);
 
   if (isLoading) {
     return (
