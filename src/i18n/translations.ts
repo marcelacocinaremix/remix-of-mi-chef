@@ -757,6 +757,78 @@ export const translations = {
     authWelcomeBack: "¡Bienvenido/a de vuelta!",
     authEmailSent: "¡Email enviado!",
     authCheckInbox: "Revisá tu casilla de correo para restablecer tu contraseña.",
+
+    // CookingSection help banner
+    cookingHowItWorks: "¿Cómo funciona?",
+    cookingViewHowItWorks: "Ver cómo funciona",
+    cookingStep1Title: "Genera una receta",
+    cookingStep1Desc: "Completá los pasos de abajo y tocá \"Dame recetas\" para que la IA cree tu receta personalizada.",
+    cookingStep2Title: "Guardala en favoritos",
+    cookingStep2Desc: "Tocá el corazón en la receta generada para guardarla en \"Mi Cocina\" y organizarla.",
+    cookingStep3Title: "Usá el Modo Cocina",
+    cookingStep3Desc: "Abrí la receta y tocá \"Modo Cocina\" para seguir el paso a paso mientras cocinás.",
+    cookingStep4Title: "Apretá \"Ya la cociné\"",
+    cookingStep4Desc: "Una vez lista, tocá el botón para registrar la cocción y desbloquear logros.",
+    cookingClearFilters: "Borrar filtros",
+
+    // Flavor selection
+    flavorTitle: "¿Salado o dulce?",
+    flavorSubtitle: "Seleccioná el perfil de sabor (opcional)",
+    flavorSavory: "Salado",
+    flavorSavoryDesc: "Platos principales, entradas…",
+    flavorSweet: "Dulce / Postre",
+    flavorSweetDesc: "Postres, budines, tortas…",
+    flavorRequired: "¿Salado o dulce?",
+    flavorRequiredDesc: "Seleccioná si querés una receta salada o dulce antes de continuar.",
+    ingredientsRequired: "Agregá ingredientes",
+    ingredientsRequiredDesc: "Escribí al menos un ingrediente para generar tu receta.",
+
+    // RecipeDetail hardcoded strings
+    recipeRemovedFromFav: "Receta eliminada",
+    recipeRemovedFromFavDesc: "se quitó de tus favoritas.",
+    recipeAlreadySaved: "Ya está guardada",
+    recipeAlreadySavedDesc: "Esta receta ya está en tus favoritos.",
+    loginRequired: "Iniciá sesión",
+    loginRequiredSave: "Necesitás una cuenta para guardar recetas.",
+    loginRequiredCooked: "Necesitás una cuenta para registrar recetas cocinadas.",
+    recipeAlreadyLogged: "Ya registrada 🎉",
+    recipeAlreadyLoggedMode: "Ya registrada 🏆",
+    recipeFooterMsg: "\"Espero que disfrutes esta receta. En MARCELACOCINA tenés muchas más ideas fáciles para el día a día.\"",
+
+    // CookingGame
+    playAgain: "Jugar de Nuevo",
+    backToMenu: "Volver al Menú",
+
+    // ShoppingListDirect help
+    shoppingHowItWorks: "¿Cómo funciona el Supermercado?",
+    shoppingStep1Title: "Agregá productos",
+    shoppingStep1Desc: "Escribí los productos que necesitás comprar y se organizan automáticamente por categoría.",
+    shoppingStep2Title: "Tachá al comprar",
+    shoppingStep2Desc: "Tocá cada ítem para marcarlo como comprado y llevar el control en tiempo real.",
+    shoppingStep3Title: "Desde recetas",
+    shoppingStep3Desc: "Cuando generás una receta, podés agregar todos sus ingredientes a la lista con un solo toque.",
+    shoppingStep4Title: "Limpiar lista",
+    shoppingStep4Desc: "Una vez terminado el super, limpiá los ítems comprados o toda la lista de una vez.",
+    shoppingEmptyToCopy: "Lista vacía",
+    shoppingEmptyToCopyDesc: "No hay ingredientes pendientes para copiar.",
+    copyingLabel: "Copiando...",
+    copiedLabel: "Copiados ✓",
+    copyIngredientsLabel: "Copiar ingredientes",
+
+    // PlanificarSection banner
+    planBannerCalendarTitle: "Calendario",
+    planBannerCalendarDesc: "Planificá tus comidas de la semana",
+    planBannerPantryTitle: "Tu Despensa",
+    planBannerPantryDesc: "Gestioná tus ingredientes",
+    planBannerShoppingTitle: "Lista de Super",
+    planBannerShoppingDesc: "Organizá tus compras",
+
+    // WeeklyCalendar toasts
+    weekBuiltToast: "¡Semana armada!",
+    weekBuiltToastDesc: "Tu plan semanal está listo con recetas que aprovechan ingredientes",
+    listUpdated: "¡Lista actualizada!",
+    listUpdatedDesc: "Se agregaron {count} ingredientes a tu lista de compras",
+    ingredientSuggestionsMsg: "Estos ingredientes se repiten en tu plan. ¡Comprá más para aprovecharlos!",
   },
   
   en: {
