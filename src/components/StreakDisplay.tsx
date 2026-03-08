@@ -1,11 +1,11 @@
 import { Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useStreak } from "@/hooks/useStreak";
+import { useStreakContext } from "@/contexts/StreakContext";
 import { useAuth } from "@/hooks/useAuth";
 
 export function StreakDisplay() {
   const { user } = useAuth();
-  const { streakData, isLoading } = useStreak();
+  const { streakData, isLoading } = useStreakContext();
 
   if (!user || isLoading || !streakData) return null;
 
