@@ -1023,6 +1023,10 @@ export type Database = {
         | { Args: { p_user_id: string }; Returns: number }
       is_subscription_active: { Args: { p_user_id: string }; Returns: boolean }
       start_trial: { Args: { p_user_id: string }; Returns: Json }
+      unlock_achievement: {
+        Args: { p_achievement_type: string; p_recipe_count?: number }
+        Returns: boolean
+      }
     }
     Enums: {
       fitness_goal:

@@ -148,14 +148,15 @@ export function useAchievements() {
     const existingTypes = new Set(existing?.map(e => e.achievement_type) || []);
     const newAchievements = toUnlock.filter(type => !existingTypes.has(type));
 
-    // Insert new achievements
+    // Insert new achievements via validated server-side function
     if (newAchievements.length > 0) {
-      await supabase.from("user_achievements").insert(
-        newAchievements.map(type => ({
-          user_id: user.id,
-          achievement_type: type,
-          recipe_count_at_unlock: newTotal,
-        }))
+      await Promise.all(
+        newAchievements.map(type =>
+          supabase.rpc("unlock_achievement", {
+            p_achievement_type: type,
+            p_recipe_count: newTotal,
+          })
+        )
       );
     }
   }, [user]);
@@ -275,11 +276,10 @@ export function useAchievements() {
     
     if (existing) return; // Already unlocked
     
-    // Insert new achievement
-    await supabase.from("user_achievements").insert({
-      user_id: user.id,
-      achievement_type: achievementType,
-      recipe_count_at_unlock: stats.totalRecipesCooked,
+    // Insert via validated server-side function
+    await supabase.rpc("unlock_achievement", {
+      p_achievement_type: achievementType,
+      p_recipe_count: stats.totalRecipesCooked,
     });
     
     // Refresh achievements
