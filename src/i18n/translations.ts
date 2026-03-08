@@ -2382,9 +2382,7 @@ export const translations = {
     calendarRecipeAdded: "Recipe added!",
     calendarRecipeRemoved: "Recipe removed",
     calendarWeekDays: "Mon,Tue,Wed,Thu,Fri,Sat,Sun",
-
-    // FavoriteRecipes
-    favTitle: "Your favorites",
+    calendarForMealType: "For",
     favLoginDesc: "Log in to save your favorites",
     favLoading: "Loading favorites...",
     favMyRecipes: "My Recipes",
