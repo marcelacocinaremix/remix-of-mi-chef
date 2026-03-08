@@ -2021,7 +2021,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
           
           <div className="flex items-center justify-center gap-2 mt-2">
             <p className="text-xs text-muted-foreground">
-              {Math.round(animatedProgress)}% completado
+              {Math.round(animatedProgress)}{t("learnPercentDone")}
             </p>
             {animatedProgress === 100 && (
               <span className="text-xs animate-bounce">🎉</span>
