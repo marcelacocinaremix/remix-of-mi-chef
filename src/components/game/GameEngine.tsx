@@ -349,7 +349,7 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
                   <div className="flex items-center gap-2 mt-1">
                     <Badge variant="secondary" className="text-xs font-semibold">{t("gameModeRecipe")}</Badge>
                     <span className="text-xs font-medium text-muted-foreground">
-                      Receta {(recipeIndex % GAME_RECIPES.length) + 1}/{GAME_RECIPES.length}
+                      {t("gameRecipeNumber")} {(recipeIndex % GAME_RECIPES.length) + 1}/{GAME_RECIPES.length}
                     </span>
                     {(currentRecipe as any).country && <span className="text-sm">{(currentRecipe as any).country}</span>}
                   </div>
