@@ -98,6 +98,26 @@ const FOLDERS_KEY = "miChef_recipe_folders";
 const RECIPE_FOLDERS_KEY = "miChef_recipe_folder_assignments";
 const HELP_DISMISSED_KEY = "miChef_favorites_help_dismissed";
 
+// Tips folders
+const DEFAULT_TIP_FOLDERS = ["Sin carpeta", "Conservación", "Cocción", "Nutrición", "Ahorro"];
+const TIP_FOLDERS_KEY = "miChef_tip_folders";
+const TIP_FOLDER_ASSIGNMENTS_KEY = "miChef_tip_folder_assignments";
+
+function getTipFolders(): string[] {
+  try { const s = localStorage.getItem(TIP_FOLDERS_KEY); if (s) return JSON.parse(s); } catch {}
+  return DEFAULT_TIP_FOLDERS;
+}
+function saveTipFolders(f: string[]) { localStorage.setItem(TIP_FOLDERS_KEY, JSON.stringify(f)); }
+function getTipFolderAssignments(): Record<string, string> {
+  try { const s = localStorage.getItem(TIP_FOLDER_ASSIGNMENTS_KEY); if (s) return JSON.parse(s); } catch {}
+  return {};
+}
+function saveTipFolderAssignment(tipId: string, folder: string) {
+  const a = getTipFolderAssignments();
+  a[tipId] = folder;
+  localStorage.setItem(TIP_FOLDER_ASSIGNMENTS_KEY, JSON.stringify(a));
+}
+
 function getFolders(): string[] {
   try { const s = localStorage.getItem(FOLDERS_KEY); if (s) return JSON.parse(s); } catch {}
   return DEFAULT_FOLDERS;
@@ -196,7 +216,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     try { return !localStorage.getItem(HELP_DISMISSED_KEY); } catch { return true; }
   });
 
-  // Carpetas
+  // Carpetas recetas
   const [folders, setFolders] = useState<string[]>(getFolders());
   const [activeFolder, setActiveFolder] = useState<string>("Sin carpeta");
   const [folderAssignments, setFolderAssignments] = useState<Record<string, string>>(getFolderAssignments());
@@ -204,6 +224,16 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const [showNewFolderInput, setShowNewFolderInput] = useState(false);
   const [movingRecipeId, setMovingRecipeId] = useState<string | null>(null);
   const [deletingFolder, setDeletingFolder] = useState<string | null>(null);
+
+  // Carpetas tips
+  const [tipFolders, setTipFolders] = useState<string[]>(getTipFolders());
+  const [activeTipFolder, setActiveTipFolder] = useState<string>("Sin carpeta");
+  const [tipFolderAssignments, setTipFolderAssignments] = useState<Record<string, string>>(getTipFolderAssignments());
+  const [newTipFolderName, setNewTipFolderName] = useState("");
+  const [showNewTipFolderInput, setShowNewTipFolderInput] = useState(false);
+  const [movingTipId, setMovingTipId] = useState<string | null>(null);
+  const [deletingTipFolder, setDeletingTipFolder] = useState<string | null>(null);
+  const [tipSearchQuery, setTipSearchQuery] = useState("");
 
   // Drag state
   const [draggingRecipeId, setDraggingRecipeId] = useState<string | null>(null);
@@ -284,6 +314,46 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
       setFavoriteTips(prev => prev.filter(f => f.id !== id));
       toast({ title: "Tip eliminado" });
     } catch { toast({ title: "Error", variant: "destructive" }); }
+  };
+
+  // ─── Tips folder logic ────────────────────────────────────────────────
+  const filteredTips = useMemo(() => {
+    const q = tipSearchQuery.toLowerCase().trim();
+    return favoriteTips.filter(tip => {
+      const inFolder = (tipFolderAssignments[tip.id] || "Sin carpeta") === activeTipFolder;
+      if (!inFolder) return false;
+      if (!q) return true;
+      return tip.food_name.toLowerCase().includes(q) ||
+        tip.tip_data.mainInfo?.toLowerCase().includes(q) ||
+        (categoryLabels[tip.category] || "").toLowerCase().includes(q);
+    });
+  }, [favoriteTips, tipSearchQuery, activeTipFolder, tipFolderAssignments]);
+
+  const tipFolderCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    tipFolders.forEach(f => { counts[f] = 0; });
+    favoriteTips.forEach(tip => {
+      const folder = tipFolderAssignments[tip.id] || "Sin carpeta";
+      counts[folder] = (counts[folder] || 0) + 1;
+    });
+    return counts;
+  }, [favoriteTips, tipFolderAssignments, tipFolders]);
+
+  const handleMoveTip = useCallback((tipId: string, folder: string) => {
+    saveTipFolderAssignment(tipId, folder);
+    setTipFolderAssignments(prev => ({ ...prev, [tipId]: folder }));
+    setMovingTipId(null);
+    toast({ title: "✅ Tip movido", description: `Movido a "${folder}".` });
+  }, [toast]);
+
+  const handleCreateTipFolder = () => {
+    const name = newTipFolderName.trim();
+    if (!name || tipFolders.includes(name)) return;
+    const updated = [...tipFolders, name];
+    setTipFolders(updated); saveTipFolders(updated);
+    setNewTipFolderName(""); setShowNewTipFolderInput(false);
+    setActiveTipFolder(name);
+    toast({ title: "📁 Carpeta creada", description: `"${name}" lista para organizar tus tips.` });
   };
 
   const handleCreateFolder = () => {
@@ -713,26 +783,116 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
       {/* ════════ TIPS ════════ */}
       {activeTab === "tips" && (
         <div className="space-y-4">
+          {/* PASO 1 — Carpetas de tips */}
           <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
             <CardContent className="p-4 space-y-3">
+              <StepHeader number={1} title="Organizar por carpetas" subtitle="Agrupá tus tips por categoría" />
+              <div className="flex flex-wrap gap-2">
+                {tipFolders.map(f => (
+                  <div
+                    key={f}
+                    ref={el => { folderRefs.current["tip_" + f] = el; }}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium cursor-pointer transition-all border select-none",
+                      activeTipFolder === f
+                        ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                        : "bg-muted/50 text-foreground border-border/50 hover:bg-muted"
+                    )}
+                    onClick={() => setActiveTipFolder(f)}
+                  >
+                    {activeTipFolder === f ? <FolderOpen className="w-3.5 h-3.5 shrink-0" /> : <Folder className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />}
+                    <span className="truncate max-w-[90px]">{f}</span>
+                    {tipFolderCounts[f] > 0 && (
+                      <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded-full", activeTipFolder === f ? "bg-primary-foreground/20 text-primary-foreground" : "bg-primary/10 text-primary")}>
+                        {tipFolderCounts[f]}
+                      </span>
+                    )}
+                    {f !== "Sin carpeta" && (
+                      <button
+                        onClick={e => { e.stopPropagation(); setDeletingTipFolder(f); }}
+                        className={cn("ml-0.5 rounded-full p-0.5 transition-colors", activeTipFolder === f ? "hover:bg-primary-foreground/20 text-primary-foreground/70" : "hover:bg-muted-foreground/20 text-muted-foreground")}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                {/* Nueva carpeta */}
+                {showNewTipFolderInput ? (
+                  <div className="flex items-center gap-1.5">
+                    <Input
+                      autoFocus
+                      value={newTipFolderName}
+                      onChange={e => setNewTipFolderName(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") handleCreateTipFolder(); if (e.key === "Escape") setShowNewTipFolderInput(false); }}
+                      placeholder="Nombre…"
+                      className="h-8 w-28 text-sm"
+                    />
+                    <button onClick={handleCreateTipFolder} className="p-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"><Check className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => setShowNewTipFolderInput(false)} className="p-1.5 rounded-lg bg-muted hover:bg-muted/80"><X className="w-3.5 h-3.5" /></button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowNewTipFolderInput(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium text-muted-foreground border-2 border-dashed border-border/50 hover:border-primary/50 hover:text-primary transition-all"
+                  >
+                    <FolderPlus className="w-3.5 h-3.5" /> Nueva
+                  </button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* PASO 2 — Buscar tips */}
+          <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+            <CardContent className="p-4 space-y-3">
+              <StepHeader number={2} title="Buscar en mis tips" subtitle="Filtrá por alimento o categoría" />
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Ej: tomate, conservación, proteína…"
+                  value={tipSearchQuery}
+                  onChange={e => setTipSearchQuery(e.target.value)}
+                  className="pl-9 h-10"
+                />
+                {tipSearchQuery && (
+                  <button onClick={() => setTipSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* PASO 3 — Tips */}
+          <Card className="border-2 border-accent/30 bg-gradient-to-br from-accent/5 to-transparent">
+            <CardContent className="p-4 space-y-3">
               <StepHeader
-                number={1}
-                title="Tus tips guardados"
+                number={3}
+                title={`📂 ${activeTipFolder}`}
                 subtitle={
-                  favoriteTips.length > 0
-                    ? `${favoriteTips.length} tip${favoriteTips.length !== 1 ? "s" : ""} en tu colección`
-                    : "Todavía no guardaste ningún tip"
+                  filteredTips.length > 0
+                    ? `${filteredTips.length} tip${filteredTips.length !== 1 ? "s" : ""}`
+                    : "Esta carpeta está vacía"
                 }
               />
               {favoriteTips.length === 0 ? (
-                <div className="text-center py-8">
-                  <BookOpen className="w-10 h-10 text-muted-foreground mx-auto mb-3 opacity-40" />
+                <div className="text-center py-8 space-y-4">
+                  <BookOpen className="w-10 h-10 text-muted-foreground mx-auto opacity-40" />
                   <p className="text-muted-foreground text-sm font-medium">Aún no guardaste tips</p>
-                  <p className="text-muted-foreground/60 text-xs mt-1">Guardá tips desde la sección "Aprende"</p>
+                  <p className="text-muted-foreground/60 text-xs">Guardá tips desde la sección "Aprende"</p>
+                </div>
+              ) : filteredTips.length === 0 ? (
+                <div className="text-center py-8">
+                  <FolderOpen className="w-10 h-10 text-muted-foreground mx-auto mb-3 opacity-40" />
+                  <p className="text-sm font-medium">{tipSearchQuery ? `Sin resultados para "${tipSearchQuery}"` : "Esta carpeta está vacía"}</p>
+                  {!tipSearchQuery && (
+                    <p className="text-xs text-muted-foreground mt-1">Usá el menú ⋮ para mover tips acá</p>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {favoriteTips.map(tip => {
+                  {filteredTips.map(tip => {
                     const Icon = categoryIcons[tip.category] || Lightbulb;
                     const colorClass = categoryColors[tip.category] || "text-primary bg-primary";
                     const [textColor, bgColor] = colorClass.split(" ");
@@ -757,9 +917,12 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                           </div>
                         </div>
                         <div className="flex items-center gap-1 shrink-0 ml-2">
-                          <Button variant="ghost" size="icon" onClick={e => handleDeleteTip(tip.id, e)} className="h-7 w-7">
-                            <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
-                          </Button>
+                          <button
+                            onClick={e => { e.stopPropagation(); setMovingTipId(tip.id); }}
+                            className="w-7 h-7 rounded-lg hover:bg-muted flex items-center justify-center"
+                          >
+                            <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
+                          </button>
                           <ChevronRight className="w-4 h-4 text-muted-foreground" />
                         </div>
                       </div>
@@ -771,6 +934,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
           </Card>
         </div>
       )}
+
 
       {/* ── Confirm delete folder ── */}
       <Dialog open={!!deletingFolder} onOpenChange={open => !open && setDeletingFolder(null)}>
@@ -857,6 +1021,102 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                     className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 active:scale-95 transition-all border border-destructive/20"
                   >
                     <Trash2 className="w-4 h-4" /> Eliminar de favoritos
+                  </button>
+                </>
+              )}
+            </SheetContent>
+          </Sheet>
+        );
+      })()}
+
+      {/* ── Confirm delete TIP folder ── */}
+      <Dialog open={!!deletingTipFolder} onOpenChange={open => !open && setDeletingTipFolder(null)}>
+        <DialogContent className="max-w-sm" aria-describedby={undefined}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Trash2 className="w-5 h-5 text-destructive" /> Eliminar carpeta
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              ¿Eliminar <strong>"{deletingTipFolder}"</strong>?
+              {deletingTipFolder && (tipFolderCounts[deletingTipFolder] || 0) > 0 && (
+                <span> Los <strong>{tipFolderCounts[deletingTipFolder]}</strong> tips se moverán a "Sin carpeta".</span>
+              )}
+            </p>
+            <div className="flex gap-2">
+              <Button variant="ghost" className="flex-1" onClick={() => setDeletingTipFolder(null)}>Cancelar</Button>
+              <Button
+                variant="destructive"
+                className="flex-1"
+                onClick={() => {
+                  if (!deletingTipFolder) return;
+                  const updated = { ...tipFolderAssignments };
+                  favoriteTips.forEach(t => { if ((updated[t.id] || "Sin carpeta") === deletingTipFolder) updated[t.id] = "Sin carpeta"; });
+                  localStorage.setItem(TIP_FOLDER_ASSIGNMENTS_KEY, JSON.stringify(updated));
+                  setTipFolderAssignments(updated);
+                  const newFolders = tipFolders.filter(f => f !== deletingTipFolder);
+                  setTipFolders(newFolders); saveTipFolders(newFolders);
+                  if (activeTipFolder === deletingTipFolder) setActiveTipFolder("Sin carpeta");
+                  setDeletingTipFolder(null);
+                  toast({ title: "Carpeta eliminada" });
+                }}
+              >Eliminar</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Sheet acciones de tips ── */}
+      {(() => {
+        const sheetTip = movingTipId ? favoriteTips.find(t => t.id === movingTipId) : null;
+        const Icon = sheetTip ? (categoryIcons[sheetTip.category] || Lightbulb) : Lightbulb;
+        const colorClass = sheetTip ? (categoryColors[sheetTip.category] || "text-primary bg-primary") : "text-primary bg-primary";
+        const [textColor] = colorClass.split(" ");
+        return (
+          <Sheet open={!!movingTipId} onOpenChange={open => !open && setMovingTipId(null)}>
+            <SheetContent side="bottom" className="rounded-t-2xl pb-8">
+              {sheetTip && (
+                <>
+                  <SheetHeader className="mb-4">
+                    <SheetTitle className="text-left text-base flex items-center gap-2">
+                      <Icon className={cn("w-5 h-5 shrink-0", textColor)} />
+                      <span className="capitalize line-clamp-1">{sheetTip.food_name}</span>
+                    </SheetTitle>
+                    <p className="text-xs text-muted-foreground text-left">
+                      Carpeta actual: <strong>{tipFolderAssignments[sheetTip.id] || "Sin carpeta"}</strong>
+                    </p>
+                  </SheetHeader>
+                  <div className="space-y-2 mb-5">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                      <MoveRight className="w-3.5 h-3.5" /> Mover a carpeta
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {tipFolders.map(f => {
+                        const isCurrent = (tipFolderAssignments[sheetTip.id] || "Sin carpeta") === f;
+                        return (
+                          <button
+                            key={f}
+                            onClick={() => handleMoveTip(sheetTip.id, f)}
+                            className={cn(
+                              "flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all border",
+                              isCurrent
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-muted/50 text-foreground border-border/50 hover:bg-muted active:scale-95"
+                            )}
+                          >
+                            {isCurrent ? <Check className="w-4 h-4 shrink-0" /> : <Folder className="w-4 h-4 shrink-0 text-muted-foreground" />}
+                            <span className="truncate">{f}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <button
+                    onClick={async (e) => { await handleDeleteTip(sheetTip.id, e as React.MouseEvent); setMovingTipId(null); }}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 active:scale-95 transition-all border border-destructive/20"
+                  >
+                    <Trash2 className="w-4 h-4" /> Eliminar tip
                   </button>
                 </>
               )}
