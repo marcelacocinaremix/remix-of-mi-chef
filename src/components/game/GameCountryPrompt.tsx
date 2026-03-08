@@ -95,7 +95,10 @@ export function GameCountryPrompt({ onConfirm, onSkip }: GameCountryPromptProps)
       </div>
 
       <div className="flex gap-3 w-full max-w-xs">
-        <Button variant="outline" className="flex-1" onClick={onSkip}>
+        <Button variant="outline" className="flex-1" onClick={() => {
+          if (user) localStorage.setItem(`miChef_country_skipped_${user.id}`, "1");
+          onSkip();
+        }}>
           {t("gameCountryPromptSkip")}
         </Button>
         <Button
