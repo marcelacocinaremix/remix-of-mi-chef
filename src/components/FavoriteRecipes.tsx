@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import {
   Heart, Trash2, ChevronRight, Sparkles, BookOpen, UtensilsCrossed, X, AlertTriangle,
   Lightbulb, Refrigerator, ThermometerSun, Timer, Utensils, Flame, Coins, Shield,
   Snowflake, ShoppingCart, Shuffle, Leaf, ChefHat, Search, FolderPlus, Folder,
-  FolderOpen, Clock, Check, MoreVertical, MoveRight,
+  FolderOpen, Clock, Check, MoreVertical, MoveRight, GripVertical,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -114,7 +114,7 @@ function saveFolderAssignment(recipeId: string, folder: string) {
   localStorage.setItem(RECIPE_FOLDERS_KEY, JSON.stringify(a));
 }
 
-// ─── StepHeader (same pattern as CookingSection) ──────────────────────
+// ─── StepHeader ─────────────────────────────────────────────────────
 function StepHeader({ number, title, subtitle }: { number: number; title: string; subtitle: string }) {
   return (
     <div className="flex items-center gap-3 mb-1">
@@ -129,6 +129,175 @@ function StepHeader({ number, title, subtitle }: { number: number; title: string
   );
 }
 
+// ─── Draggable Recipe Card ─────────────────────────────────────────────
+interface DraggableRecipeCardProps {
+  fav: FavoriteRecipe;
+  onSelect: () => void;
+  onOpenSheet: () => void;
+  onDragStart: (id: string) => void;
+  isDragging: boolean;
+}
+
+function DraggableRecipeCard({ fav, onSelect, onOpenSheet, onDragStart, isDragging }: DraggableRecipeCardProps) {
+  const emoji = getRecipeEmoji(fav.recipe_data);
+  const gradient = getRecipeColor(fav.recipe_name);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isLongPressing, setIsLongPressing] = useState(false);
+  const dragStarted = useRef(false);
+
+  const startLongPress = () => {
+    dragStarted.current = false;
+    longPressTimer.current = setTimeout(() => {
+      setIsLongPressing(true);
+      onDragStart(fav.id);
+      // vibrate on mobile
+      if (navigator.vibrate) navigator.vibrate(40);
+    }, 500);
+  };
+
+  const cancelLongPress = () => {
+    if (longPressTimer.current) clearTimeout(longPressTimer.current);
+    setIsLongPressing(false);
+  };
+
+  return (
+    <div
+      draggable
+      onDragStart={e => {
+        dragStarted.current = true;
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", fav.id);
+        onDragStart(fav.id);
+      }}
+      onDragEnd={() => {
+        dragStarted.current = false;
+        setIsLongPressing(false);
+      }}
+      onMouseDown={startLongPress}
+      onMouseUp={cancelLongPress}
+      onMouseLeave={cancelLongPress}
+      onTouchStart={startLongPress}
+      onTouchEnd={cancelLongPress}
+      onTouchCancel={cancelLongPress}
+      className={cn(
+        "rounded-xl overflow-hidden border bg-card transition-all duration-200 select-none",
+        isDragging
+          ? "border-primary shadow-lg scale-95 opacity-60 rotate-1"
+          : "border-border/50 hover:shadow-md",
+        isLongPressing && !isDragging && "scale-[0.97] border-primary/60 shadow-md"
+      )}
+    >
+      {/* Drag handle hint */}
+      <div className="relative">
+        <div
+          onClick={!isDragging ? onSelect : undefined}
+          className={cn("h-28 flex items-center justify-center bg-gradient-to-br cursor-grab active:cursor-grabbing", gradient)}
+        >
+          <span className="text-4xl drop-shadow-sm">{emoji}</span>
+          {/* Long press progress ring hint */}
+          {isLongPressing && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-t-xl">
+              <div className="w-10 h-10 rounded-full border-4 border-white/80 border-t-transparent animate-spin" />
+            </div>
+          )}
+        </div>
+        <div className="absolute top-1.5 right-1.5 bg-black/30 rounded-md p-0.5 opacity-60">
+          <GripVertical className="w-3 h-3 text-white" />
+        </div>
+      </div>
+
+      <div className="p-2.5 flex items-start justify-between gap-1">
+        <div onClick={onSelect} className="flex-1 min-w-0 cursor-pointer">
+          <p className="font-semibold text-xs text-foreground leading-tight line-clamp-2 mb-1.5">{fav.recipe_name}</p>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <span className="flex items-center gap-0.5 text-[10px]">
+              <Clock className="w-3 h-3" />{fav.recipe_data.time}m
+            </span>
+            <span className="flex items-center gap-0.5 text-[10px]">
+              <Flame className="w-3 h-3 text-orange-400" />{fav.recipe_data.nutrition?.calories || "?"}
+            </span>
+          </div>
+        </div>
+        <button
+          onClick={e => { e.stopPropagation(); onOpenSheet(); }}
+          className="w-7 h-7 rounded-lg bg-muted/60 hover:bg-muted flex items-center justify-center shrink-0 transition-colors"
+        >
+          <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Droppable Folder Button ──────────────────────────────────────────
+interface DroppableFolderProps {
+  folder: string;
+  isActive: boolean;
+  count: number;
+  isDraggingOver: boolean;
+  isDeletable: boolean;
+  onClick: () => void;
+  onDelete: () => void;
+  onDrop: (folder: string) => void;
+  onDragOver: (folder: string | null) => void;
+}
+
+function DroppableFolder({
+  folder, isActive, count, isDraggingOver, isDeletable,
+  onClick, onDelete, onDrop, onDragOver,
+}: DroppableFolderProps) {
+  return (
+    <div
+      className="flex items-center"
+      onDragOver={e => { e.preventDefault(); onDragOver(folder); }}
+      onDragLeave={() => onDragOver(null)}
+      onDrop={e => { e.preventDefault(); onDrop(folder); onDragOver(null); }}
+    >
+      <button
+        onClick={onClick}
+        className={cn(
+          "flex items-center gap-2 py-3 text-sm font-medium transition-all border-2",
+          isDeletable ? "pl-4 pr-3 rounded-l-2xl border-r-0" : "px-4 rounded-2xl",
+          isActive && !isDraggingOver
+            ? "bg-primary text-primary-foreground border-primary shadow-md"
+            : isDraggingOver
+              ? "bg-primary/20 border-primary text-primary scale-105 shadow-lg"
+              : "bg-muted/50 text-muted-foreground border-border/50 hover:bg-muted hover:text-foreground"
+        )}
+      >
+        {isDraggingOver
+          ? <FolderOpen className="w-4 h-4 animate-bounce" />
+          : isActive
+            ? <FolderOpen className="w-4 h-4" />
+            : <Folder className="w-4 h-4" />
+        }
+        <span>{folder}</span>
+        <span className={cn(
+          "text-xs px-1.5 py-0.5 rounded-full font-bold min-w-[20px] text-center",
+          isActive && !isDraggingOver ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground"
+        )}>
+          {count}
+        </span>
+      </button>
+      {isDeletable && (
+        <button
+          onClick={onDelete}
+          className={cn(
+            "flex items-center justify-center w-7 h-[46px] rounded-r-2xl border-2 border-l-0 transition-all",
+            isActive
+              ? "bg-primary border-primary text-primary-foreground/70 hover:text-primary-foreground"
+              : isDraggingOver
+                ? "bg-primary/20 border-primary text-primary"
+                : "bg-muted/50 border-border/50 text-muted-foreground hover:bg-destructive/15 hover:text-destructive"
+          )}
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ─── Main component ────────────────────────────────────────────────────
 export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const { user } = useAuth();
@@ -139,7 +308,6 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const [activeTab, setActiveTab] = useState<ActiveTab>("recetas");
   const [selectedTip, setSelectedTip] = useState<FavoriteFoodTip | null>(null);
 
-  // Buscador
   const [searchQuery, setSearchQuery] = useState("");
 
   // Carpetas
@@ -150,6 +318,10 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const [showNewFolderInput, setShowNewFolderInput] = useState(false);
   const [movingRecipeId, setMovingRecipeId] = useState<string | null>(null);
   const [deletingFolder, setDeletingFolder] = useState<string | null>(null);
+
+  // Drag & drop state
+  const [draggingRecipeId, setDraggingRecipeId] = useState<string | null>(null);
+  const [dragOverFolder, setDragOverFolder] = useState<string | null>(null);
 
   const handleDeleteFolder = (folder: string) => setDeletingFolder(folder);
 
@@ -238,6 +410,19 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     toast({ title: "Receta movida", description: `Movida a "${folder}".` });
   };
 
+  // Drop onto folder
+  const handleDropOnFolder = (folder: string) => {
+    if (!draggingRecipeId) return;
+    const currentFolder = folderAssignments[draggingRecipeId] || "Sin carpeta";
+    if (currentFolder === folder) {
+      setDraggingRecipeId(null);
+      return;
+    }
+    handleMoveRecipe(draggingRecipeId, folder);
+    setDraggingRecipeId(null);
+    setDragOverFolder(null);
+  };
+
   // ─── Auth / loading guards ───────────────────────────────────────────
   if (!user) return (
     <div className="bg-card rounded-xl p-6 border border-border/50 text-center">
@@ -308,10 +493,22 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
           </Card>
 
           {/* PASO 2 — Carpeta */}
-          <Card className="border-2 border-secondary/40 bg-gradient-to-br from-secondary/5 to-transparent">
+          <Card className={cn(
+            "border-2 transition-all duration-200",
+            dragOverFolder
+              ? "border-primary bg-primary/5 shadow-lg"
+              : "border-secondary/40 bg-gradient-to-br from-secondary/5 to-transparent"
+          )}>
             <CardContent className="p-4 space-y-3">
               <div className="flex items-start justify-between gap-2">
-                <StepHeader number={2} title="Elegir carpeta" subtitle="Organizá tus recetas en colecciones" />
+                <StepHeader
+                  number={2}
+                  title="Elegir carpeta"
+                  subtitle={draggingRecipeId
+                    ? "🎯 Soltá la receta en una carpeta"
+                    : "Organizá tus recetas en colecciones"
+                  }
+                />
                 <button
                   onClick={() => setShowNewFolderInput(!showNewFolderInput)}
                   className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium transition-colors mt-1 shrink-0"
@@ -336,46 +533,30 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                 </div>
               )}
 
-              <div className="flex flex-wrap gap-2">
-                {folders.map(folder => {
-                  const isActive = activeFolder === folder;
-                  const count = folderCounts[folder] || 0;
-                  const isDeletable = folder !== "Sin carpeta";
-                  return (
-                    <div key={folder} className="flex items-center">
-                      <button
-                        onClick={() => setActiveFolder(folder)}
-                        className={cn(
-                          "flex items-center gap-1.5 py-2 text-xs font-medium transition-all border",
-                          isDeletable ? "pl-3 pr-2 rounded-l-full border-r-0" : "px-3 rounded-full",
-                          isActive
-                            ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                            : "bg-muted/50 text-muted-foreground border-border/50 hover:bg-muted hover:text-foreground"
-                        )}
-                      >
-                        {isActive ? <FolderOpen className="w-3.5 h-3.5" /> : <Folder className="w-3.5 h-3.5" />}
-                        {folder}
-                        <span className={cn("text-xs min-w-[16px] text-center", isActive ? "text-primary-foreground/80" : "text-muted-foreground")}>
-                          {count}
-                        </span>
-                      </button>
-                      {isDeletable && (
-                        <button
-                          onClick={() => handleDeleteFolder(folder)}
-                          className={cn(
-                            "flex items-center justify-center w-6 h-[34px] rounded-r-full border transition-all",
-                            isActive
-                              ? "bg-primary border-primary text-primary-foreground/70 hover:text-primary-foreground"
-                              : "bg-muted/50 border-border/50 text-muted-foreground hover:bg-destructive/15 hover:text-destructive"
-                          )}
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
+              <div className="flex flex-wrap gap-2.5">
+                {folders.map(folder => (
+                  <DroppableFolder
+                    key={folder}
+                    folder={folder}
+                    isActive={activeFolder === folder}
+                    count={folderCounts[folder] || 0}
+                    isDraggingOver={dragOverFolder === folder}
+                    isDeletable={folder !== "Sin carpeta"}
+                    onClick={() => setActiveFolder(folder)}
+                    onDelete={() => handleDeleteFolder(folder)}
+                    onDrop={handleDropOnFolder}
+                    onDragOver={setDragOverFolder}
+                  />
+                ))}
               </div>
+
+              {/* Drag hint */}
+              {!draggingRecipeId && favorites.length > 0 && (
+                <p className="text-xs text-muted-foreground/60 flex items-center gap-1 mt-1">
+                  <GripVertical className="w-3 h-3" />
+                  Mantené apretada una receta y arrastrala hasta una carpeta
+                </p>
+              )}
             </CardContent>
           </Card>
 
@@ -405,44 +586,21 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                     {searchQuery ? "Sin resultados para tu búsqueda" : "Esta carpeta está vacía"}
                   </p>
                   {!searchQuery && (
-                    <p className="text-muted-foreground/60 text-xs mt-1">Mové recetas acá desde el menú ⋮ de cada tarjeta</p>
+                    <p className="text-muted-foreground/60 text-xs mt-1">Arrastrá recetas desde otras carpetas o usá el menú ⋮</p>
                   )}
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-3">
-                  {filteredRecipes.map(fav => {
-                    const emoji = getRecipeEmoji(fav.recipe_data);
-                    const gradient = getRecipeColor(fav.recipe_name);
-                    return (
-                      <div key={fav.id} className="rounded-xl overflow-hidden border border-border/50 bg-card hover:shadow-elevated transition-all duration-300">
-                        <div
-                          onClick={() => onSelectRecipe(fav.recipe_data)}
-                          className={cn("h-24 flex items-center justify-center bg-gradient-to-br cursor-pointer hover:opacity-90 transition-opacity", gradient)}
-                        >
-                          <span className="text-4xl drop-shadow-sm">{emoji}</span>
-                        </div>
-                        <div className="p-2.5 flex items-start justify-between gap-1">
-                          <div onClick={() => onSelectRecipe(fav.recipe_data)} className="flex-1 min-w-0 cursor-pointer">
-                            <p className="font-semibold text-xs text-foreground leading-tight line-clamp-2 mb-1.5">{fav.recipe_name}</p>
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <span className="flex items-center gap-0.5 text-[10px]">
-                                <Clock className="w-3 h-3" />{fav.recipe_data.time}m
-                              </span>
-                              <span className="flex items-center gap-0.5 text-[10px]">
-                                <Flame className="w-3 h-3 text-orange-400" />{fav.recipe_data.nutrition?.calories || "?"}
-                              </span>
-                            </div>
-                          </div>
-                          <button
-                            onClick={e => { e.stopPropagation(); setMovingRecipeId(fav.id); }}
-                            className="w-7 h-7 rounded-lg bg-muted/60 hover:bg-muted flex items-center justify-center shrink-0 transition-colors"
-                          >
-                            <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  {filteredRecipes.map(fav => (
+                    <DraggableRecipeCard
+                      key={fav.id}
+                      fav={fav}
+                      onSelect={() => onSelectRecipe(fav.recipe_data)}
+                      onOpenSheet={() => setMovingRecipeId(fav.id)}
+                      onDragStart={id => setDraggingRecipeId(id)}
+                      isDragging={draggingRecipeId === fav.id}
+                    />
+                  ))}
                 </div>
               )}
             </CardContent>
