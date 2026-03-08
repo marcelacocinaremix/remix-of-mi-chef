@@ -221,6 +221,12 @@ export function ShoppingListDirect() {
   const { t } = useLanguage();
   const { items, isLoading, togglePurchased, removeItem, clearPurchased, pendingCount, addItem, updateQuantity, updateUnit, refetch } = useShoppingList();
   
+  const STEPS_CONFIG = [
+    { id: "agregar" as ShoppingStep, label: t("superStepAdd"), icon: Plus, description: t("superStepAddDesc") },
+    { id: "lista" as ShoppingStep, label: t("superStepMyList"), icon: ListChecks, description: t("superStepMyListDesc") },
+    { id: "confirmar" as ShoppingStep, label: t("superStepConfirm"), icon: PackageCheck, description: t("superStepConfirmDesc") },
+  ];
+  
   // Step state
   const [currentStep, setCurrentStep] = useState<ShoppingStep>("agregar");
   
