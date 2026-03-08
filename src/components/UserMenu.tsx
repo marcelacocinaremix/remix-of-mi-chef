@@ -98,7 +98,7 @@ export function UserMenu() {
               <span className="hidden sm:inline">{displayName}</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuContent align="end" className="w-52">
             <DropdownMenuItem onClick={() => setShowProfileModal(true)}>
               <Settings className="w-4 h-4 mr-2" />
               {t("myProfile")}
@@ -106,6 +106,10 @@ export function UserMenu() {
             <DropdownMenuItem onClick={() => setShowLanguageModal(true)}>
               <Globe className="w-4 h-4 mr-2" />
               {t("language")}: {languageFlags[language]}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setShowThemePicker(true)}>
+              <Palette className="w-4 h-4 mr-2" />
+              Tema: {currentThemeLabel}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setShowSubscription(true)}>
               <Crown className="w-4 h-4 mr-2" />
@@ -122,6 +126,7 @@ export function UserMenu() {
       <LanguageSettingsModal open={showLanguageModal} onOpenChange={setShowLanguageModal} />
       <UserProfileModal open={showProfileModal} onOpenChange={setShowProfileModal} />
       <SubscriptionManager open={showSubscription} onOpenChange={setShowSubscription} />
+      <ThemePickerModal open={showThemePicker} onOpenChange={setShowThemePicker} />
     </>
   );
 }
