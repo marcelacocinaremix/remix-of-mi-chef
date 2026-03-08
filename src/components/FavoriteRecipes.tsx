@@ -3,7 +3,7 @@ import {
   Heart, Trash2, ChevronRight, Sparkles, BookOpen, UtensilsCrossed, X, AlertTriangle,
   Lightbulb, Refrigerator, ThermometerSun, Timer, Utensils, Flame, Coins, Shield,
   Snowflake, ShoppingCart, Shuffle, Leaf, ChefHat, Search, FolderPlus, Folder,
-  FolderOpen, Clock, Flame as FlameIcon, Edit2, Check, Plus
+  FolderOpen, Clock, Check, MoreVertical, MoveRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Recipe } from "@/components/RecipeList";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface FavoriteRecipe {
