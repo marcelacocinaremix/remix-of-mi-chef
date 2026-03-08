@@ -20,10 +20,12 @@ interface GameEngineProps {
 }
 
 const MARCELA_MSGS = {
-  correct: ["¡Excelente!", "¡Así se hace! 🔥", "¡Perfecto!", "¡Sos un crack! 💪", "¡Top! ⭐"],
-  wrong: ["Mmm, ese no...", "¡Casi! 🤔", "Intentá de nuevo", "¡Probá otro!"],
+  start: ["¡Elegí los ingredientes! 👆", "¿Cuáles van en esta receta? 🤔", "¡A cocinar! Seleccioná los ingredientes"],
+  correct: ["¡Excelente! 🎉", "¡Así se hace! 🔥", "¡Perfecto! ⭐", "¡Sos un crack! 💪", "¡Muy bien! 👏"],
+  wrong: ["Mmm, ese no... 😅", "¡Casi! Intentá otro 🤔", "No es ese ingrediente", "¡Seguí probando! 💪"],
   streak: ["¡En racha! 🔥🔥", "¡Imparable! 💥", "¡Sos un genio! 👑"],
   complete: ["🎉 ¡Receta lista!", "¡Bravo! 👨‍🍳", "¡Lo lograste! 🏆"],
+  order: ["Ordená los pasos correctamente 👆", "¿En qué orden se hace? 🤔", "¡Ordená los pasos!"],
 };
 
 export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
