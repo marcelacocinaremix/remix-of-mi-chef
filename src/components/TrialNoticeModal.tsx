@@ -106,8 +106,13 @@ export function TrialNoticeModal() {
 
   return (
     <>
-      <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
-        <DialogContent className="max-w-sm mx-4">
+      <Dialog open={open} onOpenChange={() => {}}>
+        <DialogContent
+          className="max-w-sm mx-4 [&>button]:hidden"
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle className="text-xl font-bold flex items-center gap-2">
               <span className="text-2xl">{config.emoji}</span>
@@ -121,23 +126,23 @@ export function TrialNoticeModal() {
               ))}
             </div>
           </DialogDescription>
-          <div className="flex flex-col gap-2 pt-2">
-            {config.showPremiumBtn && (
+          <div className="flex flex-row gap-2 pt-2">
             <Button
+              variant="outline"
+              onClick={handleClose}
+              className="flex-1"
+            >
+              Continuar
+            </Button>
+            {config.showPremiumBtn && (
+              <Button
                 onClick={handleViewPremium}
-                className="w-full font-semibold"
+                className="flex-1 font-semibold"
                 variant="default"
               >
                 Ver Premium
               </Button>
             )}
-            <Button
-              variant={config.showPremiumBtn ? "outline" : "default"}
-              onClick={handleClose}
-              className="w-full"
-            >
-              Continuar
-            </Button>
           </div>
         </DialogContent>
       </Dialog>
