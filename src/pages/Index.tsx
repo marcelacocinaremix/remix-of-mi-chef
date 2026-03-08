@@ -49,7 +49,7 @@ import { useAdMob } from "@/hooks/useAdMob";
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
   const { user } = useAuth();
-  const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium } = usePremium();
+  const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium, hasAnyAccess, isTrialExpired } = usePremium();
   const { showInterstitial } = useAdMob();
   const isMobile = useIsMobile();
 
