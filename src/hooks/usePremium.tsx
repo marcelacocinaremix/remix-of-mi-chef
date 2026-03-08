@@ -232,7 +232,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       subscriptionStatus,
       subscriptionEnd,
       planType,
-      trialUsed: false,
+      trialUsed: trialUsedDb,
       daysRemaining,
       refetch: fetchSubscription,
       dailyUsage,
