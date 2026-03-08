@@ -43,11 +43,10 @@ export const PlanificarSection = ({
   const [activeSubTab, setActiveSubTab] = useState<SubTab>("calendario");
   const { toast } = useToast();
   const { t } = useLanguage();
-  const { canUseFeature, isTrialActive, trialDaysRemaining, isPremium } = usePremium();
+  const { isTrialActive, trialDaysRemaining, isPremium, hasAnyAccess } = usePremium();
   const [showPaywall, setShowPaywall] = useState(false);
-  const planBlocked = !canUseFeature('planificador_modify');
-  // Calendario is always free; Despensa and Super require premium
-  const currentTabBlocked = planBlocked && (activeSubTab === "despensa" || activeSubTab === "super");
+  // Despensa and Super require premium OR active trial; Calendario is always free
+  const currentTabBlocked = !hasAnyAccess && (activeSubTab === "despensa" || activeSubTab === "super");
 
   const subTabs = [
     { id: "calendario" as SubTab, label: t("subTabCalendar"), icon: CalendarDays },
