@@ -321,10 +321,10 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
               <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent flex items-center">
                 <div className="px-4">
                   <h3 className="text-white font-bold text-lg">
-                    {balanceSubTab === "guia" ? "Guía de Alimentos" : balanceSubTab === "graficos" ? "Gráficos" : "Mi Nutrición"}
+                    {balanceSubTab === "guia" ? t("balanceBannerGuide") : balanceSubTab === "graficos" ? t("balanceBannerCharts") : t("balanceBannerTitle")}
                   </h3>
                   <p className="text-white/80 text-sm">
-                    {balanceSubTab === "guia" ? "Información nutricional" : balanceSubTab === "graficos" ? "Visualizá tu balance" : "Registrá lo que comés"}
+                    {balanceSubTab === "guia" ? t("balanceBannerGuideSubtitle") : balanceSubTab === "graficos" ? t("balanceBannerChartsSubtitle") : t("balanceBannerSubtitle")}
                   </p>
                 </div>
               </div>
@@ -342,7 +342,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                 )}
               >
                 <ChefHat className="w-3.5 h-3.5" />
-                Registro
+                {t("balanceTabRegistro")}
               </button>
               <button
                 onClick={() => setBalanceSubTab("graficos")}
@@ -354,7 +354,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                 )}
               >
                 <BarChart3 className="w-3.5 h-3.5" />
-                Gráficos
+                {t("balanceTabGraficos")}
               </button>
               <button
                 onClick={() => setBalanceSubTab("guia")}
@@ -366,7 +366,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                 )}
               >
                 <BookOpen className="w-3.5 h-3.5" />
-                Guía
+                {t("balanceTabGuia")}
               </button>
             </div>
 
