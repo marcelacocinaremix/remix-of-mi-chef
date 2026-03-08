@@ -907,9 +907,9 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
         "text-center"
       )}>
         <Package className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-        <h3 className="font-display text-lg font-semibold mb-2">Tu Despensa</h3>
+        <h3 className="font-display text-lg font-semibold mb-2">{t("pantryLoginTitle")}</h3>
         <p className="text-muted-foreground text-sm mb-4">
-          Iniciá sesión para guardar tus ingredientes y no tener que escribirlos cada vez.
+          {t("pantryLoginDesc")}
         </p>
       </div>
     );
