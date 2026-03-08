@@ -38,7 +38,7 @@ function AndroidPurchaseHandler({ children }: { children: React.ReactNode }) {
 // Main App component with all providers
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+    <AppThemeProvider>
       <BrowserRouter>
         <AuthProvider>
           <DeepLinkHandler>
