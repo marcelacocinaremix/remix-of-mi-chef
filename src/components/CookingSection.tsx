@@ -205,13 +205,16 @@ export function CookingSection({
       {/* Help Banner */}
       {showHelp && <CookingHelpBanner onDismiss={dismissHelp} />}
       {!showHelp && (
-        <button
-          onClick={() => setShowHelp(true)}
-          className="animate-neon-pulse group flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/40 bg-primary/5 text-primary text-xs font-medium transition-colors duration-300 hover:bg-primary/15 hover:border-primary/70"
-        >
-          <Info className="w-3.5 h-3.5" />
-          <span>{t("cookingViewHowItWorks")}</span>
-        </button>
+        <div className="flex items-center gap-3 flex-wrap">
+          <button
+            onClick={() => setShowHelp(true)}
+            className="animate-neon-pulse group flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/40 bg-primary/5 text-primary text-xs font-medium transition-colors duration-300 hover:bg-primary/15 hover:border-primary/70"
+          >
+            <Info className="w-3.5 h-3.5" />
+            <span>{t("cookingViewHowItWorks")}</span>
+          </button>
+          <DailyUsageIndicator />
+        </div>
       )}
 
       {pendingSuggestion && (
