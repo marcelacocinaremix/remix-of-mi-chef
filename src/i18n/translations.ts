@@ -1006,6 +1006,9 @@ export const translations = {
     gameRecipeNumber: "Receta",
     gameQuestion: "Pregunta",
     gameIngredientQuestion: "¿En qué receta se usa este ingrediente?",
+    gameModeRecipeDesc: "Elegí los ingredientes correctos de cada receta",
+    gameModeOrderDesc: "Ordená los pasos de preparación",
+    gameModeIngredientsDesc: "Identificá ingredientes clave de cada plato",
 
     // ShoppingListDirect help
     shoppingHowItWorks: "¿Cómo funciona el Supermercado?",
