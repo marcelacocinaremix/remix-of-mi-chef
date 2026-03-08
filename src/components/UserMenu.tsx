@@ -30,6 +30,9 @@ export function UserMenu() {
     es: "🇦🇷",
     en: "🇺🇸",
     pt: "🇧🇷",
+    it: "🇮🇹",
+    de: "🇩🇪",
+    fr: "🇫🇷",
   };
 
   if (!user) {
