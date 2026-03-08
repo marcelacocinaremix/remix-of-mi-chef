@@ -430,7 +430,7 @@
 
   /* Legacy .dark — maps to cyan-dark for backward compat */
 
-  .dark:not(.cyan-light):not(.rose-light):not(.rose-dark) {
+  .dark:not(.cyan-light):not(.rose-light):not(.rose-dark):not(.mono-dark) {
     --background: 205 40% 7%;
     --foreground: 195 15% 93%;
     --card: 205 35% 11%;
