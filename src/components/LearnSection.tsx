@@ -2004,7 +2004,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
             </div>
             <div>
               <p className="text-2xl font-bold text-emerald-500">{stats.totalCategories}</p>
-              <p className="text-xs text-muted-foreground">Categorías</p>
+              <p className="text-xs text-muted-foreground">{t("learnCategories")}</p>
             </div>
           </div>
           
