@@ -121,7 +121,8 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
     if (gameOver) return;
     setGameOver(true);
     const timePlayed = Math.floor((Date.now() - startTime) / 1000);
-    const xp = score + completedRecipes.length * 50 + maxStreak * 10;
+    // XP = recetas completadas * 50 + racha máxima * 10 + bonus de tiempo
+    const xp = completedRecipes.length * 50 + maxStreak * 10 + Math.floor(score / 10);
     onGameEnd({ score, streak: maxStreak, recipesCompleted: completedRecipes.length, timePlayed, xp });
   }, [gameOver, score, maxStreak, completedRecipes.length, startTime, onGameEnd]);
 
