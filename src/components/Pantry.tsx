@@ -598,6 +598,34 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const { addItem: addToShoppingList } = useShoppingList();
+  const { t } = useLanguage();
+
+  // Dynamic i18n constants
+  const MARCELA_TIPS = [
+    `💡 ${t("pantryTip1")}`,
+    `💡 ${t("pantryTip2")}`,
+    `💡 ${t("pantryTip3")}`,
+    `💡 ${t("pantryTip4")}`,
+    `💡 ${t("pantryTip5")}`,
+    `💡 ${t("pantryTip6")}`,
+    `💡 ${t("pantryTip7")}`,
+  ];
+
+  const ACHIEVEMENTS = [
+    { id: "starter", name: t("starterAchievement"), icon: "🌱", requirement: 5, description: t("addIngredientAchievement").replace("{count}", "5") },
+    { id: "organized", name: t("organizedAchievement"), icon: "📋", requirement: 10, description: t("addIngredientAchievement").replace("{count}", "10") },
+    { id: "chef", name: t("chefAchievement"), icon: "👨‍🍳", requirement: 20, description: t("addIngredientAchievement").replace("{count}", "20") },
+    { id: "master", name: t("masterAchievement"), icon: "🏆", requirement: 50, description: t("addIngredientAchievement").replace("{count}", "50") },
+  ];
+
+  const PANTRY_STEPS = [
+    { id: 1, label: t("pantryStepAdd"), description: t("pantryStepAddDesc"), icon: Plus },
+    { id: 2, label: t("pantryStepMyPantry"), description: t("pantryStepMyPantryDesc"), icon: Package },
+    { id: 3, label: t("pantryStepUse"), description: t("pantryStepUseDesc"), icon: ChefHat },
+  ];
+
+  const UNITS = [t("units"), t("kg"), t("g"), t("liters"), t("ml"), t("packages"), t("cans")];
+
   
   // Step state for guided flow
   const [currentStep, setCurrentStep] = useState(2); // Default to "Mi Despensa"
