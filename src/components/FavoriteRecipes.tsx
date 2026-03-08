@@ -663,26 +663,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
             </CardContent>
           </Card>
 
-          {/* PASO 2 — Buscar */}
-          <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-            <CardContent className="p-4 space-y-3">
-              <StepHeader number={2} title="Buscar en mis recetas" subtitle="Filtrá por nombre o ingrediente" />
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Ej: pollo, pasta, postre…"
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  className="pl-9 h-10"
-                />
-                {searchQuery && (
-                  <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+
 
           {/* PASO 3 — Recetas */}
           <Card className="border-2 border-accent/30 bg-gradient-to-br from-accent/5 to-transparent">
