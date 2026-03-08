@@ -49,6 +49,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   const [subscriptionEnd, setSubscriptionEnd] = useState<Date | null>(null);
   const [trialStartDate, setTrialStartDate] = useState<Date | null>(null);
   const [trialEndDate, setTrialEndDate] = useState<Date | null>(null);
+  const [trialUsedDb, setTrialUsedDb] = useState(false);
 
   // Derived: is the paid period still valid?
   const paidPeriodActive = useMemo(() => {
@@ -63,13 +64,14 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     return subscriptionStatus === 'cancelled' && paidPeriodActive;
   }, [subscriptionStatus, paidPeriodActive]);
 
-  // Derived: trial status (fallback when premium expires)
+  // Derived: trial status — STRICT: requires trial_used=true AND not expired AND not in paid period
   const isTrialActive = useMemo(() => {
     if (!isInitialized) return false; // Don't assume active until data loaded
     if (paidPeriodActive) return false;
-    if (!trialEndDate) return false; // No trial data = not in trial
+    if (!trialUsedDb) return false;   // Trial must have been explicitly started
+    if (!trialEndDate) return false;  // No trial data = not in trial
     return new Date() < trialEndDate;
-  }, [isInitialized, paidPeriodActive, trialEndDate]);
+  }, [isInitialized, paidPeriodActive, trialUsedDb, trialEndDate]);
 
   const isTrialExpired = useMemo(() => {
     if (paidPeriodActive) return false;
@@ -141,15 +143,20 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         setPlanType(data.plan_type || 'free');
         setSubscriptionStatus(data.subscription_status || 'inactive');
         setSubscriptionEnd(data.subscription_end ? new Date(data.subscription_end) : null);
+        setTrialUsedDb(data.trial_used === true);
         if (data.trial_start_date) setTrialStartDate(new Date(data.trial_start_date));
         if (data.trial_end_date) setTrialEndDate(new Date(data.trial_end_date));
 
-        // Daily usage
+        // ── STRICT DAILY USAGE CALCULATION ─────────────────────────────────
         const today = new Date().toISOString().split('T')[0];
         const lastUseDate = data.last_use_date;
         const usesToday = (lastUseDate === today) ? (data.daily_uses || 0) : 0;
-        const isPaid = data.is_premium && (!data.subscription_end || new Date() < new Date(data.subscription_end));
-        const userLimit = isPaid ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
+
+        // Premium: is_premium=true AND not expired
+        const strictPaid = data.is_premium === true &&
+          (!data.subscription_end || new Date() < new Date(data.subscription_end));
+        const userLimit = strictPaid ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
+
         setDailyUsage({
           usesToday,
           remaining: Math.max(0, userLimit - usesToday),
@@ -171,11 +178,10 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
 
     try {
       setIsLoading(true);
-      // READ-ONLY check: just read current usage without incrementing
-      // The edge function is the ONLY place that increments daily_uses
+      // READ-ONLY: fetch full subscription data to compute limit accurately
       const { data: subData, error } = await supabase
         .from('user_subscriptions')
-        .select('daily_uses, last_use_date')
+        .select('daily_uses, last_use_date, is_premium, subscription_end, trial_used, trial_end_date')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -184,20 +190,25 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         return { allowed: false, message: 'Error al verificar el uso diario' };
       }
 
-      const today = new Date().toISOString().split('T')[0];
+      const now = new Date();
+      const today = now.toISOString().split('T')[0];
       const usesToday = (subData?.last_use_date === today) ? (subData?.daily_uses || 0) : 0;
-      const remaining = effectiveLimit - usesToday;
 
-      setDailyUsage({
-        usesToday,
-        remaining,
-        limit: effectiveLimit
-      });
+      // Recompute limit from fresh server data
+      const strictPaid = subData?.is_premium === true &&
+        (!subData?.subscription_end || new Date(subData.subscription_end) > now);
+      const currentLimit = strictPaid ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
 
-      if (usesToday >= effectiveLimit) {
+      const remaining = Math.max(0, currentLimit - usesToday);
+      setDailyUsage({ usesToday, remaining, limit: currentLimit });
+
+      if (usesToday >= currentLimit) {
+        const isPaidOrTrial = strictPaid || (subData?.trial_used && subData?.trial_end_date && new Date(subData.trial_end_date) > now);
         return {
           allowed: false,
-          message: `¡Se acabaron tus recetas de hoy! Volvé mañana para seguir cocinando 🍳`
+          message: isPaidOrTrial
+            ? `¡Alcanzaste el límite de ${currentLimit} recetas de hoy! Volvé mañana 🍳`
+            : `Hoy ya usaste tus ${DAILY_LIMIT_FREE} recetas gratuitas. ¡Suscribite para generar más! 🌟`
         };
       }
 
@@ -208,7 +219,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [user, effectiveLimit]);
+  }, [user]);
 
   useEffect(() => {
     fetchSubscription();
@@ -221,7 +232,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       subscriptionStatus,
       subscriptionEnd,
       planType,
-      trialUsed: false,
+      trialUsed: trialUsedDb,
       daysRemaining,
       refetch: fetchSubscription,
       dailyUsage,
