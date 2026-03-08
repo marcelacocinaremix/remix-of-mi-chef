@@ -531,7 +531,7 @@ function PantryShelf({
           className="text-xs gap-1 h-7"
           onClick={onUseCategoryIngredients}
         >
-          Usar todos <ArrowRight className="w-3 h-3" />
+          {t("pantryUseAllCategory")} <ArrowRight className="w-3 h-3" />
         </Button>
       </div>
 
