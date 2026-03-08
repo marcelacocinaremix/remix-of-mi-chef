@@ -21,6 +21,8 @@ import {
   Dumbbell,
   LayoutDashboard,
   Crown,
+  Lock,
+  Trash2,
 } from "lucide-react";
 import actividadBanner from "@/assets/actividad-banner.jpg";
 import balanceBanner from "@/assets/balance-banner.jpg";
@@ -38,7 +40,6 @@ import { DailyMealLog } from "@/components/nutrition/DailyMealLog";
 import { NutritionRecommendations } from "@/components/nutrition/NutritionRecommendations";
 import { usePremium } from "@/hooks/usePremium";
 import { PaywallModal } from "@/components/PaywallModal";
-import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface NutritionalBalanceProps {
