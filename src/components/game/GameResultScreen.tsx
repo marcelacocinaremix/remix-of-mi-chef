@@ -145,7 +145,7 @@ export function GameResultScreen({ score, streak, recipesCompleted, xpEarned, on
           transition={{ delay: 1 }}
           className="w-full bg-card rounded-2xl p-3 border border-border/30"
         >
-          <p className="text-xs text-muted-foreground text-center mb-2 font-medium">Tus récords</p>
+          <p className="text-xs text-muted-foreground text-center mb-2 font-medium">{t("gameAllTimeRecords")}</p>
           <div className="grid grid-cols-3 gap-2 text-center text-xs">
             <div>
               <div className="font-black text-foreground">{Math.max(score, stats.highScore)}</div>
