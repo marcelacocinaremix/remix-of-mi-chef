@@ -31,7 +31,7 @@ const NOTICES: Record<NonNullable<NoticeVariant>, NoticeConfig> = {
     emoji: "🎉",
     title: "Tenés 15 días de prueba",
     body: `Durante los próximos 15 días podés explorar todas las funciones de la app.\n\nLa generación de recetas tiene un límite diario, pero vas a poder usar el resto de las herramientas normalmente.\n\nCuando termine el período de prueba, la app seguirá funcionando en modo gratuito con algunas limitaciones.\n\nSi querés desbloquear todas las funciones y más generación de recetas, podés activar Mi Chef Premium en cualquier momento.`,
-    showPremiumBtn: false,
+    showPremiumBtn: true,
   },
   "10": {
     emoji: "⏳",
