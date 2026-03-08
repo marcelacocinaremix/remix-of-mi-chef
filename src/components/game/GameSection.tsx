@@ -8,6 +8,8 @@ import { GameIntroScreen } from "./GameIntroScreen";
 import { GameEngine } from "./GameEngine";
 import { GameResultScreen } from "./GameResultScreen";
 
+type GameMode = "recipe" | "order" | "ingredients";
+
 type GamePhase = "intro" | "modeSelect" | "playing" | "results";
 
 interface GameResult {
