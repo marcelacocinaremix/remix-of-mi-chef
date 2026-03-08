@@ -997,6 +997,15 @@ export const translations = {
     gameOrderSteps: "Ordenar los pasos",
     gameOrderStepsDesc: "Tocá para reordenar los pasos",
     gameSubmitOrder: "Confirmar orden",
+    gameHistoryTitle: "Historial de partidas",
+    gameAllTimeRecords: "Tus récords",
+    gameNewRecord: "¡Nuevo récord personal! 🎉",
+    gameWonDesc: "¡Cocinaste como un pro! 👨‍🍳",
+    gameLostDesc: "¡Seguí practicando, vas a llegar! 💪",
+    gamePartidas: "Partidas",
+    gameRecipeNumber: "Receta",
+    gameQuestion: "Pregunta",
+    gameIngredientQuestion: "¿En qué receta se usa este ingrediente?",
 
     // ShoppingListDirect help
     shoppingHowItWorks: "¿Cómo funciona el Supermercado?",
