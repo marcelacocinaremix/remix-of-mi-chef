@@ -1810,12 +1810,12 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                 </CardTitle>
                 <p className="text-muted-foreground">{activeLesson.description}</p>
               </div>
-              {isCompleted && (
-                <Badge className="bg-emerald-500 shrink-0">
-                  <CheckCircle2 className="h-3 w-3 mr-1" />
-                  Completado
-                </Badge>
-              )}
+                {isCompleted && (
+                  <Badge className="bg-emerald-500 shrink-0">
+                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                    {t("learnCompleted")}
+                  </Badge>
+                )}
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
