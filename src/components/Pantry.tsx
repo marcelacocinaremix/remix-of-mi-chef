@@ -1417,7 +1417,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                     size="sm" 
                     variant="destructive"
                     onClick={() => {
-                      expiredItems.forEach(item => handleRemoveIngredient(item.id));
+                      handleRemoveExpiredBatch(expiredItems.map(i => i.id));
                     }}
                   >
                     Descartar
