@@ -797,7 +797,7 @@ export const translations = {
 
     // CookingGame
     playAgain: "Jugar de Nuevo",
-    backToMenu: "Volver al Menú",
+    gameBackToMenu: "Volver al Menú",
 
     // ShoppingListDirect help
     shoppingHowItWorks: "¿Cómo funciona el Supermercado?",
