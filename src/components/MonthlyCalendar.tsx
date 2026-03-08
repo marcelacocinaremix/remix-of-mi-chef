@@ -254,7 +254,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
 
       await fetchMealsForRange();
       setShowRecipeSelector(null);
-      toast({ title: "¡Receta agregada!", description: `${recipe.name} para el ${format(selectedDate, "EEEE d", { locale: es })}` });
+      toast({ title: t("calendarRecipeAdded"), description: `${recipe.name} para el ${format(selectedDate, "EEEE d", { locale: es })}` });
     } catch {
       toast({ title: "Error", description: "No se pudo agregar la receta", variant: "destructive" });
     }
