@@ -644,7 +644,9 @@ export default function Index() {
                         onClick={() => handleTabChange(item.id)}
                         className={`flex flex-col items-center justify-center gap-1 p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 min-h-[64px] sm:min-h-[78px] min-w-0 ${
                           isActive
-                            ? "bg-primary text-primary-foreground shadow-lg"
+                            ? isFuture
+                              ? "bg-transparent border-2 border-primary text-primary shadow-[0_0_12px_hsl(195_100%_50%/0.6),inset_0_0_12px_hsl(195_100%_50%/0.08)]"
+                              : "bg-primary text-primary-foreground shadow-lg"
                             : "bg-background/60 hover:bg-background active:scale-95 text-foreground"
                         }`}
                       >
