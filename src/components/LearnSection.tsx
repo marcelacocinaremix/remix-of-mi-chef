@@ -92,11 +92,15 @@ interface Level {
   categories: Category[];
 }
 
-const learningContent: Level[] = [
+function getLearningContent(language: string): Level[] {
+  const isEn = language === 'en';
+  const isPt = language === 'pt';
+
+  return [
   {
     id: "principiante",
-    name: "Principiante",
-    description: "Empezá desde cero con lo básico de la cocina",
+    name: isEn ? "Beginner" : isPt ? "Iniciante" : "Principiante",
+    description: isEn ? "Start from scratch with cooking basics" : isPt ? "Comece do zero com o básico da cozinha" : "Empezá desde cero con lo básico de la cocina",
     color: "bg-emerald-500",
     gradient: "from-emerald-500 to-teal-500",
     categories: [
