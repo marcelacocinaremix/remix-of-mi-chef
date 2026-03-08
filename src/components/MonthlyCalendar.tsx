@@ -391,7 +391,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
             <DialogTitle className="capitalize">
               📅 {selectedDate && format(selectedDate, "EEEE d 'de' MMMM", { locale: es })}
             </DialogTitle>
-            <DialogDescription>Organizá tus comidas del día</DialogDescription>
+            <DialogDescription>{t("calendarOrganize")}</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-3">
