@@ -1223,9 +1223,9 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
             </div>
 
             <Button 
-              onClick={() => {
-                handleAddIngredient();
-                setCurrentStep(2);
+              onClick={async () => {
+                const success = await handleAddIngredient();
+                if (success) setCurrentStep(2);
               }} 
               className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg py-6"
             >
