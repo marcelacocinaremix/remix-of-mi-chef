@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LogOut, User, Globe, Settings, Crown, Clock, Sparkles } from "lucide-react";
+import { LogOut, User, Globe, Settings, Crown, Clock, Sparkles, Palette } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 import { LanguageSettingsModal } from "@/components/LanguageSettingsModal";
 import { UserProfileModal } from "@/components/UserProfileModal";
 import { SubscriptionManager } from "@/components/SubscriptionManager";
+import { ThemePickerModal } from "@/components/ThemePickerModal";
+import { useAppTheme, THEMES } from "@/contexts/ThemeContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
