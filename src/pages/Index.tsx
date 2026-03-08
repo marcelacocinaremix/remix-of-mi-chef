@@ -547,6 +547,11 @@ export default function Index() {
     setActiveTab(value);
     setActiveSubTab(null); // Reset sub-tab when main tab changes
     
+    // Streak: visiting aprender, planificar, salud tabs counts as daily activity
+    if (user && ["aprender", "planificar", "salud"].includes(value)) {
+      recordStreak();
+    }
+
     // Trigger tracking states for grouped sections
     if (value === "planificar") {
       setPantryOpened(true);
