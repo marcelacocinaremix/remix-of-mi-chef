@@ -1861,7 +1861,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                       <Zap className="h-4 w-4 text-amber-500" />
                     </div>
                     <div>
-                      <p className="font-medium text-sm text-amber-600 dark:text-amber-400">¿Sabías que...?</p>
+                      <p className="font-medium text-sm text-amber-600 dark:text-amber-400">{t("learnDidYouKnow")}</p>
                       <p className="text-sm mt-1">{activeLesson.funFact}</p>
                     </div>
                   </div>
