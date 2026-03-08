@@ -1603,7 +1603,8 @@ interface LearnSectionProps {
 }
 
 export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabChange }: LearnSectionProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const learningContent = getLearningContent(language);
   const { user } = useAuth();
   const { toast } = useToast();
   const { play } = useSound();
