@@ -34,9 +34,9 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
     : "Plan gratuito";
 
   const badgeColor = isPremium
-    ? "bg-amber-500"
-    : isTrialActive ? "bg-emerald-500"
-    : "bg-muted-foreground";
+    ? "bg-amber-500 text-white"
+    : isTrialActive ? "bg-emerald-500 text-white"
+    : "bg-muted text-muted-foreground";
 
   const badgeText = isPremium
     ? isCancelledButActive ? `${daysRemaining}d restantes` : "✨ Activo"
