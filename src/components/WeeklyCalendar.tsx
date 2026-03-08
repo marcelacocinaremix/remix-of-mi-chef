@@ -5,6 +5,7 @@ import {
   Sun, Moon, ChevronLeft, ChevronRight, Trash2, Save, AlertTriangle,
   GripVertical, Copy
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Recipe } from "@/components/RecipeList";

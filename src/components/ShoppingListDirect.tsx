@@ -5,6 +5,7 @@ import {
   ListChecks, Package2, CircleCheck, ShoppingBag, ArrowRight,
   PackageCheck, X, Undo2, Clock, TrendingUp, Zap, Info
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const SUPER_HELP_KEY = "miChef_super_help_dismissed";
 

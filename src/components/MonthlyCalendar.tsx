@@ -3,6 +3,7 @@ import {
   ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, BookOpen, X,
   Coffee, Sun, Cookie, Moon, Info
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
