@@ -194,6 +194,17 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
       return;
     }
 
+    // Already logged via CookingMode — just inform the user
+    if (hasMarkedCooked) {
+      toast({
+        title: cookedVia === "cookingMode" ? "Ya registrada 🏆" : "Ya registrada 🎉",
+        description: cookedVia === "cookingMode"
+          ? "Esta receta ya fue sumada a tus logros al completar el Modo Cocina."
+          : "Esta receta ya fue registrada en tus logros.",
+      });
+      return;
+    }
+
     setIsMarkingCooked(true);
     try {
       const { error } = await supabase.from("cooked_recipes").insert({
@@ -210,6 +221,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
       });
 
       setHasMarkedCooked(true);
+      setCookedVia("button");
       onRecipeCooked?.();
     } catch (error) {
       console.error("Error marking recipe as cooked:", error);
