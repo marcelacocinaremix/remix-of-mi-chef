@@ -74,10 +74,10 @@ export const MiCocinaSection = ({
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent flex items-center">
           <div className="px-5">
             <h3 className="text-white font-bold text-xl drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
-              {activeSubTab === "favoritos" ? "Tus recetas y tips de cocina favoritos" : activeTabData?.label}
+              {activeSubTab === "favoritos" ? t("miCocinaBannerFavTitle") : activeTabData?.label}
             </h3>
             <p className="text-white text-sm drop-shadow-md" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>
-              {activeSubTab === "favoritos" ? "Guardá lo que más te gusta" : (activeTabData ? t(activeTabData.descKey) : '')}
+              {activeSubTab === "favoritos" ? t("miCocinaBannerFavDesc") : (activeTabData ? t(activeTabData.descKey) : '')}
             </p>
           </div>
         </div>

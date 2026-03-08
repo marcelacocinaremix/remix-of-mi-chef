@@ -5,15 +5,17 @@ import {
   Calendar, AlertTriangle, Sparkles, Trophy, Gift, Heart,
   ArrowRight, Lightbulb, Filter, Grid3X3, List, DoorOpen, Refrigerator, Check, Info
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const PANTRY_HELP_KEY = "miChef_pantry_help_dismissed";
 
 function PantryHelpBanner({ onDismiss }: { onDismiss: () => void }) {
+  const { t } = useLanguage();
   const steps = [
-    { num: 1, emoji: "➕", title: "Agregá ingredientes", desc: "Escribí o seleccioná ingredientes para llevar el control de tu despensa." },
-    { num: 2, emoji: "📦", title: "Organizá por categoría", desc: "Los ingredientes se agrupan automáticamente (frutas, verduras, lácteos…)." },
-    { num: 3, emoji: "⚠️", title: "Control de vencimientos", desc: "Asigná fechas de vencimiento y recibí alertas antes de que un producto expire." },
-    { num: 4, emoji: "🍳", title: "Generá recetas desde tu despensa", desc: "Tocá 'Usar en receta' para enviar tus ingredientes directo al generador de recetas." },
+    { num: 1, emoji: "➕", title: t("pantryStep1Title"), desc: t("pantryStep1Desc") },
+    { num: 2, emoji: "📦", title: t("pantryStep2Title"), desc: t("pantryStep2Desc") },
+    { num: 3, emoji: "⚠️", title: t("pantryStep3Title"), desc: t("pantryStep3Desc") },
+    { num: 4, emoji: "🍳", title: t("pantryStep4Title"), desc: t("pantryStep4Desc") },
   ];
   return (
     <div className="rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-accent/8 p-4 animate-fade-in">
@@ -22,7 +24,7 @@ function PantryHelpBanner({ onDismiss }: { onDismiss: () => void }) {
           <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
             <Info className="w-4 h-4 text-primary" />
           </div>
-          <span className="font-semibold text-sm text-foreground">¿Cómo funciona la Despensa?</span>
+          <span className="font-semibold text-sm text-foreground">{t("pantryHowItWorks")}</span>
         </div>
         <button onClick={onDismiss} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
           <X className="w-4 h-4" />
