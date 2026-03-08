@@ -271,6 +271,7 @@ export function FoodStorageGuide() {
             .maybeSingle();
           
           setIsSaved(!!existingFav);
+          setSavedFavId(existingFav?.id ?? null);
         }
       }
     } catch (error) {
