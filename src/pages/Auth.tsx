@@ -354,7 +354,7 @@ export default function Auth() {
                   País <span className="text-muted-foreground font-normal">(opcional)</span>
                 </Label>
                 <Select value={country} onValueChange={setCountry}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="¿De dónde sos?">
                       {country ? (
                         <span className="flex items-center gap-2">
@@ -364,7 +364,7 @@ export default function Auth() {
                       ) : null}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent className="max-h-60">
+                  <SelectContent className="max-h-60 z-[9999]">
                     {UNIQUE_COUNTRIES.map((c) => (
                       <SelectItem key={c.code} value={c.code}>
                         <span className="flex items-center gap-2">
