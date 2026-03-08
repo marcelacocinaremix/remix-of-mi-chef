@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
@@ -7,7 +8,57 @@ import {
   Shuffle,
   Candy,
   Utensils,
+  Info,
+  X,
+  Heart,
+  Clock,
+  Sliders,
 } from "lucide-react";
+
+const COOKING_HELP_KEY = "miChef_cooking_help_dismissed";
+
+function CookingHelpBanner({ onDismiss }: { onDismiss: () => void }) {
+  return (
+    <div className="rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-accent/8 p-4 animate-fade-in">
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+            <Info className="w-4 h-4 text-primary" />
+          </div>
+          <span className="font-semibold text-sm text-foreground">¿Cómo generar una receta?</span>
+        </div>
+        <button onClick={onDismiss} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+      <div className="grid grid-cols-1 gap-2">
+        {[
+          { emoji: "🥕", title: "Paso 1 · Ingredientes", desc: "Escribí lo que tenés en casa. Podés agregar varios." },
+          { emoji: "🧂", title: "Paso 2 · Sabor", desc: "Elegí si querés algo salado o dulce." },
+          { emoji: "🥗", title: "Paso 3 · Dieta", desc: "Filtrá por vegetariano, sin gluten, etc. (opcional)." },
+          { emoji: "⏱️", title: "Paso 4 · Tiempo", desc: "Indicá cuánto tiempo tenés disponible para cocinar." },
+          { emoji: "🍽️", title: "Paso 5 · Tipo", desc: "Desayuno, almuerzo, cena o merienda (opcional)." },
+          { emoji: "✨", title: "Paso 6 · ¡Generá!", desc: "Tocá 'Dame recetas' y la IA crea tu receta personalizada." },
+        ].map((s, i) => (
+          <div key={i} className="flex items-start gap-3 p-2.5 rounded-xl bg-background/60">
+            <span className="text-base shrink-0">{s.emoji}</span>
+            <div>
+              <p className="text-xs font-semibold text-foreground">{s.title}</p>
+              <p className="text-xs text-muted-foreground">{s.desc}</p>
+            </div>
+          </div>
+        ))}
+        <div className="flex items-start gap-3 p-2.5 rounded-xl bg-background/60">
+          <Heart className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-xs font-semibold text-foreground">Guardá en favoritos</p>
+            <p className="text-xs text-muted-foreground">Tocá ❤️ en la receta generada para guardarla en "Mi Cocina".</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 import { IngredientInput } from "@/components/IngredientInput";
 import { IngredientCategorySelector } from "@/components/IngredientCategorySelector";
 import { QuickFilters } from "@/components/QuickFilters";
@@ -102,6 +153,15 @@ export function CookingSection({
 }: CookingSectionProps) {
   const { t } = useLanguage();
 
+  const [showHelp, setShowHelp] = useState(() => {
+    try { return !localStorage.getItem(COOKING_HELP_KEY); } catch { return true; }
+  });
+
+  const dismissHelp = () => {
+    localStorage.setItem(COOKING_HELP_KEY, "1");
+    setShowHelp(false);
+  };
+
   const activeFlavor = quickFilters.find(f => f === "dulce" || f === "salado") ?? null;
 
   const toggleFlavor = (id: string) => {
@@ -134,7 +194,18 @@ export function CookingSection({
   return (
     <div className="space-y-4 overflow-hidden">
 
-      {/* Pending Suggestion Banner */}
+      {/* Help Banner */}
+      {showHelp && <CookingHelpBanner onDismiss={dismissHelp} />}
+      {!showHelp && (
+        <button
+          onClick={() => setShowHelp(true)}
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+        >
+          <Info className="w-3.5 h-3.5" />
+          Ver cómo funciona
+        </button>
+      )}
+
       {pendingSuggestion && (
         <Card className="border-2 border-primary/30 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 animate-fade-in">
           <CardContent className="p-4">
