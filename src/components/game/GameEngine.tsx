@@ -281,14 +281,14 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
         </motion.div>
 
         {/* Recipe card */}
-        <div className="bg-gradient-to-br from-primary/5 to-accent/10 rounded-2xl p-4 border border-primary/20">
+        <div className="bg-card rounded-2xl p-4 border border-border/60 shadow-sm">
           <div className="flex items-center gap-3">
             <span className="text-4xl">{currentRecipe.emoji}</span>
             <div>
-              <h3 className="font-black text-foreground text-base">{currentRecipe.name}</h3>
-              <div className="flex items-center gap-2 mt-0.5">
-                <Badge variant="secondary" className="text-xs py-0">{mode === "recipe" ? t("gameModeRecipe") : mode === "order" ? t("gameModeOrder") : t("gameModeIngredients")}</Badge>
-                <span className="text-xs text-muted-foreground">Receta {(recipeIndex % GAME_RECIPES.length) + 1}/{GAME_RECIPES.length}</span>
+              <h3 className="font-black text-foreground text-lg leading-tight">{currentRecipe.name}</h3>
+              <div className="flex items-center gap-2 mt-1">
+                <Badge variant="secondary" className="text-xs font-semibold">{mode === "recipe" ? t("gameModeRecipe") : mode === "order" ? t("gameModeOrder") : t("gameModeIngredients")}</Badge>
+                <span className="text-xs font-medium text-muted-foreground">Receta {(recipeIndex % GAME_RECIPES.length) + 1}/{GAME_RECIPES.length}</span>
               </div>
             </div>
           </div>
@@ -303,10 +303,16 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
                   <motion.div
                     key={ing}
                     animate={filled ? { scale: [1, 1.2, 1] } : {}}
-                    className={`w-14 h-14 rounded-xl border-2 border-dashed flex flex-col items-center justify-center text-2xl transition-all ${filled ? "border-primary bg-primary/10" : "border-border bg-muted/30"}`}
+                    className={`w-16 h-16 rounded-xl border-2 border-dashed flex flex-col items-center justify-center transition-all ${filled ? "border-primary bg-primary/10" : "border-border/60 bg-muted/40"}`}
                   >
-                    {filled ? <span>{ingredient?.emoji}</span> : <span className="text-muted-foreground text-lg">?</span>}
-                    {filled && <span className="text-[8px] text-primary font-medium mt-0.5 max-w-full px-0.5 truncate">{ingredient?.name.split(" ")[0]}</span>}
+                    {filled ? (
+                      <>
+                        <span className="text-2xl">{ingredient?.emoji}</span>
+                        <span className="text-[10px] text-primary font-bold mt-0.5 max-w-full px-1 truncate leading-none">{ingredient?.name.split(" ")[0]}</span>
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground/50 text-xl font-bold">?</span>
+                    )}
                   </motion.div>
                 );
               })}
@@ -317,8 +323,8 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
         {/* Ingredients grid (recipe / ingredients mode) */}
         {mode !== "order" && (
           <div>
-            <p className="text-xs text-muted-foreground text-center mb-3 font-medium">{t("gameSelectIngredient")} 👆</p>
-            <div className="grid grid-cols-4 gap-2">
+            <p className="text-sm text-muted-foreground text-center mb-3 font-semibold">{t("gameSelectIngredient")} 👆</p>
+            <div className="grid grid-cols-4 gap-2.5">
               {ingredientOptions.map(ingredient => {
                 const isUsed = selectedIngredients.includes(ingredient.id);
                 return (
@@ -327,10 +333,10 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
                     whileTap={!isUsed ? { scale: 0.9 } : {}}
                     disabled={isUsed || isAnimating}
                     onClick={() => handleIngredientPick(ingredient.id)}
-                    className={`flex flex-col items-center justify-center p-2.5 rounded-xl border-2 transition-all ${isUsed ? "opacity-30 cursor-not-allowed border-transparent bg-transparent" : "border-border bg-card hover:border-primary hover:bg-primary/5 active:scale-95 cursor-pointer shadow-sm"}`}
+                    className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-1 ${isUsed ? "opacity-25 cursor-not-allowed border-transparent bg-transparent" : "border-border bg-card hover:border-primary hover:bg-primary/5 active:scale-95 cursor-pointer shadow-sm"}`}
                   >
-                    <span className="text-2xl">{ingredient.emoji}</span>
-                    <span className="text-[10px] text-muted-foreground mt-1 w-full text-center truncate">{ingredient.name}</span>
+                    <span className="text-2xl leading-none">{ingredient.emoji}</span>
+                    <span className="text-xs font-semibold text-foreground w-full text-center truncate leading-tight">{ingredient.name}</span>
                   </motion.button>
                 );
               })}
