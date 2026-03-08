@@ -230,29 +230,40 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
     const { weekStart, dayOfWeek } = getWeekStartAndDay(selectedDate);
     const dateKey = format(selectedDate, "yyyy-MM-dd");
     const existing = getMealsForDate(selectedDate).find((m) => m.mealType === mealType);
-    const tempId = existing?.id || `temp-${Date.now()}`;
+    // Only treat as existing if it has a real DB id (not a temp id)
+    const hasRealId = existing && !existing.id.startsWith("temp-");
+    const tempId = `temp-${Date.now()}`;
 
     // Optimistic update
     setAllMeals(prev => {
       const dayMeals = prev[dateKey] || [];
-      const newMeal: DayMeal = { id: tempId, mealType, recipeName: recipe.name, recipeData: recipe };
+      const newMeal: DayMeal = { id: hasRealId ? existing.id : tempId, mealType, recipeName: recipe.name, recipeData: recipe };
       return {
         ...prev,
-        [dateKey]: existing
+        [dateKey]: hasRealId
           ? dayMeals.map(m => m.mealType === mealType ? newMeal : m)
-          : [...dayMeals, newMeal],
+          : [...dayMeals.filter(m => m.mealType !== mealType), newMeal],
       };
     });
     setShowRecipeSelector(null);
 
     try {
-      if (existing) {
+      if (hasRealId) {
         const { error } = await supabase
           .from("meal_plans")
           .update({ recipe_data: JSON.parse(JSON.stringify(recipe)), recipe_name: recipe.name })
           .eq("id", existing.id);
         if (error) throw error;
       } else {
+        // If there's a stale temp entry for this meal type, delete it first
+        if (existing) {
+          await supabase.from("meal_plans")
+            .delete()
+            .eq("user_id", user.id)
+            .eq("week_start", weekStart)
+            .eq("day_of_week", dayOfWeek)
+            .eq("meal_type", mealType);
+        }
         const { data, error } = await supabase.from("meal_plans").insert({
           user_id: user.id,
           week_start: weekStart,
@@ -270,8 +281,9 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
           }));
         }
       }
-      toast({ title: t("calendarRecipeAdded"), description: `${recipe.name} ${t("calendarForMealType").toLowerCase()} ${format(selectedDate, "EEEE d", { locale: es })}` });
-    } catch {
+      toast({ title: t("calendarRecipeAdded"), description: `${recipe.name} · ${format(selectedDate, "EEEE d", { locale: es })}` });
+    } catch (err) {
+      console.error("Error adding recipe to calendar:", err);
       // Rollback
       await fetchMealsForRange();
       toast({ title: t("error"), description: t("calendarAddError"), variant: "destructive" });
