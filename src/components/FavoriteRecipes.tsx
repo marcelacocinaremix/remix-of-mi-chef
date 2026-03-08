@@ -299,7 +299,480 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   }
 
   return (
-    <div className="bg-card rounded-xl border border-border/50 shadow-card overflow-hidden">
+    <div className="space-y-4">
+
+      {/* ── Tab Selector ── */}
+      <div className="flex rounded-2xl overflow-hidden border border-border/50 bg-muted/30">
+        <button
+          onClick={() => setActiveTab("recetas")}
+          className={cn(
+            "flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-medium transition-all",
+            activeTab === "recetas"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+          )}
+        >
+          <UtensilsCrossed className="w-4 h-4" />
+          Mis Recetas
+          <span className={cn(
+            "text-xs px-1.5 py-0.5 rounded-full font-semibold",
+            activeTab === "recetas" ? "bg-primary-foreground/20" : "bg-muted text-muted-foreground"
+          )}>
+            {favorites.length}
+          </span>
+        </button>
+        <button
+          onClick={() => setActiveTab("tips")}
+          className={cn(
+            "flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-medium transition-all",
+            activeTab === "tips"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+          )}
+        >
+          <BookOpen className="w-4 h-4" />
+          Mis Tips
+          <span className={cn(
+            "text-xs px-1.5 py-0.5 rounded-full font-semibold",
+            activeTab === "tips" ? "bg-primary-foreground/20" : "bg-muted text-muted-foreground"
+          )}>
+            {favoriteTips.length}
+          </span>
+        </button>
+      </div>
+
+      {/* ════════ RECETAS TAB ════════ */}
+      {activeTab === "recetas" && (
+        <div className="space-y-4">
+
+          {/* PASO 1 — Buscar */}
+          <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+            <CardContent className="p-4 space-y-3">
+              <StepHeader
+                number={1}
+                title="Buscar receta"
+                subtitle="Filtrá por nombre o ingrediente"
+              />
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Ej: pollo, pasta, postre…"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="pl-9 h-10"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* PASO 2 — Carpeta */}
+          <Card className="border-2 border-secondary/40 bg-gradient-to-br from-secondary/5 to-transparent">
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-start justify-between">
+                <StepHeader
+                  number={2}
+                  title="Elegir carpeta"
+                  subtitle="Organizá tus recetas en colecciones"
+                />
+                <button
+                  onClick={() => setShowNewFolderInput(!showNewFolderInput)}
+                  className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium transition-colors mt-1 shrink-0"
+                >
+                  <FolderPlus className="w-3.5 h-3.5" />
+                  Nueva
+                </button>
+              </div>
+
+              {showNewFolderInput && (
+                <div className="flex gap-2 animate-fade-in">
+                  <Input
+                    placeholder="Nombre de la carpeta…"
+                    value={newFolderName}
+                    onChange={e => setNewFolderName(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && handleCreateFolder()}
+                    className="h-9 text-sm flex-1"
+                    autoFocus
+                  />
+                  <Button size="sm" onClick={handleCreateFolder} className="h-9 px-3">
+                    <Check className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => { setShowNewFolderInput(false); setNewFolderName(""); }} className="h-9 px-3">
+                    <X className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-2">
+                {folders.map(folder => {
+                  const isActive = activeFolder === folder;
+                  const count = folderCounts[folder] || 0;
+                  const isDeletable = folder !== "Sin carpeta";
+                  return (
+                    <div key={folder} className="flex items-center">
+                      <button
+                        onClick={() => setActiveFolder(folder)}
+                        className={cn(
+                          "flex items-center gap-1.5 py-2 text-xs font-medium transition-all border",
+                          isDeletable ? "pl-3 pr-2 rounded-l-full border-r-0" : "px-3 rounded-full",
+                          isActive
+                            ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                            : "bg-muted/50 text-muted-foreground border-border/50 hover:bg-muted hover:text-foreground"
+                        )}
+                      >
+                        {isActive ? <FolderOpen className="w-3.5 h-3.5" /> : <Folder className="w-3.5 h-3.5" />}
+                        {folder}
+                        <span className={cn("text-xs min-w-[16px] text-center", isActive ? "text-primary-foreground/80" : "text-muted-foreground")}>
+                          {count}
+                        </span>
+                      </button>
+                      {isDeletable && (
+                        <button
+                          onClick={() => handleDeleteFolder(folder)}
+                          className={cn(
+                            "flex items-center justify-center w-6 h-[34px] rounded-r-full border transition-all",
+                            isActive
+                              ? "bg-primary border-primary text-primary-foreground/70 hover:text-primary-foreground"
+                              : "bg-muted/50 border-border/50 text-muted-foreground hover:bg-destructive/15 hover:text-destructive"
+                          )}
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* PASO 3 — Recetas */}
+          <Card className="border-2 border-accent/30 bg-gradient-to-br from-accent/5 to-transparent">
+            <CardContent className="p-4 space-y-3">
+              <StepHeader
+                number={3}
+                title="Tus recetas guardadas"
+                subtitle={
+                  filteredRecipes.length > 0
+                    ? `${filteredRecipes.length} receta${filteredRecipes.length !== 1 ? "s" : ""} en "${activeFolder}"`
+                    : `Carpeta "${activeFolder}"`
+                }
+              />
+
+              {favorites.length === 0 ? (
+                <div className="text-center py-8">
+                  <Heart className="w-10 h-10 text-muted-foreground mx-auto mb-3 opacity-40" />
+                  <p className="text-muted-foreground text-sm font-medium">Aún no guardaste recetas favoritas</p>
+                  <p className="text-muted-foreground/60 text-xs mt-1">Tocá el ❤️ en cualquier receta para guardarla</p>
+                </div>
+              ) : filteredRecipes.length === 0 ? (
+                <div className="text-center py-8">
+                  <Search className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-40" />
+                  <p className="text-muted-foreground text-sm">
+                    {searchQuery ? "Sin resultados para tu búsqueda" : "Esta carpeta está vacía"}
+                  </p>
+                  {!searchQuery && (
+                    <p className="text-muted-foreground/60 text-xs mt-1">Mové recetas acá desde el menú ⋮ de cada tarjeta</p>
+                  )}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {filteredRecipes.map(fav => {
+                    const emoji = getRecipeEmoji(fav.recipe_data);
+                    const gradient = getRecipeColor(fav.recipe_name);
+                    return (
+                      <div
+                        key={fav.id}
+                        className="rounded-xl overflow-hidden border border-border/50 bg-card hover:shadow-elevated transition-all duration-300"
+                      >
+                        {/* Thumbnail */}
+                        <div
+                          onClick={() => onSelectRecipe(fav.recipe_data)}
+                          className={cn("h-24 flex items-center justify-center bg-gradient-to-br cursor-pointer hover:opacity-90 transition-opacity", gradient)}
+                        >
+                          <span className="text-4xl drop-shadow-sm">{emoji}</span>
+                        </div>
+
+                        {/* Info + botón ⋮ */}
+                        <div className="p-2.5 flex items-start justify-between gap-1">
+                          <div onClick={() => onSelectRecipe(fav.recipe_data)} className="flex-1 min-w-0 cursor-pointer">
+                            <p className="font-semibold text-xs text-foreground leading-tight line-clamp-2 mb-1.5">{fav.recipe_name}</p>
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <span className="flex items-center gap-0.5 text-[10px]">
+                                <Clock className="w-3 h-3" />{fav.recipe_data.time}m
+                              </span>
+                              <span className="flex items-center gap-0.5 text-[10px]">
+                                <Flame className="w-3 h-3 text-orange-400" />{fav.recipe_data.nutrition?.calories || "?"}
+                              </span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setMovingRecipeId(fav.id); }}
+                            className="w-7 h-7 rounded-lg bg-muted/60 hover:bg-muted flex items-center justify-center shrink-0 transition-colors"
+                          >
+                            <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* ════════ TIPS TAB ════════ */}
+      {activeTab === "tips" && (
+        <div className="space-y-4">
+
+          {/* PASO 1 — Tips guardados */}
+          <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+            <CardContent className="p-4 space-y-3">
+              <StepHeader
+                number={1}
+                title="Tus tips guardados"
+                subtitle={favoriteTips.length > 0 ? `${favoriteTips.length} tip${favoriteTips.length !== 1 ? "s" : ""} en tu colección` : "Todavía no guardaste ningún tip"}
+              />
+
+              {favoriteTips.length === 0 ? (
+                <div className="text-center py-8">
+                  <BookOpen className="w-10 h-10 text-muted-foreground mx-auto mb-3 opacity-40" />
+                  <p className="text-muted-foreground text-sm font-medium">Aún no guardaste tips</p>
+                  <p className="text-muted-foreground/60 text-xs mt-1">Guardá tips desde la sección de Guía de Alimentos</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {favoriteTips.map(tip => {
+                    const Icon = categoryIcons[tip.category] || Lightbulb;
+                    const colorClass = categoryColors[tip.category] || "text-primary bg-primary";
+                    const [textColor, bgColor] = colorClass.split(" ");
+                    return (
+                      <div
+                        key={tip.id}
+                        onClick={() => setSelectedTip(tip)}
+                        className="flex items-center justify-between p-3 rounded-xl cursor-pointer bg-muted/40 hover:bg-muted transition-colors border border-border/30"
+                      >
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className={cn("w-9 h-9 rounded-full flex items-center justify-center shrink-0", bgColor + "/15")}>
+                            <Icon className={cn("w-4 h-4", textColor)} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="font-medium text-sm text-foreground truncate capitalize">{tip.food_name}</p>
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary shrink-0">
+                                {categoryLabels[tip.category] || tip.category}
+                              </span>
+                            </div>
+                            <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{tip.tip_data.mainInfo}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0 ml-2">
+                          <Button variant="ghost" size="icon" onClick={e => handleDeleteTip(tip.id, e)} className="h-7 w-7">
+                            <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
+                          </Button>
+                          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* ── Confirm delete folder dialog ── */}
+      <Dialog open={!!deletingFolder} onOpenChange={open => !open && setDeletingFolder(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Trash2 className="w-5 h-5 text-destructive" />
+              Eliminar carpeta
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              ¿Eliminar la carpeta <strong>"{deletingFolder}"</strong>?
+              {deletingFolder && (folderCounts[deletingFolder] || 0) > 0 && (
+                <span> Las <strong>{folderCounts[deletingFolder]}</strong> recetas se moverán a "Sin carpeta".</span>
+              )}
+            </p>
+            <div className="flex gap-2">
+              <Button variant="ghost" className="flex-1" onClick={() => setDeletingFolder(null)}>Cancelar</Button>
+              <Button
+                variant="destructive"
+                className="flex-1"
+                onClick={() => {
+                  if (!deletingFolder) return;
+                  const updated = { ...folderAssignments };
+                  favorites.forEach(f => {
+                    if ((updated[f.id] || "Sin carpeta") === deletingFolder) updated[f.id] = "Sin carpeta";
+                  });
+                  localStorage.setItem(RECIPE_FOLDERS_KEY, JSON.stringify(updated));
+                  setFolderAssignments(updated);
+                  const newFolders = folders.filter(f => f !== deletingFolder);
+                  setFolders(newFolders);
+                  saveFolders(newFolders);
+                  if (activeFolder === deletingFolder) setActiveFolder("Sin carpeta");
+                  setDeletingFolder(null);
+                  toast({ title: "Carpeta eliminada" });
+                }}
+              >
+                Eliminar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Sheet de acciones de receta ── */}
+      {(() => {
+        const sheetRecipe = movingRecipeId ? favorites.find(f => f.id === movingRecipeId) : null;
+        return (
+          <Sheet open={!!movingRecipeId} onOpenChange={open => !open && setMovingRecipeId(null)}>
+            <SheetContent side="bottom" className="rounded-t-2xl pb-8">
+              {sheetRecipe && (
+                <>
+                  <SheetHeader className="mb-4">
+                    <SheetTitle className="text-left text-base flex items-center gap-2">
+                      <span className="text-2xl">{getRecipeEmoji(sheetRecipe.recipe_data)}</span>
+                      <span className="line-clamp-1">{sheetRecipe.recipe_name}</span>
+                    </SheetTitle>
+                    <p className="text-xs text-muted-foreground text-left">
+                      Carpeta actual: <strong>{folderAssignments[sheetRecipe.id] || "Sin carpeta"}</strong>
+                    </p>
+                  </SheetHeader>
+
+                  <div className="space-y-2 mb-5">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                      <MoveRight className="w-3.5 h-3.5" /> Mover a carpeta
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {folders.map(f => {
+                        const isCurrent = (folderAssignments[sheetRecipe.id] || "Sin carpeta") === f;
+                        return (
+                          <button
+                            key={f}
+                            onClick={() => handleMoveRecipe(sheetRecipe.id, f)}
+                            className={cn(
+                              "flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all border",
+                              isCurrent
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-muted/50 text-foreground border-border/50 hover:bg-muted active:scale-95"
+                            )}
+                          >
+                            {isCurrent ? <Check className="w-4 h-4 shrink-0" /> : <Folder className="w-4 h-4 shrink-0 text-muted-foreground" />}
+                            <span className="truncate">{f}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={(e) => { handleDeleteRecipe(sheetRecipe.id, e); setMovingRecipeId(null); }}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 active:scale-95 transition-all border border-destructive/20"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Eliminar de favoritos
+                  </button>
+                </>
+              )}
+            </SheetContent>
+          </Sheet>
+        );
+      })()}
+
+      {/* ── Tip Detail Modal ── */}
+      <Dialog open={!!selectedTip} onOpenChange={open => !open && setSelectedTip(null)}>
+        <DialogContent className="max-w-md max-h-[80vh]">
+          {selectedTip && (() => {
+            const Icon = categoryIcons[selectedTip.category] || Lightbulb;
+            const colorClass = categoryColors[selectedTip.category] || "text-primary bg-primary";
+            const [textColor, bgColor] = colorClass.split(" ");
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-3">
+                    <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", bgColor + "/15")}>
+                      <Icon className={cn("w-5 h-5", textColor)} />
+                    </div>
+                    <div>
+                      <span className="capitalize">{selectedTip.food_name}</span>
+                      <p className="text-sm font-normal text-muted-foreground">{categoryLabels[selectedTip.category]}</p>
+                    </div>
+                  </DialogTitle>
+                </DialogHeader>
+                <ScrollArea className="max-h-[60vh] pr-4">
+                  <div className="space-y-4">
+                    <div className={cn("p-4 rounded-lg", bgColor + "/10")}>
+                      <p className="font-medium">{selectedTip.tip_data.mainInfo}</p>
+                    </div>
+                    {selectedTip.tip_data.details?.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold flex items-center gap-2">
+                          <Sparkles className={cn("w-4 h-4", textColor)} /> Detalles
+                        </h4>
+                        <ul className="space-y-2">
+                          {selectedTip.tip_data.details.map((detail, i) => (
+                            <li key={i} className="flex items-start gap-2 text-sm bg-muted/30 p-2 rounded-lg">
+                              <span className={cn("w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0", bgColor + "/20", textColor)}>{i + 1}</span>
+                              <span>{detail}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {selectedTip.tip_data.warnings?.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold flex items-center gap-2 text-rose-500">
+                          <AlertTriangle className="w-4 h-4" /> Precauciones
+                        </h4>
+                        <ul className="space-y-2">
+                          {selectedTip.tip_data.warnings.map((w, i) => (
+                            <li key={i} className="flex items-start gap-2 text-sm">
+                              <X className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                              <span>{w}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {selectedTip.tip_data.tips?.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold flex items-center gap-2 text-emerald-500">
+                          <Lightbulb className="w-4 h-4" /> Tips prácticos
+                        </h4>
+                        <ul className="space-y-2">
+                          {selectedTip.tip_data.tips.map((tip, i) => (
+                            <li key={i} className="flex items-start gap-2 text-sm">
+                              <Sparkles className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                              <span>{tip}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
       {/* Tab Selector */}
       <div className="flex border-b border-border/50">
         <button
