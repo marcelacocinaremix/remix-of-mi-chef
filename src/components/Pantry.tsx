@@ -430,12 +430,12 @@ function ProductItem({
                   )}
                 >
                   {daysLeft < 0
-                    ? `Venció hace ${Math.abs(daysLeft)} días`
+                    ? t("pantryExpiredAgo").replace("{days}", String(Math.abs(daysLeft)))
                     : daysLeft === 0
-                      ? "Vence hoy"
+                      ? t("pantryExpiredTodayLabel")
                       : daysLeft === 1
-                        ? "Vence mañana"
-                        : `Vence en ${daysLeft} días`}
+                        ? t("pantryExpiredTomorrowLabel")
+                        : t("pantryExpiredInDays").replace("{days}", String(daysLeft))}
                 </p>
               )}
             </div>
