@@ -121,22 +121,7 @@ interface CookingSectionProps {
   onClearSuggestion?: () => void;
 }
 
-const FLAVOR_OPTIONS = [
-  {
-    id: "salado",
-    label: "Salado",
-    emoji: "🧂",
-    icon: Utensils,
-    desc: "Platos principales, entradas…",
-  },
-  {
-    id: "dulce",
-    label: "Dulce / Postre",
-    emoji: "🍬",
-    icon: Candy,
-    desc: "Postres, budines, tortas…",
-  },
-];
+const FLAVOR_IDS = ["salado", "dulce"] as const;
 
 function StepHeader({ number, title, subtitle }: { number: number; title: string; subtitle: string }) {
   return (
