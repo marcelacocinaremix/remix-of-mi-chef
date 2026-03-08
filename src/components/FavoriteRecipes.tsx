@@ -1070,11 +1070,11 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                       </div>
                     )}
                   </div>
-                  <button
+                    <button
                     onClick={e => { handleDeleteRecipe(sheetRecipe.id, e); setMovingRecipeId(null); }}
                     className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 active:scale-95 transition-all border border-destructive/20"
                   >
-                    <Trash2 className="w-4 h-4" /> Eliminar de favoritos
+                    <Trash2 className="w-4 h-4" /> {t("favDeleteFromFavorites")}
                   </button>
                 </>
               )}
