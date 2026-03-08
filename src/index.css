@@ -169,6 +169,51 @@
     --charcoal: 195 12% 83%;
   }
 
+  /* ===== FUTURE (= cyan-dark por ahora, se irá personalizando) ===== */
+  .future {
+    --background: 205 40% 7%;
+    --foreground: 195 15% 93%;
+    --card: 205 35% 11%;
+    --card-foreground: 195 15% 93%;
+    --popover: 205 35% 11%;
+    --popover-foreground: 195 15% 93%;
+    --primary: 195 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 205 30% 16%;
+    --secondary-foreground: 195 15% 82%;
+    --muted: 205 25% 18%;
+    --muted-foreground: 195 12% 58%;
+    --accent: 195 60% 18%;
+    --accent-foreground: 195 80% 83%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 205 20% 20%;
+    --input: 205 20% 20%;
+    --ring: 195 100% 50%;
+    --gradient-warm: linear-gradient(135deg, hsl(195 100% 50%) 0%, hsl(185 90% 55%) 100%);
+    --gradient-hero: linear-gradient(160deg, hsl(205 40% 7%) 0%, hsl(205 35% 10%) 50%, hsl(195 30% 11%) 100%);
+    --gradient-earth: linear-gradient(135deg, hsl(195 100% 50%) 0%, hsl(200 100% 45%) 100%);
+    --shadow-soft: 0 4px 20px -4px hsl(205 40% 0% / 0.3);
+    --shadow-card: 0 8px 30px -8px hsl(205 40% 0% / 0.4);
+    --shadow-elevated: 0 20px 50px -12px hsl(205 40% 0% / 0.5);
+    --shadow-glow: 0 0 40px hsl(195 100% 50% / 0.3);
+    --sidebar-background: 205 35% 9%;
+    --sidebar-foreground: 195 12% 90%;
+    --sidebar-primary: 195 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 195 40% 17%;
+    --sidebar-accent-foreground: 195 70% 83%;
+    --sidebar-border: 205 20% 18%;
+    --sidebar-ring: 195 100% 50%;
+    --pink: 195 100% 50%;
+    --pink-light: 185 90% 65%;
+    --pink-dark: 200 100% 45%;
+    --cream: 205 35% 11%;
+    --cream-dark: 205 40% 7%;
+    --rose: 195 40% 17%;
+    --charcoal: 195 12% 83%;
+  }
+
   /* ===== ROSE LIGHT ===== */
   .rose-light {
     --background: 340 60% 97%;
