@@ -554,7 +554,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                 <div>
                   <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
                     <BookOpen className="w-4 h-4 text-primary" />
-                    Ingredientes
+                    {t("calendarIngredients")}
                   </h4>
                   <ul className="space-y-1">
                     {previewRecipe.ingredients.map((ing, j) => (
