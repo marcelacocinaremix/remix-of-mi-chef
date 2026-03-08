@@ -832,7 +832,7 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
           <div className="text-center py-8 mt-4">
             <Utensils className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
             <p className="text-muted-foreground">
-              Tu calendario está vacío. ¡Agregá recetas o usá "Armarme la semana"!
+              {t("weeklyEmptyCalendar")}
             </p>
           </div>
         )}
