@@ -277,11 +277,13 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const filteredRecipes = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     return favorites.filter(fav => {
-      const inFolder = (folderAssignments[fav.id] || "Sin carpeta") === activeFolder;
-      if (!inFolder) return false;
-      if (!q) return true;
-      return fav.recipe_name.toLowerCase().includes(q) ||
-        fav.recipe_data.ingredients?.some(i => i.toLowerCase().includes(q));
+      // When searching, ignore folder filter and search across all recipes
+      if (q) {
+        return fav.recipe_name.toLowerCase().includes(q) ||
+          fav.recipe_data.ingredients?.some(i => i.toLowerCase().includes(q));
+      }
+      // No search: filter by active folder
+      return (folderAssignments[fav.id] || "Sin carpeta") === activeFolder;
     });
   }, [favorites, searchQuery, activeFolder, folderAssignments]);
 
@@ -655,11 +657,11 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
               <div className="flex items-center justify-between">
                 <StepHeader
                   number={3}
-                  title={`📂 ${activeFolder}`}
+                  title={searchQuery ? `🔍 Resultados` : `📂 ${activeFolder}`}
                   subtitle={
                     filteredRecipes.length > 0
-                      ? `${filteredRecipes.length} receta${filteredRecipes.length !== 1 ? "s" : ""} guardada${filteredRecipes.length !== 1 ? "s" : ""}`
-                      : "Esta carpeta está vacía"
+                      ? `${filteredRecipes.length} receta${filteredRecipes.length !== 1 ? "s" : ""} encontrada${filteredRecipes.length !== 1 ? "s" : ""}`
+                      : searchQuery ? `Sin resultados para "${searchQuery}"` : "Esta carpeta está vacía"
                   }
                 />
               </div>
