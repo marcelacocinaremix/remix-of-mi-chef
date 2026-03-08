@@ -18,6 +18,37 @@ import {
 const COOKING_HELP_KEY = "miChef_cooking_help_dismissed";
 
 function CookingHelpBanner({ onDismiss }: { onDismiss: () => void }) {
+  const steps = [
+    {
+      num: 1,
+      emoji: "✨",
+      title: "Generá una receta",
+      desc: "Completá los pasos de abajo y tocá "Dame recetas" para que la IA cree tu receta personalizada.",
+      color: "bg-primary/10 text-primary border-primary/20",
+    },
+    {
+      num: 2,
+      emoji: "❤️",
+      title: "Guardala en favoritos",
+      desc: "Tocá el corazón en la receta generada para guardarla en "Mi Cocina" y organizarla en carpetas.",
+      color: "bg-rose-500/10 text-rose-500 border-rose-500/20",
+    },
+    {
+      num: 3,
+      emoji: "👨‍🍳",
+      title: "Usá el Modo Cocina",
+      desc: "Abrí la receta y tocá "Modo Cocina" para seguir el paso a paso mientras cocinás.",
+      color: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+    },
+    {
+      num: 4,
+      emoji: "🏆",
+      title: "Apretá "Ya la cociné"",
+      desc: "Una vez lista, tocá el botón para registrar la cocción y desbloquear logros.",
+      color: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+    },
+  ];
+
   return (
     <div className="rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-accent/8 p-4 animate-fade-in">
       <div className="flex items-start justify-between gap-2 mb-3">
@@ -25,36 +56,26 @@ function CookingHelpBanner({ onDismiss }: { onDismiss: () => void }) {
           <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
             <Info className="w-4 h-4 text-primary" />
           </div>
-          <span className="font-semibold text-sm text-foreground">¿Cómo generar una receta?</span>
+          <span className="font-semibold text-sm text-foreground">¿Cómo funciona?</span>
         </div>
         <button onClick={onDismiss} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
           <X className="w-4 h-4" />
         </button>
       </div>
-      <div className="grid grid-cols-1 gap-2">
-        {[
-          { emoji: "🥕", title: "Paso 1 · Ingredientes", desc: "Escribí lo que tenés en casa. Podés agregar varios." },
-          { emoji: "🧂", title: "Paso 2 · Sabor", desc: "Elegí si querés algo salado o dulce." },
-          { emoji: "🥗", title: "Paso 3 · Dieta", desc: "Filtrá por vegetariano, sin gluten, etc. (opcional)." },
-          { emoji: "⏱️", title: "Paso 4 · Tiempo", desc: "Indicá cuánto tiempo tenés disponible para cocinar." },
-          { emoji: "🍽️", title: "Paso 5 · Tipo", desc: "Desayuno, almuerzo, cena o merienda (opcional)." },
-          { emoji: "✨", title: "Paso 6 · ¡Generá!", desc: "Tocá 'Dame recetas' y la IA crea tu receta personalizada." },
-        ].map((s, i) => (
-          <div key={i} className="flex items-start gap-3 p-2.5 rounded-xl bg-background/60">
-            <span className="text-base shrink-0">{s.emoji}</span>
-            <div>
-              <p className="text-xs font-semibold text-foreground">{s.title}</p>
-              <p className="text-xs text-muted-foreground">{s.desc}</p>
+      <div className="grid grid-cols-1 gap-2.5">
+        {steps.map((s) => (
+          <div key={s.num} className={cn("flex items-start gap-3 p-3 rounded-xl border bg-background/70", s.color.split(" ")[2])}>
+            <div className={cn("w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border", s.color)}>
+              {s.num}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                <span>{s.emoji}</span> {s.title}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{s.desc}</p>
             </div>
           </div>
         ))}
-        <div className="flex items-start gap-3 p-2.5 rounded-xl bg-background/60">
-          <Heart className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-          <div>
-            <p className="text-xs font-semibold text-foreground">Guardá en favoritos</p>
-            <p className="text-xs text-muted-foreground">Tocá ❤️ en la receta generada para guardarla en "Mi Cocina".</p>
-          </div>
-        </div>
       </div>
     </div>
   );
