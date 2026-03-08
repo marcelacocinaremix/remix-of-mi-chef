@@ -184,17 +184,11 @@ function HowItWorksBanner({ onDismiss }: { onDismiss: () => void }) {
 }
 
 // ─── StepHeader ─────────────────────────────────────────────────────
-function StepHeader({ number, title, subtitle, highlight }: {
-  number: number; title: string; subtitle: string; highlight?: boolean;
+function StepHeader({ title, subtitle }: {
+  number?: number; title: string; subtitle: string; highlight?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-3 mb-1">
-      <div className={cn(
-        "w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0",
-        highlight ? "bg-primary text-primary-foreground animate-pulse" : "bg-primary text-primary-foreground"
-      )}>
-        {number}
-      </div>
+    <div className="flex items-center gap-2 mb-1">
       <div>
         <h3 className="font-semibold text-foreground">{title}</h3>
         <p className="text-xs text-muted-foreground">{subtitle}</p>
