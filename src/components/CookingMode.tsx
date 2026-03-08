@@ -114,6 +114,21 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked, alreadyCooked = f
       return;
     }
 
+    // Already logged via "Ya la cociné" button — don't insert again
+    if (alreadyCooked) {
+      setShowConfetti(true);
+      if (soundEnabled) play('success');
+      toast({
+        title: "¡Ya estaba registrada! 🏆",
+        description: 'Esta receta ya fue sumada a tus logros cuando presionaste "Ya la cociné".',
+      });
+      setTimeout(() => {
+        onMarkAsCooked?.();
+        onClose();
+      }, 2000);
+      return;
+    }
+
     setIsSaving(true);
     setShowConfetti(true);
     if (soundEnabled) play('success');
