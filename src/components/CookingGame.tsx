@@ -168,6 +168,7 @@ export function CookingGame({ onAchievementUnlocked }: CookingGameProps) {
   const { play } = useSound();
   const { stats: gameStats, saveGameResult } = useGameStats();
   const { t } = useLanguage();
+  const [gameState, setGameState] = useState<"menu" | "playing" | "complete">("menu");
   const [currentRecipeIndex, setCurrentRecipeIndex] = useState(0);
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
   const [score, setScore] = useState(0);
