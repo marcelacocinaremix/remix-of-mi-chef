@@ -84,6 +84,7 @@ export default function Index() {
   const { getRecentRecipeNames, refetch: refetchCookedRecipes, addCookedRecipe } = useCookedRecipes();
   const shoppingList = useShoppingList();
   const { recordCookedRecipe, refetch: refetchAchievements } = useAchievements();
+  const { recordActivity: recordStreak } = useStreakContext();
   const [isButtonAnimating, setIsButtonAnimating] = useState(false);
   const [isCharacterAnimating, setIsCharacterAnimating] = useState(false);
   const [showShoppingListModal, setShowShoppingListModal] = useState(false);
