@@ -1892,7 +1892,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                   className="flex-1"
                 >
                   <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Marcar como completado
+                  {t("learnMarkComplete")}
                 </Button>
               )}
             </div>
