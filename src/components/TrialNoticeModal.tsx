@@ -47,16 +47,17 @@ const NOTICES: Record<NonNullable<NoticeVariant>, NoticeConfig> = {
   },
 };
 
-function getNoticeToShow(trialDaysRemaining: number, isTrialActive: boolean): NoticeVariant {
+function getNoticeToShow(trialDaysRemaining: number, isTrialActive: boolean, userId: string): NoticeVariant {
   if (!isTrialActive) return null;
+  const keys = getStorageKeys(userId);
 
-  if (trialDaysRemaining >= 13 && !localStorage.getItem(STORAGE_KEYS.notice15)) {
+  if (trialDaysRemaining >= 13 && !localStorage.getItem(keys.notice15)) {
     return "15";
   }
-  if (trialDaysRemaining <= 10 && trialDaysRemaining > 5 && !localStorage.getItem(STORAGE_KEYS.notice10)) {
+  if (trialDaysRemaining <= 10 && trialDaysRemaining > 5 && !localStorage.getItem(keys.notice10)) {
     return "10";
   }
-  if (trialDaysRemaining <= 5 && trialDaysRemaining > 0 && !localStorage.getItem(STORAGE_KEYS.notice5)) {
+  if (trialDaysRemaining <= 5 && trialDaysRemaining > 0 && !localStorage.getItem(keys.notice5)) {
     return "5";
   }
   return null;
@@ -72,9 +73,8 @@ export function TrialNoticeModal() {
   useEffect(() => {
     if (isLoading || !user || !isTrialActive) return;
 
-    const toShow = getNoticeToShow(trialDaysRemaining, isTrialActive);
+    const toShow = getNoticeToShow(trialDaysRemaining, isTrialActive, user.id);
     if (toShow) {
-      // Small delay so the page finishes rendering first
       const timer = setTimeout(() => {
         setVariant(toShow);
         setOpen(true);
@@ -84,11 +84,12 @@ export function TrialNoticeModal() {
   }, [isLoading, user, isTrialActive, trialDaysRemaining]);
 
   const handleClose = () => {
-    if (variant) {
+    if (variant && user) {
+      const keys = getStorageKeys(user.id);
       const keyMap: Record<NonNullable<NoticeVariant>, string> = {
-        "15": STORAGE_KEYS.notice15,
-        "10": STORAGE_KEYS.notice10,
-        "5": STORAGE_KEYS.notice5,
+        "15": keys.notice15,
+        "10": keys.notice10,
+        "5": keys.notice5,
       };
       localStorage.setItem(keyMap[variant], "true");
     }
