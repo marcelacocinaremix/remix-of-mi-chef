@@ -314,7 +314,9 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
                 <span className="text-lg font-black text-foreground">{currentIngredient.name}</span>
               </motion.div>
               <div className="flex items-center justify-center gap-2 mt-3">
-                <span className="text-xs text-muted-foreground">Pregunta {(ingredientQIndex % ingredientQuestions.length) + 1}</span>
+                <span className="text-xs text-muted-foreground">
+                  {t("gameQuestion")} {(ingredientQIndex % ingredientQuestions.length) + 1}
+                </span>
                 {streak > 0 && <Badge className="text-[10px] bg-orange-500/10 text-orange-600 border-orange-500/20">🔥 ×{streak}</Badge>}
               </div>
             </div>
