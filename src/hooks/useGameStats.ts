@@ -8,7 +8,17 @@ export interface GameStats {
   bestStreak: number;
   totalRecipesCompleted: number;
   totalTimePlayed: number;
+  totalXP: number;
   lastPlayedAt: string | null;
+}
+
+export interface LeaderboardEntry {
+  userId: string;
+  displayName: string;
+  avatarUrl: string | null;
+  totalXP: number;
+  totalGamesPlayed: number;
+  rank: number;
 }
 
 export interface GameSession {
