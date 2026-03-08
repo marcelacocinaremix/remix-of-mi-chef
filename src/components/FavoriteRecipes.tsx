@@ -1005,7 +1005,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                   </SheetHeader>
                   <div className="space-y-2 mb-5">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
-                      <MoveRight className="w-3.5 h-3.5" /> Mover a carpeta
+                      <MoveRight className="w-3.5 h-3.5" /> {t("favMoveToFolder")}
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                       {folders.map(f => {
