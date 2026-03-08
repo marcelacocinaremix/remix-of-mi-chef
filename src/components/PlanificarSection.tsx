@@ -97,7 +97,7 @@ export const PlanificarSection = ({
                   onSubTabChange?.(tab.id);
                 }}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 py-2.5 px-2 rounded-xl font-medium text-xs transition-all duration-300",
+                  "future-nav-btn flex flex-col items-center justify-center gap-1 py-2.5 px-2 rounded-xl font-medium text-xs transition-all duration-300",
                   activeSubTab === tab.id
                     ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]"
                     : "bg-background/60 hover:bg-background text-foreground"
