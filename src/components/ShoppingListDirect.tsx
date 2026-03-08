@@ -404,7 +404,7 @@ export function ShoppingListDirect() {
   const copyToClipboard = () => {
     const text = sortedCategories
       .map((category) => {
-        const config = CATEGORY_CONFIG[category] || { emoji: "📦", label: category };
+        const config = getCategoryConfig(category, t);
         const categoryItems = groupedPendingItems[category];
         if (!categoryItems || categoryItems.length === 0) return null;
         return `${config.emoji} ${config.label}:\n${categoryItems.map((i) => 
@@ -415,18 +415,12 @@ export function ShoppingListDirect() {
       .join("\n\n");
 
     if (!text) {
-      toast({
-        title: "Lista vacía",
-        description: "No hay ingredientes pendientes para copiar.",
-      });
+      toast({ title: t("superEmptyList"), description: t("superEmptyListDesc") });
       return;
     }
 
     navigator.clipboard.writeText(text);
-    toast({
-      title: "📋 ¡Copiado!",
-      description: "Lista copiada al portapapeles.",
-    });
+    toast({ title: t("superCopied"), description: t("superCopiedDesc") });
   };
 
   const formatQuantity = (item: ShoppingListItem) => {
