@@ -276,7 +276,7 @@ export function StreakLeaderboard() {
         })}
       </div>
 
-      <MyStreakFooter />
+      {renderMyStreakFooter()}
     </div>
   );
 }
