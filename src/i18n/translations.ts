@@ -2419,6 +2419,78 @@ export const translations = {
     authWelcomeBack: "Bem-vindo/a de volta!",
     authEmailSent: "Email enviado!",
     authCheckInbox: "Verifique sua caixa de entrada para redefinir sua senha.",
+
+    // CookingSection help banner
+    cookingHowItWorks: "Como funciona?",
+    cookingViewHowItWorks: "Ver como funciona",
+    cookingStep1Title: "Gere uma receita",
+    cookingStep1Desc: "Complete os passos abaixo e toque em \"Me dê receitas\" para a IA criar sua receita personalizada.",
+    cookingStep2Title: "Salve nos favoritos",
+    cookingStep2Desc: "Toque no coração da receita gerada para salvá-la em \"Minha Cozinha\" e organizá-la.",
+    cookingStep3Title: "Use o Modo Cozinha",
+    cookingStep3Desc: "Abra a receita e toque em \"Modo Cozinha\" para seguir o passo a passo enquanto cozinha.",
+    cookingStep4Title: "Toque \"Já cozinhei\"",
+    cookingStep4Desc: "Uma vez pronta, toque no botão para registrar o preparo e desbloquear conquistas.",
+    cookingClearFilters: "Limpar filtros",
+
+    // Flavor selection
+    flavorTitle: "Salgado ou doce?",
+    flavorSubtitle: "Selecione o perfil de sabor (opcional)",
+    flavorSavory: "Salgado",
+    flavorSavoryDesc: "Pratos principais, entradas…",
+    flavorSweet: "Doce / Sobremesa",
+    flavorSweetDesc: "Sobremesas, pudins, bolos…",
+    flavorRequired: "Salgado ou doce?",
+    flavorRequiredDesc: "Selecione se quer uma receita salgada ou doce antes de continuar.",
+    ingredientsRequired: "Adicione ingredientes",
+    ingredientsRequiredDesc: "Digite pelo menos um ingrediente para gerar sua receita.",
+
+    // RecipeDetail hardcoded strings
+    recipeRemovedFromFav: "Receita removida",
+    recipeRemovedFromFavDesc: "foi removida dos seus favoritos.",
+    recipeAlreadySaved: "Já está salva",
+    recipeAlreadySavedDesc: "Esta receita já está nos seus favoritos.",
+    loginRequired: "Fazer login",
+    loginRequiredSave: "Você precisa de uma conta para salvar receitas.",
+    loginRequiredCooked: "Você precisa de uma conta para registrar receitas preparadas.",
+    recipeAlreadyLogged: "Já registrada 🎉",
+    recipeAlreadyLoggedMode: "Já registrada 🏆",
+    recipeFooterMsg: "\"Espero que você aproveite esta receita. No MARCELACOCINA tem muito mais ideias fáceis para o dia a dia.\"",
+
+    // CookingGame
+    playAgain: "Jogar de Novo",
+    gameBackToMenu: "Voltar ao Menu",
+
+    // ShoppingListDirect help
+    shoppingHowItWorks: "Como funciona a Lista de Compras?",
+    shoppingStep1Title: "Adicione produtos",
+    shoppingStep1Desc: "Escreva os produtos que precisa comprar e eles são organizados automaticamente por categoria.",
+    shoppingStep2Title: "Risque ao comprar",
+    shoppingStep2Desc: "Toque em cada item para marcá-lo como comprado e acompanhe em tempo real.",
+    shoppingStep3Title: "Das receitas",
+    shoppingStep3Desc: "Quando gerar uma receita, você pode adicionar todos os ingredientes à lista com um toque.",
+    shoppingStep4Title: "Limpar lista",
+    shoppingStep4Desc: "Após terminar as compras, limpe os itens comprados ou toda a lista de uma vez.",
+    shoppingEmptyToCopy: "Lista vazia",
+    shoppingEmptyToCopyDesc: "Não há ingredientes pendentes para copiar.",
+    copyingLabel: "Copiando...",
+    copiedLabel: "Copiados ✓",
+    copyIngredientsLabel: "Copiar ingredientes",
+
+    // PlanificarSection banner
+    planBannerCalendarTitle: "Calendário",
+    planBannerCalendarDesc: "Planeje suas refeições da semana",
+    planBannerPantryTitle: "Sua Despensa",
+    planBannerPantryDesc: "Gerencie seus ingredientes",
+    planBannerShoppingTitle: "Lista de Compras",
+    planBannerShoppingDesc: "Organize suas compras",
+
+    // WeeklyCalendar toasts
+    weekBuiltToast: "Semana planejada!",
+    weekBuiltToastDesc: "Seu plano semanal está pronto com receitas que aproveitam ingredientes",
+    listUpdated: "Lista atualizada!",
+    listUpdatedDesc: "{count} ingredientes adicionados à sua lista de compras",
+    ingredientSuggestionsMsg: "Esses ingredientes se repetem no seu plano. Compre mais para aproveitá-los!",
   }
 } as const;
 
