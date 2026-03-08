@@ -300,8 +300,20 @@ export function FoodStorageGuide() {
 
     setIsSaving(true);
     try {
-      if (isSaved) {
-        // Remove from favorites
+      if (isSaved && savedFavId) {
+        // Remove from favorites using the stored id
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (supabase.from("favorite_food_tips") as any)
+          .delete()
+          .eq("id", savedFavId);
+
+        if (error) throw error;
+        
+        setIsSaved(false);
+        setSavedFavId(null);
+        toast({ title: "Eliminado", description: "Tip eliminado de tus favoritos" });
+      } else if (isSaved) {
+        // Fallback: delete by food_name + category if no id stored
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error } = await (supabase.from("favorite_food_tips") as any)
           .delete()
@@ -310,38 +322,30 @@ export function FoodStorageGuide() {
           .eq("category", foodInfo.category);
 
         if (error) throw error;
-        
         setIsSaved(false);
-        toast({
-          title: "Eliminado",
-          description: "Tip eliminado de tus favoritos",
-        });
+        setSavedFavId(null);
+        toast({ title: "Eliminado", description: "Tip eliminado de tus favoritos" });
       } else {
         // Add to favorites
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { error } = await (supabase.from("favorite_food_tips") as any).insert([{
+        const { data: inserted, error } = await (supabase.from("favorite_food_tips") as any).insert([{
           user_id: user.id,
           food_name: foodInfo.name,
           category: foodInfo.category,
           tip_data: foodInfo,
-        }]);
+        }]).select("id").maybeSingle();
 
         if (error) {
           if (error.code === "23505") {
             setIsSaved(true);
-            toast({
-              title: "Ya guardado",
-              description: "Este tip ya está en tus favoritos",
-            });
+            toast({ title: "Ya guardado", description: "Este tip ya está en tus favoritos" });
           } else {
             throw error;
           }
         } else {
           setIsSaved(true);
-          toast({
-            title: "¡Guardado!",
-            description: "Tip agregado a tus favoritos",
-          });
+          setSavedFavId(inserted?.id ?? null);
+          toast({ title: "¡Guardado!", description: "Tip agregado a tus favoritos" });
         }
       }
     } catch (err) {
