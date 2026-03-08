@@ -2208,7 +2208,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
       {!isPremium && isTrialActive && (
         <div className="text-center py-2">
           <span className="text-xs text-muted-foreground">
-            🎁 Prueba gratuita: {trialDaysRemaining} días restantes
+            {t("learnTrialActive")} {trialDaysRemaining} {t("learnTrialDays")}
           </span>
         </div>
       )}
