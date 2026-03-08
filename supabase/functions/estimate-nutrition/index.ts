@@ -58,8 +58,6 @@ serve(async (req) => {
     const portionNorm = portion ? portion.trim() : '';
 
     // 1. Check cached_nutrition table first
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { data: cached } = await supabase
