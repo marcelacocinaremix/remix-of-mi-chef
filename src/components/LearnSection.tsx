@@ -1877,7 +1877,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                     <ChefHat className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-medium text-sm text-primary">Marcela dice:</p>
+                    <p className="font-medium text-sm text-primary">{t("learnMarcelaSays")}</p>
                     <p className="text-sm mt-1">{activeLesson.marcelaMessage}</p>
                   </div>
                 </div>
