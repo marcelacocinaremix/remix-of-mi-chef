@@ -213,7 +213,7 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
                     </div>
                   </div>
                   <span className="text-[10px] text-muted-foreground flex-shrink-0">
-                    {formatDistanceToNow(new Date(session.playedAt), { addSuffix: true, locale: es })}
+                    {formatDistanceToNow(new Date(session.playedAt), { addSuffix: true, locale: dateLocale })}
                   </span>
                 </motion.div>
               );
