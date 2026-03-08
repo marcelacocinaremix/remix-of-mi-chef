@@ -13,7 +13,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Recipe } from "@/components/RecipeList";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -101,9 +100,7 @@ function getFolders(): string[] {
   try { const s = localStorage.getItem(FOLDERS_KEY); if (s) return JSON.parse(s); } catch {}
   return DEFAULT_FOLDERS;
 }
-function saveFolders(folders: string[]) {
-  localStorage.setItem(FOLDERS_KEY, JSON.stringify(folders));
-}
+function saveFolders(f: string[]) { localStorage.setItem(FOLDERS_KEY, JSON.stringify(f)); }
 function getFolderAssignments(): Record<string, string> {
   try { const s = localStorage.getItem(RECIPE_FOLDERS_KEY); if (s) return JSON.parse(s); } catch {}
   return {};
@@ -129,175 +126,6 @@ function StepHeader({ number, title, subtitle }: { number: number; title: string
   );
 }
 
-// ─── Draggable Recipe Card ─────────────────────────────────────────────
-interface DraggableRecipeCardProps {
-  fav: FavoriteRecipe;
-  onSelect: () => void;
-  onOpenSheet: () => void;
-  onDragStart: (id: string) => void;
-  isDragging: boolean;
-}
-
-function DraggableRecipeCard({ fav, onSelect, onOpenSheet, onDragStart, isDragging }: DraggableRecipeCardProps) {
-  const emoji = getRecipeEmoji(fav.recipe_data);
-  const gradient = getRecipeColor(fav.recipe_name);
-  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [isLongPressing, setIsLongPressing] = useState(false);
-  const dragStarted = useRef(false);
-
-  const startLongPress = () => {
-    dragStarted.current = false;
-    longPressTimer.current = setTimeout(() => {
-      setIsLongPressing(true);
-      onDragStart(fav.id);
-      // vibrate on mobile
-      if (navigator.vibrate) navigator.vibrate(40);
-    }, 500);
-  };
-
-  const cancelLongPress = () => {
-    if (longPressTimer.current) clearTimeout(longPressTimer.current);
-    setIsLongPressing(false);
-  };
-
-  return (
-    <div
-      draggable
-      onDragStart={e => {
-        dragStarted.current = true;
-        e.dataTransfer.effectAllowed = "move";
-        e.dataTransfer.setData("text/plain", fav.id);
-        onDragStart(fav.id);
-      }}
-      onDragEnd={() => {
-        dragStarted.current = false;
-        setIsLongPressing(false);
-      }}
-      onMouseDown={startLongPress}
-      onMouseUp={cancelLongPress}
-      onMouseLeave={cancelLongPress}
-      onTouchStart={startLongPress}
-      onTouchEnd={cancelLongPress}
-      onTouchCancel={cancelLongPress}
-      className={cn(
-        "rounded-xl overflow-hidden border bg-card transition-all duration-200 select-none",
-        isDragging
-          ? "border-primary shadow-lg scale-95 opacity-60 rotate-1"
-          : "border-border/50 hover:shadow-md",
-        isLongPressing && !isDragging && "scale-[0.97] border-primary/60 shadow-md"
-      )}
-    >
-      {/* Drag handle hint */}
-      <div className="relative">
-        <div
-          onClick={!isDragging ? onSelect : undefined}
-          className={cn("h-28 flex items-center justify-center bg-gradient-to-br cursor-grab active:cursor-grabbing", gradient)}
-        >
-          <span className="text-4xl drop-shadow-sm">{emoji}</span>
-          {/* Long press progress ring hint */}
-          {isLongPressing && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-t-xl">
-              <div className="w-10 h-10 rounded-full border-4 border-white/80 border-t-transparent animate-spin" />
-            </div>
-          )}
-        </div>
-        <div className="absolute top-1.5 right-1.5 bg-black/30 rounded-md p-0.5 opacity-60">
-          <GripVertical className="w-3 h-3 text-white" />
-        </div>
-      </div>
-
-      <div className="p-2.5 flex items-start justify-between gap-1">
-        <div onClick={onSelect} className="flex-1 min-w-0 cursor-pointer">
-          <p className="font-semibold text-xs text-foreground leading-tight line-clamp-2 mb-1.5">{fav.recipe_name}</p>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <span className="flex items-center gap-0.5 text-[10px]">
-              <Clock className="w-3 h-3" />{fav.recipe_data.time}m
-            </span>
-            <span className="flex items-center gap-0.5 text-[10px]">
-              <Flame className="w-3 h-3 text-orange-400" />{fav.recipe_data.nutrition?.calories || "?"}
-            </span>
-          </div>
-        </div>
-        <button
-          onClick={e => { e.stopPropagation(); onOpenSheet(); }}
-          className="w-7 h-7 rounded-lg bg-muted/60 hover:bg-muted flex items-center justify-center shrink-0 transition-colors"
-        >
-          <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ─── Droppable Folder Button ──────────────────────────────────────────
-interface DroppableFolderProps {
-  folder: string;
-  isActive: boolean;
-  count: number;
-  isDraggingOver: boolean;
-  isDeletable: boolean;
-  onClick: () => void;
-  onDelete: () => void;
-  onDrop: (folder: string) => void;
-  onDragOver: (folder: string | null) => void;
-}
-
-function DroppableFolder({
-  folder, isActive, count, isDraggingOver, isDeletable,
-  onClick, onDelete, onDrop, onDragOver,
-}: DroppableFolderProps) {
-  return (
-    <div
-      className="flex items-center"
-      onDragOver={e => { e.preventDefault(); onDragOver(folder); }}
-      onDragLeave={() => onDragOver(null)}
-      onDrop={e => { e.preventDefault(); onDrop(folder); onDragOver(null); }}
-    >
-      <button
-        onClick={onClick}
-        className={cn(
-          "flex items-center gap-2 py-3 text-sm font-medium transition-all border-2",
-          isDeletable ? "pl-4 pr-3 rounded-l-2xl border-r-0" : "px-4 rounded-2xl",
-          isActive && !isDraggingOver
-            ? "bg-primary text-primary-foreground border-primary shadow-md"
-            : isDraggingOver
-              ? "bg-primary/20 border-primary text-primary scale-105 shadow-lg"
-              : "bg-muted/50 text-muted-foreground border-border/50 hover:bg-muted hover:text-foreground"
-        )}
-      >
-        {isDraggingOver
-          ? <FolderOpen className="w-4 h-4 animate-bounce" />
-          : isActive
-            ? <FolderOpen className="w-4 h-4" />
-            : <Folder className="w-4 h-4" />
-        }
-        <span>{folder}</span>
-        <span className={cn(
-          "text-xs px-1.5 py-0.5 rounded-full font-bold min-w-[20px] text-center",
-          isActive && !isDraggingOver ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground"
-        )}>
-          {count}
-        </span>
-      </button>
-      {isDeletable && (
-        <button
-          onClick={onDelete}
-          className={cn(
-            "flex items-center justify-center w-7 h-[46px] rounded-r-2xl border-2 border-l-0 transition-all",
-            isActive
-              ? "bg-primary border-primary text-primary-foreground/70 hover:text-primary-foreground"
-              : isDraggingOver
-                ? "bg-primary/20 border-primary text-primary"
-                : "bg-muted/50 border-border/50 text-muted-foreground hover:bg-destructive/15 hover:text-destructive"
-          )}
-        >
-          <X className="w-3.5 h-3.5" />
-        </button>
-      )}
-    </div>
-  );
-}
-
 // ─── Main component ────────────────────────────────────────────────────
 export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const { user } = useAuth();
@@ -307,7 +135,6 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<ActiveTab>("recetas");
   const [selectedTip, setSelectedTip] = useState<FavoriteFoodTip | null>(null);
-
   const [searchQuery, setSearchQuery] = useState("");
 
   // Carpetas
@@ -319,11 +146,14 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const [movingRecipeId, setMovingRecipeId] = useState<string | null>(null);
   const [deletingFolder, setDeletingFolder] = useState<string | null>(null);
 
-  // Drag & drop state
+  // Drag state (pointer-events based)
   const [draggingRecipeId, setDraggingRecipeId] = useState<string | null>(null);
   const [dragOverFolder, setDragOverFolder] = useState<string | null>(null);
-
-  const handleDeleteFolder = (folder: string) => setDeletingFolder(folder);
+  const [ghostPos, setGhostPos] = useState<{ x: number; y: number } | null>(null);
+  const folderRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const dragRecipeRef = useRef<string | null>(null);
+  const longPressTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     if (user) { fetchFavorites(); fetchFavoriteTips(); }
@@ -403,25 +233,84 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     toast({ title: "Carpeta creada", description: `"${name}" lista para organizar tus recetas.` });
   };
 
-  const handleMoveRecipe = (recipeId: string, folder: string) => {
+  const handleMoveRecipe = useCallback((recipeId: string, folder: string) => {
     saveFolderAssignment(recipeId, folder);
     setFolderAssignments(prev => ({ ...prev, [recipeId]: folder }));
     setMovingRecipeId(null);
-    toast({ title: "Receta movida", description: `Movida a "${folder}".` });
-  };
+    toast({ title: "✅ Receta movida", description: `Movida a "${folder}".` });
+  }, [toast]);
 
-  // Drop onto folder
-  const handleDropOnFolder = (folder: string) => {
-    if (!draggingRecipeId) return;
-    const currentFolder = folderAssignments[draggingRecipeId] || "Sin carpeta";
-    if (currentFolder === folder) {
-      setDraggingRecipeId(null);
-      return;
+  // ─── Pointer-based drag & drop ─────────────────────────────────────
+  const getFolderAtPoint = useCallback((x: number, y: number): string | null => {
+    for (const [folder, el] of Object.entries(folderRefs.current)) {
+      if (!el) continue;
+      const rect = el.getBoundingClientRect();
+      if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+        return folder;
+      }
     }
-    handleMoveRecipe(draggingRecipeId, folder);
+    return null;
+  }, []);
+
+  const endDrag = useCallback((x: number, y: number) => {
+    const recipeId = dragRecipeRef.current;
+    if (recipeId) {
+      const targetFolder = getFolderAtPoint(x, y);
+      if (targetFolder) {
+        const currentFolder = getFolderAssignments()[recipeId] || "Sin carpeta";
+        if (currentFolder !== targetFolder) {
+          handleMoveRecipe(recipeId, targetFolder);
+        }
+      }
+    }
+    dragRecipeRef.current = null;
     setDraggingRecipeId(null);
     setDragOverFolder(null);
-  };
+    setGhostPos(null);
+  }, [getFolderAtPoint, handleMoveRecipe]);
+
+  const onPointerDown = useCallback((recipeId: string, e: React.PointerEvent) => {
+    // Only main button / single touch
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    pointerDownPos.current = { x: e.clientX, y: e.clientY };
+
+    longPressTimers.current[recipeId] = setTimeout(() => {
+      if (navigator.vibrate) navigator.vibrate(40);
+      dragRecipeRef.current = recipeId;
+      setDraggingRecipeId(recipeId);
+      setGhostPos({ x: e.clientX, y: e.clientY });
+    }, 450);
+  }, []);
+
+  const onPointerMove = useCallback((e: React.PointerEvent) => {
+    if (!dragRecipeRef.current) return;
+    e.preventDefault();
+    setGhostPos({ x: e.clientX, y: e.clientY });
+    const folder = getFolderAtPoint(e.clientX, e.clientY);
+    setDragOverFolder(folder);
+  }, [getFolderAtPoint]);
+
+  const onPointerUp = useCallback((recipeId: string, e: React.PointerEvent) => {
+    // Cancel long press
+    if (longPressTimers.current[recipeId]) {
+      clearTimeout(longPressTimers.current[recipeId]);
+      delete longPressTimers.current[recipeId];
+    }
+    if (dragRecipeRef.current) {
+      endDrag(e.clientX, e.clientY);
+    }
+  }, [endDrag]);
+
+  const onPointerCancel = useCallback((recipeId: string) => {
+    if (longPressTimers.current[recipeId]) {
+      clearTimeout(longPressTimers.current[recipeId]);
+      delete longPressTimers.current[recipeId];
+    }
+    dragRecipeRef.current = null;
+    setDraggingRecipeId(null);
+    setDragOverFolder(null);
+    setGhostPos(null);
+  }, []);
 
   // ─── Auth / loading guards ───────────────────────────────────────────
   if (!user) return (
@@ -438,9 +327,31 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     </div>
   );
 
-  // ─── Render ────────────────────────────────────────────────────────────
+  const draggingRecipe = draggingRecipeId ? favorites.find(f => f.id === draggingRecipeId) : null;
+
   return (
-    <div className="space-y-4">
+    <div
+      className="space-y-4"
+      onPointerMove={draggingRecipeId ? onPointerMove : undefined}
+    >
+      {/* ── Ghost element that follows finger/cursor while dragging ── */}
+      {ghostPos && draggingRecipe && (
+        <div
+          className="fixed pointer-events-none z-[9999] select-none"
+          style={{
+            left: ghostPos.x - 50,
+            top: ghostPos.y - 55,
+            transform: "rotate(5deg) scale(1.08)",
+          }}
+        >
+          <div className={cn("w-24 h-20 rounded-xl bg-gradient-to-br shadow-2xl flex items-center justify-center border-2 border-primary", getRecipeColor(draggingRecipe.recipe_name))}>
+            <span className="text-3xl">{getRecipeEmoji(draggingRecipe.recipe_data)}</span>
+          </div>
+          <p className="text-center text-xs font-bold text-foreground bg-background/90 rounded-lg px-2 py-0.5 mt-1 max-w-[96px] truncate shadow">
+            {draggingRecipe.recipe_name}
+          </p>
+        </div>
+      )}
 
       {/* Tab Selector */}
       <div className="flex rounded-2xl overflow-hidden border border-border/50 bg-muted/30">
@@ -492,7 +403,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
             </CardContent>
           </Card>
 
-          {/* PASO 2 — Carpeta */}
+          {/* PASO 2 — Carpeta (drop targets) */}
           <Card className={cn(
             "border-2 transition-all duration-200",
             dragOverFolder
@@ -505,7 +416,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                   number={2}
                   title="Elegir carpeta"
                   subtitle={draggingRecipeId
-                    ? "🎯 Soltá la receta en una carpeta"
+                    ? "🎯 Soltá la receta sobre una carpeta"
                     : "Organizá tus recetas en colecciones"
                   }
                 />
@@ -534,27 +445,65 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
               )}
 
               <div className="flex flex-wrap gap-2.5">
-                {folders.map(folder => (
-                  <DroppableFolder
-                    key={folder}
-                    folder={folder}
-                    isActive={activeFolder === folder}
-                    count={folderCounts[folder] || 0}
-                    isDraggingOver={dragOverFolder === folder}
-                    isDeletable={folder !== "Sin carpeta"}
-                    onClick={() => setActiveFolder(folder)}
-                    onDelete={() => handleDeleteFolder(folder)}
-                    onDrop={handleDropOnFolder}
-                    onDragOver={setDragOverFolder}
-                  />
-                ))}
+                {folders.map(folder => {
+                  const isActive = activeFolder === folder;
+                  const isOver = dragOverFolder === folder;
+                  const count = folderCounts[folder] || 0;
+                  const isDeletable = folder !== "Sin carpeta";
+                  return (
+                    <div
+                      key={folder}
+                      ref={el => { folderRefs.current[folder] = el; }}
+                      className="flex items-center"
+                    >
+                      <button
+                        onClick={() => !draggingRecipeId && setActiveFolder(folder)}
+                        className={cn(
+                          "flex items-center gap-2 py-3 text-sm font-medium transition-all border-2",
+                          isDeletable ? "pl-4 pr-3 rounded-l-2xl border-r-0" : "px-4 rounded-2xl",
+                          isOver
+                            ? "bg-primary/20 border-primary text-primary scale-105 shadow-lg"
+                            : isActive
+                              ? "bg-primary text-primary-foreground border-primary shadow-md"
+                              : "bg-muted/50 text-muted-foreground border-border/50 hover:bg-muted hover:text-foreground"
+                        )}
+                      >
+                        {isOver
+                          ? <FolderOpen className="w-4 h-4 animate-bounce" />
+                          : isActive ? <FolderOpen className="w-4 h-4" /> : <Folder className="w-4 h-4" />
+                        }
+                        <span>{folder}</span>
+                        <span className={cn(
+                          "text-xs px-1.5 py-0.5 rounded-full font-bold min-w-[20px] text-center",
+                          isActive && !isOver ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground"
+                        )}>
+                          {count}
+                        </span>
+                      </button>
+                      {isDeletable && (
+                        <button
+                          onClick={() => setDeletingFolder(folder)}
+                          className={cn(
+                            "flex items-center justify-center w-7 h-[46px] rounded-r-2xl border-2 border-l-0 transition-all",
+                            isOver
+                              ? "bg-primary/20 border-primary text-primary"
+                              : isActive
+                                ? "bg-primary border-primary text-primary-foreground/70 hover:text-primary-foreground"
+                                : "bg-muted/50 border-border/50 text-muted-foreground hover:bg-destructive/15 hover:text-destructive"
+                          )}
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
-              {/* Drag hint */}
               {!draggingRecipeId && favorites.length > 0 && (
                 <p className="text-xs text-muted-foreground/60 flex items-center gap-1 mt-1">
                   <GripVertical className="w-3 h-3" />
-                  Mantené apretada una receta y arrastrala hasta una carpeta
+                  Mantené presionada una receta y arrastrala hasta una carpeta
                 </p>
               )}
             </CardContent>
@@ -591,16 +540,69 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-3">
-                  {filteredRecipes.map(fav => (
-                    <DraggableRecipeCard
-                      key={fav.id}
-                      fav={fav}
-                      onSelect={() => onSelectRecipe(fav.recipe_data)}
-                      onOpenSheet={() => setMovingRecipeId(fav.id)}
-                      onDragStart={id => setDraggingRecipeId(id)}
-                      isDragging={draggingRecipeId === fav.id}
-                    />
-                  ))}
+                  {filteredRecipes.map(fav => {
+                    const emoji = getRecipeEmoji(fav.recipe_data);
+                    const gradient = getRecipeColor(fav.recipe_name);
+                    const isDragging = draggingRecipeId === fav.id;
+                    return (
+                      <div
+                        key={fav.id}
+                        onPointerDown={e => onPointerDown(fav.id, e)}
+                        onPointerUp={e => onPointerUp(fav.id, e)}
+                        onPointerCancel={() => onPointerCancel(fav.id)}
+                        style={{ touchAction: "none" }}
+                        className={cn(
+                          "rounded-xl overflow-hidden border bg-card transition-all duration-200 select-none",
+                          isDragging
+                            ? "border-primary shadow-lg opacity-40 scale-95"
+                            : "border-border/50 hover:shadow-md active:scale-[0.97]"
+                        )}
+                      >
+                        {/* Card image area */}
+                        <div className="relative">
+                          <div
+                            onClick={!isDragging ? () => onSelectRecipe(fav.recipe_data) : undefined}
+                            className={cn(
+                              "h-28 flex items-center justify-center bg-gradient-to-br cursor-pointer",
+                              gradient
+                            )}
+                          >
+                            <span className="text-4xl drop-shadow-sm">{emoji}</span>
+                          </div>
+                          {/* Grip hint */}
+                          <div className="absolute top-1.5 right-1.5 bg-black/30 rounded-md p-0.5 opacity-50">
+                            <GripVertical className="w-3 h-3 text-white" />
+                          </div>
+                        </div>
+                        <div className="p-2.5 flex items-start justify-between gap-1">
+                          <div
+                            onClick={!isDragging ? () => onSelectRecipe(fav.recipe_data) : undefined}
+                            className="flex-1 min-w-0 cursor-pointer"
+                          >
+                            <p className="font-semibold text-xs text-foreground leading-tight line-clamp-2 mb-1.5">
+                              {fav.recipe_name}
+                            </p>
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <span className="flex items-center gap-0.5 text-[10px]">
+                                <Clock className="w-3 h-3" />{fav.recipe_data.time}m
+                              </span>
+                              <span className="flex items-center gap-0.5 text-[10px]">
+                                <Flame className="w-3 h-3 text-orange-400" />
+                                {fav.recipe_data.nutrition?.calories || "?"}
+                              </span>
+                            </div>
+                          </div>
+                          <button
+                            onPointerDown={e => e.stopPropagation()}
+                            onClick={e => { e.stopPropagation(); setMovingRecipeId(fav.id); }}
+                            className="w-7 h-7 rounded-lg bg-muted/60 hover:bg-muted flex items-center justify-center shrink-0 transition-colors"
+                          >
+                            <MoreVertical className="w-3.5 h-3.5 text-muted-foreground" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
@@ -672,7 +674,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
 
       {/* ── Confirm delete folder ── */}
       <Dialog open={!!deletingFolder} onOpenChange={open => !open && setDeletingFolder(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-sm" aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Trash2 className="w-5 h-5 text-destructive" /> Eliminar carpeta
@@ -727,7 +729,6 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                       Carpeta actual: <strong>{folderAssignments[sheetRecipe.id] || "Sin carpeta"}</strong>
                     </p>
                   </SheetHeader>
-
                   <div className="space-y-2 mb-5">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
                       <MoveRight className="w-3.5 h-3.5" /> Mover a carpeta
@@ -753,7 +754,6 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                       })}
                     </div>
                   </div>
-
                   <button
                     onClick={e => { handleDeleteRecipe(sheetRecipe.id, e); setMovingRecipeId(null); }}
                     className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 active:scale-95 transition-all border border-destructive/20"
@@ -769,7 +769,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
 
       {/* ── Tip Detail Modal ── */}
       <Dialog open={!!selectedTip} onOpenChange={open => !open && setSelectedTip(null)}>
-        <DialogContent className="max-w-md max-h-[80vh]">
+        <DialogContent className="max-w-md max-h-[80vh]" aria-describedby={undefined}>
           {selectedTip && (() => {
             const Icon = categoryIcons[selectedTip.category] || Lightbulb;
             const colorClass = categoryColors[selectedTip.category] || "text-primary bg-primary";
