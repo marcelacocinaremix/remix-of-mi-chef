@@ -2416,6 +2416,9 @@ export const translations = {
     gameRecipeNumber: "Recipe",
     gameQuestion: "Question",
     gameIngredientQuestion: "Which recipe uses this ingredient?",
+    gameModeRecipeDesc: "Choose the correct ingredients for each recipe",
+    gameModeOrderDesc: "Order the preparation steps correctly",
+    gameModeIngredientsDesc: "Identify key ingredients for each dish",
 
     // ShoppingListDirect help
     shoppingHowItWorks: "How does the Grocery list work?",
