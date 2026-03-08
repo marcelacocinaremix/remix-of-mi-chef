@@ -258,8 +258,6 @@ export function FoodStorageGuide() {
       } else if (data) {
         setFoodInfo(data);
         saveToHistory(foodToUse, categoryToUse);
-        if (foodOverride) setFoodName(foodOverride);
-        if (categoryOverride) setSelectedCategory(categoryOverride);
         
         // Check if already saved in favorites
         if (user) {
