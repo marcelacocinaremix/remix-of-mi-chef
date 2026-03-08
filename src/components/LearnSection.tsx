@@ -1824,7 +1824,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
               <div className="space-y-3">
                 <h3 className="font-semibold flex items-center gap-2">
                   <ArrowRight className="h-4 w-4 text-primary" />
-                  Paso a paso
+                  {t("learnStepByStep")}
                 </h3>
                 <ol className="space-y-2 list-decimal list-inside">
                   {activeLesson.steps.map((step, index) => (
