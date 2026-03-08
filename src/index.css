@@ -214,6 +214,34 @@
     --charcoal: 195 12% 83%;
   }
 
+  /* ===== FUTURE — Neon icons ===== */
+  .future svg {
+    filter: drop-shadow(0 0 4px hsl(195 100% 60% / 0.8))
+            drop-shadow(0 0 10px hsl(195 100% 55% / 0.5));
+    transition: filter 0.3s ease;
+  }
+
+  .future svg:hover,
+  .future button:hover svg,
+  .future a:hover svg {
+    filter: drop-shadow(0 0 6px hsl(195 100% 70% / 1))
+            drop-shadow(0 0 16px hsl(195 100% 60% / 0.7))
+            drop-shadow(0 0 30px hsl(195 100% 50% / 0.4));
+  }
+
+  /* Active/selected nav icons get stronger glow */
+  .future [data-state="active"] svg,
+  .future .text-primary svg {
+    filter: drop-shadow(0 0 8px hsl(195 100% 65% / 1))
+            drop-shadow(0 0 20px hsl(195 100% 55% / 0.8))
+            drop-shadow(0 0 40px hsl(195 100% 45% / 0.5));
+  }
+
+  /* Muted/foreground icons get softer neon */
+  .future .text-muted-foreground svg {
+    filter: drop-shadow(0 0 3px hsl(195 80% 55% / 0.5))
+            drop-shadow(0 0 8px hsl(195 80% 50% / 0.25));
+  }
   /* ===== ROSE LIGHT ===== */
   .rose-light {
     --background: 340 60% 97%;
