@@ -163,12 +163,27 @@ export function useGameLeaderboard() {
   return { leaderboard, isLoading };
 }
 
-/** Fetches only the country for the current user's profile */
+/** Fetches the country for the current user — checks profile first, then auth metadata.
+ *  If found in auth metadata but not in profile, syncs it to the profile automatically. */
 export async function getUserCountry(userId: string): Promise<string | null> {
-  const { data } = await supabase
+  const { data: profile } = await supabase
     .from("profiles")
     .select("country")
     .eq("id", userId)
     .single();
-  return (data as any)?.country ?? null;
+
+  if ((profile as any)?.country) return (profile as any).country;
+
+  // Fallback: check auth user metadata (set during registration)
+  const { data: { user } } = await supabase.auth.getUser();
+  const metaCountry = user?.user_metadata?.country ?? null;
+
+  // If found in metadata, sync to profile so it persists
+  if (metaCountry) {
+    await supabase
+      .from("profiles")
+      .upsert({ id: userId, country: metaCountry, updated_at: new Date().toISOString() });
+  }
+
+  return metaCountry;
 }
