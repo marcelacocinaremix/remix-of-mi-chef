@@ -171,15 +171,25 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     setIsLoading(true);
     try {
       if (authMode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const finalName = displayName.trim() || email.split("@")[0];
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: { display_name: displayName || email.split("@")[0] },
+            data: { display_name: finalName },
             emailRedirectTo: `${window.location.origin}/`,
           },
         });
         if (error) throw error;
+        // Also save display_name directly to profiles (in case trigger is delayed)
+        if (signUpData.user) {
+          await supabase.from("profiles").upsert({
+            id: signUpData.user.id,
+            display_name: finalName,
+            language: selectedLanguage,
+            updated_at: new Date().toISOString(),
+          });
+        }
         toast({
           title: t("authAccountCreated"),
           description: t("authWelcome"),
