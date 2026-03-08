@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { FuturisticBackground } from "@/components/FuturisticBackground";
 import { FiltersState } from "@/components/AdvancedFilters";
