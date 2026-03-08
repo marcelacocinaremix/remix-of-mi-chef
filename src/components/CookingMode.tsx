@@ -39,7 +39,7 @@ const getRandomMessage = (messages: string[]) => {
   return messages[Math.floor(Math.random() * messages.length)];
 };
 
-export function CookingMode({ recipe, onClose, onMarkAsCooked }: CookingModeProps) {
+export function CookingMode({ recipe, onClose, onMarkAsCooked, alreadyCooked = false }: CookingModeProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const { play } = useSound();
