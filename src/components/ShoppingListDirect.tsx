@@ -597,7 +597,7 @@ export function ShoppingListDirect() {
             <CardContent className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
-                  ¿Qué necesitás comprar?
+                  {t("superWhatToBuy")}
                 </label>
                 <Input
                   placeholder="Ej: Tomates, Leche, Arroz..."
