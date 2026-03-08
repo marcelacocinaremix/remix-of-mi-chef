@@ -686,7 +686,7 @@ export function ShoppingListDirect() {
                 className="w-full h-12 gap-2 bg-gradient-to-r from-primary to-primary/80 shadow-lg"
               >
                 <Plus className="w-5 h-5" />
-                Agregar a la lista
+                {t("superAddToList")}
               </Button>
             </CardContent>
           </Card>
