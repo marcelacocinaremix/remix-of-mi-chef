@@ -791,8 +791,8 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
     const ingredientNames = items.map((item) => item.ingredient_name);
     onSelectIngredients(ingredientNames);
     toast({
-      title: "¡Listo!",
-      description: `Se agregaron ${ingredientNames.length} ingredientes para cocinar.`,
+      title: t("done"),
+      description: `${t("addedToList")} ${ingredientNames.length} ${t("ingredients")}.`,
     });
   };
 
