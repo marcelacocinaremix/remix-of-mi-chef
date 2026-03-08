@@ -195,25 +195,26 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
 
     const { day, meal } = showRecipeSelector;
     const weekStartStr = currentWeek.toISOString().split('T')[0];
+    const existingPlan = getMealForSlot(day, meal);
+    const tempId = existingPlan?.id || `temp-${Date.now()}`;
+
+    // Optimistic update
+    const newPlan: MealPlan = { id: tempId, dayOfWeek: day, mealType: meal, recipe };
+    setMealPlans(prev => existingPlan
+      ? prev.map(p => p.dayOfWeek === day && p.mealType === meal ? newPlan : p)
+      : [...prev, newPlan]
+    );
+    setShowRecipeSelector(null);
 
     try {
-      // Check if exists
-      const existingPlan = getMealForSlot(day, meal);
-
       if (existingPlan?.id) {
-        // Update
         const { error } = await supabase
           .from('meal_plans')
-          .update({
-            recipe_data: JSON.parse(JSON.stringify(recipe)),
-            recipe_name: recipe.name,
-          })
+          .update({ recipe_data: JSON.parse(JSON.stringify(recipe)), recipe_name: recipe.name })
           .eq('id', existingPlan.id);
-
         if (error) throw error;
       } else {
-        // Insert
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('meal_plans')
           .insert({
             user_id: user.id,
@@ -222,24 +223,17 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
             meal_type: meal,
             recipe_data: JSON.parse(JSON.stringify(recipe)),
             recipe_name: recipe.name,
-          });
-
+          }).select().single();
         if (error) throw error;
+        if (data) {
+          setMealPlans(prev => prev.map(p => p.id === tempId ? { ...p, id: data.id } : p));
+        }
       }
-
-      await fetchMealPlans();
-      setShowRecipeSelector(null);
-      toast({
-        title: "¡Receta agregada!",
-        description: `${recipe.name} agregada para el ${DAYS[day].name}`,
-      });
+      toast({ title: "¡Receta agregada!", description: `${recipe.name} agregada para el ${DAYS[day].name}` });
     } catch (error) {
       console.error('Error adding recipe:', error);
-      toast({
-        title: "Error",
-        description: "No se pudo agregar la receta",
-        variant: "destructive",
-      });
+      await fetchMealPlans();
+      toast({ title: "Error", description: "No se pudo agregar la receta", variant: "destructive" });
     }
   };
 
@@ -247,26 +241,17 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
     const plan = getMealForSlot(dayIndex, mealType);
     if (!plan?.id) return;
 
+    // Optimistic removal
+    setMealPlans(prev => prev.filter(p => !(p.dayOfWeek === dayIndex && p.mealType === mealType)));
+
     try {
-      const { error } = await supabase
-        .from('meal_plans')
-        .delete()
-        .eq('id', plan.id);
-
+      const { error } = await supabase.from('meal_plans').delete().eq('id', plan.id);
       if (error) throw error;
-
-      await fetchMealPlans();
-      toast({
-        title: "Receta eliminada",
-        description: "Se quitó la receta del calendario",
-      });
+      toast({ title: "Receta eliminada", description: "Se quitó la receta del calendario" });
     } catch (error) {
       console.error('Error removing recipe:', error);
-      toast({
-        title: "Error",
-        description: "No se pudo eliminar la receta",
-        variant: "destructive",
-      });
+      await fetchMealPlans();
+      toast({ title: "Error", description: "No se pudo eliminar la receta", variant: "destructive" });
     }
   };
 
