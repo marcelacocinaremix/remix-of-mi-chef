@@ -363,7 +363,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     setFolders(updated); saveFolders(updated);
     setNewFolderName(""); setShowNewFolderInput(false);
     setActiveFolder(name);
-    toast({ title: "📁 Carpeta creada", description: `"${name}" lista para organizar tus recetas.` });
+    toast({ title: t("favFolderCreated"), description: `"${name}" ${t("favFolderCreatedDesc")}` });
   };
 
   const handleMoveRecipe = useCallback((recipeId: string, folder: string) => {
