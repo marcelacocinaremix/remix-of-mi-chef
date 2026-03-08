@@ -11,7 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import marcelaCharacter from "@/assets/marcela-character.png";
 import { PLAYER_LEVELS } from "./gameConfig";
 import { formatDistanceToNow } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, enUS, pt, it, de, fr } from "date-fns/locale";
 
 interface GameIntroScreenProps {
   onStart: () => void;

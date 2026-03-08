@@ -70,7 +70,7 @@ export function GameResultScreen({ score, streak, recipesCompleted, xpEarned, on
           {isWin ? t("gameYouWon") : t("gameGameOver")}
         </h2>
         <p className="text-muted-foreground text-sm mt-1">
-          {isWin ? "¡Cocinaste como un pro! 👨‍🍳" : "¡Seguí practicando, vas a llegar! 💪"}
+          {isWin ? t("gameWonDesc") : t("gameLostDesc")}
         </p>
       </motion.div>
 
