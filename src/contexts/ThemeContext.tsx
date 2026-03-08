@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-export type AppTheme = "cyan-light" | "cyan-dark" | "rose-light" | "rose-dark";
+export type AppTheme = "cyan-light" | "cyan-dark" | "rose-light" | "rose-dark" | "future";
 
 interface ThemeContextType {
   theme: AppTheme;
