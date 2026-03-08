@@ -11,7 +11,10 @@ export function StreakDisplay() {
   const { streakData, isLoading } = useStreakContext();
   const [showLeaderboard, setShowLeaderboard] = useState(false);
 
-  if (!user || isLoading || !streakData) return null;
+  if (!user || isLoading) return null;
+
+  const currentStreak = streakData?.currentStreak ?? 0;
+  const alreadyActiveToday = streakData?.alreadyActiveToday ?? false;
 
   const { currentStreak, alreadyActiveToday } = streakData;
 

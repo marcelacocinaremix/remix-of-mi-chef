@@ -118,12 +118,12 @@ export function GameLeaderboard() {
 
   return (
     <div className="space-y-2 pb-4">
-      {/* Top 3 podium */}
-      {leaderboard.length >= 3 && (
+      {/* Top 3 podium — muestra aunque haya menos de 3 usuarios */}
+      {leaderboard.length >= 1 && (
         <div className="flex items-end justify-center gap-3 py-4 mb-2">
-          <PodiumEntry entry={leaderboard[1]} size="md" barHeight={48} />
-          <PodiumEntry entry={leaderboard[0]} size="lg" barHeight={64} />
-          <PodiumEntry entry={leaderboard[2]} size="sm" barHeight={40} />
+          {leaderboard[1] && <PodiumEntry entry={leaderboard[1]} size="md" barHeight={48} />}
+          {leaderboard[0] && <PodiumEntry entry={leaderboard[0]} size="lg" barHeight={64} />}
+          {leaderboard[2] && <PodiumEntry entry={leaderboard[2]} size="sm" barHeight={40} />}
         </div>
       )}
 
