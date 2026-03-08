@@ -24,18 +24,26 @@ async function checkUserLimits(req: Request): Promise<{
   
   const authHeader = req.headers.get('Authorization');
   
-  if (!authHeader) {
-    return { allowed: true, userId: null, usesToday: 0, remaining: DAILY_LIMIT_FREE, isPremium: false };
+  if (!authHeader?.startsWith('Bearer ')) {
+    return { allowed: false, userId: null, usesToday: 0, remaining: 0, isPremium: false, message: 'AUTH_REQUIRED' };
   }
 
   const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
     global: { headers: { Authorization: authHeader } }
   });
 
+  const token = authHeader.replace('Bearer ', '');
+  const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+  
+  if (claimsError || !claimsData?.claims) {
+    return { allowed: false, userId: null, usesToday: 0, remaining: 0, isPremium: false, message: 'AUTH_REQUIRED' };
+  }
+
+  const userId = claimsData.claims.sub;
   const { data: { user } } = await supabaseClient.auth.getUser();
   
   if (!user) {
-    return { allowed: true, userId: null, usesToday: 0, remaining: DAILY_LIMIT_FREE, isPremium: false };
+    return { allowed: false, userId: null, usesToday: 0, remaining: 0, isPremium: false, message: 'AUTH_REQUIRED' };
   }
 
   const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
@@ -1248,6 +1256,17 @@ serve(async (req) => {
 
     // STEP 1: Check daily limit (READ ONLY - no credit consumed yet)
     const limitCheck = await checkUserLimits(req);
+
+    // Block unauthenticated requests — no anonymous AI generation allowed
+    if (!limitCheck.userId) {
+      return new Response(JSON.stringify({
+        error: 'Necesitás iniciar sesión para generar recetas',
+        code: 'AUTH_REQUIRED'
+      }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     
     if (!useCacheOnly && !limitCheck.allowed) {
       return new Response(JSON.stringify({
