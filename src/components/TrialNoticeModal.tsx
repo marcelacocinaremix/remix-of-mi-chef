@@ -41,7 +41,7 @@ const NOTICES: Record<NonNullable<NoticeVariant>, NoticeConfig> = {
   },
   "5": {
     emoji: "⚠️",
-    title: "Tu prueba termina en 5 días",
+    title: "Te quedan 5 días de prueba",
     body: `Tu período de prueba está por terminar.\n\nCuando finalice, la app seguirá funcionando en modo gratuito con algunas limitaciones.\n\nSi querés mantener todas las funciones desbloqueadas y generar más recetas, podés activar Mi Chef Premium.`,
     showPremiumBtn: true,
   },
