@@ -59,12 +59,12 @@ export function GameSection() {
   const handleGameEnd = useCallback(async (result: GameResult) => {
     setLastResult(result);
     setPhase("results");
-    await saveGameResult(result.score, result.streak, result.recipesCompleted, result.timePlayed);
+    await saveGameResult(result.score, result.streak, result.recipesCompleted, result.timePlayed, selectedMode, result.xp);
 
     // Unlock achievements
     if (result.recipesCompleted >= 3) unlockGameAchievement("game_chef");
     if (result.score >= 200) unlockGameAchievement("game_master");
-  }, [saveGameResult, unlockGameAchievement]);
+  }, [saveGameResult, unlockGameAchievement, selectedMode]);
 
   const handleStart = () => setPhase("modeSelect");
   const handlePlayAgain = () => setPhase("modeSelect");
