@@ -1840,7 +1840,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
             <div className="space-y-3">
               <h3 className="font-semibold flex items-center gap-2">
                 <Lightbulb className="h-4 w-4 text-amber-500" />
-                Tips importantes
+                {t("learnImportantTips")}
               </h3>
               <ul className="space-y-2">
                 {activeLesson.tips.map((tip, index) => (
