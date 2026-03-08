@@ -29,7 +29,6 @@ const MARCELA_MSGS = {
 export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
   const { play } = useSound();
   const { t } = useLanguage();
-  const { user } = useAuth();
 
   const [recipeIndex, setRecipeIndex] = useState(0);
   const [score, setScore] = useState(0);
