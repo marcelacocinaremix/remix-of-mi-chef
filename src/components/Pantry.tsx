@@ -87,35 +87,11 @@ const CATEGORIES = [
   { id: "otros", label: "Otros", emoji: "📦", color: "from-gray-500 to-slate-600", bgColor: "bg-gray-50 dark:bg-gray-950/30", textColor: "text-gray-700 dark:text-gray-300", shelfColor: "from-gray-100 to-gray-50 dark:from-gray-900/40 dark:to-gray-950/20" },
 ];
 
-const UNITS = ["unidades", "kg", "g", "litros", "ml", "paquetes", "latas"];
-
-const MARCELA_TIPS = [
-  "💡 Los tomates maduran mejor fuera de la heladera",
-  "💡 Guardá las hierbas en agua para que duren más",
-  "💡 El pan se conserva mejor congelado",
-  "💡 Separá las bananas para que no maduren tan rápido",
-  "💡 Las papas duran más en lugares oscuros y frescos",
-  "💡 El ajo se conserva mejor fuera de la heladera",
-  "💡 Los huevos duran más con la punta hacia abajo",
-];
-
-const ACHIEVEMENTS = [
-  { id: "starter", name: "Principiante", icon: "🌱", requirement: 5, description: "Agregá 5 ingredientes" },
-  { id: "organized", name: "Organizado", icon: "📋", requirement: 10, description: "Agregá 10 ingredientes" },
-  { id: "chef", name: "Chef Preparado", icon: "👨‍🍳", requirement: 20, description: "Agregá 20 ingredientes" },
-  { id: "master", name: "Maestro de Despensa", icon: "🏆", requirement: 50, description: "Agregá 50 ingredientes" },
-];
+const UNITS_KEYS = ["unidades", "kg", "g", "litros", "ml", "paquetes", "latas"];
 
 interface PantryProps {
   onSelectIngredients: (ingredients: string[]) => void;
 }
-
-// Step definitions for guided flow
-const PANTRY_STEPS = [
-  { id: 1, label: "Agregar", description: "Sumá productos a tu despensa", icon: Plus },
-  { id: 2, label: "Mi Despensa", description: "Organizá y gestioná tus productos", icon: Package },
-  { id: 3, label: "Usar", description: "Seleccioná ingredientes para cocinar", icon: ChefHat },
-];
 
 // Helper function to calculate days until expiration
 function getDaysUntilExpiration(expirationDate: string | null | undefined): number | null {
