@@ -4212,6 +4212,9 @@ export const translations = {
     gameRecipeNumber: "Receita",
     gameQuestion: "Pergunta",
     gameIngredientQuestion: "Em qual receita este ingrediente é usado?",
+    gameModeRecipeDesc: "Escolha os ingredientes corretos para cada receita",
+    gameModeOrderDesc: "Ordene os passos de preparação",
+    gameModeIngredientsDesc: "Identifique ingredientes-chave de cada prato",
   },
 
   it: {
