@@ -483,7 +483,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
               size="sm"
               onClick={() => setRecipeTab("favoritos")}
             >
-              ❤️ Favoritos
+              <span className="font-semibold text-sm text-foreground">{t("calendarFavorites")}</span>
             </Button>
             <Button
               variant={recipeTab === "recientes" ? "default" : "outline"}
