@@ -54,6 +54,7 @@ export const PlanificarSection = ({
     { id: "super" as SubTab, label: t("subTabGrocery"), icon: ShoppingCart },
   ];
 
+  const bannerImages = getBannerImages(t);
   const currentBanner = bannerImages[activeSubTab];
 
   return (
