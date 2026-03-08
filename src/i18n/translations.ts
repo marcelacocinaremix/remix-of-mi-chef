@@ -757,6 +757,78 @@ export const translations = {
     authWelcomeBack: "¡Bienvenido/a de vuelta!",
     authEmailSent: "¡Email enviado!",
     authCheckInbox: "Revisá tu casilla de correo para restablecer tu contraseña.",
+
+    // CookingSection help banner
+    cookingHowItWorks: "¿Cómo funciona?",
+    cookingViewHowItWorks: "Ver cómo funciona",
+    cookingStep1Title: "Genera una receta",
+    cookingStep1Desc: "Completá los pasos de abajo y tocá \"Dame recetas\" para que la IA cree tu receta personalizada.",
+    cookingStep2Title: "Guardala en favoritos",
+    cookingStep2Desc: "Tocá el corazón en la receta generada para guardarla en \"Mi Cocina\" y organizarla.",
+    cookingStep3Title: "Usá el Modo Cocina",
+    cookingStep3Desc: "Abrí la receta y tocá \"Modo Cocina\" para seguir el paso a paso mientras cocinás.",
+    cookingStep4Title: "Apretá \"Ya la cociné\"",
+    cookingStep4Desc: "Una vez lista, tocá el botón para registrar la cocción y desbloquear logros.",
+    cookingClearFilters: "Borrar filtros",
+
+    // Flavor selection
+    flavorTitle: "¿Salado o dulce?",
+    flavorSubtitle: "Seleccioná el perfil de sabor (opcional)",
+    flavorSavory: "Salado",
+    flavorSavoryDesc: "Platos principales, entradas…",
+    flavorSweet: "Dulce / Postre",
+    flavorSweetDesc: "Postres, budines, tortas…",
+    flavorRequired: "¿Salado o dulce?",
+    flavorRequiredDesc: "Seleccioná si querés una receta salada o dulce antes de continuar.",
+    ingredientsRequired: "Agregá ingredientes",
+    ingredientsRequiredDesc: "Escribí al menos un ingrediente para generar tu receta.",
+
+    // RecipeDetail hardcoded strings
+    recipeRemovedFromFav: "Receta eliminada",
+    recipeRemovedFromFavDesc: "se quitó de tus favoritas.",
+    recipeAlreadySaved: "Ya está guardada",
+    recipeAlreadySavedDesc: "Esta receta ya está en tus favoritos.",
+    loginRequired: "Iniciá sesión",
+    loginRequiredSave: "Necesitás una cuenta para guardar recetas.",
+    loginRequiredCooked: "Necesitás una cuenta para registrar recetas cocinadas.",
+    recipeAlreadyLogged: "Ya registrada 🎉",
+    recipeAlreadyLoggedMode: "Ya registrada 🏆",
+    recipeFooterMsg: "\"Espero que disfrutes esta receta. En MARCELACOCINA tenés muchas más ideas fáciles para el día a día.\"",
+
+    // CookingGame
+    playAgain: "Jugar de Nuevo",
+    gameBackToMenu: "Volver al Menú",
+
+    // ShoppingListDirect help
+    shoppingHowItWorks: "¿Cómo funciona el Supermercado?",
+    shoppingStep1Title: "Agregá productos",
+    shoppingStep1Desc: "Escribí los productos que necesitás comprar y se organizan automáticamente por categoría.",
+    shoppingStep2Title: "Tachá al comprar",
+    shoppingStep2Desc: "Tocá cada ítem para marcarlo como comprado y llevar el control en tiempo real.",
+    shoppingStep3Title: "Desde recetas",
+    shoppingStep3Desc: "Cuando generás una receta, podés agregar todos sus ingredientes a la lista con un solo toque.",
+    shoppingStep4Title: "Limpiar lista",
+    shoppingStep4Desc: "Una vez terminado el super, limpiá los ítems comprados o toda la lista de una vez.",
+    shoppingEmptyToCopy: "Lista vacía",
+    shoppingEmptyToCopyDesc: "No hay ingredientes pendientes para copiar.",
+    copyingLabel: "Copiando...",
+    copiedLabel: "Copiados ✓",
+    copyIngredientsLabel: "Copiar ingredientes",
+
+    // PlanificarSection banner
+    planBannerCalendarTitle: "Calendario",
+    planBannerCalendarDesc: "Planificá tus comidas de la semana",
+    planBannerPantryTitle: "Tu Despensa",
+    planBannerPantryDesc: "Gestioná tus ingredientes",
+    planBannerShoppingTitle: "Lista de Super",
+    planBannerShoppingDesc: "Organizá tus compras",
+
+    // WeeklyCalendar toasts
+    weekBuiltToast: "¡Semana armada!",
+    weekBuiltToastDesc: "Tu plan semanal está listo con recetas que aprovechan ingredientes",
+    listUpdated: "¡Lista actualizada!",
+    listUpdatedDesc: "Se agregaron {count} ingredientes a tu lista de compras",
+    ingredientSuggestionsMsg: "Estos ingredientes se repiten en tu plan. ¡Comprá más para aprovecharlos!",
   },
   
   en: {
@@ -1516,6 +1588,78 @@ export const translations = {
     authWelcomeBack: "Welcome back!",
     authEmailSent: "Email sent!",
     authCheckInbox: "Check your inbox to reset your password.",
+
+    // CookingSection help banner
+    cookingHowItWorks: "How does it work?",
+    cookingViewHowItWorks: "See how it works",
+    cookingStep1Title: "Generate a recipe",
+    cookingStep1Desc: "Complete the steps below and tap \"Give me recipes\" for AI to create your personalized recipe.",
+    cookingStep2Title: "Save to favorites",
+    cookingStep2Desc: "Tap the heart on the generated recipe to save it in \"My Kitchen\" and organize it.",
+    cookingStep3Title: "Use Cooking Mode",
+    cookingStep3Desc: "Open the recipe and tap \"Cooking Mode\" to follow step by step while you cook.",
+    cookingStep4Title: "Tap \"I cooked it\"",
+    cookingStep4Desc: "Once done, tap the button to log the cook and unlock achievements.",
+    cookingClearFilters: "Clear filters",
+
+    // Flavor selection
+    flavorTitle: "Savory or sweet?",
+    flavorSubtitle: "Select the flavor profile (optional)",
+    flavorSavory: "Savory",
+    flavorSavoryDesc: "Main dishes, starters…",
+    flavorSweet: "Sweet / Dessert",
+    flavorSweetDesc: "Desserts, puddings, cakes…",
+    flavorRequired: "Savory or sweet?",
+    flavorRequiredDesc: "Select whether you want a savory or sweet recipe before continuing.",
+    ingredientsRequired: "Add ingredients",
+    ingredientsRequiredDesc: "Type at least one ingredient to generate your recipe.",
+
+    // RecipeDetail hardcoded strings
+    recipeRemovedFromFav: "Recipe removed",
+    recipeRemovedFromFavDesc: "was removed from your favorites.",
+    recipeAlreadySaved: "Already saved",
+    recipeAlreadySavedDesc: "This recipe is already in your favorites.",
+    loginRequired: "Log in",
+    loginRequiredSave: "You need an account to save recipes.",
+    loginRequiredCooked: "You need an account to log cooked recipes.",
+    recipeAlreadyLogged: "Already logged 🎉",
+    recipeAlreadyLoggedMode: "Already logged 🏆",
+    recipeFooterMsg: "\"I hope you enjoy this recipe. On MARCELACOCINA you'll find many more easy everyday ideas.\"",
+
+    // CookingGame
+    playAgain: "Play Again",
+    gameBackToMenu: "Back to Menu",
+
+    // ShoppingListDirect help
+    shoppingHowItWorks: "How does the Grocery list work?",
+    shoppingStep1Title: "Add products",
+    shoppingStep1Desc: "Write the products you need to buy and they get automatically organized by category.",
+    shoppingStep2Title: "Check off items",
+    shoppingStep2Desc: "Tap each item to mark it as purchased and track in real time.",
+    shoppingStep3Title: "From recipes",
+    shoppingStep3Desc: "When you generate a recipe, you can add all its ingredients to the list with one tap.",
+    shoppingStep4Title: "Clear list",
+    shoppingStep4Desc: "Once you're done shopping, clear purchased items or the whole list at once.",
+    shoppingEmptyToCopy: "Empty list",
+    shoppingEmptyToCopyDesc: "There are no pending ingredients to copy.",
+    copyingLabel: "Copying...",
+    copiedLabel: "Copied ✓",
+    copyIngredientsLabel: "Copy ingredients",
+
+    // PlanificarSection banner
+    planBannerCalendarTitle: "Calendar",
+    planBannerCalendarDesc: "Plan your weekly meals",
+    planBannerPantryTitle: "Your Pantry",
+    planBannerPantryDesc: "Manage your ingredients",
+    planBannerShoppingTitle: "Grocery List",
+    planBannerShoppingDesc: "Organize your shopping",
+
+    // WeeklyCalendar toasts
+    weekBuiltToast: "Week planned!",
+    weekBuiltToastDesc: "Your weekly plan is ready with recipes that make the most of ingredients",
+    listUpdated: "List updated!",
+    listUpdatedDesc: "{count} ingredients added to your shopping list",
+    ingredientSuggestionsMsg: "These ingredients repeat in your plan. Buy more to make the most of them!",
   },
   
   pt: {
@@ -2275,6 +2419,78 @@ export const translations = {
     authWelcomeBack: "Bem-vindo/a de volta!",
     authEmailSent: "Email enviado!",
     authCheckInbox: "Verifique sua caixa de entrada para redefinir sua senha.",
+
+    // CookingSection help banner
+    cookingHowItWorks: "Como funciona?",
+    cookingViewHowItWorks: "Ver como funciona",
+    cookingStep1Title: "Gere uma receita",
+    cookingStep1Desc: "Complete os passos abaixo e toque em \"Me dê receitas\" para a IA criar sua receita personalizada.",
+    cookingStep2Title: "Salve nos favoritos",
+    cookingStep2Desc: "Toque no coração da receita gerada para salvá-la em \"Minha Cozinha\" e organizá-la.",
+    cookingStep3Title: "Use o Modo Cozinha",
+    cookingStep3Desc: "Abra a receita e toque em \"Modo Cozinha\" para seguir o passo a passo enquanto cozinha.",
+    cookingStep4Title: "Toque \"Já cozinhei\"",
+    cookingStep4Desc: "Uma vez pronta, toque no botão para registrar o preparo e desbloquear conquistas.",
+    cookingClearFilters: "Limpar filtros",
+
+    // Flavor selection
+    flavorTitle: "Salgado ou doce?",
+    flavorSubtitle: "Selecione o perfil de sabor (opcional)",
+    flavorSavory: "Salgado",
+    flavorSavoryDesc: "Pratos principais, entradas…",
+    flavorSweet: "Doce / Sobremesa",
+    flavorSweetDesc: "Sobremesas, pudins, bolos…",
+    flavorRequired: "Salgado ou doce?",
+    flavorRequiredDesc: "Selecione se quer uma receita salgada ou doce antes de continuar.",
+    ingredientsRequired: "Adicione ingredientes",
+    ingredientsRequiredDesc: "Digite pelo menos um ingrediente para gerar sua receita.",
+
+    // RecipeDetail hardcoded strings
+    recipeRemovedFromFav: "Receita removida",
+    recipeRemovedFromFavDesc: "foi removida dos seus favoritos.",
+    recipeAlreadySaved: "Já está salva",
+    recipeAlreadySavedDesc: "Esta receita já está nos seus favoritos.",
+    loginRequired: "Fazer login",
+    loginRequiredSave: "Você precisa de uma conta para salvar receitas.",
+    loginRequiredCooked: "Você precisa de uma conta para registrar receitas preparadas.",
+    recipeAlreadyLogged: "Já registrada 🎉",
+    recipeAlreadyLoggedMode: "Já registrada 🏆",
+    recipeFooterMsg: "\"Espero que você aproveite esta receita. No MARCELACOCINA tem muito mais ideias fáceis para o dia a dia.\"",
+
+    // CookingGame
+    playAgain: "Jogar de Novo",
+    gameBackToMenu: "Voltar ao Menu",
+
+    // ShoppingListDirect help
+    shoppingHowItWorks: "Como funciona a Lista de Compras?",
+    shoppingStep1Title: "Adicione produtos",
+    shoppingStep1Desc: "Escreva os produtos que precisa comprar e eles são organizados automaticamente por categoria.",
+    shoppingStep2Title: "Risque ao comprar",
+    shoppingStep2Desc: "Toque em cada item para marcá-lo como comprado e acompanhe em tempo real.",
+    shoppingStep3Title: "Das receitas",
+    shoppingStep3Desc: "Quando gerar uma receita, você pode adicionar todos os ingredientes à lista com um toque.",
+    shoppingStep4Title: "Limpar lista",
+    shoppingStep4Desc: "Após terminar as compras, limpe os itens comprados ou toda a lista de uma vez.",
+    shoppingEmptyToCopy: "Lista vazia",
+    shoppingEmptyToCopyDesc: "Não há ingredientes pendentes para copiar.",
+    copyingLabel: "Copiando...",
+    copiedLabel: "Copiados ✓",
+    copyIngredientsLabel: "Copiar ingredientes",
+
+    // PlanificarSection banner
+    planBannerCalendarTitle: "Calendário",
+    planBannerCalendarDesc: "Planeje suas refeições da semana",
+    planBannerPantryTitle: "Sua Despensa",
+    planBannerPantryDesc: "Gerencie seus ingredientes",
+    planBannerShoppingTitle: "Lista de Compras",
+    planBannerShoppingDesc: "Organize suas compras",
+
+    // WeeklyCalendar toasts
+    weekBuiltToast: "Semana planejada!",
+    weekBuiltToastDesc: "Seu plano semanal está pronto com receitas que aproveitam ingredientes",
+    listUpdated: "Lista atualizada!",
+    listUpdatedDesc: "{count} ingredientes adicionados à sua lista de compras",
+    ingredientSuggestionsMsg: "Esses ingredientes se repetem no seu plano. Compre mais para aproveitá-los!",
   }
 } as const;
 
