@@ -255,9 +255,18 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
   if (showCookingMode) {
     return (
       <CookingMode 
-        recipe={recipe} 
-        onClose={() => setShowCookingMode(false)}
-        onMarkAsCooked={onRecipeCooked}
+        recipe={recipe}
+        alreadyCooked={hasMarkedCooked}
+        onClose={() => {
+          setShowCookingMode(false);
+          setHasUsedCookingMode(true);
+        }}
+        onMarkAsCooked={() => {
+          setHasMarkedCooked(true);
+          setCookedVia("cookingMode");
+          setHasUsedCookingMode(true);
+          onRecipeCooked?.();
+        }}
       />
     );
   }
