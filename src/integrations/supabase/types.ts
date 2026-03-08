@@ -871,6 +871,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_streaks: {
+        Row: {
+          created_at: string
+          current_streak: number
+          id: string
+          last_activity_date: string | null
+          last_celebrated_milestone: number
+          longest_streak: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          last_celebrated_milestone?: number
+          longest_streak?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          last_celebrated_milestone?: number
+          longest_streak?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_subscriptions: {
         Row: {
           auto_renew: boolean | null
@@ -1022,6 +1055,7 @@ export type Database = {
         | { Args: never; Returns: number }
         | { Args: { p_user_id: string }; Returns: number }
       is_subscription_active: { Args: { p_user_id: string }; Returns: boolean }
+      record_streak_activity: { Args: never; Returns: Json }
       start_trial: { Args: { p_user_id: string }; Returns: Json }
       unlock_achievement: {
         Args: { p_achievement_type: string; p_recipe_count?: number }
