@@ -316,6 +316,46 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     } catch { toast({ title: "Error", variant: "destructive" }); }
   };
 
+  // ─── Tips folder logic ────────────────────────────────────────────────
+  const filteredTips = useMemo(() => {
+    const q = tipSearchQuery.toLowerCase().trim();
+    return favoriteTips.filter(tip => {
+      const inFolder = (tipFolderAssignments[tip.id] || "Sin carpeta") === activeTipFolder;
+      if (!inFolder) return false;
+      if (!q) return true;
+      return tip.food_name.toLowerCase().includes(q) ||
+        tip.tip_data.mainInfo?.toLowerCase().includes(q) ||
+        (categoryLabels[tip.category] || "").toLowerCase().includes(q);
+    });
+  }, [favoriteTips, tipSearchQuery, activeTipFolder, tipFolderAssignments]);
+
+  const tipFolderCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    tipFolders.forEach(f => { counts[f] = 0; });
+    favoriteTips.forEach(tip => {
+      const folder = tipFolderAssignments[tip.id] || "Sin carpeta";
+      counts[folder] = (counts[folder] || 0) + 1;
+    });
+    return counts;
+  }, [favoriteTips, tipFolderAssignments, tipFolders]);
+
+  const handleMoveTip = useCallback((tipId: string, folder: string) => {
+    saveTipFolderAssignment(tipId, folder);
+    setTipFolderAssignments(prev => ({ ...prev, [tipId]: folder }));
+    setMovingTipId(null);
+    toast({ title: "✅ Tip movido", description: `Movido a "${folder}".` });
+  }, [toast]);
+
+  const handleCreateTipFolder = () => {
+    const name = newTipFolderName.trim();
+    if (!name || tipFolders.includes(name)) return;
+    const updated = [...tipFolders, name];
+    setTipFolders(updated); saveTipFolders(updated);
+    setNewTipFolderName(""); setShowNewTipFolderInput(false);
+    setActiveTipFolder(name);
+    toast({ title: "📁 Carpeta creada", description: `"${name}" lista para organizar tus tips.` });
+  };
+
   const handleCreateFolder = () => {
     const name = newFolderName.trim();
     if (!name || folders.includes(name)) return;
