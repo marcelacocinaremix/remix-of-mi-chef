@@ -735,8 +735,8 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
       setShowAddDialog(false);
       
       toast({
-        title: "¡Agregado al estante! 🎉",
-        description: `${newIngredient} se agregó a tu despensa.`,
+        title: `${t("addedToShelf")} 🎉`,
+        description: `${newIngredient} ${t("addedToPantryDesc")}`,
       });
 
       checkAchievements(items.length + 1);
