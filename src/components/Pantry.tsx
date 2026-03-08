@@ -579,7 +579,7 @@ function PantryShelf({
             {/* Empty shelf message */}
             {items.length === 0 && (
               <div className="w-full text-center py-4 text-muted-foreground text-sm">
-                Estante vacío
+                {t("emptyShelf")}
               </div>
             )}
           </div>
