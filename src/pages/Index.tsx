@@ -635,14 +635,13 @@ export default function Index() {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
                     const isClicked = clickedMenuId === item.id;
-
                     return (
                       <button
                         key={item.id}
                         onClick={() => handleTabChange(item.id)}
                         className={`flex flex-col items-center justify-center gap-1 p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 min-h-[64px] sm:min-h-[78px] min-w-0 ${
-                          isActive 
-                            ? "bg-primary text-primary-foreground shadow-lg" 
+                          isActive
+                            ? "bg-primary text-primary-foreground shadow-lg"
                             : "bg-background/60 hover:bg-background active:scale-95 text-foreground"
                         }`}
                       >
@@ -663,19 +662,22 @@ export default function Index() {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
                     const isClicked = clickedMenuId === item.id;
-
+                    const showLock = item.lockedWhenExpired && user && !hasAnyAccess;
                     return (
                       <button
                         key={item.id}
                         onClick={() => handleTabChange(item.id)}
                         className={`flex flex-col items-center justify-center gap-1 p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 min-h-[64px] sm:min-h-[78px] min-w-0 ${
-                          isActive 
-                            ? "bg-primary text-primary-foreground shadow-lg" 
+                          isActive
+                            ? "bg-primary text-primary-foreground shadow-lg"
                             : "bg-background/60 hover:bg-background active:scale-95 text-foreground"
                         }`}
                       >
                         <div className={`relative flex-shrink-0 ${isClicked ? "animate-futuristic-click" : ""}`}>
                           <Icon className={`w-5 h-5 sm:w-7 sm:h-7 ${isActive ? "drop-shadow-glow" : ""} ${isClicked ? "animate-icon-pulse" : ""}`} />
+                          {showLock && (
+                            <Lock className="w-2.5 h-2.5 absolute -top-1 -right-1 text-amber-500" />
+                          )}
                           {isClicked && (
                             <span className="absolute inset-0 animate-ripple-out rounded-full border-2 border-primary/50" />
                           )}
