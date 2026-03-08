@@ -678,7 +678,7 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
     <div className="animate-slide-up space-y-6">
       <Button variant="ghost" onClick={onBack} className="mb-4">
         <ArrowLeft className="w-4 h-4 mr-2" />
-        Volver al inicio
+        {t("weeklyBackToHome")}
       </Button>
 
       <div className={cn(
