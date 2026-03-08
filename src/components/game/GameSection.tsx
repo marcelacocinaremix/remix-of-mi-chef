@@ -2,15 +2,17 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChefHat, SortAsc, Salad, ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useGameStats } from "@/hooks/useGameStats";
+import { useGameStats, getUserCountry } from "@/hooks/useGameStats";
 import { useAchievements } from "@/hooks/useAchievements";
+import { useAuth } from "@/hooks/useAuth";
 import { GameIntroScreen } from "./GameIntroScreen";
 import { GameEngine } from "./GameEngine";
 import { GameResultScreen } from "./GameResultScreen";
+import { GameCountryPrompt } from "./GameCountryPrompt";
 
 type GameMode = "recipe" | "order" | "ingredients";
 
-type GamePhase = "intro" | "modeSelect" | "playing" | "results";
+type GamePhase = "intro" | "countryPrompt" | "modeSelect" | "playing" | "results";
 
 interface GameResult {
   score: number;
@@ -22,6 +24,7 @@ interface GameResult {
 
 export function GameSection() {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const { saveGameResult } = useGameStats();
   const { unlockGameAchievement } = useAchievements();
 
@@ -61,12 +64,24 @@ export function GameSection() {
     setPhase("results");
     await saveGameResult(result.score, result.streak, result.recipesCompleted, result.timePlayed, selectedMode, result.xp);
 
-    // Unlock achievements
     if (result.recipesCompleted >= 3) unlockGameAchievement("game_chef");
     if (result.score >= 200) unlockGameAchievement("game_master");
   }, [saveGameResult, unlockGameAchievement, selectedMode]);
 
-  const handleStart = () => setPhase("modeSelect");
+  /** When user clicks "Play" on intro: check if country is set */
+  const handleStart = useCallback(async () => {
+    if (!user) {
+      setPhase("modeSelect");
+      return;
+    }
+    const country = await getUserCountry(user.id);
+    if (!country) {
+      setPhase("countryPrompt");
+    } else {
+      setPhase("modeSelect");
+    }
+  }, [user]);
+
   const handlePlayAgain = () => setPhase("modeSelect");
   const handleGoHome = () => setPhase("intro");
   const handleStartGame = (mode: GameMode) => {
@@ -85,6 +100,21 @@ export function GameSection() {
             exit={{ opacity: 0 }}
           >
             <GameIntroScreen onStart={handleStart} />
+          </motion.div>
+        )}
+
+        {phase === "countryPrompt" && (
+          <motion.div
+            key="countryPrompt"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -40 }}
+            className="bg-card rounded-3xl border border-border/50 shadow-sm overflow-hidden mt-4"
+          >
+            <GameCountryPrompt
+              onConfirm={() => setPhase("modeSelect")}
+              onSkip={() => setPhase("modeSelect")}
+            />
           </motion.div>
         )}
 

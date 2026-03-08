@@ -509,6 +509,7 @@ export type Database = {
           bio: string | null
           birth_date: string | null
           cooking_skill: string | null
+          country: string | null
           created_at: string
           diet_type: string | null
           display_name: string | null
@@ -525,6 +526,7 @@ export type Database = {
           bio?: string | null
           birth_date?: string | null
           cooking_skill?: string | null
+          country?: string | null
           created_at?: string
           diet_type?: string | null
           display_name?: string | null
@@ -541,6 +543,7 @@ export type Database = {
           bio?: string | null
           birth_date?: string | null
           cooking_skill?: string | null
+          country?: string | null
           created_at?: string
           diet_type?: string | null
           display_name?: string | null
@@ -1005,6 +1008,7 @@ export type Database = {
         Args: never
         Returns: {
           avatar_url: string
+          country: string
           display_name: string
           rank: number
           total_games_played: number
