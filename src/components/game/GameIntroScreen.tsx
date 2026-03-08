@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -10,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import marcelaCharacter from "@/assets/marcela-character.png";
 import { PLAYER_LEVELS } from "./gameConfig";
+import { GameLeaderboard } from "./GameLeaderboard";
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS, pt, it, de, fr } from "date-fns/locale";
 
@@ -17,10 +19,13 @@ interface GameIntroScreenProps {
   onStart: () => void;
 }
 
+type Tab = "stats" | "ranking" | "history";
+
 export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
   const { user } = useAuth();
   const { stats, sessions } = useGameStats();
   const { t, language } = useLanguage();
+  const [activeTab, setActiveTab] = useState<Tab>("stats");
 
   const dateLocale = language === 'en' ? enUS : language === 'pt' ? pt : language === 'it' ? it : language === 'de' ? de : language === 'fr' ? fr : es;
 
@@ -30,8 +35,7 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
     ingredients: { label: t("gameModeIngredients"), emoji: "🥗" },
   };
 
-  // XP total = recetas completadas * 50 + partidas jugadas * 20
-  const totalXP = stats.totalRecipesCompleted * 50 + stats.totalGamesPlayed * 20;
+  const totalXP = stats.totalXP;
   const currentLevel = PLAYER_LEVELS.reduce((acc, lvl) => totalXP >= lvl.minXP ? lvl : acc, PLAYER_LEVELS[0]);
   const nextLevel = PLAYER_LEVELS.find(l => l.minXP > totalXP);
   const xpProgress = nextLevel
@@ -43,6 +47,12 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
     { icon: Timer,   label: t("gameModeTimer"),        bg: "bg-orange-500/10" },
     { icon: SortAsc, label: t("gameModeOrder"),        bg: "bg-blue-500/10" },
     { icon: Salad,   label: t("gameModeIngredients"),  bg: "bg-green-500/10" },
+  ];
+
+  const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
+    { id: "stats", label: t("gameHighScore"), icon: <Star className="w-3.5 h-3.5" /> },
+    { id: "ranking", label: t("gameLeaderboardTitle"), icon: <Trophy className="w-3.5 h-3.5" /> },
+    { id: "history", label: t("gameHistoryTitle"), icon: <History className="w-3.5 h-3.5" /> },
   ];
 
   return (
@@ -115,118 +125,177 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
         </div>
       </motion.div>
 
-      {/* Player Stats Card */}
-      {user && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="w-full bg-card rounded-2xl p-4 border border-border/50 shadow-lg mb-4"
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-xl shadow">
-              {currentLevel.icon}
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-foreground text-sm">{t(currentLevel.nameKey as any)}</span>
-                {nextLevel && <span className="text-xs text-muted-foreground">{totalXP} / {nextLevel.minXP} XP</span>}
-              </div>
-              <div className="mt-1 h-2 bg-muted rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${xpProgress}%` }}
-                  transition={{ duration: 1, delay: 0.6 }}
-                  className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
-                />
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            <div className="text-center bg-muted/40 rounded-xl p-2">
-              <Trophy className="w-4 h-4 text-amber-500 mx-auto mb-1" />
-              <div className="text-lg font-black text-foreground">{stats.highScore}</div>
-              <div className="text-[10px] text-muted-foreground">{t("gameHighScore")}</div>
-            </div>
-            <div className="text-center bg-muted/40 rounded-xl p-2">
-              <Flame className="w-4 h-4 text-orange-500 mx-auto mb-1" />
-              <div className="text-lg font-black text-foreground">{stats.bestStreak}</div>
-              <div className="text-[10px] text-muted-foreground">{t("gameBestStreak")}</div>
-            </div>
-            <div className="text-center bg-muted/40 rounded-xl p-2">
-              <ChefHat className="w-4 h-4 text-primary mx-auto mb-1" />
-              <div className="text-lg font-black text-foreground">{stats.totalRecipesCompleted}</div>
-              <div className="text-[10px] text-muted-foreground">{t("gameRecipesDone")}</div>
-            </div>
-          </div>
-        </motion.div>
-      )}
+      {/* Tabs */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="w-full bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden mb-4"
+      >
+        {/* Tab headers */}
+        <div className="flex border-b border-border/40">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-semibold transition-colors ${
+                activeTab === tab.id
+                  ? "text-primary border-b-2 border-primary bg-primary/5"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {tab.icon}
+              <span className="hidden sm:inline">{tab.label}</span>
+            </button>
+          ))}
+        </div>
 
-      {/* Game History */}
-      {user && sessions.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.55 }}
-          className="w-full bg-card rounded-2xl border border-border/50 shadow-sm mb-4 overflow-hidden"
-        >
-          <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40">
-            <History className="w-4 h-4 text-muted-foreground" />
-            <span className="font-bold text-foreground text-sm">{t("gameHistoryTitle")}</span>
-            <Badge variant="secondary" className="ml-auto text-[10px]">{sessions.length}</Badge>
-          </div>
-          <div className="divide-y divide-border/30 max-h-64 overflow-y-auto">
-            {sessions.map((session, i) => {
-              const meta = MODE_META[session.mode] ?? { label: session.mode, emoji: "🎮" };
-              return (
-                <motion.div
-                  key={session.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.05 * i }}
-                  className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/30 transition-colors"
-                >
-                  <div className="w-9 h-9 rounded-xl bg-muted/60 flex items-center justify-center text-lg flex-shrink-0">
-                    {meta.emoji}
+        {/* Tab content */}
+        <div className="p-4">
+          <AnimatePresence mode="wait">
+            {activeTab === "stats" && user && (
+              <motion.div
+                key="stats"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+              >
+                {/* XP Level progress */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-xl shadow">
+                    {currentLevel.icon}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-bold text-foreground">{meta.label}</span>
-                      {session.xpEarned > 0 && (
-                        <Badge className="bg-primary/10 text-primary border-primary/20 text-[9px] px-1.5 py-0">
-                          +{session.xpEarned} XP
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
-                        ⭐ {session.score}
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-foreground text-sm">{t(currentLevel.nameKey as any)}</span>
+                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Zap className="w-3 h-3 text-amber-500" />
+                        {totalXP} XP
                       </span>
-                      <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
-                        👨‍🍳 {session.recipesCompleted}
-                      </span>
-                      {session.streak > 0 && (
-                        <span className="text-[10px] text-orange-500 flex items-center gap-0.5">
-                          🔥 ×{session.streak}
-                        </span>
-                      )}
                     </div>
+                    {nextLevel && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${xpProgress}%` }}
+                            transition={{ duration: 1, delay: 0.3 }}
+                            className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
+                          />
+                        </div>
+                        <span className="text-[10px] text-muted-foreground">{nextLevel.minXP} XP</span>
+                      </div>
+                    )}
                   </div>
-                  <span className="text-[10px] text-muted-foreground flex-shrink-0">
-                    {formatDistanceToNow(new Date(session.playedAt), { addSuffix: true, locale: dateLocale })}
-                  </span>
-                </motion.div>
-              );
-            })}
-          </div>
-        </motion.div>
-      )}
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="text-center bg-muted/40 rounded-xl p-2">
+                    <Trophy className="w-4 h-4 text-amber-500 mx-auto mb-1" />
+                    <div className="text-lg font-black text-foreground">{stats.highScore}</div>
+                    <div className="text-[10px] text-muted-foreground">{t("gameHighScore")}</div>
+                  </div>
+                  <div className="text-center bg-muted/40 rounded-xl p-2">
+                    <Flame className="w-4 h-4 text-orange-500 mx-auto mb-1" />
+                    <div className="text-lg font-black text-foreground">{stats.bestStreak}</div>
+                    <div className="text-[10px] text-muted-foreground">{t("gameBestStreak")}</div>
+                  </div>
+                  <div className="text-center bg-muted/40 rounded-xl p-2">
+                    <ChefHat className="w-4 h-4 text-primary mx-auto mb-1" />
+                    <div className="text-lg font-black text-foreground">{stats.totalRecipesCompleted}</div>
+                    <div className="text-[10px] text-muted-foreground">{t("gameRecipesDone")}</div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "ranking" && (
+              <motion.div
+                key="ranking"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+              >
+                <GameLeaderboard />
+              </motion.div>
+            )}
+
+            {activeTab === "history" && user && sessions.length > 0 && (
+              <motion.div
+                key="history"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+                className="divide-y divide-border/30 max-h-72 overflow-y-auto -mx-4 px-4"
+              >
+                {sessions.map((session, i) => {
+                  const meta = MODE_META[session.mode] ?? { label: session.mode, emoji: "🎮" };
+                  return (
+                    <motion.div
+                      key={session.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.05 * i }}
+                      className="flex items-center gap-3 py-2.5 hover:bg-muted/30 transition-colors"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-muted/60 flex items-center justify-center text-lg flex-shrink-0">
+                        {meta.emoji}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-foreground">{meta.label}</span>
+                          {session.xpEarned > 0 && (
+                            <Badge className="bg-primary/10 text-primary border-primary/20 text-[9px] px-1.5 py-0">
+                              +{session.xpEarned} XP
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">⭐ {session.score}</span>
+                          <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">👨‍🍳 {session.recipesCompleted}</span>
+                          {session.streak > 0 && (
+                            <span className="text-[10px] text-orange-500 flex items-center gap-0.5">🔥 ×{session.streak}</span>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground flex-shrink-0">
+                        {formatDistanceToNow(new Date(session.playedAt), { addSuffix: true, locale: dateLocale })}
+                      </span>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            )}
+
+            {activeTab === "history" && (!user || sessions.length === 0) && (
+              <motion.div
+                key="history-empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="py-8 text-center"
+              >
+                <p className="text-muted-foreground text-sm">🎮 {t("gameDailyChallengeDesc")}</p>
+              </motion.div>
+            )}
+
+            {activeTab === "stats" && !user && (
+              <motion.div
+                key="stats-nouser"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="py-8 text-center"
+              >
+                <p className="text-muted-foreground text-sm">{t("loginRequired")}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.div>
 
       {/* Daily Challenge Teaser */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.65 }}
+        transition={{ delay: 0.5 }}
         className="w-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-2xl p-4 border border-amber-500/20 flex items-center gap-3"
       >
         <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
