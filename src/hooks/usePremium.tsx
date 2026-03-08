@@ -178,11 +178,10 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
 
     try {
       setIsLoading(true);
-      // READ-ONLY check: just read current usage without incrementing
-      // The edge function is the ONLY place that increments daily_uses
+      // READ-ONLY: fetch full subscription data to compute limit accurately
       const { data: subData, error } = await supabase
         .from('user_subscriptions')
-        .select('daily_uses, last_use_date')
+        .select('daily_uses, last_use_date, is_premium, subscription_end, trial_used, trial_end_date')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -191,20 +190,25 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         return { allowed: false, message: 'Error al verificar el uso diario' };
       }
 
-      const today = new Date().toISOString().split('T')[0];
+      const now = new Date();
+      const today = now.toISOString().split('T')[0];
       const usesToday = (subData?.last_use_date === today) ? (subData?.daily_uses || 0) : 0;
-      const remaining = effectiveLimit - usesToday;
 
-      setDailyUsage({
-        usesToday,
-        remaining,
-        limit: effectiveLimit
-      });
+      // Recompute limit from fresh server data
+      const strictPaid = subData?.is_premium === true &&
+        (!subData?.subscription_end || new Date(subData.subscription_end) > now);
+      const currentLimit = strictPaid ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
 
-      if (usesToday >= effectiveLimit) {
+      const remaining = Math.max(0, currentLimit - usesToday);
+      setDailyUsage({ usesToday, remaining, limit: currentLimit });
+
+      if (usesToday >= currentLimit) {
+        const isPaidOrTrial = strictPaid || (subData?.trial_used && subData?.trial_end_date && new Date(subData.trial_end_date) > now);
         return {
           allowed: false,
-          message: `¡Se acabaron tus recetas de hoy! Volvé mañana para seguir cocinando 🍳`
+          message: isPaidOrTrial
+            ? `¡Alcanzaste el límite de ${currentLimit} recetas de hoy! Volvé mañana 🍳`
+            : `Hoy ya usaste tus ${DAILY_LIMIT_FREE} recetas gratuitas. ¡Suscribite para generar más! 🌟`
         };
       }
 
@@ -215,7 +219,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [user, effectiveLimit]);
+  }, [user]);
 
   useEffect(() => {
     fetchSubscription();
