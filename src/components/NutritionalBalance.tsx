@@ -408,7 +408,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                           : "text-muted-foreground hover:text-foreground"
                       )}
                     >
-                      {p === "day" ? "Día" : p === "week" ? "Semana" : p === "month" ? "Mes" : "Año"}
+                      {p === "day" ? t("balancePeriodDay") : p === "week" ? t("balancePeriodWeek") : p === "month" ? t("balancePeriodMonth") : t("balancePeriodYear")}
                     </button>
                   ))}
                 </div>
@@ -429,10 +429,10 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                   <CardContent className="pt-4 pb-4">
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm font-medium">
-                        Resumen {nutritionPeriod === "day" ? "del día" : nutritionPeriod === "week" ? "semanal" : nutritionPeriod === "month" ? "mensual" : "anual"}
+                        {t("balanceSummaryTitle")} {nutritionPeriod === "day" ? t("balanceSummaryDaily") : nutritionPeriod === "week" ? t("balanceSummaryWeekly") : nutritionPeriod === "month" ? t("balanceSummaryMonthly") : t("balanceSummaryYearly")}
                       </span>
                       <Badge variant="secondary" className="text-xs">
-                        {periodMeals.length} comidas
+                        {periodMeals.length} {t("balanceMeals")}
                       </Badge>
                     </div>
                     <div className="grid grid-cols-4 gap-2">
@@ -441,28 +441,28 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                           <Flame className="w-4 h-4 text-orange-500" />
                         </div>
                         <p className="text-lg font-bold">{Math.round(periodTotals.calories)}</p>
-                        <p className="text-[10px] text-muted-foreground">Calorías</p>
+                        <p className="text-[10px] text-muted-foreground">{t("balanceCalories")}</p>
                       </div>
                       <div className="text-center">
                         <div className="w-8 h-8 mx-auto mb-1 rounded-full bg-chart-1/20 flex items-center justify-center">
                           <Beef className="w-4 h-4 text-chart-1" />
                         </div>
                         <p className="text-lg font-bold text-chart-1">{Math.round(periodTotals.protein)}g</p>
-                        <p className="text-[10px] text-muted-foreground">Proteínas</p>
+                        <p className="text-[10px] text-muted-foreground">{t("balanceProtein")}</p>
                       </div>
                       <div className="text-center">
                         <div className="w-8 h-8 mx-auto mb-1 rounded-full bg-chart-2/20 flex items-center justify-center">
                           <Wheat className="w-4 h-4 text-chart-2" />
                         </div>
                         <p className="text-lg font-bold text-chart-2">{Math.round(periodTotals.carbs)}g</p>
-                        <p className="text-[10px] text-muted-foreground">Carbos</p>
+                        <p className="text-[10px] text-muted-foreground">{t("balanceCarbs")}</p>
                       </div>
                       <div className="text-center">
                         <div className="w-8 h-8 mx-auto mb-1 rounded-full bg-chart-3/20 flex items-center justify-center">
                           <Droplets className="w-4 h-4 text-chart-3" />
                         </div>
                         <p className="text-lg font-bold text-chart-3">{Math.round(periodTotals.fats)}g</p>
-                        <p className="text-[10px] text-muted-foreground">Grasas</p>
+                        <p className="text-[10px] text-muted-foreground">{t("balanceFats")}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -476,7 +476,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                       <CardHeader className="pb-0">
                         <CardTitle className="text-base flex items-center gap-2">
                           <Target className="w-4 h-4 text-primary" />
-                          Distribución de Macros
+                          {t("balanceMacroDistribution")}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="pb-4 pt-3">
@@ -525,7 +525,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                       <CardHeader className="pb-2">
                         <CardTitle className="text-base flex items-center gap-2">
                           <TrendingUp className="w-4 h-4 text-primary" />
-                          Evolución Semanal
+                          {t("balanceWeeklyEvolution")}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="pb-4">
@@ -537,7 +537,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                               <Tooltip
                                 contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '10px', fontSize: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                                 formatter={(value: number, name: string) => {
-                                  const labels: { [key: string]: string } = { proteinas: 'Proteínas', carbohidratos: 'Carbos', grasas: 'Grasas' };
+                                  const labels: { [key: string]: string } = { proteinas: t("balSmartProtein"), carbohidratos: t("balSmartCarbs"), grasas: t("balSmartFats") };
                                   return [`${Math.round(value)}g`, labels[name] || name];
                                 }}
                               />
@@ -564,9 +564,9 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                       <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
                         <ChefHat className="w-8 h-8 text-muted-foreground" />
                       </div>
-                      <h3 className="font-semibold mb-2">Todavía no hay datos</h3>
+                      <h3 className="font-semibold mb-2">{t("balanceNoData")}</h3>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Registrá comidas para ver tus gráficos nutricionales
+                        {t("balanceNoDataDesc")}
                       </p>
                     </CardContent>
                   </Card>
