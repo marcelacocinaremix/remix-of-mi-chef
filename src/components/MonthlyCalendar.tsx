@@ -649,7 +649,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                 <div>
                   <h4 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
                     <Sparkles className="w-4 h-4 text-primary" />
-                    Preparación
+                    {t("calendarPreparation")}
                   </h4>
                   <ol className="space-y-2">
                     {viewingAssignedRecipe.steps.map((step, j) => (
