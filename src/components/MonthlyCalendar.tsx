@@ -265,7 +265,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
       const { error } = await supabase.from("meal_plans").delete().eq("id", mealId);
       if (error) throw error;
       await fetchMealsForRange();
-      toast({ title: "Receta eliminada" });
+      toast({ title: t("calendarRecipeRemoved") });
     } catch {
       toast({ title: "Error", description: "No se pudo eliminar", variant: "destructive" });
     }
