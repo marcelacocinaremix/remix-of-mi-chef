@@ -392,6 +392,10 @@ export function FoodStorageGuide() {
               onChange={(e) => {
                 setFoodName(e.target.value);
                 setNotFoodError(false);
+                // Clear results when user starts typing something new
+                if (foodInfo) setFoodInfo(null);
+                setIsSaved(false);
+                setSavedFavId(null);
               }}
               onKeyPress={handleKeyPress}
               className="pl-10 h-12 text-base"
