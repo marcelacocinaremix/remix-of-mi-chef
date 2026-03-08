@@ -78,6 +78,11 @@ export function GameSection() {
       setPhase("modeSelect");
       return;
     }
+    const alreadySkipped = localStorage.getItem(`miChef_country_skipped_${user.id}`);
+    if (alreadySkipped) {
+      setPhase("modeSelect");
+      return;
+    }
     const country = await getUserCountry(user.id);
     if (!country) {
       setPhase("countryPrompt");
