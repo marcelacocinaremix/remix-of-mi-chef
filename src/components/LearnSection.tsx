@@ -106,9 +106,9 @@ function getLearningContent(language: string): Level[] {
     categories: [
       {
         id: "tecnicas-basicas",
-        name: "Técnicas Básicas",
+        name: isEn ? "Basic Techniques" : isPt ? "Técnicas Básicas" : "Técnicas Básicas",
         icon: ChefHat,
-        description: "Los fundamentos que todo cocinero debe conocer",
+        description: isEn ? "The fundamentals every cook must know" : isPt ? "Os fundamentos que todo cozinheiro deve conhecer" : "Los fundamentos que todo cocinero debe conocer",
         lessons: [
           {
             id: "cortar-verduras",
