@@ -859,15 +859,15 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
       setEditingItem(null);
       
       toast({
-        title: "Vencimiento actualizado",
+        title: t("pantryExpiryUpdated"),
         description: editExpirationDate 
-          ? `Vence el ${new Date(editExpirationDate).toLocaleDateString('es-AR')}`
-          : "Se quitó la fecha de vencimiento",
+          ? t("pantryExpiryUpdatedDesc").replace("{date}", new Date(editExpirationDate).toLocaleDateString())
+          : t("pantryExpiryRemoved"),
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "No se pudo actualizar el vencimiento.",
+        title: t("error"),
+        description: t("pantryExpiryUpdated"),
         variant: "destructive",
       });
     }
