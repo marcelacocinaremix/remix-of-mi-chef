@@ -3517,6 +3517,22 @@ export const translations = {
     favDefaultTipFolderNutrition: "Nutrição",
     favDefaultTipFolderSaving: "Economia",
 
+    // QuickFilters
+    quickFiltersDietLabel: "🥗 Dieta",
+    quickFiltersPreferencesLabel: "✨ Preferências",
+    quickFiltersClear: "Limpar",
+    quickFiltersActive: "filtro ativo",
+    quickFiltersActivePlural: "filtros ativos",
+    quickFilterVegetarian: "Vegetariano",
+    quickFilterVegan: "Vegano",
+    quickFilterGlutenFree: "Sem Glúten",
+    quickFilterLactoseFree: "Sem Lácteos",
+    quickFilterHighProtein: "Proteico",
+    quickFilterLight: "Light",
+    quickFilterKids: "Para Crianças",
+    quickFilterEconomic: "Econômico",
+    quickFilterFast: "Rápido (≤20 min)",
+
     // ─── GAME SECTION ────────────────────────────────────────────────────
     gameTitle: "Chef Arena",
     gameSubtitle: "Cozinhe receitas, ganhe XP e vire um Chef Mestre!",
