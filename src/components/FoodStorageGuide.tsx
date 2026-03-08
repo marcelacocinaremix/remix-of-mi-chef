@@ -223,7 +223,7 @@ export function FoodStorageGuide() {
   };
 
   const handleSearch = async (foodOverride?: string, categoryOverride?: string) => {
-    const foodToUse = foodOverride || foodName.trim();
+    const foodToUse = (foodOverride || foodName).trim();
     const categoryToUse = categoryOverride || selectedCategory;
     
     if (!foodToUse) {
@@ -238,7 +238,9 @@ export function FoodStorageGuide() {
     setIsLoading(true);
     setFoodInfo(null);
     setNotFoodError(false);
-    setIsSaved(false); // Reset saved state for new search
+    setIsSaved(false);
+    if (foodOverride) setFoodName(foodOverride);
+    if (categoryOverride) setSelectedCategory(categoryOverride);
 
     try {
       const { data, error } = await supabase.functions.invoke("food-tips-guide", {
