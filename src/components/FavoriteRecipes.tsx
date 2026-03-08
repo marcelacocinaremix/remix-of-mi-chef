@@ -1029,9 +1029,6 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
         );
       })()}
 
-      {/* ── Tip Detail Modal ── */}
-      <Dialog open={!!selectedTip} onOpenChange={open => !open && setSelectedTip(null)}>
-
       {/* ── Confirm delete TIP folder ── */}
       <Dialog open={!!deletingTipFolder} onOpenChange={open => !open && setDeletingTipFolder(null)}>
         <DialogContent className="max-w-sm" aria-describedby={undefined}>
