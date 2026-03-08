@@ -104,61 +104,24 @@ export function useGameStats() {
     if (!user) return;
 
     try {
-      const { data: currentStats } = await supabase
-        .from("user_game_stats").select("*").eq("user_id", user.id).maybeSingle();
-
-      const newHighScore = Math.max(score, currentStats?.high_score || 0);
-      const newBestStreak = Math.max(streak, currentStats?.best_streak || 0);
-      const newTotalGames = (currentStats?.total_games_played || 0) + 1;
-      const newTotalRecipes = (currentStats?.total_recipes_completed || 0) + recipesCompleted;
-      const newTotalTime = (currentStats?.total_time_played || 0) + timePlayed;
-      const newTotalXP = ((currentStats as any)?.total_xp || 0) + xpEarned;
-
-      await Promise.all([
-        currentStats
-          ? supabase.from("user_game_stats").update({
-              high_score: newHighScore, best_streak: newBestStreak,
-              total_games_played: newTotalGames, total_recipes_completed: newTotalRecipes,
-              total_time_played: newTotalTime, last_played_at: new Date().toISOString(),
-              total_xp: newTotalXP,
-            } as any).eq("user_id", user.id)
-          : supabase.from("user_game_stats").insert({
-              user_id: user.id, high_score: score, best_streak: streak,
-              total_games_played: 1, total_recipes_completed: recipesCompleted,
-              total_time_played: timePlayed, last_played_at: new Date().toISOString(),
-              total_xp: xpEarned,
-            } as any),
-        supabase.from("game_sessions").insert({
-          user_id: user.id,
-          mode,
-          score,
-          streak,
-          recipes_completed: recipesCompleted,
-          time_played: timePlayed,
-          xp_earned: xpEarned,
-        }),
-      ]);
-
-      setStats({
-        highScore: newHighScore, totalGamesPlayed: newTotalGames, bestStreak: newBestStreak,
-        totalRecipesCompleted: newTotalRecipes, totalTimePlayed: newTotalTime,
-        totalXP: newTotalXP, lastPlayedAt: new Date().toISOString(),
+      // Use server-side RPC that validates and caps values — prevents direct API manipulation
+      const { data, error } = await supabase.rpc("save_game_result" as any, {
+        p_score: score,
+        p_streak: streak,
+        p_recipes_completed: recipesCompleted,
+        p_time_played: timePlayed,
+        p_mode: mode,
+        p_xp_earned: xpEarned,
       });
 
-      const { data: newSessions } = await supabase
-        .from("game_sessions").select("*").eq("user_id", user.id)
-        .order("played_at", { ascending: false }).limit(20);
-      if (newSessions) {
-        setSessions(newSessions.map((s: any) => ({
-          id: s.id, mode: s.mode, score: s.score, streak: s.streak,
-          recipesCompleted: s.recipes_completed, timePlayed: s.time_played,
-          xpEarned: s.xp_earned, playedAt: s.played_at,
-        })));
-      }
+      if (error) throw error;
+
+      // Refresh stats from DB (server has the authoritative values after the trigger)
+      await fetchStats();
     } catch (error) {
       console.error("Error saving game result:", error);
     }
-  }, [user]);
+  }, [user, fetchStats]);
 
   useEffect(() => {
     fetchStats();
