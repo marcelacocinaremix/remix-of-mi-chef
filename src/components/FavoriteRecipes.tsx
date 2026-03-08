@@ -510,10 +510,10 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
           {!showHelp && (
             <button
               onClick={() => setShowHelp(true)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+              className="animate-neon-pulse flex items-center gap-2 px-3 py-1.5 rounded-full border border-sky-400/40 bg-sky-500/5 text-sky-500 text-xs font-medium transition-colors duration-300 hover:bg-sky-500/15 hover:border-sky-400/70"
             >
               <Info className="w-3.5 h-3.5" />
-              Ver cómo funciona
+              <span>Ver cómo funciona</span>
             </button>
           )}
 
