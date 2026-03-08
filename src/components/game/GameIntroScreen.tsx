@@ -172,7 +172,7 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
         >
           <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40">
             <History className="w-4 h-4 text-muted-foreground" />
-            <span className="font-bold text-foreground text-sm">Historial de partidas</span>
+            <span className="font-bold text-foreground text-sm">{t("gameHistoryTitle")}</span>
             <Badge variant="secondary" className="ml-auto text-[10px]">{sessions.length}</Badge>
           </div>
           <div className="divide-y divide-border/30 max-h-64 overflow-y-auto">
