@@ -211,6 +211,23 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
     }
   };
 
+  const buildRecipeStyles = (recipeName: string) => {
+    const styleCounts: Record<string, number> = {};
+    if (recipeName.includes("rápid") || recipeName.includes("express") || recipeName.includes("fácil") || recipeName.includes("quick") || recipeName.includes("rapide") || recipeName.includes("schnell")) {
+      styleCounts[t("historyStyleQuick")] = (styleCounts[t("historyStyleQuick")] || 0) + 1;
+    }
+    if (recipeName.includes("casero") || recipeName.includes("tradicional") || recipeName.includes("abuela") || recipeName.includes("homemade") || recipeName.includes("maison")) {
+      styleCounts[t("historyStyleHomemade")] = (styleCounts[t("historyStyleHomemade")] || 0) + 1;
+    }
+    if (recipeName.includes("light") || recipeName.includes("saludable") || recipeName.includes("ensalada") || recipeName.includes("healthy") || recipeName.includes("sain")) {
+      styleCounts[t("historyStyleHealthy")] = (styleCounts[t("historyStyleHealthy")] || 0) + 1;
+    }
+    if (recipeName.includes("económic") || recipeName.includes("barato") || recipeName.includes("budget") || recipeName.includes("günstig")) {
+      styleCounts[t("historyStyleBudget")] = (styleCounts[t("historyStyleBudget")] || 0) + 1;
+    }
+    return styleCounts;
+  };
+
   const generateSuggestions = async (
     topIngredients: { name: string; count: number }[],
     recipeStyles: { style: string; count: number }[]
