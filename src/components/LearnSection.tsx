@@ -438,9 +438,9 @@ function getLearningContent(language: string): Level[] {
       },
       {
         id: "arroz-pastas",
-        name: "Arroz y Pastas",
+        name: l("Arroz y Pastas", "Rice & Pasta", "Arroz e Massas", "Riso e Pasta", "Reis & Pasta", "Riz et Pâtes"),
         icon: Wheat,
-        description: "Carbohidratos perfectos siempre",
+        description: l("Carbohidratos perfectos siempre", "Perfect carbohydrates every time", "Carboidratos perfeitos sempre", "Carboidrati perfetti ogni volta", "Perfekte Kohlenhydrate immer", "Des glucides parfaits à chaque fois"),
         lessons: [
           {
             id: "arroz-blanco",
