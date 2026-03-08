@@ -1027,6 +1027,48 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                         );
                       })}
                     </div>
+
+                    {/* Botón + Nueva carpeta */}
+                    {!showSheetNewFolder ? (
+                      <button
+                        onClick={() => setShowSheetNewFolder(true)}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium text-primary bg-primary/8 hover:bg-primary/15 border border-primary/20 transition-all mt-1"
+                      >
+                        <FolderPlus className="w-4 h-4" /> + Nueva carpeta
+                      </button>
+                    ) : (
+                      <div className="flex gap-2 mt-1 animate-fade-in">
+                        <Input
+                          placeholder="Nombre de carpeta…"
+                          value={sheetNewFolderName}
+                          onChange={e => setSheetNewFolderName(e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === "Enter") {
+                              const name = sheetNewFolderName.trim();
+                              if (name && !folders.includes(name)) {
+                                const updated = [...folders, name];
+                                setFolders(updated); saveFolders(updated);
+                                handleMoveRecipe(sheetRecipe.id, name);
+                              }
+                              setSheetNewFolderName(""); setShowSheetNewFolder(false);
+                            }
+                            if (e.key === "Escape") { setSheetNewFolderName(""); setShowSheetNewFolder(false); }
+                          }}
+                          className="h-9 text-sm flex-1"
+                          autoFocus
+                        />
+                        <Button size="sm" className="h-9 px-3" onClick={() => {
+                          const name = sheetNewFolderName.trim();
+                          if (name && !folders.includes(name)) {
+                            const updated = [...folders, name];
+                            setFolders(updated); saveFolders(updated);
+                            handleMoveRecipe(sheetRecipe.id, name);
+                          }
+                          setSheetNewFolderName(""); setShowSheetNewFolder(false);
+                        }}><Check className="w-3.5 h-3.5" /></Button>
+                        <Button variant="ghost" size="sm" className="h-9 px-3" onClick={() => { setSheetNewFolderName(""); setShowSheetNewFolder(false); }}><X className="w-3.5 h-3.5" /></Button>
+                      </div>
+                    )}
                   </div>
                   <button
                     onClick={e => { handleDeleteRecipe(sheetRecipe.id, e); setMovingRecipeId(null); }}
