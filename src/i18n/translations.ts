@@ -5665,6 +5665,22 @@ export const translations = {
     favDefaultTipFolderCooking: "Kochen",
     favDefaultTipFolderNutrition: "Ernährung",
     favDefaultTipFolderSaving: "Sparen",
+
+    // QuickFilters
+    quickFiltersDietLabel: "🥗 Ernährung",
+    quickFiltersPreferencesLabel: "✨ Präferenzen",
+    quickFiltersClear: "Löschen",
+    quickFiltersActive: "aktiver Filter",
+    quickFiltersActivePlural: "aktive Filter",
+    quickFilterVegetarian: "Vegetarisch",
+    quickFilterVegan: "Vegan",
+    quickFilterGlutenFree: "Glutenfrei",
+    quickFilterLactoseFree: "Laktosefrei",
+    quickFilterHighProtein: "Proteinreich",
+    quickFilterLight: "Leicht",
+    quickFilterKids: "Für Kinder",
+    quickFilterEconomic: "Günstig",
+    quickFilterFast: "Schnell (≤20 Min)",
   },
 
   fr: {
