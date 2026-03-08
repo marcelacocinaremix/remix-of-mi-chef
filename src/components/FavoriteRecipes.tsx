@@ -301,7 +301,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
       const { error } = await supabase.from("favorite_recipes").delete().eq("id", id);
       if (error) throw error;
       setFavorites(prev => prev.filter(f => f.id !== id));
-      toast({ title: "Receta eliminada" });
+      toast({ title: t("favRecipeDeleted") });
     } catch { toast({ title: "Error", variant: "destructive" }); }
   };
 
