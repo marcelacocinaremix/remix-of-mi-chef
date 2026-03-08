@@ -24,8 +24,8 @@ export function GameResultScreen({ score, streak, recipesCompleted, xpEarned, on
   const { stats } = useGameStats();
   const isNewHighScore = score > stats.highScore;
 
-  // XP total = recetas completadas históricas * 50 + XP ganada esta partida
-  const totalXP = stats.totalRecipesCompleted * 50 + stats.totalGamesPlayed * 20 + xpEarned;
+  // XP total acumulado real (viene de la base de datos, ya incluye esta partida)
+  const totalXP = stats.totalXP;
   const currentLevel = PLAYER_LEVELS.reduce((acc, lvl) => totalXP >= lvl.minXP ? lvl : acc, PLAYER_LEVELS[0]);
   const nextLevel = PLAYER_LEVELS.find(l => l.minXP > totalXP);
   const xpProgress = nextLevel ? ((totalXP - currentLevel.minXP) / (nextLevel.minXP - currentLevel.minXP)) * 100 : 100;

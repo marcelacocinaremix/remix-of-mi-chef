@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   Play, Trophy, Flame, Zap, ChefHat,
-  Timer, SortAsc, Salad, Target, History, Star
+  SortAsc, Salad, Target, History, Star
 } from "lucide-react";
 import { useGameStats } from "@/hooks/useGameStats";
 import { useAuth } from "@/hooks/useAuth";
@@ -44,7 +44,6 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
 
   const gameModes = [
     { icon: ChefHat, label: t("gameModeRecipe"),      bg: "bg-primary/10" },
-    { icon: Timer,   label: t("gameModeTimer"),        bg: "bg-orange-500/10" },
     { icon: SortAsc, label: t("gameModeOrder"),        bg: "bg-blue-500/10" },
     { icon: Salad,   label: t("gameModeIngredients"),  bg: "bg-green-500/10" },
   ];
