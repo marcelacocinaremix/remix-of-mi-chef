@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Header } from "@/components/Header";
 import { FuturisticBackground } from "@/components/FuturisticBackground";
 import { FiltersState } from "@/components/AdvancedFilters";
@@ -89,10 +89,6 @@ export default function Index() {
   const [activeSubTab, setActiveSubTab] = useState<string | null>(null);
   const [historyDeleted, setHistoryDeleted] = useState(false);
   const [clickedMenuId, setClickedMenuId] = useState<string | null>(null);
-  const [neonBarRow1, setNeonBarRow1] = useState<{ left: number; width: number } | null>(null);
-  const [neonBarRow2, setNeonBarRow2] = useState<{ left: number; width: number } | null>(null);
-  const menuRow1Ref = useRef<HTMLDivElement>(null);
-  const menuRow2Ref = useRef<HTMLDivElement>(null);
   
   // Interactive cooking features state
   const [quickFilters, setQuickFilters] = useState<string[]>([]);
@@ -562,39 +558,6 @@ export default function Index() {
     }
   };
 
-  // Neon bar: calculate position when activeTab or theme changes
-  useEffect(() => {
-    if (!isFuture) {
-      setNeonBarRow1(null);
-      setNeonBarRow2(null);
-      return;
-    }
-    const row1Ids = menuItems.slice(0, 4).map(i => i.id);
-    const row2Ids = menuItems.slice(4, 8).map(i => i.id);
-    const row1Idx = row1Ids.indexOf(activeTab);
-    const row2Idx = row2Ids.indexOf(activeTab);
-
-    const calcBar = (
-      ref: React.RefObject<HTMLDivElement>,
-      idx: number,
-      setter: (v: { left: number; width: number } | null) => void
-    ) => {
-      if (idx < 0 || !ref.current) { setter(null); return; }
-      const btn = ref.current.querySelectorAll("button")[idx] as HTMLElement;
-      if (!btn) { setter(null); return; }
-      const cRect = ref.current.getBoundingClientRect();
-      const bRect = btn.getBoundingClientRect();
-      setter({ left: bRect.left - cRect.left + bRect.width * 0.08, width: bRect.width * 0.84 });
-    };
-
-    const t = setTimeout(() => {
-      calcBar(menuRow1Ref, row1Idx, setNeonBarRow1);
-      calcBar(menuRow2Ref, row2Idx, setNeonBarRow2);
-    }, 30);
-    return () => clearTimeout(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFuture, activeTab]);
-
   return (
     <div className="h-[100dvh] gradient-hero relative overflow-hidden w-screen max-w-[100vw] flex flex-col">
       <FuturisticBackground />
@@ -670,40 +633,25 @@ export default function Index() {
               {/* Two row navigation - 4 items per row */}
               <div className="mb-6 space-y-2 pb-6 -mx-3 sm:-mx-4 px-3 sm:px-4 bg-background/80 backdrop-blur-sm">
                 {/* Row 1 */}
-                <div ref={menuRow1Ref} className="relative grid grid-cols-4 gap-1 sm:gap-1.5 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-1.5 sm:p-2 overflow-hidden">
-                  {/* Future neon sliding bar row 1 */}
-                  {isFuture && neonBarRow1 && (
-                    <div
-                      className="absolute bottom-1.5 sm:bottom-2 h-[3px] rounded-full pointer-events-none z-10"
-                      style={{
-                        left: neonBarRow1.left,
-                        width: neonBarRow1.width,
-                        background: "linear-gradient(90deg, transparent 0%, hsl(var(--primary)) 30%, hsl(var(--primary)) 70%, transparent 100%)",
-                        boxShadow: "0 0 8px 2px hsl(var(--primary) / 0.8), 0 0 20px 4px hsl(var(--primary) / 0.4)",
-                        transition: "left 0.35s cubic-bezier(0.4,0,0.2,1), width 0.35s cubic-bezier(0.4,0,0.2,1)",
-                      }}
-                    />
-                  )}
-                {menuItems.slice(0, 4).map((item, idx) => {
+                <div className="grid grid-cols-4 gap-1 sm:gap-1.5 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-1.5 sm:p-2 overflow-hidden">
+                {menuItems.slice(0, 4).map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
                     const isClicked = clickedMenuId === item.id;
                     return (
                       <button
                         key={item.id}
-                        data-menu-idx={idx}
-                        data-menu-row="1"
                         onClick={() => handleTabChange(item.id)}
                         className={`flex flex-col items-center justify-center gap-1 p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 min-h-[64px] sm:min-h-[78px] min-w-0 ${
                           isActive
                             ? isFuture
-                              ? "bg-primary/10 border border-primary/50 text-primary"
+                              ? "bg-transparent border-2 border-primary text-primary shadow-[0_0_12px_hsl(195_100%_50%/0.6),inset_0_0_12px_hsl(195_100%_50%/0.08)]"
                               : "bg-primary text-primary-foreground shadow-lg"
                             : "bg-background/60 hover:bg-background active:scale-95 text-foreground"
                         }`}
                       >
                         <div className={`relative flex-shrink-0 ${isClicked ? "animate-futuristic-click" : ""}`}>
-                          <Icon className={`w-5 h-5 sm:w-7 sm:h-7 ${isClicked ? "animate-icon-pulse" : ""}`} />
+                          <Icon className={`w-5 h-5 sm:w-7 sm:h-7 ${isActive ? "drop-shadow-glow" : ""} ${isClicked ? "animate-icon-pulse" : ""}`} />
                           {isClicked && (
                             <span className="absolute inset-0 animate-ripple-out rounded-full border-2 border-primary/50" />
                           )}
@@ -714,21 +662,8 @@ export default function Index() {
                   })}
                 </div>
                 {/* Row 2 */}
-                <div ref={menuRow2Ref} className="relative grid grid-cols-4 gap-1 sm:gap-1.5 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-1.5 sm:p-2 overflow-hidden">
-                  {/* Future neon sliding bar row 2 */}
-                  {isFuture && neonBarRow2 && (
-                    <div
-                      className="absolute bottom-1.5 sm:bottom-2 h-[3px] rounded-full pointer-events-none z-10"
-                      style={{
-                        left: neonBarRow2.left,
-                        width: neonBarRow2.width,
-                        background: "linear-gradient(90deg, transparent 0%, hsl(var(--primary)) 30%, hsl(var(--primary)) 70%, transparent 100%)",
-                        boxShadow: "0 0 8px 2px hsl(var(--primary) / 0.8), 0 0 20px 4px hsl(var(--primary) / 0.4)",
-                        transition: "left 0.35s cubic-bezier(0.4,0,0.2,1), width 0.35s cubic-bezier(0.4,0,0.2,1)",
-                      }}
-                    />
-                  )}
-                {menuItems.slice(4, 8).map((item, idx) => {
+                <div className="grid grid-cols-4 gap-1 sm:gap-1.5 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-1.5 sm:p-2 overflow-hidden">
+                {menuItems.slice(4, 8).map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
                     const isClicked = clickedMenuId === item.id;
@@ -736,19 +671,17 @@ export default function Index() {
                     return (
                       <button
                         key={item.id}
-                        data-menu-idx={idx}
-                        data-menu-row="2"
                         onClick={() => handleTabChange(item.id)}
                         className={`flex flex-col items-center justify-center gap-1 p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 min-h-[64px] sm:min-h-[78px] min-w-0 ${
                           isActive
                             ? isFuture
-                              ? "bg-primary/10 border border-primary/50 text-primary"
+                              ? "bg-transparent border-2 border-primary text-primary shadow-[0_0_12px_hsl(195_100%_50%/0.6),inset_0_0_12px_hsl(195_100%_50%/0.08)]"
                               : "bg-primary text-primary-foreground shadow-lg"
                             : "bg-background/60 hover:bg-background active:scale-95 text-foreground"
                         }`}
                       >
                         <div className={`relative flex-shrink-0 ${isClicked ? "animate-futuristic-click" : ""}`}>
-                          <Icon className={`w-5 h-5 sm:w-7 sm:h-7 ${isClicked ? "animate-icon-pulse" : ""}`} />
+                          <Icon className={`w-5 h-5 sm:w-7 sm:h-7 ${isActive ? "drop-shadow-glow" : ""} ${isClicked ? "animate-icon-pulse" : ""}`} />
                           {showLock && (
                             <Lock className="w-2.5 h-2.5 absolute -top-1 -right-1 text-amber-500" />
                           )}
