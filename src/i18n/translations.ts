@@ -2366,6 +2366,14 @@ export const translations = {
     loginRequiredCooked: "You need an account to log cooked recipes.",
     recipeAlreadyLogged: "Already logged 🎉",
     recipeAlreadyLoggedMode: "Already logged 🏆",
+    profileSaved: "Profile saved!",
+    profileSaveError: "Error saving profile",
+    profilePhotoUpdated: "Photo updated!",
+    profilePhotoError: "Error uploading photo",
+    profilePhotoSizeError: "Image must be less than 2MB",
+    profilePhotoHint: "Tap the icon to change your photo",
+    profileName: "Name",
+    profileNamePlaceholder: "Your name",
     recipeFooterMsg: "\"I hope you enjoy this recipe. On MARCELACOCINA you'll find many more easy everyday ideas.\"",
 
     // CookingGame
