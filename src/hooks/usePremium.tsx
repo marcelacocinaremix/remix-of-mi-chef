@@ -64,13 +64,14 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     return subscriptionStatus === 'cancelled' && paidPeriodActive;
   }, [subscriptionStatus, paidPeriodActive]);
 
-  // Derived: trial status (fallback when premium expires)
+  // Derived: trial status — STRICT: requires trial_used=true AND not expired AND not in paid period
   const isTrialActive = useMemo(() => {
     if (!isInitialized) return false; // Don't assume active until data loaded
     if (paidPeriodActive) return false;
-    if (!trialEndDate) return false; // No trial data = not in trial
+    if (!trialUsedDb) return false;   // Trial must have been explicitly started
+    if (!trialEndDate) return false;  // No trial data = not in trial
     return new Date() < trialEndDate;
-  }, [isInitialized, paidPeriodActive, trialEndDate]);
+  }, [isInitialized, paidPeriodActive, trialUsedDb, trialEndDate]);
 
   const isTrialExpired = useMemo(() => {
     if (paidPeriodActive) return false;
