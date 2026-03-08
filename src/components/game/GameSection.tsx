@@ -28,6 +28,7 @@ export function GameSection() {
   const { user } = useAuth();
   const { saveGameResult } = useGameStats();
   const { unlockGameAchievement } = useAchievements();
+  const { recordActivity: recordStreak } = useStreakContext();
 
   const [phase, setPhase] = useState<GamePhase>("intro");
   const [selectedMode, setSelectedMode] = useState<GameMode>("recipe");
@@ -64,10 +65,12 @@ export function GameSection() {
     setLastResult(result);
     setPhase("results");
     await saveGameResult(result.score, result.streak, result.recipesCompleted, result.timePlayed, selectedMode, result.xp);
+    // Trigger 3: playing a game
+    recordStreak();
 
     if (result.recipesCompleted >= 3) unlockGameAchievement("game_chef");
     if (result.score >= 200) unlockGameAchievement("game_master");
-  }, [saveGameResult, unlockGameAchievement, selectedMode]);
+  }, [saveGameResult, unlockGameAchievement, selectedMode, recordStreak]);
 
   /** When user clicks "Play" on intro: check if country is set */
   const handleStart = useCallback(async () => {
