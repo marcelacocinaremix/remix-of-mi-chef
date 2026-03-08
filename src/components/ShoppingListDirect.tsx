@@ -589,10 +589,10 @@ export function ShoppingListDirect() {
           {/* Add Form */}
           <Card className="border-primary/30 shadow-lg">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                Nuevo Producto
-              </CardTitle>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  {t("superNewProduct")}
+                </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
