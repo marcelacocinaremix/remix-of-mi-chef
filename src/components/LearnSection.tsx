@@ -485,9 +485,9 @@ function getLearningContent(language: string): Level[] {
       },
       {
         id: "seguridad",
-        name: "Seguridad en la Cocina",
+        name: l("Seguridad en la Cocina", "Kitchen Safety", "Segurança na Cozinha", "Sicurezza in Cucina", "Küchensicherheit", "Sécurité en Cuisine"),
         icon: Shield,
-        description: "Cocinando seguro, cocinás mejor",
+        description: l("Cocinando seguro, cocinás mejor", "Cook safely, cook better", "Cozinhando com segurança, você cozinha melhor", "Cucinare in sicurezza è cucinare meglio", "Sicher kochen, besser kochen", "Cuisiner en sécurité, c'est cuisiner mieux"),
         lessons: [
           {
             id: "temperaturas-seguras",
