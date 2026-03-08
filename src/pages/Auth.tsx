@@ -164,13 +164,14 @@ export default function Auth() {
       } else {
         const redirectUrl = `${window.location.origin}${returnTo}`;
 
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: redirectUrl,
             data: {
               display_name: displayName,
+              country: country || null,
             },
           },
         });
@@ -180,6 +181,13 @@ export default function Auth() {
             throw new Error("Este email ya está registrado. Probá iniciar sesión.");
           }
           throw error;
+        }
+
+        // Save country to profile if provided
+        if (country && signUpData.user) {
+          await supabase
+            .from("profiles")
+            .upsert({ id: signUpData.user.id, country, updated_at: new Date().toISOString() });
         }
 
         toast({
