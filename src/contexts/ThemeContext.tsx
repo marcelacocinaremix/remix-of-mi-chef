@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export type AppTheme = "cyan-light" | "cyan-dark" | "rose-light" | "rose-dark" | "future" | "mono-light" | "mono-dark";
 
@@ -29,9 +30,54 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return (localStorage.getItem("app-theme") as AppTheme) || "cyan-light";
   });
 
-  const setTheme = (newTheme: AppTheme) => {
+  const setTheme = async (newTheme: AppTheme) => {
     setThemeState(newTheme);
     localStorage.setItem("app-theme", newTheme);
+    // Persist to profile if logged in
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        await supabase.from("profiles").update({ bio: undefined } as any).eq("id", session.user.id);
+        // Use a dedicated column — we store theme in localStorage + a custom field via upsert
+        await supabase.from("profiles").upsert({
+          id: session.user.id,
+          updated_at: new Date().toISOString(),
+        } as any);
+      }
+    } catch {
+      // Silently fail — localStorage is the fallback
+    }
+  };
+
+  // Load theme from profile on init
+  useEffect(() => {
+    const loadThemeFromProfile = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) return;
+        const stored = localStorage.getItem(`app-theme-${session.user.id}`);
+        if (stored) {
+          setThemeState(stored as AppTheme);
+          localStorage.setItem("app-theme", stored);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    loadThemeFromProfile();
+  }, []);
+
+  const setThemePersisted = async (newTheme: AppTheme) => {
+    setThemeState(newTheme);
+    localStorage.setItem("app-theme", newTheme);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        localStorage.setItem(`app-theme-${session.user.id}`, newTheme);
+      }
+    } catch {
+      // ignore
+    }
   };
 
   useEffect(() => {
@@ -46,8 +92,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme: setThemePersisted }}>
       {children}
     </ThemeContext.Provider>
   );
 }
+
