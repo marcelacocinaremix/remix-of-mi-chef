@@ -78,7 +78,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   }, [paidPeriodActive, trialEndDate]);
 
   const trialDaysRemaining = useMemo(() => {
-    if (!trialEndDate) return TRIAL_DAYS;
+    if (!trialEndDate) return 0; // No trial set → 0 days, not 15
     const diff = trialEndDate.getTime() - Date.now();
     return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
   }, [trialEndDate]);
