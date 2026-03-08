@@ -18,21 +18,37 @@ interface StreakLeaderboardEntry {
   rank: number;
 }
 
+interface MyStreakData {
+  currentStreak: number;
+  longestStreak: number;
+}
+
 const RANK_MEDALS: Record<number, string> = { 1: "🥇", 2: "🥈", 3: "🥉" };
 
 export function StreakLeaderboard() {
   const { user } = useAuth();
   const [leaderboard, setLeaderboard] = useState<StreakLeaderboardEntry[]>([]);
+  const [myStreak, setMyStreak] = useState<MyStreakData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const { data, error } = await supabase.rpc("get_streak_leaderboard" as any);
-        if (error) throw error;
-        if (data) {
+        const [lbRes, myRes] = await Promise.all([
+          supabase.rpc("get_streak_leaderboard" as any),
+          user
+            ? supabase
+                .from("user_streaks")
+                .select("current_streak, longest_streak")
+                .eq("user_id", user.id)
+                .maybeSingle()
+            : Promise.resolve({ data: null }),
+        ]);
+
+        if (lbRes.error) throw lbRes.error;
+        if (lbRes.data) {
           setLeaderboard(
-            (data as any[]).map((row) => ({
+            (lbRes.data as any[]).map((row) => ({
               userId: row.user_id,
               displayName: row.display_name || "Chef",
               avatarUrl: row.avatar_url,
@@ -43,6 +59,14 @@ export function StreakLeaderboard() {
             }))
           );
         }
+
+        if ((myRes as any).data) {
+          const d = (myRes as any).data;
+          setMyStreak({
+            currentStreak: d.current_streak ?? 0,
+            longestStreak: d.longest_streak ?? 0,
+          });
+        }
       } catch (err) {
         console.error("Error fetching streak leaderboard:", err);
       } finally {
@@ -50,7 +74,7 @@ export function StreakLeaderboard() {
       }
     };
     fetchLeaderboard();
-  }, []);
+  }, [user]);
 
   if (isLoading) {
     return (
@@ -62,12 +86,57 @@ export function StreakLeaderboard() {
     );
   }
 
+  const userInLeaderboard = user && leaderboard.find((e) => e.userId === user.id);
+  const displayName = user?.user_metadata?.display_name || user?.email?.split("@")[0] || "Vos";
+
+  // Footer card shown when user is not in the ranked list
+  const MyStreakFooter = () => {
+    if (!user) return null;
+    if (userInLeaderboard) return null;
+    return (
+      <div className="mt-3 p-3 bg-primary/5 rounded-xl border border-primary/20">
+        <div className="flex items-center gap-3">
+          <Avatar className="w-9 h-9 border-2 border-primary/30">
+            <AvatarFallback className="bg-primary/10 text-primary text-xs font-black">
+              {displayName[0]?.toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-foreground truncate">{displayName}</span>
+              <Badge className="bg-primary/20 text-primary border-primary/30 text-[9px] px-1.5 py-0">yo</Badge>
+            </div>
+            {myStreak ? (
+              <span className="text-[10px] text-muted-foreground">
+                Racha actual: {myStreak.currentStreak} días · Mejor: {myStreak.longestStreak} días
+              </span>
+            ) : (
+              <span className="text-[10px] text-muted-foreground">Sin actividad registrada todavía</span>
+            )}
+          </div>
+          <div className="flex items-center gap-1">
+            <Flame className="w-3.5 h-3.5 text-muted-foreground" />
+            <span className="text-xs font-black text-muted-foreground">{myStreak?.currentStreak ?? 0}</span>
+          </div>
+        </div>
+        {(!myStreak || myStreak.currentStreak === 0) && (
+          <p className="text-[10px] text-muted-foreground mt-2 text-center">
+            ¡Realizá una actividad hoy para aparecer en el ranking! 🔥
+          </p>
+        )}
+      </div>
+    );
+  };
+
   if (leaderboard.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-10 text-center">
-        <div className="text-5xl mb-3">🔥</div>
-        <p className="text-sm font-semibold text-foreground mb-1">¡Sé el primero!</p>
-        <p className="text-xs text-muted-foreground">Nadie tiene racha activa todavía. Empezá hoy.</p>
+      <div className="space-y-4 pb-2">
+        <div className="flex flex-col items-center justify-center py-8 text-center">
+          <div className="text-5xl mb-3">🔥</div>
+          <p className="text-sm font-semibold text-foreground mb-1">¡Sé el primero!</p>
+          <p className="text-xs text-muted-foreground">Nadie tiene racha activa todavía. Empezá hoy.</p>
+        </div>
+        <MyStreakFooter />
       </div>
     );
   }
@@ -208,13 +277,7 @@ export function StreakLeaderboard() {
         })}
       </div>
 
-      {/* Current user not ranked */}
-      {user && !leaderboard.find((e) => e.userId === user.id) && (
-        <div className="mt-3 p-3 bg-muted/30 rounded-xl border border-border/30 text-center">
-          <p className="text-xs text-muted-foreground">No estás en el ranking todavía.</p>
-          <p className="text-xs font-semibold text-foreground mt-0.5">¡Realizá una actividad hoy para aparecer!</p>
-        </div>
-      )}
+      <MyStreakFooter />
     </div>
   );
 }
