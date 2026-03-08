@@ -73,7 +73,7 @@ const App = () => (
           </DeepLinkHandler>
         </AuthProvider>
       </BrowserRouter>
-    </ThemeProvider>
+    </AppThemeProvider>
   </QueryClientProvider>
 );
 
