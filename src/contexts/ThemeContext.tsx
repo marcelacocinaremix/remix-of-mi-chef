@@ -30,69 +30,45 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return (localStorage.getItem("app-theme") as AppTheme) || "cyan-light";
   });
 
-  const setTheme = async (newTheme: AppTheme) => {
-    setThemeState(newTheme);
-    localStorage.setItem("app-theme", newTheme);
-    // Persist to profile if logged in
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        await supabase.from("profiles").update({ bio: undefined } as any).eq("id", session.user.id);
-        // Use a dedicated column — we store theme in localStorage + a custom field via upsert
-        await supabase.from("profiles").upsert({
-          id: session.user.id,
-          updated_at: new Date().toISOString(),
-        } as any);
-      }
-    } catch {
-      // Silently fail — localStorage is the fallback
-    }
-  };
-
-  // Load theme from profile on init
+  // On mount, restore per-user theme if available
   useEffect(() => {
-    const loadThemeFromProfile = async () => {
+    const restoreUserTheme = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user) return;
-        const stored = localStorage.getItem(`app-theme-${session.user.id}`);
-        if (stored) {
+        const userKey = `app-theme-${session.user.id}`;
+        const stored = localStorage.getItem(userKey);
+        if (stored && stored !== localStorage.getItem("app-theme")) {
           setThemeState(stored as AppTheme);
           localStorage.setItem("app-theme", stored);
         }
-      } catch {
-        // ignore
-      }
+      } catch { /* ignore */ }
     };
-    loadThemeFromProfile();
+    restoreUserTheme();
   }, []);
 
-  const setThemePersisted = async (newTheme: AppTheme) => {
+  const setTheme = async (newTheme: AppTheme) => {
     setThemeState(newTheme);
     localStorage.setItem("app-theme", newTheme);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
+        // Store per-user so theme is restored on next login
         localStorage.setItem(`app-theme-${session.user.id}`, newTheme);
       }
-    } catch {
-      // ignore
-    }
+    } catch { /* ignore */ }
   };
 
   useEffect(() => {
     const root = document.documentElement;
-    // Remove all theme classes
     root.classList.remove("cyan-light", "cyan-dark", "rose-light", "rose-dark", "future", "mono-light", "mono-dark", "dark");
-    // Add new theme class
     root.classList.add(theme);
-    // Handle dark mode for next-themes compatibility
     const isDark = theme.endsWith("-dark") || theme === "future";
     if (isDark) root.classList.add("dark");
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme: setThemePersisted }}>
+    <ThemeContext.Provider value={{ theme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
