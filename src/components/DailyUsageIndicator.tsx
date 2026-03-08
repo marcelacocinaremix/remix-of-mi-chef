@@ -7,7 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 export function DailyUsageIndicator() {
   const { user } = useAuth();
-  const { dailyUsage, isPremium, refetch } = usePremium();
+  const { dailyUsage, isPremium, isTrialActive, refetch } = usePremium();
   const { t } = useLanguage();
 
   // Refetch usage every time the component mounts (e.g. user returns to section)
