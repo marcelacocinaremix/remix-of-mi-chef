@@ -23,6 +23,7 @@ interface PremiumContextType {
   isTrialExpired: boolean;
   trialDaysRemaining: number;
   canUseFeature: (feature: 'balance_add' | 'planificador_modify' | 'learn' | 'general') => boolean;
+  hasAnyAccess: boolean; // premium OR trial active
   showPaywall: boolean;
   setShowPaywall: (show: boolean) => void;
   isCancelled: boolean;
@@ -229,6 +230,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       isTrialExpired,
       trialDaysRemaining,
       canUseFeature,
+      hasAnyAccess: hasAccess,
       showPaywall,
       setShowPaywall,
       isCancelled,
@@ -256,6 +258,7 @@ export function usePremium() {
       isTrialExpired: false,
       trialDaysRemaining: TRIAL_DAYS,
       canUseFeature: () => true,
+      hasAnyAccess: true,
       showPaywall: false,
       setShowPaywall: () => {},
       isCancelled: false,
