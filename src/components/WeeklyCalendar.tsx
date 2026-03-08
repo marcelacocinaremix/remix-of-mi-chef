@@ -728,7 +728,7 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
             className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 hover:from-purple-600 hover:via-pink-600 hover:to-orange-500 text-white"
           >
             <Sparkles className={cn("w-4 h-4", isGeneratingAI && "animate-spin")} />
-            {isGeneratingAI ? "Armando..." : "Armarme la semana"}
+            {isGeneratingAI ? t("weeklyBuilding") : t("weeklyBuildAI")}
           </Button>
           
           <WeekTemplates 
