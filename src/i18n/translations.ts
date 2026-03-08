@@ -5888,7 +5888,7 @@ export const translations = {
     calendarRecipeAdded: "Rezept hinzugefügt!",
     calendarRecipeRemoved: "Rezept entfernt",
     calendarWeekDays: "Mo,Di,Mi,Do,Fr,Sa,So",
-    favTitle: "Deine Favoriten",
+    calendarForMealType: "Für",
     favLoginDesc: "Melde dich an, um deine Favoriten zu speichern",
     favLoading: "Favoriten laden...",
     favMyRecipes: "Meine Rezepte",
