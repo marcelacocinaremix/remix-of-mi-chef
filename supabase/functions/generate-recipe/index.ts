@@ -1256,6 +1256,17 @@ serve(async (req) => {
 
     // STEP 1: Check daily limit (READ ONLY - no credit consumed yet)
     const limitCheck = await checkUserLimits(req);
+
+    // Block unauthenticated requests — no anonymous AI generation allowed
+    if (!limitCheck.userId) {
+      return new Response(JSON.stringify({
+        error: 'Necesitás iniciar sesión para generar recetas',
+        code: 'AUTH_REQUIRED'
+      }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     
     if (!useCacheOnly && !limitCheck.allowed) {
       return new Response(JSON.stringify({
