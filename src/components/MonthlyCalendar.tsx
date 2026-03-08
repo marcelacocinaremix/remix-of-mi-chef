@@ -471,9 +471,9 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
       <Dialog open={!!showRecipeSelector && !previewRecipe} onOpenChange={(open) => !open && setShowRecipeSelector(null)}>
         <DialogContent className="max-w-md max-h-[85vh]">
           <DialogHeader>
-            <DialogTitle>Elegir receta</DialogTitle>
+            <DialogTitle>{t("calendarChooseRecipe")}</DialogTitle>
             <DialogDescription>
-              {showRecipeSelector && `Para ${MEAL_TYPES.find((m) => m.id === showRecipeSelector)?.label}`}
+              {showRecipeSelector && `${t("calendarForMealType")} ${t(MEAL_TYPES.find((m) => m.id === showRecipeSelector)?.labelKey as any)}`}
             </DialogDescription>
           </DialogHeader>
 
