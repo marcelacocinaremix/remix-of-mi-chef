@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Camera, User, Save, X, Loader2 } from "lucide-react";
+import { Camera, User, Save, X, Loader2, Globe } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { UNIQUE_COUNTRIES } from "@/data/countries";
 
 interface UserProfileModalProps {
   open: boolean;
@@ -29,6 +37,7 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
   const [uploading, setUploading] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [country, setCountry] = useState("");
 
   useEffect(() => {
     if (open && user) loadProfile();
@@ -40,7 +49,7 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("display_name, avatar_url")
+        .select("display_name, avatar_url, country")
         .eq("id", user.id)
         .single();
 
@@ -48,8 +57,8 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
       if (data) {
         setDisplayName(data.display_name || "");
         setAvatarUrl(data.avatar_url || "");
+        setCountry(data.country || "");
       } else {
-        // fallback to auth metadata
         setDisplayName(user.user_metadata?.display_name || "");
       }
     } catch (error) {
@@ -97,19 +106,18 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
     if (!user) return;
     setLoading(true);
     try {
-      // Save to profiles table
       const { error } = await supabase
         .from("profiles")
         .upsert({
           id: user.id,
           display_name: displayName,
           avatar_url: avatarUrl,
+          country: country || null,
           updated_at: new Date().toISOString(),
         });
 
       if (error) throw error;
 
-      // Also sync to auth user metadata so UserMenu reflects name immediately
       await supabase.auth.updateUser({
         data: { display_name: displayName },
       });
@@ -181,6 +189,36 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
                 placeholder={t("profileNamePlaceholder")}
                 className="mt-1"
               />
+            </div>
+
+            {/* País */}
+            <div>
+              <Label className="flex items-center gap-1.5">
+                <Globe className="w-3.5 h-3.5 text-muted-foreground" />
+                {t("profileCountry")}
+              </Label>
+              <Select value={country} onValueChange={setCountry}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder={t("profileCountryPlaceholder")}>
+                    {country ? (
+                      <span className="flex items-center gap-2">
+                        <span>{UNIQUE_COUNTRIES.find(c => c.code === country)?.flag}</span>
+                        <span>{UNIQUE_COUNTRIES.find(c => c.code === country)?.name}</span>
+                      </span>
+                    ) : null}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {UNIQUE_COUNTRIES.map((c) => (
+                    <SelectItem key={c.code} value={c.code}>
+                      <span className="flex items-center gap-2">
+                        <span className="text-base">{c.flag}</span>
+                        <span>{c.name}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Acciones */}

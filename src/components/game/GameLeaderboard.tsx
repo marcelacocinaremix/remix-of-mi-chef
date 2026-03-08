@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Trophy, Zap, Star } from "lucide-react";
+import { Zap } from "lucide-react";
 import { useGameLeaderboard } from "@/hooks/useGameStats";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -33,92 +33,97 @@ export function GameLeaderboard() {
     );
   }
 
+  const PodiumEntry = ({
+    entry,
+    size = "md",
+    barHeight,
+  }: {
+    entry: typeof leaderboard[0];
+    size?: "sm" | "md" | "lg";
+    barHeight: number;
+  }) => {
+    const isMe = user?.id === entry.userId;
+    const avatarSize = size === "lg" ? "w-16 h-16" : "w-12 h-12";
+    const borderColor =
+      entry.rank === 1
+        ? "border-amber-400 shadow-lg shadow-amber-500/30"
+        : entry.rank === 2
+        ? "border-muted"
+        : "border-amber-700/40";
+    const fallbackColor =
+      entry.rank === 1
+        ? "bg-amber-500/20 text-amber-700"
+        : entry.rank === 2
+        ? "bg-muted text-foreground"
+        : "bg-amber-700/10 text-amber-800";
+    const barColor =
+      entry.rank === 1
+        ? "bg-amber-500/20 border border-amber-500/30"
+        : entry.rank === 2
+        ? "bg-muted/60"
+        : "bg-amber-700/10";
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: (entry.rank - 1) * 0.1 }}
+        className={`flex flex-col items-center gap-1 ${entry.rank === 1 ? "-mb-2" : ""}`}
+      >
+        {entry.rank === 1 && (
+          <motion.div
+            animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.1, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="text-2xl"
+          >
+            👑
+          </motion.div>
+        )}
+        <Avatar className={`${avatarSize} border-4 ${borderColor}`}>
+          <AvatarImage src={entry.avatarUrl || ""} />
+          <AvatarFallback className={`${fallbackColor} ${size === "lg" ? "text-lg font-black" : "text-sm font-bold"}`}>
+            {entry.displayName[0]?.toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <span className="text-lg">{RANK_MEDALS[entry.rank]}</span>
+        <div className="flex items-center gap-1">
+          {entry.country && <span className="text-sm">{entry.country}</span>}
+          <span className={`${size === "lg" ? "text-[11px] font-black" : "text-[10px] font-bold"} text-foreground truncate max-w-[70px] text-center`}>
+            {entry.displayName}
+          </span>
+          {isMe && (
+            <Badge className="bg-primary/20 text-primary border-primary/30 text-[9px] px-1 py-0">yo</Badge>
+          )}
+        </div>
+        {entry.rank === 1 ? (
+          <Badge className="bg-amber-500/20 text-amber-700 border-amber-500/30 text-[10px] px-2">
+            {entry.totalXP} XP
+          </Badge>
+        ) : (
+          <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
+            {entry.totalXP} XP
+          </Badge>
+        )}
+        <div
+          className={`w-14 rounded-t-lg flex items-center justify-center ${barColor}`}
+          style={{ height: barHeight }}
+        >
+          <span className={`text-sm font-black ${entry.rank === 1 ? "text-amber-600" : entry.rank === 2 ? "text-muted-foreground" : "text-amber-800"}`}>
+            {entry.rank}
+          </span>
+        </div>
+      </motion.div>
+    );
+  };
+
   return (
     <div className="space-y-2 pb-4">
       {/* Top 3 podium */}
       {leaderboard.length >= 3 && (
         <div className="flex items-end justify-center gap-3 py-4 mb-2">
-          {/* 2nd place */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="flex flex-col items-center gap-1"
-          >
-            <Avatar className="w-12 h-12 border-2 border-muted">
-              <AvatarImage src={leaderboard[1].avatarUrl || ""} />
-              <AvatarFallback className="bg-muted text-foreground text-sm font-bold">
-                {leaderboard[1].displayName[0]?.toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-lg">🥈</span>
-            <span className="text-[10px] font-bold text-foreground truncate max-w-[60px] text-center">
-              {leaderboard[1].displayName}
-            </span>
-            <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
-              {leaderboard[1].totalXP} XP
-            </Badge>
-            <div className="w-14 h-12 bg-muted/60 rounded-t-lg flex items-center justify-center">
-              <span className="text-sm font-black text-muted-foreground">2</span>
-            </div>
-          </motion.div>
-
-          {/* 1st place */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0 }}
-            className="flex flex-col items-center gap-1 -mb-2"
-          >
-            <motion.div
-              animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="text-2xl"
-            >
-              👑
-            </motion.div>
-            <Avatar className="w-16 h-16 border-4 border-amber-400 shadow-lg shadow-amber-500/30">
-              <AvatarImage src={leaderboard[0].avatarUrl || ""} />
-              <AvatarFallback className="bg-amber-500/20 text-amber-700 text-lg font-black">
-                {leaderboard[0].displayName[0]?.toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-xl">🥇</span>
-            <span className="text-[11px] font-black text-foreground truncate max-w-[70px] text-center">
-              {leaderboard[0].displayName}
-            </span>
-            <Badge className="bg-amber-500/20 text-amber-700 border-amber-500/30 text-[10px] px-2">
-              {leaderboard[0].totalXP} XP
-            </Badge>
-            <div className="w-14 h-16 bg-amber-500/20 rounded-t-lg flex items-center justify-center border border-amber-500/30">
-              <span className="text-base font-black text-amber-600">1</span>
-            </div>
-          </motion.div>
-
-          {/* 3rd place */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="flex flex-col items-center gap-1"
-          >
-            <Avatar className="w-12 h-12 border-2 border-amber-700/40">
-              <AvatarImage src={leaderboard[2].avatarUrl || ""} />
-              <AvatarFallback className="bg-amber-700/10 text-amber-800 text-sm font-bold">
-                {leaderboard[2].displayName[0]?.toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-lg">🥉</span>
-            <span className="text-[10px] font-bold text-foreground truncate max-w-[60px] text-center">
-              {leaderboard[2].displayName}
-            </span>
-            <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
-              {leaderboard[2].totalXP} XP
-            </Badge>
-            <div className="w-14 h-10 bg-amber-700/10 rounded-t-lg flex items-center justify-center">
-              <span className="text-sm font-black text-amber-800">3</span>
-            </div>
-          </motion.div>
+          <PodiumEntry entry={leaderboard[1]} size="md" barHeight={48} />
+          <PodiumEntry entry={leaderboard[0]} size="lg" barHeight={64} />
+          <PodiumEntry entry={leaderboard[2]} size="sm" barHeight={40} />
         </div>
       )}
 
@@ -149,6 +154,9 @@ export function GameLeaderboard() {
               </Avatar>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
+                  {entry.country && (
+                    <span className="text-sm flex-shrink-0" title={entry.country}>{entry.country}</span>
+                  )}
                   <span className="text-xs font-bold text-foreground truncate">
                     {entry.displayName}
                   </span>

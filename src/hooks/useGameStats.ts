@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { getCountryFlag } from "@/data/countries";
 
 export interface GameStats {
   highScore: number;
@@ -30,6 +31,7 @@ export interface LeaderboardEntry {
   totalXP: number;
   totalGamesPlayed: number;
   rank: number;
+  country: string | null; // flag emoji or null
 }
 
 export function useGameStats() {
@@ -143,7 +145,6 @@ export function useGameStats() {
         totalXP: newTotalXP, lastPlayedAt: new Date().toISOString(),
       });
 
-      // Refresh sessions list
       const { data: newSessions } = await supabase
         .from("game_sessions").select("*").eq("user_id", user.id)
         .order("played_at", { ascending: false }).limit(20);
@@ -183,6 +184,7 @@ export function useGameLeaderboard() {
             totalXP: row.total_xp,
             totalGamesPlayed: row.total_games_played,
             rank: Number(row.rank),
+            country: row.country ? getCountryFlag(row.country) : null,
           })));
         }
       } catch (error) {
@@ -196,4 +198,14 @@ export function useGameLeaderboard() {
   }, []);
 
   return { leaderboard, isLoading };
+}
+
+/** Fetches only the country for the current user's profile */
+export async function getUserCountry(userId: string): Promise<string | null> {
+  const { data } = await supabase
+    .from("profiles")
+    .select("country")
+    .eq("id", userId)
+    .single();
+  return (data as any)?.country ?? null;
 }
