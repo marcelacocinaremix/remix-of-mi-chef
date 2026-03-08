@@ -272,9 +272,17 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
             return (
               <button
                 key={i}
-                onClick={() => setSelectedDate(day)}
+                onClick={() => {
+                  if (!longPressFired.current) setSelectedDate(day);
+                }}
+                onMouseDown={() => startLongPress(day, meals)}
+                onMouseUp={cancelLongPress}
+                onMouseLeave={cancelLongPress}
+                onTouchStart={() => startLongPress(day, meals)}
+                onTouchEnd={cancelLongPress}
+                onTouchMove={cancelLongPress}
                 className={cn(
-                  "relative flex flex-col items-center justify-start p-1 min-h-[52px] sm:min-h-[64px] border-b border-r border-border/20 transition-colors",
+                  "relative flex flex-col items-center justify-start p-1 min-h-[52px] sm:min-h-[64px] border-b border-r border-border/20 transition-colors select-none",
                   inMonth ? "bg-background" : "bg-muted/30",
                   // Proximity highlights (no meals)
                   !hasMeals && today && "bg-primary/15 ring-2 ring-primary ring-inset",
