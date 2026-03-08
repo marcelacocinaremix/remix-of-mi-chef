@@ -2069,7 +2069,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-bold">{getLevelProgress(level.id)}%</p>
-                    <p className="text-xs text-white/80">completado</p>
+                    <p className="text-xs text-white/80">{t("learnCompleted100")}</p>
                   </div>
                 </div>
                 <Progress 
