@@ -212,9 +212,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const [activeTab, setActiveTab] = useState<ActiveTab>("recetas");
   const [selectedTip, setSelectedTip] = useState<FavoriteFoodTip | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showHelp, setShowHelp] = useState(() => {
-    try { return !localStorage.getItem(HELP_DISMISSED_KEY); } catch { return true; }
-  });
+  const [showHelp, setShowHelp] = useState(false);
 
   // Carpetas recetas
   const [folders, setFolders] = useState<string[]>(getFolders());
