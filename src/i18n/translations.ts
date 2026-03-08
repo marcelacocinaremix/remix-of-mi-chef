@@ -1119,6 +1119,9 @@ export const translations = {
     calendarRecipeRemoved: "Receta eliminada",
     calendarWeekDays: "Lun,Mar,Mié,Jue,Vie,Sáb,Dom",
     calendarForMealType: "Para",
+    calendarAddError: "No se pudo agregar la receta",
+    calendarNoFavorites: "No tenés recetas favoritas todavía",
+    calendarNoRecent: "No cocinaste recetas todavía",
 
     // FavoriteRecipes
     favTitle: "Tus favoritos",
