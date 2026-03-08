@@ -810,7 +810,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
     const achievement = ACHIEVEMENTS.find(a => a.requirement === count);
     if (achievement) {
       toast({
-        title: `🏆 ¡Logro desbloqueado!`,
+        title: t("pantryAchievementUnlocked"),
         description: `${achievement.icon} ${achievement.name}: ${achievement.description}`,
       });
     }
