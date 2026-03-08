@@ -50,26 +50,26 @@ export function LanguageSelector({ onComplete, showContinue = true }: LanguageSe
         </p>
       </div>
 
-      <div className="w-full max-w-sm space-y-3 mb-8">
+      <div className="w-full max-w-sm space-y-1.5 mb-6">
         {LANGUAGES.map((lang) => (
           <button
             key={lang.code}
             onClick={() => handleSelect(lang.code)}
             className={cn(
-              "w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all duration-200",
-              "hover:shadow-md",
+              "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-all duration-200",
+              "hover:shadow-sm",
               selected === lang.code
                 ? "border-primary bg-primary/10 shadow-sm"
                 : "border-border hover:border-primary/50"
             )}
           >
-            <span className="text-3xl">{lang.flag}</span>
-            <span className="flex-1 text-left font-medium text-foreground">
+            <span className="text-2xl">{lang.flag}</span>
+            <span className="flex-1 text-left font-medium text-foreground text-sm">
               {lang.name}
             </span>
             {selected === lang.code && (
-              <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                <Check className="w-4 h-4 text-primary-foreground" />
+              <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                <Check className="w-3 h-3 text-primary-foreground" />
               </div>
             )}
           </button>
