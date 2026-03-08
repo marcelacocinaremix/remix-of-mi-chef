@@ -694,7 +694,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                 <div key={meal.id} className="flex items-start gap-3 p-3 rounded-xl border border-border/50 bg-muted/30">
                   <Icon className={cn("w-4 h-4 mt-0.5 flex-shrink-0", mt?.color)} />
                   <div className="min-w-0">
-                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">{mt?.label}</p>
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">{mt ? t(mt.labelKey as any) : ""}</p>
                     <p className="text-sm font-semibold leading-snug">{meal.recipeName}</p>
                     {meal.recipeData?.time && (
                       <p className="text-xs text-muted-foreground mt-0.5">{meal.recipeData.time} min · {meal.recipeData.difficulty}</p>
