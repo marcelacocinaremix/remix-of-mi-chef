@@ -173,6 +173,7 @@ export function CookingSection({
   onClearSuggestion,
 }: CookingSectionProps) {
   const { t } = useLanguage();
+  const { hasAnyAccess } = usePremium();
 
   const [showHelp, setShowHelp] = useState(false);
 
