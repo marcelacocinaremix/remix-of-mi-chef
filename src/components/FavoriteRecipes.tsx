@@ -995,12 +995,12 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
               {sheetRecipe && (
                 <>
                   <SheetHeader className="mb-4">
-                    <SheetTitle className="text-left text-base flex items-center gap-2">
+                  <SheetTitle className="text-left text-base flex items-center gap-2">
                       <span className="text-2xl">{getRecipeEmoji(sheetRecipe.recipe_data)}</span>
                       <span className="line-clamp-1">{sheetRecipe.recipe_name}</span>
                     </SheetTitle>
                     <p className="text-xs text-muted-foreground text-left">
-                      Carpeta actual: <strong>{folderAssignments[sheetRecipe.id] || "Sin carpeta"}</strong>
+                      {t("favFolderCurrentLabel")} <strong>{folderAssignments[sheetRecipe.id] || t("favDefaultFolderNoFolder")}</strong>
                     </p>
                   </SheetHeader>
                   <div className="space-y-2 mb-5">
