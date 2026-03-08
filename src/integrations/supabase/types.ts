@@ -290,6 +290,42 @@ export type Database = {
         }
         Relationships: []
       }
+      game_sessions: {
+        Row: {
+          id: string
+          mode: string
+          played_at: string
+          recipes_completed: number
+          score: number
+          streak: number
+          time_played: number
+          user_id: string
+          xp_earned: number
+        }
+        Insert: {
+          id?: string
+          mode: string
+          played_at?: string
+          recipes_completed?: number
+          score?: number
+          streak?: number
+          time_played?: number
+          user_id: string
+          xp_earned?: number
+        }
+        Update: {
+          id?: string
+          mode?: string
+          played_at?: string
+          recipes_completed?: number
+          score?: number
+          streak?: number
+          time_played?: number
+          user_id?: string
+          xp_earned?: number
+        }
+        Relationships: []
+      }
       meal_logs: {
         Row: {
           calories: number
