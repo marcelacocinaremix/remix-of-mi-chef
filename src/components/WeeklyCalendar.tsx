@@ -844,7 +844,7 @@ export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateC
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <ChefHat className="w-5 h-5 text-primary" />
-              Elegir receta para {showRecipeSelector && DAYS[showRecipeSelector.day].name} - {showRecipeSelector?.meal === 'almuerzo' ? 'Almuerzo' : 'Cena'}
+              Elegir receta para {showRecipeSelector && DAYS[showRecipeSelector.day].name} - {showRecipeSelector?.meal === 'almuerzo' ? t("lunch") : t("dinner")}
             </DialogTitle>
           </DialogHeader>
           
