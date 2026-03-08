@@ -214,6 +214,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const [activeTab, setActiveTab] = useState<ActiveTab>("recetas");
   const [selectedTip, setSelectedTip] = useState<FavoriteFoodTip | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchBar, setShowSearchBar] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
   // Carpetas recetas
