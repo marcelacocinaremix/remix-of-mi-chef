@@ -74,6 +74,7 @@ const initialFilters: FiltersState = {
 export function WeeklyCalendar({ ingredients, pantryItems = [], onBack, onStateChange }: WeeklyCalendarProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const shoppingList = useShoppingList();
   
   const [currentWeek, setCurrentWeek] = useState<Date>(getWeekStart(new Date()));
