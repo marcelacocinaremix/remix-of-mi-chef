@@ -95,11 +95,12 @@ export function useStreak(): StreakResult {
         already_active_today: boolean;
       };
 
-      const today = new Date().toISOString().split("T")[0];
+      const now = new Date();
+      const todayLocal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
       setStreakData({
         currentStreak: result.current_streak,
         longestStreak: result.longest_streak,
-        lastActivityDate: today,
+        lastActivityDate: todayLocal,
         alreadyActiveToday: true,
       });
 
