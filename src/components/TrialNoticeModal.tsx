@@ -109,7 +109,7 @@ export function TrialNoticeModal() {
     <>
       <Dialog open={open} onOpenChange={() => {}}>
         <DialogContent
-          className="max-w-sm mx-4 [&>button]:hidden"
+          className="w-[calc(100vw-2rem)] max-w-sm [&>button]:hidden"
           onPointerDownOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
           onInteractOutside={(e) => e.preventDefault()}
