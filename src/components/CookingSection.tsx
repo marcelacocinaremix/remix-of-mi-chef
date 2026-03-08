@@ -153,6 +153,15 @@ export function CookingSection({
 }: CookingSectionProps) {
   const { t } = useLanguage();
 
+  const [showHelp, setShowHelp] = useState(() => {
+    try { return !localStorage.getItem(COOKING_HELP_KEY); } catch { return true; }
+  });
+
+  const dismissHelp = () => {
+    localStorage.setItem(COOKING_HELP_KEY, "1");
+    setShowHelp(false);
+  };
+
   const activeFlavor = quickFilters.find(f => f === "dulce" || f === "salado") ?? null;
 
   const toggleFlavor = (id: string) => {
