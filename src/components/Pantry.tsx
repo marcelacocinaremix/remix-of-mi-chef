@@ -752,25 +752,35 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
   };
 
   const handleRemoveIngredient = async (id: string) => {
+    // Optimistic removal
+    setItems(prev => prev.filter((item) => item.id !== id));
     try {
       const { error } = await supabase
         .from("pantry_items")
         .delete()
         .eq("id", id);
-
       if (error) throw error;
-
-      setItems(items.filter((item) => item.id !== id));
-      toast({
-        title: t("productRemoved"),
-        description: t("removedFromShelf"),
-      });
+      toast({ title: t("productRemoved"), description: t("removedFromShelf") });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo eliminar el ingrediente.",
-        variant: "destructive",
-      });
+      // Rollback
+      await fetchPantryItems();
+      toast({ title: "Error", description: "No se pudo eliminar el ingrediente.", variant: "destructive" });
+    }
+  };
+
+  const handleRemoveExpiredBatch = async (ids: string[]) => {
+    // Optimistic removal
+    setItems(prev => prev.filter(item => !ids.includes(item.id)));
+    try {
+      const { error } = await supabase
+        .from("pantry_items")
+        .delete()
+        .in("id", ids);
+      if (error) throw error;
+      toast({ title: `${ids.length} producto${ids.length > 1 ? 's' : ''} descartado${ids.length > 1 ? 's' : ''}` });
+    } catch {
+      await fetchPantryItems();
+      toast({ title: "Error", description: "No se pudo eliminar los productos.", variant: "destructive" });
     }
   };
 
