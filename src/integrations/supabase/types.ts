@@ -1037,6 +1037,18 @@ export type Database = {
           shared_by_name: string
         }[]
       }
+      get_streak_leaderboard: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          country: string
+          current_streak: number
+          display_name: string
+          longest_streak: number
+          rank: number
+          user_id: string
+        }[]
+      }
       get_xp_leaderboard: {
         Args: never
         Returns: {
