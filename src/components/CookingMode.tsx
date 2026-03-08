@@ -13,6 +13,8 @@ interface CookingModeProps {
   recipe: Recipe;
   onClose: () => void;
   onMarkAsCooked?: () => void;
+  /** True if the recipe was already logged via "Ya la cociné" button — skip DB insert */
+  alreadyCooked?: boolean;
 }
 
 // Timer messages
