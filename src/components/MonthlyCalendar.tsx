@@ -73,6 +73,27 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
   const [isLoading, setIsLoading] = useState(false);
   const [recipeTab, setRecipeTab] = useState<"favoritos" | "recientes">("favoritos");
 
+  // Long press preview state
+  const [longPressDay, setLongPressDay] = useState<Date | null>(null);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressFired = useRef(false);
+
+  const startLongPress = useCallback((day: Date, meals: DayMeal[]) => {
+    if (meals.length === 0) return;
+    longPressFired.current = false;
+    longPressTimer.current = setTimeout(() => {
+      longPressFired.current = true;
+      setLongPressDay(day);
+    }, 500);
+  }, []);
+
+  const cancelLongPress = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
   // Calendar grid
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
