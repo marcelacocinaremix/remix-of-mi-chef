@@ -23,10 +23,14 @@ export function UserMenu() {
   const { user, signOut } = useAuth();
   const { t, language } = useLanguage();
   const { isPremium, isTrialActive, trialDaysRemaining } = usePremium();
+  const { theme } = useAppTheme();
   const navigate = useNavigate();
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
+  const [showThemePicker, setShowThemePicker] = useState(false);
+
+  const currentThemeLabel = THEMES.find(t => t.id === theme)?.label ?? "Tema";
 
   const languageFlags: Record<string, string> = {
     es: "🇦🇷",
