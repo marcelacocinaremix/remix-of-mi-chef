@@ -397,30 +397,96 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
               {folders.map(folder => {
                 const isActive = activeFolder === folder;
                 const count = folderCounts[folder] || 0;
+                const isDeletable = folder !== "Sin carpeta";
                 return (
-                  <button
-                    key={folder}
-                    onClick={() => setActiveFolder(folder)}
-                    className={cn(
-                      "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border",
-                      isActive
-                        ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                        : "bg-muted/50 text-muted-foreground border-border/50 hover:bg-muted hover:text-foreground"
+                  <div key={folder} className="flex items-center gap-0">
+                    <button
+                      onClick={() => setActiveFolder(folder)}
+                      className={cn(
+                        "flex items-center gap-1.5 py-1.5 text-xs font-medium transition-all border",
+                        isDeletable ? "pl-3 pr-2 rounded-l-full border-r-0" : "px-3 rounded-full",
+                        isActive
+                          ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                          : "bg-muted/50 text-muted-foreground border-border/50 hover:bg-muted hover:text-foreground"
+                      )}
+                    >
+                      {isActive ? <FolderOpen className="w-3.5 h-3.5" /> : <Folder className="w-3.5 h-3.5" />}
+                      {folder}
+                      <span className={cn(
+                        "text-xs rounded-full min-w-[16px] text-center",
+                        isActive ? "text-primary-foreground/80" : "text-muted-foreground"
+                      )}>
+                        {count}
+                      </span>
+                    </button>
+                    {isDeletable && (
+                      <button
+                        onClick={() => handleDeleteFolder(folder)}
+                        className={cn(
+                          "flex items-center justify-center w-6 h-[30px] rounded-r-full border transition-all",
+                          isActive
+                            ? "bg-primary border-primary text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary/80"
+                            : "bg-muted/50 border-border/50 text-muted-foreground hover:bg-destructive/15 hover:text-destructive hover:border-destructive/30"
+                        )}
+                        title={`Eliminar carpeta "${folder}"`}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
                     )}
-                  >
-                    {isActive ? <FolderOpen className="w-3.5 h-3.5" /> : <Folder className="w-3.5 h-3.5" />}
-                    {folder}
-                    <span className={cn(
-                      "text-xs rounded-full min-w-[16px] text-center",
-                      isActive ? "text-primary-foreground/80" : "text-muted-foreground"
-                    )}>
-                      {count}
-                    </span>
-                  </button>
+                  </div>
                 );
               })}
             </div>
           </div>
+
+          {/* Confirm delete folder dialog */}
+          <Dialog open={!!deletingFolder} onOpenChange={open => !open && setDeletingFolder(null)}>
+            <DialogContent className="max-w-sm">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Trash2 className="w-5 h-5 text-destructive" />
+                  Eliminar carpeta
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  ¿Eliminar la carpeta <strong>"{deletingFolder}"</strong>?
+                  {deletingFolder && (folderCounts[deletingFolder] || 0) > 0 && (
+                    <span> Las <strong>{folderCounts[deletingFolder]}</strong> recetas se moverán a "Sin carpeta".</span>
+                  )}
+                </p>
+                <div className="flex gap-2">
+                  <Button variant="ghost" className="flex-1" onClick={() => setDeletingFolder(null)}>
+                    Cancelar
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    className="flex-1"
+                    onClick={() => {
+                      if (!deletingFolder) return;
+                      // Move recipes to "Sin carpeta"
+                      const updated = { ...folderAssignments };
+                      favorites.forEach(f => {
+                        if ((updated[f.id] || "Sin carpeta") === deletingFolder) {
+                          updated[f.id] = "Sin carpeta";
+                        }
+                      });
+                      localStorage.setItem(RECIPE_FOLDERS_KEY, JSON.stringify(updated));
+                      setFolderAssignments(updated);
+                      const newFolders = folders.filter(f => f !== deletingFolder);
+                      setFolders(newFolders);
+                      saveFolders(newFolders);
+                      if (activeFolder === deletingFolder) setActiveFolder("Sin carpeta");
+                      setDeletingFolder(null);
+                      toast({ title: "Carpeta eliminada" });
+                    }}
+                  >
+                    Eliminar
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
 
           {/* Recipe Grid */}
           {favorites.length === 0 ? (
