@@ -86,12 +86,57 @@ export function StreakLeaderboard() {
     );
   }
 
+  const userInLeaderboard = user && leaderboard.find((e) => e.userId === user.id);
+  const displayName = user?.user_metadata?.display_name || user?.email?.split("@")[0] || "Vos";
+
+  // Footer card shown when user is not in the ranked list
+  const MyStreakFooter = () => {
+    if (!user) return null;
+    if (userInLeaderboard) return null;
+    return (
+      <div className="mt-3 p-3 bg-primary/5 rounded-xl border border-primary/20">
+        <div className="flex items-center gap-3">
+          <Avatar className="w-9 h-9 border-2 border-primary/30">
+            <AvatarFallback className="bg-primary/10 text-primary text-xs font-black">
+              {displayName[0]?.toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-foreground truncate">{displayName}</span>
+              <Badge className="bg-primary/20 text-primary border-primary/30 text-[9px] px-1.5 py-0">yo</Badge>
+            </div>
+            {myStreak ? (
+              <span className="text-[10px] text-muted-foreground">
+                Racha actual: {myStreak.currentStreak} días · Mejor: {myStreak.longestStreak} días
+              </span>
+            ) : (
+              <span className="text-[10px] text-muted-foreground">Sin actividad registrada todavía</span>
+            )}
+          </div>
+          <div className="flex items-center gap-1">
+            <Flame className="w-3.5 h-3.5 text-muted-foreground" />
+            <span className="text-xs font-black text-muted-foreground">{myStreak?.currentStreak ?? 0}</span>
+          </div>
+        </div>
+        {(!myStreak || myStreak.currentStreak === 0) && (
+          <p className="text-[10px] text-muted-foreground mt-2 text-center">
+            ¡Realizá una actividad hoy para aparecer en el ranking! 🔥
+          </p>
+        )}
+      </div>
+    );
+  };
+
   if (leaderboard.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-10 text-center">
-        <div className="text-5xl mb-3">🔥</div>
-        <p className="text-sm font-semibold text-foreground mb-1">¡Sé el primero!</p>
-        <p className="text-xs text-muted-foreground">Nadie tiene racha activa todavía. Empezá hoy.</p>
+      <div className="space-y-4 pb-2">
+        <div className="flex flex-col items-center justify-center py-8 text-center">
+          <div className="text-5xl mb-3">🔥</div>
+          <p className="text-sm font-semibold text-foreground mb-1">¡Sé el primero!</p>
+          <p className="text-xs text-muted-foreground">Nadie tiene racha activa todavía. Empezá hoy.</p>
+        </div>
+        <MyStreakFooter />
       </div>
     );
   }
