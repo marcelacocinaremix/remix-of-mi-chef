@@ -1,18 +1,17 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import {
-  Heart, Star, Timer, Sparkles, Trophy, Flame, ChefHat,
-  X, RotateCcw, CheckCircle, XCircle, Crown, Zap, ArrowRight,
+  Heart, Star, Timer, Flame, ChefHat,
+  X, CheckCircle, XCircle,
 } from "lucide-react";
 import { useSound } from "@/hooks/useSound";
-import { useGameStats } from "@/hooks/useGameStats";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useAuth } from "@/hooks/useAuth";
-import { GAME_RECIPES, INGREDIENTS_POOL, PLAYER_LEVELS, getDailyChallenge } from "./gameConfig";
+import { GAME_RECIPES, INGREDIENTS_POOL } from "./gameConfig";
 import marcelaCharacter from "@/assets/marcela-character.png";
+
+type GameMode = "recipe" | "order" | "ingredients";
 
 type GameMode = "recipe" | "order" | "ingredients";
 
