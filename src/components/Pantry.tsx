@@ -497,6 +497,7 @@ function PantryShelf({
   onUseCategoryIngredients: () => void;
   index: number;
 }) {
+  const { t } = useLanguage();
   return (
     <div 
       className={cn(
