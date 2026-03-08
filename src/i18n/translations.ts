@@ -3808,6 +3808,12 @@ export const translations = {
     profilePhotoHint: "Toque no ícone para alterar sua foto",
     profileName: "Nome",
     profileNamePlaceholder: "Seu nome",
+    profileCountry: "País",
+    profileCountryPlaceholder: "Selecione seu país",
+    gameCountryPromptTitle: "De onde você está jogando?",
+    gameCountryPromptDesc: "Escolha seu país para aparecer no ranking global",
+    gameCountryPromptSkip: "Agora não",
+    gameCountryPromptSave: "Salvar e jogar",
     recipeFooterMsg: "\"Espero que você aproveite esta receita. No MARCELACOCINA tem muito mais ideias fáceis para o dia a dia.\"",
 
     // CookingGame (legacy keys kept for compat)
