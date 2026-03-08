@@ -562,6 +562,39 @@ export default function Index() {
     }
   };
 
+  // Neon bar: calculate position when activeTab or theme changes
+  useEffect(() => {
+    if (!isFuture) {
+      setNeonBarRow1(null);
+      setNeonBarRow2(null);
+      return;
+    }
+    const row1Ids = menuItems.slice(0, 4).map(i => i.id);
+    const row2Ids = menuItems.slice(4, 8).map(i => i.id);
+    const row1Idx = row1Ids.indexOf(activeTab);
+    const row2Idx = row2Ids.indexOf(activeTab);
+
+    const calcBar = (
+      ref: React.RefObject<HTMLDivElement>,
+      idx: number,
+      setter: (v: { left: number; width: number } | null) => void
+    ) => {
+      if (idx < 0 || !ref.current) { setter(null); return; }
+      const btn = ref.current.querySelectorAll("button")[idx] as HTMLElement;
+      if (!btn) { setter(null); return; }
+      const cRect = ref.current.getBoundingClientRect();
+      const bRect = btn.getBoundingClientRect();
+      setter({ left: bRect.left - cRect.left + bRect.width * 0.08, width: bRect.width * 0.84 });
+    };
+
+    const t = setTimeout(() => {
+      calcBar(menuRow1Ref, row1Idx, setNeonBarRow1);
+      calcBar(menuRow2Ref, row2Idx, setNeonBarRow2);
+    }, 30);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFuture, activeTab]);
+
   return (
     <div className="h-[100dvh] gradient-hero relative overflow-hidden w-screen max-w-[100vw] flex flex-col">
       <FuturisticBackground />
