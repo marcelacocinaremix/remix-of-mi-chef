@@ -990,7 +990,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
       {(() => {
         const sheetRecipe = movingRecipeId ? favorites.find(f => f.id === movingRecipeId) : null;
         return (
-          <Sheet open={!!movingRecipeId} onOpenChange={open => !open && setMovingRecipeId(null)}>
+          <Sheet open={!!movingRecipeId} onOpenChange={open => { if (!open) { setMovingRecipeId(null); setShowSheetNewFolder(false); setSheetNewFolderName(""); } }}>
             <SheetContent side="bottom" className="rounded-t-2xl pb-8">
               {sheetRecipe && (
                 <>
