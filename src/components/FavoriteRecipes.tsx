@@ -370,7 +370,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     saveFolderAssignment(recipeId, folder);
     setFolderAssignments(prev => ({ ...prev, [recipeId]: folder }));
     setMovingRecipeId(null);
-    toast({ title: "✅ Receta movida", description: `Movida a "${folder}".` });
+    toast({ title: t("favRecipeMoved"), description: `${t("favMovedTo").replace("{folder}", folder)}` });
   }, [toast]);
 
   // ─── Pointer drag ────────────────────────────────────────────────────
