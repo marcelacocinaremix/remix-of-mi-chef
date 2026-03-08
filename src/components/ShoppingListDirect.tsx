@@ -62,20 +62,31 @@ import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { SuperSmartHistory } from "./SuperSmartHistory";
 
-const CATEGORY_CONFIG: Record<string, { emoji: string; label: string; order: number; color: string }> = {
-  verduras: { emoji: "🥬", label: "Verduras", order: 1, color: "emerald" },
-  frutas: { emoji: "🍎", label: "Frutas", order: 2, color: "rose" },
-  carnes: { emoji: "🥩", label: "Carnes", order: 3, color: "red" },
-  pescados: { emoji: "🐟", label: "Pescados", order: 4, color: "cyan" },
-  lacteos: { emoji: "🧀", label: "Lácteos", order: 5, color: "amber" },
-  huevos: { emoji: "🥚", label: "Huevos", order: 6, color: "orange" },
-  almacen: { emoji: "🏪", label: "Almacén", order: 7, color: "amber" },
-  panaderia: { emoji: "🍞", label: "Panadería", order: 8, color: "yellow" },
-  condimentos: { emoji: "🧂", label: "Condimentos", order: 9, color: "purple" },
-  bebidas: { emoji: "🥤", label: "Bebidas", order: 10, color: "blue" },
-  congelados: { emoji: "🧊", label: "Congelados", order: 11, color: "sky" },
-  otros: { emoji: "📦", label: "Otros", order: 99, color: "slate" },
+const CATEGORY_KEYS: Record<string, { emoji: string; order: number; color: string; tKey: string }> = {
+  verduras: { emoji: "🥬", order: 1, color: "emerald", tKey: "superCategoryVerduras" },
+  frutas: { emoji: "🍎", order: 2, color: "rose", tKey: "superCategoryFrutas" },
+  carnes: { emoji: "🥩", order: 3, color: "red", tKey: "superCategoryCarnes" },
+  pescados: { emoji: "🐟", order: 4, color: "cyan", tKey: "superCategoryPescados" },
+  lacteos: { emoji: "🧀", order: 5, color: "amber", tKey: "superCategoryLacteos" },
+  huevos: { emoji: "🥚", order: 6, color: "orange", tKey: "superCategoryHuevos" },
+  almacen: { emoji: "🏪", order: 7, color: "amber", tKey: "superCategoryAlmacen" },
+  panaderia: { emoji: "🍞", order: 8, color: "yellow", tKey: "superCategoryPanaderia" },
+  condimentos: { emoji: "🧂", order: 9, color: "purple", tKey: "superCategoryCondimentos" },
+  bebidas: { emoji: "🥤", order: 10, color: "blue", tKey: "superCategoryBebidas" },
+  congelados: { emoji: "🧊", order: 11, color: "sky", tKey: "superCategoryCongelados" },
+  otros: { emoji: "📦", order: 99, color: "slate", tKey: "superCategoryOtros" },
 };
+
+// Keep CATEGORY_CONFIG for backward compatibility (used in AddToPantryDialog before t() is available)
+const CATEGORY_CONFIG: Record<string, { emoji: string; label: string; order: number; color: string }> = Object.fromEntries(
+  Object.entries(CATEGORY_KEYS).map(([k, v]) => [k, { ...v, label: k }])
+);
+
+function getCategoryConfig(key: string, t: (k: any) => string) {
+  const base = CATEGORY_KEYS[key];
+  if (!base) return { emoji: "📦", label: key, order: 99, color: "slate" };
+  return { ...base, label: t(base.tKey as any) };
+}
 
 const UNIT_OPTIONS = [
   { value: "unidad", label: "unidad(es)" },
