@@ -484,11 +484,11 @@ export function ShoppingListDirect() {
                 <div className="flex items-center gap-4 mb-3">
                   <div className="flex items-center gap-1.5 text-sm">
                     <Clock className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">{pendingCount} pendientes</span>
+                    <span className="text-muted-foreground">{pendingCount} {t("superPending")}</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-sm">
                     <Check className="w-4 h-4 text-emerald-500" />
-                    <span className="text-emerald-600 dark:text-emerald-400">{purchasedCount} comprados</span>
+                    <span className="text-emerald-600 dark:text-emerald-400">{purchasedCount} {t("superPurchased")}</span>
                   </div>
                 </div>
               )}
