@@ -20,8 +20,8 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
   const { stats } = useGameStats();
   const { t } = useLanguage();
 
-  // Calculate player level
-  const totalXP = stats.highScore + stats.totalRecipesCompleted * 50;
+  // XP total = recetas completadas * 50 + partidas jugadas * 20
+  const totalXP = stats.totalRecipesCompleted * 50 + stats.totalGamesPlayed * 20;
   const currentLevel = PLAYER_LEVELS.reduce((acc, lvl) => totalXP >= lvl.minXP ? lvl : acc, PLAYER_LEVELS[0]);
   const nextLevel = PLAYER_LEVELS.find(l => l.minXP > totalXP);
   const xpProgress = nextLevel
