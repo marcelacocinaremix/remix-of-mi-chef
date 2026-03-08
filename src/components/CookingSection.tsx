@@ -121,7 +121,7 @@ interface CookingSectionProps {
   onClearSuggestion?: () => void;
 }
 
-const FLAVOR_IDS = ["salado", "dulce"] as const;
+
 
 function StepHeader({ number, title, subtitle }: { number: number; title: string; subtitle: string }) {
   return (

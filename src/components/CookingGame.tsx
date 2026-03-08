@@ -689,7 +689,7 @@ export function CookingGame({ onAchievementUnlocked }: CookingGameProps) {
       <Card className="bg-card/50 border-border/50">
         <CardContent className="p-4">
           <p className="text-xs text-muted-foreground text-center mb-3">
-            Tocá o arrastrá el ingrediente correcto a la olla 👆
+            {t("addIngredient")} 👆
           </p>
           <div className="grid grid-cols-4 gap-2">
             {shuffledIngredients.map(ingredient => {
