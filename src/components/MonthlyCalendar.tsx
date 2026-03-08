@@ -461,7 +461,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
               }}
             >
               <Sparkles className="w-4 h-4 mr-1" />
-              Generar receta
+              {t("calendarGenerateRecipe")}
             </Button>
           </div>
         </DialogContent>
