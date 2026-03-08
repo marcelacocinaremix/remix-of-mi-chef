@@ -26,7 +26,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return !localStorage.getItem(FIRST_VISIT_KEY);
   });
 
-  // Load language from user profile when authenticated
+  // Load language from user profile when authenticated (only on first login, not on every re-render)
   useEffect(() => {
     if (user) {
       const loadUserLanguage = async () => {
@@ -36,15 +36,18 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
           .eq("id", user.id)
           .maybeSingle();
         
-        if (data?.language) {
+        // Only apply profile language if there's no locally-stored preference
+        // This prevents overwriting a language the user just changed
+        const localLang = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+        if (data?.language && !localLang) {
           setLanguageState(data.language as Language);
           localStorage.setItem(LANGUAGE_STORAGE_KEY, data.language);
         }
       };
       
-      setTimeout(() => loadUserLanguage(), 0);
+      loadUserLanguage();
     }
-  }, [user]);
+  }, [user?.id]);
 
   const setLanguage = async (lang: Language) => {
     setLanguageState(lang);
