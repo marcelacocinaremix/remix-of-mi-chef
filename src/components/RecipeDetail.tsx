@@ -607,16 +607,14 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               className="w-full"
             >
               <Copy className="w-5 h-5" />
-              {isCopying ? "Copiando..." : hasCopied ? "Copiados ✓" : "Copiar ingredientes"}
+              {isCopying ? t("copyingLabel") : hasCopied ? t("copiedLabel") : t("copyIngredientsLabel")}
             </Button>
           </div>
 
           {/* Footer message */}
           <div className="pt-4 border-t border-border text-center">
             <p className="text-muted-foreground italic text-sm">
-              "Espero que disfrutes esta receta. En{" "}
-              <span className="text-primary font-medium">MARCELACOCINA</span>{" "}
-              tenés muchas más ideas fáciles para el día a día."
+              {t("recipeFooterMsg")}
             </p>
           </div>
 
@@ -624,7 +622,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
           <div className="pt-2">
             <Button variant="outline" onClick={() => { onBack(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="w-full">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Volver al menú
+              {t("backToMenu")}
             </Button>
           </div>
         </div>
