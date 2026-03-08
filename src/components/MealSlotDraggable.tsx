@@ -107,14 +107,14 @@ export function MealSlotDraggable({
             <GripVertical className="w-3 h-3 text-muted-foreground" />
           </div>
           
-          {/* Action buttons */}
-          <div className="absolute -top-1 -right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+          {/* Action buttons — always visible on touch, hover on desktop */}
+          <div className="absolute -top-1 -right-1 flex gap-0.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onDuplicate(meal.recipe);
               }}
-              className="p-1 bg-primary text-primary-foreground rounded-full shadow-sm hover:bg-primary/90"
+              className="p-1 bg-primary text-primary-foreground rounded-full shadow-sm hover:bg-primary/90 active:scale-90"
               title="Copiar a otro día"
             >
               <Copy className="w-3 h-3" />
@@ -124,7 +124,7 @@ export function MealSlotDraggable({
                 e.stopPropagation();
                 onRemove();
               }}
-              className="p-1 bg-destructive text-destructive-foreground rounded-full shadow-sm hover:bg-destructive/90"
+              className="p-1 bg-destructive text-destructive-foreground rounded-full shadow-sm hover:bg-destructive/90 active:scale-90"
               title="Eliminar"
             >
               <X className="w-3 h-3" />
