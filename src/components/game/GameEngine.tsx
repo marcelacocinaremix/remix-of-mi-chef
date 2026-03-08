@@ -39,7 +39,7 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
   const [lives, setLives] = useState(3);
   const [timeLeft, setTimeLeft] = useState(90);
   const [completedRecipes, setCompletedRecipes] = useState<string[]>([]);
-  const [marcelaMsg, setMarcelaMsg] = useState(MARCELA_MSGS.correct[0]);
+  const [marcelaMsg, setMarcelaMsg] = useState(MARCELA_MSGS.start[0]);
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [gameOver, setGameOver] = useState(false);
