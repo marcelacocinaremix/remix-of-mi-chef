@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useGameStats, getUserCountry } from "@/hooks/useGameStats";
 import { useAchievements } from "@/hooks/useAchievements";
 import { useAuth } from "@/hooks/useAuth";
+import { useStreakContext } from "@/contexts/StreakContext";
 import { GameIntroScreen } from "./GameIntroScreen";
 import { GameEngine } from "./GameEngine";
 import { GameResultScreen } from "./GameResultScreen";
