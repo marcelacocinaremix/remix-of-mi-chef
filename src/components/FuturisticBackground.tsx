@@ -11,7 +11,7 @@ export function FuturisticBackground() {
     "cyan-dark": 0.06,
     "rose-light": 0.2,
     "rose-dark": 0.06,
-    "future": 0.2,
+    "future": 0.55,
   };
   const canvasOpacity = opacityMap[theme] ?? 0.2;
 
