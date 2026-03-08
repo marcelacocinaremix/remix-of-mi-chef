@@ -214,6 +214,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const [activeTab, setActiveTab] = useState<ActiveTab>("recetas");
   const [selectedTip, setSelectedTip] = useState<FavoriteFoodTip | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchBar, setShowSearchBar] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
   // Carpetas recetas
@@ -537,14 +538,46 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                   }
                   highlight={!!draggingRecipeId}
                 />
-                <button
-                  onClick={() => setShowNewFolderInput(!showNewFolderInput)}
-                  className="flex items-center gap-1.5 text-xs bg-primary/10 hover:bg-primary/20 text-primary font-semibold px-3 py-1.5 rounded-xl transition-colors mt-0.5 shrink-0 border border-primary/20"
-                >
-                  <FolderPlus className="w-3.5 h-3.5" />
-                  + Nueva
-                </button>
+                <div className="flex items-center gap-1.5 mt-0.5 shrink-0">
+                  <button
+                    onClick={() => { setShowSearchBar(v => !v); if (showSearchBar) setSearchQuery(""); }}
+                    className={cn(
+                      "flex items-center justify-center w-8 h-8 rounded-xl border transition-colors",
+                      showSearchBar || searchQuery
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-primary/10 hover:bg-primary/20 text-primary border-primary/20"
+                    )}
+                  >
+                    {searchQuery ? <X className="w-3.5 h-3.5" /> : <Search className="w-3.5 h-3.5" />}
+                  </button>
+                  <button
+                    onClick={() => setShowNewFolderInput(!showNewFolderInput)}
+                    className="flex items-center gap-1.5 text-xs bg-primary/10 hover:bg-primary/20 text-primary font-semibold px-3 py-1.5 rounded-xl transition-colors border border-primary/20"
+                  >
+                    <FolderPlus className="w-3.5 h-3.5" />
+                    + Nueva
+                  </button>
+                </div>
               </div>
+
+              {/* Barra de búsqueda desplegable */}
+              {(showSearchBar || searchQuery) && (
+                <div className="relative animate-fade-in">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar por nombre o ingrediente…"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="pl-9 h-9 text-sm"
+                    autoFocus
+                  />
+                  {searchQuery && (
+                    <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              )}
 
               {showNewFolderInput && (
                 <div className="flex gap-2 animate-fade-in">
@@ -630,26 +663,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
             </CardContent>
           </Card>
 
-          {/* PASO 2 — Buscar */}
-          <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-            <CardContent className="p-4 space-y-3">
-              <StepHeader number={2} title="Buscar en mis recetas" subtitle="Filtrá por nombre o ingrediente" />
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Ej: pollo, pasta, postre…"
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  className="pl-9 h-10"
-                />
-                {searchQuery && (
-                  <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+
 
           {/* PASO 3 — Recetas */}
           <Card className="border-2 border-accent/30 bg-gradient-to-br from-accent/5 to-transparent">
