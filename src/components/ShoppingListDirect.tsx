@@ -452,7 +452,7 @@ export function ShoppingListDirect() {
           className="animate-neon-pulse flex items-center gap-2 px-3 py-1.5 rounded-full border border-sky-400/40 bg-sky-500/5 text-sky-500 text-xs font-medium transition-colors duration-300 hover:bg-sky-500/15 hover:border-sky-400/70"
         >
           <Info className="w-3.5 h-3.5" />
-          <span>Ver cómo funciona</span>
+          <span>{ t("superHowItWorksBtn")}</span>
         </button>
       )}
       {/* Header Card with Stats */}
