@@ -1,15 +1,12 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { ChefHat, Timer, SortAsc, Salad, X, ArrowLeft } from "lucide-react";
+import { ChefHat, SortAsc, Salad, ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useGameStats } from "@/hooks/useGameStats";
 import { useAchievements } from "@/hooks/useAchievements";
 import { GameIntroScreen } from "./GameIntroScreen";
 import { GameEngine } from "./GameEngine";
 import { GameResultScreen } from "./GameResultScreen";
-import { getDailyChallenge } from "./gameConfig";
-import type { GameMode } from "./gameConfig";
 
 type GamePhase = "intro" | "modeSelect" | "playing" | "results";
 
