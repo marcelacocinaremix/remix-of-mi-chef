@@ -28,11 +28,11 @@ import {
 } from "lucide-react";
 import { NutritionalBalance } from "@/components/NutritionalBalance";
 import { CocinarGroupSection } from "@/components/CocinarGroupSection";
-import { CookWithMarcela } from "@/components/CookWithMarcela";
 import { PlanificarSection } from "@/components/PlanificarSection";
 import { MiCocinaSection } from "@/components/MiCocinaSection";
 import { MarcelaSection } from "@/components/MarcelaSection";
 import { LearnSection } from "@/components/LearnSection";
+import { GameSection } from "@/components/game/GameSection";
 import { useToast } from "@/hooks/use-toast";
 import { useSound } from "@/hooks/useSound";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -723,13 +723,7 @@ export default function Index() {
               {/* Tab: Jugar */}
               <TabsContent value="jugar" className="space-y-6 animate-fade-in">
                 <div className="max-w-lg mx-auto">
-                  <CookWithMarcela onAchievementUnlocked={() => {
-                    refetchAchievements();
-                    toast({
-                      title: "🎉 ¡Nuevo logro desbloqueado!",
-                      description: `¡Completaste una receta interactiva!`,
-                    });
-                  }} />
+                  <GameSection />
                 </div>
                 <BackToMenuButton scrollContainerRef={scrollContainerRef} />
               </TabsContent>
