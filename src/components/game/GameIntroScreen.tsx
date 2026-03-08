@@ -42,7 +42,7 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="w-full relative overflow-hidden rounded-3xl mb-6 bg-gradient-to-br from-primary via-primary/80 to-accent shadow-2xl"
+        className="w-full relative overflow-hidden rounded-3xl mb-6 bg-primary shadow-2xl"
       >
         {/* Background decorations */}
         <div className="absolute inset-0 overflow-hidden">
