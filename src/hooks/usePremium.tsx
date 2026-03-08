@@ -49,6 +49,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   const [subscriptionEnd, setSubscriptionEnd] = useState<Date | null>(null);
   const [trialStartDate, setTrialStartDate] = useState<Date | null>(null);
   const [trialEndDate, setTrialEndDate] = useState<Date | null>(null);
+  const [trialUsedDb, setTrialUsedDb] = useState(false);
 
   // Derived: is the paid period still valid?
   const paidPeriodActive = useMemo(() => {
