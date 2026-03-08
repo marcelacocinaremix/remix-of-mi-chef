@@ -1793,7 +1793,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
           onClick={() => setActiveLesson(null)}
           className="mb-2"
         >
-          ← Volver a categorías
+          {t("learnBack")}
         </Button>
 
         <Card className="border-2 border-primary/20 overflow-hidden">
@@ -1810,12 +1810,12 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                 </CardTitle>
                 <p className="text-muted-foreground">{activeLesson.description}</p>
               </div>
-              {isCompleted && (
-                <Badge className="bg-emerald-500 shrink-0">
-                  <CheckCircle2 className="h-3 w-3 mr-1" />
-                  Completado
-                </Badge>
-              )}
+                {isCompleted && (
+                  <Badge className="bg-emerald-500 shrink-0">
+                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                    {t("learnCompleted")}
+                  </Badge>
+                )}
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -1824,7 +1824,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
               <div className="space-y-3">
                 <h3 className="font-semibold flex items-center gap-2">
                   <ArrowRight className="h-4 w-4 text-primary" />
-                  Paso a paso
+                  {t("learnStepByStep")}
                 </h3>
                 <ol className="space-y-2 list-decimal list-inside">
                   {activeLesson.steps.map((step, index) => (
@@ -1840,7 +1840,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
             <div className="space-y-3">
               <h3 className="font-semibold flex items-center gap-2">
                 <Lightbulb className="h-4 w-4 text-amber-500" />
-                Tips importantes
+                {t("learnImportantTips")}
               </h3>
               <ul className="space-y-2">
                 {activeLesson.tips.map((tip, index) => (
@@ -1861,7 +1861,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                       <Zap className="h-4 w-4 text-amber-500" />
                     </div>
                     <div>
-                      <p className="font-medium text-sm text-amber-600 dark:text-amber-400">¿Sabías que...?</p>
+                      <p className="font-medium text-sm text-amber-600 dark:text-amber-400">{t("learnDidYouKnow")}</p>
                       <p className="text-sm mt-1">{activeLesson.funFact}</p>
                     </div>
                   </div>
@@ -1877,7 +1877,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                     <ChefHat className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-medium text-sm text-primary">Marcela dice:</p>
+                    <p className="font-medium text-sm text-primary">{t("learnMarcelaSays")}</p>
                     <p className="text-sm mt-1">{activeLesson.marcelaMessage}</p>
                   </div>
                 </div>
@@ -1892,7 +1892,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                   className="flex-1"
                 >
                   <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Marcar como completado
+                  {t("learnMarkComplete")}
                 </Button>
               )}
             </div>
@@ -1913,8 +1913,8 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent flex items-center">
           <div className="px-5">
-            <h3 className="text-white font-bold text-xl drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>Aprender</h3>
-            <p className="text-white text-sm drop-shadow-md" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>Dominá la cocina con Marcela</p>
+            <h3 className="text-white font-bold text-xl drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>{t("learnBannerTitle")}</h3>
+            <p className="text-white text-sm drop-shadow-md" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>{t("learnBannerSubtitle")}</p>
           </div>
         </div>
       </div>
@@ -1935,7 +1935,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
             )}
           >
             <BookOpen className={cn("w-6 h-6", activeSubMenu === "aprender" && "animate-bounce")} />
-            <span className="text-xs">Aprender</span>
+            <span className="text-xs">{t("learnTabAprender")}</span>
           </button>
           <button
             onClick={() => {
@@ -1955,7 +1955,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                 <Lock className="w-2.5 h-2.5 absolute -top-1 -right-1 text-amber-500" />
               )}
             </div>
-            <span className="text-xs">Guía de Alimentos</span>
+            <span className="text-xs">{t("learnTabGuia")}</span>
           </button>
         </div>
       </div>
@@ -1996,15 +1996,15 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-2xl font-bold text-primary">{stats.completedLessonsCount}</p>
-              <p className="text-xs text-muted-foreground">Lecciones completadas</p>
+              <p className="text-xs text-muted-foreground">{t("learnLessonsCompleted")}</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-amber-500">{stats.totalLessons}</p>
-              <p className="text-xs text-muted-foreground">Lecciones totales</p>
+              <p className="text-xs text-muted-foreground">{t("learnTotalLessons")}</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-emerald-500">{stats.totalCategories}</p>
-              <p className="text-xs text-muted-foreground">Categorías</p>
+              <p className="text-xs text-muted-foreground">{t("learnCategories")}</p>
             </div>
           </div>
           
@@ -2021,7 +2021,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
           
           <div className="flex items-center justify-center gap-2 mt-2">
             <p className="text-xs text-muted-foreground">
-              {Math.round(animatedProgress)}% completado
+              {Math.round(animatedProgress)}{t("learnPercentDone")}
             </p>
             {animatedProgress === 100 && (
               <span className="text-xs animate-bounce">🎉</span>
@@ -2069,7 +2069,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-bold">{getLevelProgress(level.id)}%</p>
-                    <p className="text-xs text-white/80">completado</p>
+                    <p className="text-xs text-white/80">{t("learnCompleted100")}</p>
                   </div>
                 </div>
                 <Progress 
@@ -2177,7 +2177,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
       {/* Motivational Footer */}
       <div className="text-center py-4">
         <p className="text-sm text-muted-foreground italic">
-          "La cocina es un arte que se aprende practicando. ¡Cada error te acerca más a la maestría!" - Marcela
+          {t("learnMotivational")}
         </p>
       </div>
         </div>
@@ -2190,8 +2190,8 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
             <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center gap-3 mb-4">
               <Lock className="w-5 h-5 text-amber-600 flex-shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium">Tu prueba gratuita terminó</p>
-                <p className="text-xs text-muted-foreground">La Guía de Alimentos es de solo lectura. Desbloqueá con Premium.</p>
+                <p className="text-sm font-medium">{t("learnTrialEnded")}</p>
+                <p className="text-xs text-muted-foreground">{t("learnGuideReadOnly")}</p>
               </div>
               <Button size="sm" onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs">
                 Premium
@@ -2208,7 +2208,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
       {!isPremium && isTrialActive && (
         <div className="text-center py-2">
           <span className="text-xs text-muted-foreground">
-            🎁 Prueba gratuita: {trialDaysRemaining} días restantes
+            {t("learnTrialActive")} {trialDaysRemaining} {t("learnTrialDays")}
           </span>
         </div>
       )}
