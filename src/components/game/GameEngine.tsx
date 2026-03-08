@@ -61,10 +61,13 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
 
   const [ingredientOptions, setIngredientOptions] = useState(shuffledIngredients);
 
-  // Shuffled order steps
+  // Shuffled order steps + reset message on new recipe
   useEffect(() => {
     if (mode === "order") {
       setOrderSteps([...currentRecipe.steps].sort(() => Math.random() - 0.5));
+      setMarcelaMsg(MARCELA_MSGS.order[Math.floor(Math.random() * MARCELA_MSGS.order.length)]);
+    } else {
+      setMarcelaMsg(MARCELA_MSGS.start[Math.floor(Math.random() * MARCELA_MSGS.start.length)]);
     }
     setIngredientOptions(shuffledIngredients());
     setSelectedIngredients([]);
