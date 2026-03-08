@@ -110,6 +110,7 @@ interface AddToPantryDialogProps {
 }
 
 function AddToPantryDialog({ open, onClose, items, onConfirm }: AddToPantryDialogProps) {
+  const { t } = useLanguage();
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set(items.map(i => i.id)));
 
   const toggleItem = (id: string) => {
@@ -133,20 +134,20 @@ function AddToPantryDialog({ open, onClose, items, onConfirm }: AddToPantryDialo
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <PackageCheck className="w-5 h-5 text-primary" />
-            ¿Agregar a la despensa?
+            {t("superAddToPantryTitle")}
           </DialogTitle>
           <DialogDescription>
-            Seleccioná los productos que querés agregar a tu despensa
+            {t("superAddToPantryDesc")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2 max-h-[50vh] overflow-y-auto py-2">
           <div className="flex gap-2 mb-3">
             <Button variant="outline" size="sm" onClick={selectAll} className="text-xs">
-              Seleccionar todo
+              {t("superSelectAll")}
             </Button>
             <Button variant="outline" size="sm" onClick={selectNone} className="text-xs">
-              Ninguno
+              {t("superSelectNone")}
             </Button>
           </div>
           
@@ -168,7 +169,7 @@ function AddToPantryDialog({ open, onClose, items, onConfirm }: AddToPantryDialo
                 className="pointer-events-none"
               />
               <span className="text-xl">
-                {CATEGORY_CONFIG[item.category]?.emoji || "📦"}
+                {getCategoryConfig(item.category, t)?.emoji || "📦"}
               </span>
               <div className="flex-1">
                 <span className="font-medium">{item.ingredient_name}</span>
@@ -185,7 +186,7 @@ function AddToPantryDialog({ open, onClose, items, onConfirm }: AddToPantryDialo
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={onClose}>
             <X className="w-4 h-4 mr-2" />
-            Cancelar
+            {t("cancel")}
           </Button>
           <Button 
             onClick={() => onConfirm(Array.from(selectedItems))}
@@ -193,7 +194,7 @@ function AddToPantryDialog({ open, onClose, items, onConfirm }: AddToPantryDialo
             className="bg-gradient-to-r from-primary to-primary/80"
           >
             <PackageCheck className="w-4 h-4 mr-2" />
-            Agregar {selectedItems.size > 0 && `(${selectedItems.size})`}
+            {t("superConfirmPurchase").replace("{count}", String(selectedItems.size))} {selectedItems.size > 0 && `(${selectedItems.size})`}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -203,15 +204,10 @@ function AddToPantryDialog({ open, onClose, items, onConfirm }: AddToPantryDialo
 
 type ShoppingStep = "agregar" | "lista" | "confirmar";
 
-const STEPS_CONFIG: { id: ShoppingStep; label: string; icon: React.ElementType; description: string }[] = [
-  { id: "agregar", label: "Agregar", icon: Plus, description: "Sumá productos" },
-  { id: "lista", label: "Mi Lista", icon: ListChecks, description: "Tachá al comprar" },
-  { id: "confirmar", label: "Confirmar", icon: PackageCheck, description: "Guardá en despensa" },
-];
-
 export function ShoppingListDirect() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const { items, isLoading, togglePurchased, removeItem, clearPurchased, pendingCount, addItem, updateQuantity, updateUnit, refetch } = useShoppingList();
   
   // Step state
