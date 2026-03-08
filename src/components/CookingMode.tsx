@@ -13,6 +13,8 @@ interface CookingModeProps {
   recipe: Recipe;
   onClose: () => void;
   onMarkAsCooked?: () => void;
+  /** True if the recipe was already logged via "Ya la cociné" button — skip DB insert */
+  alreadyCooked?: boolean;
 }
 
 // Timer messages
@@ -37,7 +39,7 @@ const getRandomMessage = (messages: string[]) => {
   return messages[Math.floor(Math.random() * messages.length)];
 };
 
-export function CookingMode({ recipe, onClose, onMarkAsCooked }: CookingModeProps) {
+export function CookingMode({ recipe, onClose, onMarkAsCooked, alreadyCooked = false }: CookingModeProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const { play } = useSound();
@@ -109,6 +111,21 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked }: CookingModeProp
         description: "Necesitás una cuenta para guardar en tu historial.",
         variant: "destructive",
       });
+      return;
+    }
+
+    // Already logged via "Ya la cociné" button — don't insert again
+    if (alreadyCooked) {
+      setShowConfetti(true);
+      if (soundEnabled) play('success');
+      toast({
+        title: "¡Ya estaba registrada! 🏆",
+        description: 'Esta receta ya fue sumada a tus logros cuando presionaste "Ya la cociné".',
+      });
+      setTimeout(() => {
+        onMarkAsCooked?.();
+        onClose();
+      }, 2000);
       return;
     }
 

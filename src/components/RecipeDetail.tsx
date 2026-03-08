@@ -44,7 +44,9 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isMarkingCooked, setIsMarkingCooked] = useState(false);
+  // hasMarkedCooked tracks whether this recipe was already logged (via "Ya la cociné" OR CookingMode)
   const [hasMarkedCooked, setHasMarkedCooked] = useState(false);
+  const [cookedVia, setCookedVia] = useState<"button" | "cookingMode" | null>(null);
   const [showCookingMode, setShowCookingMode] = useState(false);
   const [hasUsedCookingMode, setHasUsedCookingMode] = useState(false);
   const [showSubstitutions, setShowSubstitutions] = useState(false);
@@ -192,6 +194,17 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
       return;
     }
 
+    // Already logged via CookingMode — just inform the user
+    if (hasMarkedCooked) {
+      toast({
+        title: cookedVia === "cookingMode" ? "Ya registrada 🏆" : "Ya registrada 🎉",
+        description: cookedVia === "cookingMode"
+          ? "Esta receta ya fue sumada a tus logros al completar el Modo Cocina."
+          : "Esta receta ya fue registrada en tus logros.",
+      });
+      return;
+    }
+
     setIsMarkingCooked(true);
     try {
       const { error } = await supabase.from("cooked_recipes").insert({
@@ -208,6 +221,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
       });
 
       setHasMarkedCooked(true);
+      setCookedVia("button");
       onRecipeCooked?.();
     } catch (error) {
       console.error("Error marking recipe as cooked:", error);
@@ -241,9 +255,18 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
   if (showCookingMode) {
     return (
       <CookingMode 
-        recipe={recipe} 
-        onClose={() => setShowCookingMode(false)}
-        onMarkAsCooked={onRecipeCooked}
+        recipe={recipe}
+        alreadyCooked={hasMarkedCooked}
+        onClose={() => {
+          setShowCookingMode(false);
+          setHasUsedCookingMode(true);
+        }}
+        onMarkAsCooked={() => {
+          setHasMarkedCooked(true);
+          setCookedVia("cookingMode");
+          setHasUsedCookingMode(true);
+          onRecipeCooked?.();
+        }}
       />
     );
   }
@@ -528,7 +551,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
             {/* Ya la cociné */}
             <Button
               onClick={handleMarkAsCooked}
-              disabled={isMarkingCooked || hasMarkedCooked}
+              disabled={isMarkingCooked}
               size="lg"
               variant={hasMarkedCooked ? "outline" : "default"}
               className={cn(
@@ -539,7 +562,7 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               {hasMarkedCooked ? (
                 <>
                   <Check className="w-5 h-5" />
-                  ¡Registrada! 🎉
+                  {cookedVia === "cookingMode" ? "Registrada en Modo Cocina ✓" : "¡Registrada! 🎉"}
                 </>
               ) : (
                 <>
@@ -549,7 +572,11 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
               )}
             </Button>
             <p className="text-xs text-muted-foreground text-center -mt-1">
-              {hasMarkedCooked ? "Receta sumada a tus logros" : "Registrá esta receta para desbloquear logros"}
+              {hasMarkedCooked
+                ? cookedVia === "cookingMode"
+                  ? "Ya sumaste esta receta a tus logros al completar el Modo Cocina"
+                  : "Receta sumada a tus logros"
+                : "Registrá esta receta para desbloquear logros"}
             </p>
             
             
