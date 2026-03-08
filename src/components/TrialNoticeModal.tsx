@@ -11,11 +11,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { SubscriptionManager } from "@/components/SubscriptionManager";
 
-const STORAGE_KEYS = {
-  notice15: "trial_notice_15_shown",
-  notice10: "trial_notice_10_shown",
-  notice5: "trial_notice_5_shown",
-};
+const getStorageKeys = (userId: string) => ({
+  notice15: `trial_notice_15_shown_${userId}`,
+  notice10: `trial_notice_10_shown_${userId}`,
+  notice5: `trial_notice_5_shown_${userId}`,
+});
 
 type NoticeVariant = "15" | "10" | "5" | null;
 
