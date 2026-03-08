@@ -1118,6 +1118,7 @@ export const translations = {
     calendarRecipeAdded: "¡Receta agregada!",
     calendarRecipeRemoved: "Receta eliminada",
     calendarWeekDays: "Lun,Mar,Mié,Jue,Vie,Sáb,Dom",
+    calendarForMealType: "Para",
 
     // FavoriteRecipes
     favTitle: "Tus favoritos",
