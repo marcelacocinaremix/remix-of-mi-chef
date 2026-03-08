@@ -939,9 +939,9 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Ingrediente</label>
+              <label className="text-sm font-medium mb-2 block">{t("pantryIngredientLabel")}</label>
               <Input
-                placeholder="Ej: Tomates, Arroz, Leche..."
+                placeholder={t("pantryIngredientPlaceholder")}
                 value={newIngredient}
                 onChange={(e) => setNewIngredient(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddIngredient()}
@@ -949,7 +949,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
             </div>
             
             <div>
-              <label className="text-sm font-medium mb-2 block">Estante (Categoría)</label>
+              <label className="text-sm font-medium mb-2 block">{t("pantryShelfCategory")}</label>
               <div className="grid grid-cols-3 gap-2">
                 {CATEGORIES.map((cat) => (
                   <button
