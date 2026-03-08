@@ -118,38 +118,6 @@ export default function Index() {
     }
   }, [user]);
 
-  // Neon bar position calculation for Future theme
-  const updateNeonBar = useCallback(() => {
-    if (!isFuture) return;
-    const row1Items = menuItems.slice(0, 4);
-    const row2Items = menuItems.slice(4, 8);
-    const activeRow1Idx = row1Items.findIndex(i => i.id === activeTab);
-    const activeRow2Idx = row2Items.findIndex(i => i.id === activeTab);
-
-    if (activeRow1Idx >= 0 && menuRow1Ref.current) {
-      const btn = menuRow1Ref.current.querySelectorAll("button")[activeRow1Idx] as HTMLElement;
-      if (btn) {
-        const containerRect = menuRow1Ref.current.getBoundingClientRect();
-        const btnRect = btn.getBoundingClientRect();
-        setNeonBarRow1({ left: btnRect.left - containerRect.left + btnRect.width * 0.1, width: btnRect.width * 0.8 });
-        setNeonBarRow2(null);
-      }
-    } else if (activeRow2Idx >= 0 && menuRow2Ref.current) {
-      const btn = menuRow2Ref.current.querySelectorAll("button")[activeRow2Idx] as HTMLElement;
-      if (btn) {
-        const containerRect = menuRow2Ref.current.getBoundingClientRect();
-        const btnRect = btn.getBoundingClientRect();
-        setNeonBarRow2({ left: btnRect.left - containerRect.left + btnRect.width * 0.1, width: btnRect.width * 0.8 });
-        setNeonBarRow1(null);
-      }
-    }
-  }, [isFuture, activeTab]);
-
-  useEffect(() => {
-    const timer = setTimeout(updateNeonBar, 50);
-    return () => clearTimeout(timer);
-  }, [updateNeonBar]);
-
   // AdMob is initialized in main.tsx before the app renders
 
   // Show onboarding if first visit OR if user is not logged in
