@@ -11,6 +11,7 @@ import { PremiumProvider } from "@/hooks/usePremium";
 import { KitchenTimerProvider } from "@/hooks/useKitchenTimer";
 import { useAndroidPurchase } from "@/hooks/useAndroidPurchase";
 import { AdBanner } from "@/components/AdBanner";
+import { StreakProvider } from "@/contexts/StreakContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -46,26 +47,28 @@ const App = () => (
               <AndroidPurchaseHandler>
                 <LanguageProvider>
                   <KitchenTimerProvider>
-                    <TooltipProvider>
-                      <Toaster />
-                      <Sonner />
-                      <AdBanner />
-                      <Routes>
-                        <Route path="/" element={<Index />} />
-                        <Route path="/auth" element={<Auth />} />
-                        <Route path="/reset-password" element={<ResetPassword />} />
-                        <Route path="/open-reset-password" element={<OpenResetPassword />} />
-                        <Route path="/privacy" element={<PrivacyPolicy />} />
-                        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                        <Route path="/terms" element={<TermsOfService />} />
-                        <Route path="/terms-of-service" element={<TermsOfService />} />
-                        <Route path="/r/:shareCode" element={<SharedRecipe />} />
-                        <Route path="/payment-processing" element={<PaymentProcessing />} />
-                        <Route path="/payment-failed" element={<PaymentFailed />} />
-                        <Route path="/auth/callback" element={<AuthCallback />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </TooltipProvider>
+                    <StreakProvider>
+                      <TooltipProvider>
+                        <Toaster />
+                        <Sonner />
+                        <AdBanner />
+                        <Routes>
+                          <Route path="/" element={<Index />} />
+                          <Route path="/auth" element={<Auth />} />
+                          <Route path="/reset-password" element={<ResetPassword />} />
+                          <Route path="/open-reset-password" element={<OpenResetPassword />} />
+                          <Route path="/privacy" element={<PrivacyPolicy />} />
+                          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                          <Route path="/terms" element={<TermsOfService />} />
+                          <Route path="/terms-of-service" element={<TermsOfService />} />
+                          <Route path="/r/:shareCode" element={<SharedRecipe />} />
+                          <Route path="/payment-processing" element={<PaymentProcessing />} />
+                          <Route path="/payment-failed" element={<PaymentFailed />} />
+                          <Route path="/auth/callback" element={<AuthCallback />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </TooltipProvider>
+                    </StreakProvider>
                   </KitchenTimerProvider>
                 </LanguageProvider>
               </AndroidPurchaseHandler>

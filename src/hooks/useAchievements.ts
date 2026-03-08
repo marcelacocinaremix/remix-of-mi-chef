@@ -32,6 +32,10 @@ const ACHIEVEMENTS_CONFIG = [
   // Game achievements
   { type: "game_chef", titleKey: "achievementGameChef", descKey: "achievementGameChefDesc", icon: "🎮", isGameAchievement: true },
   { type: "game_master", titleKey: "achievementGameMaster", descKey: "achievementGameMasterDesc", icon: "🕹️", isGameAchievement: true },
+  // Daily streak achievements
+  { type: "daily_streak_30", titleKey: "achievementDailyStreak30", descKey: "achievementDailyStreak30Desc", icon: "🏆", isDailyStreak: true },
+  { type: "daily_streak_60", titleKey: "achievementDailyStreak60", descKey: "achievementDailyStreak60Desc", icon: "👑", isDailyStreak: true },
+  { type: "daily_streak_90", titleKey: "achievementDailyStreak90", descKey: "achievementDailyStreak90Desc", icon: "⭐", isDailyStreak: true },
 ];
 
 export function useAchievements() {

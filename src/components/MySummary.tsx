@@ -17,6 +17,7 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import { startOfWeek, format } from "date-fns";
 import { es, enUS, ptBR } from "date-fns/locale";
+import { StreakDisplay } from "@/components/StreakDisplay";
 
 interface MySummaryProps {
   onOpenRecipe: (recipe: any) => void;
@@ -225,6 +226,9 @@ const MySummary = ({
 
   return (
     <div className="space-y-4 mb-6">
+      {/* Streak Display */}
+      <StreakDisplay />
+
       {/* Welcome Card */}
       <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-primary/20">
         <CardContent className="pt-6">

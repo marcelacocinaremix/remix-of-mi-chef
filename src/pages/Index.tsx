@@ -47,6 +47,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
 import { useAdMob } from "@/hooks/useAdMob";
 import { useAppTheme } from "@/contexts/ThemeContext";
+import { useStreakContext } from "@/contexts/StreakContext";
+import { StreakDisplay } from "@/components/StreakDisplay";
 
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
@@ -82,6 +84,7 @@ export default function Index() {
   const { getRecentRecipeNames, refetch: refetchCookedRecipes, addCookedRecipe } = useCookedRecipes();
   const shoppingList = useShoppingList();
   const { recordCookedRecipe, refetch: refetchAchievements } = useAchievements();
+  const { recordActivity: recordStreak } = useStreakContext();
   const [isButtonAnimating, setIsButtonAnimating] = useState(false);
   const [isCharacterAnimating, setIsCharacterAnimating] = useState(false);
   const [showShoppingListModal, setShowShoppingListModal] = useState(false);
@@ -418,6 +421,8 @@ export default function Index() {
       setIsLoading(false);
       setIsGeneratingAI(false);
       refetchPremium();
+      // Trigger 1: generate recipe
+      recordStreak();
     }
   };
 
@@ -542,6 +547,11 @@ export default function Index() {
     setActiveTab(value);
     setActiveSubTab(null); // Reset sub-tab when main tab changes
     
+    // Streak: visiting aprender, planificar, salud tabs counts as daily activity
+    if (user && ["aprender", "planificar", "salud"].includes(value)) {
+      recordStreak();
+    }
+
     // Trigger tracking states for grouped sections
     if (value === "planificar") {
       setPantryOpened(true);
