@@ -407,7 +407,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                 >
                   <Icon className={cn("w-5 h-5 flex-shrink-0", mt.color)} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-muted-foreground">{mt.label}</p>
+                    <p className="text-xs font-medium text-muted-foreground">{t(mt.labelKey as any)}</p>
                     {meal ? (
                       <button
                         className="text-sm font-semibold truncate text-left hover:text-primary transition-colors"
