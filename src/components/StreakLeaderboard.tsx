@@ -277,13 +277,7 @@ export function StreakLeaderboard() {
         })}
       </div>
 
-      {/* Current user not ranked */}
-      {user && !leaderboard.find((e) => e.userId === user.id) && (
-        <div className="mt-3 p-3 bg-muted/30 rounded-xl border border-border/30 text-center">
-          <p className="text-xs text-muted-foreground">No estás en el ranking todavía.</p>
-          <p className="text-xs font-semibold text-foreground mt-0.5">¡Realizá una actividad hoy para aparecer!</p>
-        </div>
-      )}
+      <MyStreakFooter />
     </div>
   );
 }
