@@ -403,11 +403,10 @@ export function CookingGame({ onAchievementUnlocked }: CookingGameProps) {
 
             <div className="space-y-2">
               <h2 className="font-display text-2xl font-semibold text-foreground">
-                Cocinando con Marcela
+                {t("tourJuego")}
               </h2>
               <p className="text-muted-foreground text-sm max-w-xs mx-auto">
-                Arrastrá los ingredientes correctos a la olla siguiendo mis indicaciones. 
-                ¡Sumá puntos y desbloqueá logros!
+                {t("tourJuegoDesc")}
               </p>
             </div>
 
@@ -415,11 +414,11 @@ export function CookingGame({ onAchievementUnlocked }: CookingGameProps) {
             <div className="flex justify-center gap-4 text-sm">
               <div className="flex items-center gap-1 text-muted-foreground">
                 <ChefHat className="w-4 h-4 text-primary" />
-                <span>{GAME_RECIPES.length} recetas</span>
+                <span>{GAME_RECIPES.length} {t("recipes")}</span>
               </div>
               <div className="flex items-center gap-1 text-muted-foreground">
                 <Trophy className="w-4 h-4 text-amber-500" />
-                <span>Logros</span>
+                <span>{t("achievementsTitle")}</span>
               </div>
             </div>
 
@@ -428,24 +427,24 @@ export function CookingGame({ onAchievementUnlocked }: CookingGameProps) {
               <div className="bg-card/50 rounded-lg p-4 border border-border/50 space-y-2">
                 <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground">
                   <Crown className="w-4 h-4 text-amber-500" />
-                  <span>Tus Récords</span>
+                  <span>{t("playPoints")}</span>
                 </div>
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div>
                     <div className="text-lg font-bold text-primary">{gameStats.highScore}</div>
-                    <div className="text-xs text-muted-foreground">Mejor Puntaje</div>
+                    <div className="text-xs text-muted-foreground">{t("achievementsBestStreak")}</div>
                   </div>
                   <div>
                     <div className="text-lg font-bold text-amber-500">{gameStats.totalRecipesCompleted}</div>
-                    <div className="text-xs text-muted-foreground">Recetas Total</div>
+                    <div className="text-xs text-muted-foreground">{t("recipes")}</div>
                   </div>
                   <div>
                     <div className="text-lg font-bold text-pink-light">{gameStats.bestStreak}</div>
-                    <div className="text-xs text-muted-foreground">Mejor Racha</div>
+                    <div className="text-xs text-muted-foreground">{t("activityBestStreak")}</div>
                   </div>
                 </div>
                 <div className="text-xs text-muted-foreground text-center">
-                  {gameStats.totalGamesPlayed} partidas jugadas
+                  {gameStats.totalGamesPlayed} {t("achievementsRecipesCount")}
                 </div>
               </div>
             )}
@@ -456,7 +455,7 @@ export function CookingGame({ onAchievementUnlocked }: CookingGameProps) {
               className="w-full max-w-xs bg-gradient-to-r from-primary to-pink-light hover:from-primary/90 hover:to-pink-light/90 shadow-lg"
             >
               <Play className="w-5 h-5 mr-2" />
-              ¡Empezar a Jugar!
+              {t("onboardingLetsStart")}
             </Button>
           </CardContent>
         </Card>
