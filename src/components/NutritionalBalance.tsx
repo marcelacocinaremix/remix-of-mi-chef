@@ -21,6 +21,8 @@ import {
   Dumbbell,
   LayoutDashboard,
   Crown,
+  Lock,
+  Trash2,
 } from "lucide-react";
 import actividadBanner from "@/assets/actividad-banner.jpg";
 import balanceBanner from "@/assets/balance-banner.jpg";
@@ -38,7 +40,6 @@ import { DailyMealLog } from "@/components/nutrition/DailyMealLog";
 import { NutritionRecommendations } from "@/components/nutrition/NutritionRecommendations";
 import { usePremium } from "@/hooks/usePremium";
 import { PaywallModal } from "@/components/PaywallModal";
-import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface NutritionalBalanceProps {
@@ -48,7 +49,7 @@ interface NutritionalBalanceProps {
 }
 
 export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, onSubTabChange }: NutritionalBalanceProps) {
-  const { meals, getTotalsForPeriod, getMealsForPeriod, refetch: refetchMeals } = useMealLogs();
+  const { meals, getTotalsForPeriod, getMealsForPeriod, deleteMeal, refetch: refetchMeals } = useMealLogs();
   const { canUseFeature, isTrialExpired, trialDaysRemaining, isTrialActive, isPremium } = usePremium();
   const [showPaywall, setShowPaywall] = useState(false);
   const balanceBlocked = !canUseFeature('balance_add');
@@ -581,7 +582,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                   onNavigateToCooking={() => onRecommendRecipes?.()}
                 />
 
-                {/* Meals list for period */}
+                {/* Meals list for period — with delete */}
                 {periodMeals.length > 0 && (
                   <Card>
                     <CardHeader className="pb-2">
@@ -593,27 +594,34 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
                         </Badge>
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {periodMeals.slice(0, 8).map((meal) => (
-                          <div key={meal.id} className="flex items-center justify-between py-2 border-b last:border-0">
+                    <CardContent className="pb-3">
+                      <div className="divide-y divide-border/30">
+                        {periodMeals.slice(0, 10).map((meal) => (
+                          <div key={meal.id} className="flex items-center gap-3 py-2.5">
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium truncate">{meal.food_name}</p>
                               <p className="text-xs text-muted-foreground">
                                 {new Date(meal.meal_date + "T12:00:00").toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' })}
-                                {" • "}{meal.meal_type.replace("_", " ")}
+                                {" · "}{meal.meal_type.replace("_", " ")}
+                                {" · "}<span className="font-medium">{Math.round(Number(meal.calories))} kcal</span>
                               </p>
                             </div>
-                            <div className="flex gap-2 text-xs">
-                              <span className="text-chart-1">{Math.round(Number(meal.protein))}g P</span>
-                              <span className="text-chart-2">{Math.round(Number(meal.carbs))}g C</span>
-                              <span className="text-chart-3">{Math.round(Number(meal.fats))}g G</span>
-                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
+                              onClick={async () => {
+                                const ok = await deleteMeal(meal.id);
+                                if (ok) toast.success("Comida eliminada");
+                              }}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
                           </div>
                         ))}
-                        {periodMeals.length > 8 && (
-                          <p className="text-xs text-center text-muted-foreground pt-2">
-                            +{periodMeals.length - 8} {t("balanceMeals")}
+                        {periodMeals.length > 10 && (
+                          <p className="text-xs text-center text-muted-foreground pt-3">
+                            +{periodMeals.length - 10} {t("balanceMeals")} más
                           </p>
                         )}
                       </div>

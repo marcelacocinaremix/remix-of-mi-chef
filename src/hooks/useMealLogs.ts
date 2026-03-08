@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 export type MealType = "desayuno" | "almuerzo" | "merienda" | "cena" | "entre_comidas";
 
@@ -53,12 +54,15 @@ export function useMealLogs() {
         .from("meal_logs" as any)
         .select("*")
         .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .order("meal_date", { ascending: false })
+        .order("created_at", { ascending: false })
+        .limit(500);
 
       if (error) throw error;
       setMeals((data as any[]) || []);
     } catch (error) {
       console.error("Error fetching meal logs:", error);
+      toast.error("No se pudieron cargar las comidas");
     } finally {
       setIsLoading(false);
     }
@@ -72,26 +76,38 @@ export function useMealLogs() {
     async (meal: MealLogInsert): Promise<boolean> => {
       if (!user) return false;
       try {
-        const { error } = await supabase.from("meal_logs" as any).insert([
-          {
-            user_id: user.id,
-            meal_date: meal.meal_date || selectedDate,
-            meal_type: meal.meal_type,
-            food_name: meal.food_name,
-            source: meal.source || "manual",
-            calories: meal.calories,
-            protein: meal.protein,
-            carbs: meal.carbs,
-            fats: meal.fats,
-            portion: meal.portion || null,
-            recipe_data: meal.recipe_data || null,
-          } as any,
-        ]);
+        const newMeal = {
+          user_id: user.id,
+          meal_date: meal.meal_date || selectedDate,
+          meal_type: meal.meal_type,
+          food_name: meal.food_name,
+          source: meal.source || "manual",
+          calories: meal.calories,
+          protein: meal.protein,
+          carbs: meal.carbs,
+          fats: meal.fats,
+          portion: meal.portion || null,
+          recipe_data: meal.recipe_data || null,
+        };
+
+        const { data, error } = await supabase
+          .from("meal_logs" as any)
+          .insert([newMeal as any])
+          .select()
+          .single();
+
         if (error) throw error;
-        await fetchMeals();
+
+        // Optimistic: add to local state immediately
+        if (data) {
+          setMeals(prev => [data as any, ...prev]);
+        } else {
+          await fetchMeals();
+        }
         return true;
       } catch (error) {
         console.error("Error adding meal:", error);
+        toast.error("No se pudo agregar la comida");
         return false;
       }
     },
@@ -101,17 +117,26 @@ export function useMealLogs() {
   const deleteMeal = useCallback(
     async (id: string): Promise<boolean> => {
       if (!user) return false;
+
+      // Optimistic: remove from local state immediately for snappy UX
+      setMeals(prev => prev.filter(m => m.id !== id));
+
       try {
         const { error } = await supabase
           .from("meal_logs" as any)
           .delete()
           .eq("id", id)
           .eq("user_id", user.id);
-        if (error) throw error;
-        await fetchMeals();
+
+        if (error) {
+          // Rollback on failure
+          await fetchMeals();
+          throw error;
+        }
         return true;
       } catch (error) {
         console.error("Error deleting meal:", error);
+        toast.error("No se pudo eliminar la comida");
         return false;
       }
     },
@@ -129,7 +154,7 @@ export function useMealLogs() {
       const now = new Date();
       let cutoff: Date;
       if (period === "day") {
-        cutoff = new Date(selectedDate);
+        return meals.filter((m) => m.meal_date === selectedDate);
       } else if (period === "week") {
         cutoff = new Date(now);
         cutoff.setDate(cutoff.getDate() - 7);
@@ -139,10 +164,6 @@ export function useMealLogs() {
       } else {
         cutoff = new Date(now);
         cutoff.setFullYear(cutoff.getFullYear() - 1);
-      }
-
-      if (period === "day") {
-        return meals.filter((m) => m.meal_date === selectedDate);
       }
       return meals.filter((m) => new Date(m.meal_date) >= cutoff);
     },

@@ -1,9 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Coffee, UtensilsCrossed, Cookie, Moon, Apple, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { MealLog, MealType } from "@/hooks/useMealLogs";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 const MEAL_CONFIG: Record<MealType, { label: string; emoji: string; hint: string; gradient: string; iconBg: string }> = {
@@ -54,7 +54,14 @@ interface MealSlotProps {
 export function MealSlot({ mealType, meals, onAddMeal, onDeleteMeal }: MealSlotProps) {
   const config = MEAL_CONFIG[mealType];
   const slotMeals = meals.filter((m) => m.meal_type === mealType);
-  const [expanded, setExpanded] = useState(slotMeals.length > 0);
+  const hasMeals = slotMeals.length > 0;
+
+  // Sync expanded state with actual data: auto-expand when meals arrive, auto-collapse when all deleted
+  const [expanded, setExpanded] = useState(hasMeals);
+  useEffect(() => {
+    setExpanded(hasMeals);
+  }, [hasMeals]);
+
   const slotTotals = slotMeals.reduce(
     (acc, m) => ({
       calories: acc.calories + Number(m.calories),
@@ -65,14 +72,12 @@ export function MealSlot({ mealType, meals, onAddMeal, onDeleteMeal }: MealSlotP
     { calories: 0, protein: 0, carbs: 0, fats: 0 }
   );
 
-  const hasMeals = slotMeals.length > 0;
-
   return (
     <div className={cn(
       "rounded-xl border border-border/40 overflow-hidden transition-all duration-200",
       hasMeals ? "shadow-sm" : "opacity-80 hover:opacity-100"
     )}>
-      {/* Header - always visible */}
+      {/* Header */}
       <button
         onClick={() => hasMeals ? setExpanded(!expanded) : onAddMeal(mealType)}
         className={cn(
@@ -80,10 +85,10 @@ export function MealSlot({ mealType, meals, onAddMeal, onDeleteMeal }: MealSlotP
           hasMeals ? `bg-gradient-to-r ${config.gradient}` : "bg-card hover:bg-accent/30"
         )}
       >
-        <span className={cn("w-9 h-9 rounded-lg flex items-center justify-center text-lg", config.iconBg)}>
+        <span className={cn("w-9 h-9 rounded-lg flex items-center justify-center text-lg flex-shrink-0", config.iconBg)}>
           {config.emoji}
         </span>
-        <div className="flex-1 text-left">
+        <div className="flex-1 text-left min-w-0">
           <p className="font-semibold text-sm">{config.label}</p>
           {hasMeals ? (
             <p className="text-[11px] text-muted-foreground">
@@ -94,14 +99,14 @@ export function MealSlot({ mealType, meals, onAddMeal, onDeleteMeal }: MealSlotP
           )}
         </div>
         {hasMeals ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Badge variant="secondary" className="text-[10px] h-5 font-bold">
               {Math.round(slotTotals.calories)} kcal
             </Badge>
             {expanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
           </div>
         ) : (
-          <Plus className="w-4 h-4 text-primary" />
+          <Plus className="w-4 h-4 text-primary flex-shrink-0" />
         )}
       </button>
 
@@ -110,29 +115,30 @@ export function MealSlot({ mealType, meals, onAddMeal, onDeleteMeal }: MealSlotP
         <div className="bg-card border-t border-border/30">
           <div className="divide-y divide-border/30">
             {slotMeals.map((meal) => (
-              <div key={meal.id} className="flex items-center gap-3 px-3 py-2.5 group">
+              <div key={meal.id} className="flex items-center gap-3 px-3 py-2.5">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{meal.food_name}</p>
-                  <div className="flex gap-3 text-[10px] text-muted-foreground mt-0.5">
-                    <span className="font-medium">{Math.round(Number(meal.calories))} kcal</span>
+                  <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground mt-0.5">
+                    <span className="font-semibold text-foreground/70">{Math.round(Number(meal.calories))} kcal</span>
                     <span>P: {Math.round(Number(meal.protein))}g</span>
                     <span>C: {Math.round(Number(meal.carbs))}g</span>
                     <span>G: {Math.round(Number(meal.fats))}g</span>
                     {meal.portion && <span className="text-primary/70">· {meal.portion}</span>}
                   </div>
                 </div>
+                {/* Delete always visible (not just on hover) — needed for mobile */}
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-destructive shrink-0"
+                  className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
                   onClick={(e) => { e.stopPropagation(); onDeleteMeal(meal.id); }}
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
             ))}
           </div>
-          {/* Add more button */}
+          {/* Add more */}
           <div className="px-3 py-2 border-t border-border/30">
             <Button
               variant="ghost"
