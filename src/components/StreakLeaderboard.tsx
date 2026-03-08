@@ -89,10 +89,9 @@ export function StreakLeaderboard() {
   const userInLeaderboard = user && leaderboard.find((e) => e.userId === user.id);
   const displayName = user?.user_metadata?.display_name || user?.email?.split("@")[0] || "Vos";
 
-  // Footer card shown when user is not in the ranked list
-  const MyStreakFooter = () => {
-    if (!user) return null;
-    if (userInLeaderboard) return null;
+  // Render inline — no nested component to avoid ref issues
+  const renderMyStreakFooter = () => {
+    if (!user || userInLeaderboard) return null;
     return (
       <div className="mt-3 p-3 bg-primary/5 rounded-xl border border-primary/20">
         <div className="flex items-center gap-3">
@@ -136,7 +135,7 @@ export function StreakLeaderboard() {
           <p className="text-sm font-semibold text-foreground mb-1">¡Sé el primero!</p>
           <p className="text-xs text-muted-foreground">Nadie tiene racha activa todavía. Empezá hoy.</p>
         </div>
-        <MyStreakFooter />
+        {renderMyStreakFooter()}
       </div>
     );
   }
@@ -277,7 +276,7 @@ export function StreakLeaderboard() {
         })}
       </div>
 
-      <MyStreakFooter />
+      {renderMyStreakFooter()}
     </div>
   );
 }
