@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { useSound } from "@/hooks/useSound";
 import { useAuth } from "@/hooks/useAuth";
 import { useGameStats } from "@/hooks/useGameStats";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Trophy, Star, ChefHat, Sparkles, RotateCcw, Play, Heart, Timer, Crown } from "lucide-react";
 import marcelaCharacter from "@/assets/marcela-character.png";
 // Game recipes with required ingredients - RECETAS ARGENTINAS PRECISAS
