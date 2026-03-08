@@ -595,7 +595,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                   onClick={() => setPreviewRecipe(null)}
                 >
                   <ChevronLeft className="w-4 h-4 mr-1" />
-                  Volver
+                  {t("calendarBack")}
                 </Button>
                 <Button
                   className="flex-1"
@@ -607,7 +607,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
                   }}
                 >
                   <Plus className="w-4 h-4 mr-1" />
-                  Agregar
+                  {t("calendarAdd")}
                 </Button>
               </div>
             </div>
