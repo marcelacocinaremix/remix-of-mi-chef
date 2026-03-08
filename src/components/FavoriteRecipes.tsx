@@ -437,14 +437,14 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   if (!user) return (
     <div className="bg-card rounded-xl p-6 border border-border/50 text-center">
       <Heart className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-      <h3 className="font-display text-lg font-semibold mb-2">Tus favoritos</h3>
-      <p className="text-muted-foreground text-sm">Iniciá sesión para guardar tus favoritos</p>
+      <h3 className="font-display text-lg font-semibold mb-2">{t("favTitle")}</h3>
+      <p className="text-muted-foreground text-sm">{t("favLoginDesc")}</p>
     </div>
   );
 
   if (isLoading) return (
     <div className="bg-card rounded-xl p-6 border border-border/50 text-center">
-      <p className="text-muted-foreground">Cargando favoritos...</p>
+      <p className="text-muted-foreground">{t("favLoading")}</p>
     </div>
   );
 
