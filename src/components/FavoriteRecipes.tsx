@@ -343,7 +343,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     saveTipFolderAssignment(tipId, folder);
     setTipFolderAssignments(prev => ({ ...prev, [tipId]: folder }));
     setMovingTipId(null);
-    toast({ title: "✅ Tip movido", description: `Movido a "${folder}".` });
+    toast({ title: t("favTipMoved"), description: `${t("favMovedTo").replace("{folder}", folder)}` });
   }, [toast]);
 
   const handleCreateTipFolder = () => {
