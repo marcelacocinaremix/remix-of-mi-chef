@@ -631,6 +631,41 @@ export default function Index() {
         ) : (
           <main className="space-y-6">
 
+  // Neon bar: calculate position when activeTab or theme changes
+  useEffect(() => {
+    if (!isFuture) {
+      setNeonBarRow1(null);
+      setNeonBarRow2(null);
+      return;
+    }
+    const menuItems8 = [
+      "inicio","cocinar","planificador","micocina",
+      "marcelacocina","aprender","jugar","actividad"
+    ];
+    const row1Ids = menuItems8.slice(0, 4);
+    const row2Ids = menuItems8.slice(4, 8);
+    const row1Idx = row1Ids.indexOf(activeTab);
+    const row2Idx = row2Ids.indexOf(activeTab);
+
+    const calcBar = (ref: React.RefObject<HTMLDivElement>, idx: number, setter: (v: { left: number; width: number } | null) => void) => {
+      if (idx < 0 || !ref.current) { setter(null); return; }
+      const btn = ref.current.querySelectorAll("button")[idx] as HTMLElement;
+      if (!btn) { setter(null); return; }
+      const cRect = ref.current.getBoundingClientRect();
+      const bRect = btn.getBoundingClientRect();
+      setter({ left: bRect.left - cRect.left + bRect.width * 0.08, width: bRect.width * 0.84 });
+    };
+
+    const run = () => {
+      calcBar(menuRow1Ref, row1Idx, setNeonBarRow1);
+      calcBar(menuRow2Ref, row2Idx, setNeonBarRow2);
+    };
+
+    // Small delay to let layout settle
+    const t = setTimeout(run, 30);
+    return () => clearTimeout(t);
+  }, [isFuture, activeTab]);
+
 
             {/* Navigation Tabs */}
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
