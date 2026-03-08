@@ -16,12 +16,12 @@ import superBanner from "@/assets/super-banner.jpg";
 
 type SubTab = "calendario" | "despensa" | "super";
 
-// Banner images for each sub-tab with title and description
-const bannerImages: Record<SubTab, { src: string; alt: string; title: string; description: string }> = {
-  calendario: { src: calendarBanner, alt: "Planificador de comidas", title: "Calendario", description: "Planificá tus comidas de la semana" },
-  despensa: { src: pantryBanner, alt: "Tu despensa", title: "Tu Despensa", description: "Gestioná tus ingredientes" },
-  super: { src: superBanner, alt: "Lista de supermercado", title: "Lista de Super", description: "Organizá tus compras" },
-};
+// Banner images are built dynamically using translations — see component below
+const getBannerImages = (t: (key: any) => string): Record<SubTab, { src: string; alt: string; title: string; description: string }> => ({
+  calendario: { src: calendarBanner, alt: t("planBannerCalendarTitle"), title: t("planBannerCalendarTitle"), description: t("planBannerCalendarDesc") },
+  despensa: { src: pantryBanner, alt: t("planBannerPantryTitle"), title: t("planBannerPantryTitle"), description: t("planBannerPantryDesc") },
+  super: { src: superBanner, alt: t("planBannerShoppingTitle"), title: t("planBannerShoppingTitle"), description: t("planBannerShoppingDesc") },
+});
 
 interface PlanificarSectionProps {
   ingredients: string[];
