@@ -948,6 +948,14 @@ export const translations = {
     loginRequiredCooked: "Necesitás una cuenta para registrar recetas cocinadas.",
     recipeAlreadyLogged: "Ya registrada 🎉",
     recipeAlreadyLoggedMode: "Ya registrada 🏆",
+    profileSaved: "¡Perfil guardado!",
+    profileSaveError: "Error al guardar el perfil",
+    profilePhotoUpdated: "¡Foto actualizada!",
+    profilePhotoError: "Error al subir la foto",
+    profilePhotoSizeError: "La imagen debe ser menor a 2MB",
+    profilePhotoHint: "Tocá el ícono para cambiar tu foto",
+    profileName: "Nombre",
+    profileNamePlaceholder: "Tu nombre",
     recipeFooterMsg: "\"Espero que disfrutes esta receta. En MARCELACOCINA tenés muchas más ideas fáciles para el día a día.\"",
 
     // CookingGame
