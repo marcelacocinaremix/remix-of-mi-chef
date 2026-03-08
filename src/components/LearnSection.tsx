@@ -1949,7 +1949,12 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
                 : "bg-background/60 hover:bg-background text-foreground"
             )}
           >
-            <Lightbulb className={cn("w-6 h-6", activeSubMenu === "guia" && "animate-pulse")} />
+            <div className="relative">
+              <Lightbulb className={cn("w-6 h-6", activeSubMenu === "guia" && "animate-pulse")} />
+              {learnBlocked && (
+                <Lock className="w-2.5 h-2.5 absolute -top-1 -right-1 text-amber-500" />
+              )}
+            </div>
             <span className="text-xs">Guía de Alimentos</span>
           </button>
         </div>

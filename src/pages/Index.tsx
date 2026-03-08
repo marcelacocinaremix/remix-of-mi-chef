@@ -514,7 +514,7 @@ export default function Index() {
     { id: "planificar", label: t("menuPlan"),        icon: CalendarIcon,  requiresAuth: true,  lockedWhenExpired: false },
     // Row 2
     { id: "salud",     label: t("subTabHealth"),    icon: HeartPulse,    requiresAuth: true,  lockedWhenExpired: true  },
-    { id: "aprender",  label: t("menuLearn"),       icon: GraduationCap, requiresAuth: false, lockedWhenExpired: true  },
+    { id: "aprender",  label: t("menuLearn"),       icon: GraduationCap, requiresAuth: false, lockedWhenExpired: false },
     { id: "jugar",     label: t("menuPlay"),        icon: Gamepad2,      requiresAuth: false, lockedWhenExpired: false },
     { id: "marcela",   label: t("menuRecipes"),     icon: Youtube,       requiresAuth: false, lockedWhenExpired: false },
   ];
