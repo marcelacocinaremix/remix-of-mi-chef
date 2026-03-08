@@ -490,7 +490,7 @@ export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: Monthl
               size="sm"
               onClick={() => setRecipeTab("recientes")}
             >
-              🕐 Recientes
+              <span className="font-semibold text-sm text-foreground">{t("calendarRecent")}</span>
             </Button>
           </div>
 
