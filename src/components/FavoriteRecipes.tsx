@@ -657,11 +657,11 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
               <div className="flex items-center justify-between">
                 <StepHeader
                   number={3}
-                  title={`📂 ${activeFolder}`}
+                  title={searchQuery ? `🔍 Resultados` : `📂 ${activeFolder}`}
                   subtitle={
                     filteredRecipes.length > 0
-                      ? `${filteredRecipes.length} receta${filteredRecipes.length !== 1 ? "s" : ""} guardada${filteredRecipes.length !== 1 ? "s" : ""}`
-                      : "Esta carpeta está vacía"
+                      ? `${filteredRecipes.length} receta${filteredRecipes.length !== 1 ? "s" : ""} encontrada${filteredRecipes.length !== 1 ? "s" : ""}`
+                      : searchQuery ? `Sin resultados para "${searchQuery}"` : "Esta carpeta está vacía"
                   }
                 />
               </div>
