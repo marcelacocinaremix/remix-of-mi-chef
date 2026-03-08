@@ -101,7 +101,7 @@ interface MonthlyCalendarProps {
 export function MonthlyCalendar({ onNavigateToCooking, onBlockedAction }: MonthlyCalendarProps) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [showHelp, setShowHelp] = useState(() => { try { return !localStorage.getItem(CALENDAR_HELP_KEY); } catch { return true; } });
+  const [showHelp, setShowHelp] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [allMeals, setAllMeals] = useState<Record<string, DayMeal[]>>({});
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
