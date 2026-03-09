@@ -42,7 +42,7 @@ export function DailyUsageIndicator() {
         {remaining}/{limit}
       </span>
       <span className="text-xs font-normal opacity-75">
-        {statusLabel}
+        {isAtLimit ? "agotado" : `gen${limit > 1 ? "." : ""} · ${statusLabel}`}
       </span>
     </div>
   );
