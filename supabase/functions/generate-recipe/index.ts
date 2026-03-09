@@ -632,7 +632,7 @@ async function searchCachedRecipes(
         shuffledPool.push(...shuffleArray(scoreBands.get(band)!));
       }
       
-      matched = shuffledPool.slice(0, 1); // Return only 1 recipe
+      matched = shuffledPool.slice(0, 2); // Return up to 2 recipes per generation
       
       console.log(`Cache HIT at ${(threshold * 100).toFixed(0)}% threshold: picked "${matched[0]?.recipe_name}" from ${pool.length} options (excluded: ${excludeNamesNorm.length}${cycleReset ? ', CYCLE RESET' : ''})`,
         matched.map(r => ({ name: r.recipe_name, coverage: `${r.matchedCount}/${r.totalCount}`, score: r.matchScore.toFixed(2) }))
