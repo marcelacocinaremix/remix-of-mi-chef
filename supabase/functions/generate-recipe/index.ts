@@ -1645,7 +1645,7 @@ PROHIBIDO: Generar una receta dulce o de postre cuando el usuario seleccionó SA
               await consumeDailyCredit(limitCheck.userId, limitCheck.isPremium);
             }
             return new Response(JSON.stringify({
-              recipes: validFallback.slice(0, 1),
+              recipes: validFallback.slice(0, 2),
               source: 'cache',
               isInstant: true,
               fallbackReason: 'ai_unavailable',
