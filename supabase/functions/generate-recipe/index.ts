@@ -1226,7 +1226,7 @@ FORMATO JSON EXACTO (sin texto adicional, sin markdown, sin bloques de código):
 {
   "recipes": [
     {
-      "name": "Nombre preciso y apetitoso",
+      "name": "Nombre preciso y apetitoso (receta 1)",
       "time": 30,
       "difficulty": "fácil",
       "servings": 4,
@@ -1239,7 +1239,7 @@ FORMATO JSON EXACTO (sin texto adicional, sin markdown, sin bloques de código):
         "Paso 5 — emplatado y presentación"
       ],
       "tip": "Secreto real de chef que mejora este plato específico",
-      "variation": "Cambio concreto que transforma el plato (ej: versión al horno, versión cremosa, versión picante)",
+      "variation": "Cambio concreto que transforma el plato",
       "nutrition": {
         "calories": 380,
         "protein": 28,
@@ -1248,13 +1248,39 @@ FORMATO JSON EXACTO (sin texto adicional, sin markdown, sin bloques de código):
         "fiber": 3
       },
       "tags": ["pollo", "arroz", "casero", "almuerzo"]
+    },
+    {
+      "name": "Nombre preciso y apetitoso (receta 2 — estilo diferente a la 1)",
+      "time": 25,
+      "difficulty": "media",
+      "servings": 4,
+      "ingredients": ["400g de pollo", "1 taza de arroz", "2 papas"],
+      "steps": [
+        "Paso 1...",
+        "Paso 2...",
+        "Paso 3...",
+        "Paso 4...",
+        "Paso 5..."
+      ],
+      "tip": "Otro secreto de chef distinto al de la receta 1",
+      "variation": "Otra variación",
+      "nutrition": {
+        "calories": 350,
+        "protein": 26,
+        "carbs": 32,
+        "fat": 10,
+        "fiber": 4
+      },
+      "tags": ["pollo", "arroz", "al horno"]
     }
   ]
 }
 
 ⚠️ VERIFICACIÓN FINAL OBLIGATORIA antes de responder:
-Contá cuántos ingredientes ingresó el usuario. Confirmá que cada uno aparece LITERALMENTE en el campo "ingredients".
-Si falta alguno → reescribí la receta. No hay excepciones.`
+1. Contá cuántos ingredientes ingresó el usuario. Confirmá que cada uno aparece LITERALMENTE en el campo "ingredients" de CADA receta.
+2. Las 2 recetas deben ser DIFERENTES en técnica de cocción, presentación o perfil de sabor.
+3. Si solo es posible 1 receta coherente con esos ingredientes, incluí solo esa.
+Si falta algún ingrediente → reescribí la receta. No hay excepciones.`
 };
 
 serve(async (req) => {
