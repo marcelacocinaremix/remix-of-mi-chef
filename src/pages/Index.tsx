@@ -378,24 +378,24 @@ export default function Index() {
        }
 
        if (data?.recipes && data.recipes.length > 0) {
-        // Show only 1 recipe per click
-        const recipesToShow = data.recipes.slice(0, 1);
+        // Show up to 2 recipes per generation
+        const recipesToShow = data.recipes.slice(0, 2);
         setRecipes(recipesToShow);
         setInstantRecipe(null); // Clear instant recipe as we have AI recipes now
         
-        // Save first recipe to history automatically
-         if (recipesToShow[0]) {
-           addCookedRecipe(recipesToShow[0]);
-           // Track shown recipe name for rotation
-           const aiName = recipesToShow[0]?.name || '';
-           if (aiName) {
-             setShownRecipeNames(prev => [...prev, aiName.toLowerCase()]);
-           }
-         }
+        // Save recipes to history automatically
+        recipesToShow.forEach((r: Recipe) => {
+          if (r) {
+            addCookedRecipe(r);
+            const aiName = r?.name || '';
+            if (aiName) setShownRecipeNames(prev => [...prev, aiName.toLowerCase()]);
+          }
+        });
         
+        const count = recipesToShow.length;
         toast({
-          title: "¡Receta lista!",
-          description: "¡Preparé una receta para vos!",
+          title: count > 1 ? "¡2 recetas listas!" : "¡Receta lista!",
+          description: count > 1 ? "¡Te preparé 2 opciones para elegir!" : "¡Preparé una receta para vos!",
         });
       } else if (!instantRecipe) {
         throw new Error('No se pudieron generar recetas');
