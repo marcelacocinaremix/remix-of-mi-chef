@@ -632,7 +632,7 @@ async function searchCachedRecipes(
         shuffledPool.push(...shuffleArray(scoreBands.get(band)!));
       }
       
-      matched = shuffledPool.slice(0, 1); // Return only 1 recipe
+      matched = shuffledPool.slice(0, 2); // Return up to 2 recipes per generation
       
       console.log(`Cache HIT at ${(threshold * 100).toFixed(0)}% threshold: picked "${matched[0]?.recipe_name}" from ${pool.length} options (excluded: ${excludeNamesNorm.length}${cycleReset ? ', CYCLE RESET' : ''})`,
         matched.map(r => ({ name: r.recipe_name, coverage: `${r.matchedCount}/${r.totalCount}`, score: r.matchScore.toFixed(2) }))
@@ -1144,11 +1144,11 @@ const getSystemPrompt = (language: string = 'es') => {
   const month = new Date().getMonth() + 1;
   const season = (month >= 12 || month <= 2) ? 'verano' : (month >= 3 && month <= 5) ? 'otoño' : (month >= 6 && month <= 8) ? 'invierno' : 'primavera';
   
-  return `Sos MarcelaCocina — chef, creadora de contenido gastronómico y referente de cocina casera argentina.
+return `Sos MarcelaCocina — chef, creadora de contenido gastronómico y referente de cocina casera argentina.
 ${langInstructions[language] || langInstructions.es}
 
-Tu misión es generar UNA receta REAL, sabrosa, con historia y con alma, usando exactamente los ingredientes del usuario.
-Estamos en ${season} en Argentina — aprovechá eso en el tip si es relevante.
+Tu misión es generar DOS recetas REALES, sabrosas, con historia y con alma, usando exactamente los ingredientes del usuario.
+Estamos en ${season} en Argentina — aprovechá eso en los tips si es relevante.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 REGLAS ABSOLUTAS (NUNCA violar ninguna):
@@ -1164,7 +1164,7 @@ REGLAS ABSOLUTAS (NUNCA violar ninguna):
    Si el usuario pide filtro "salado" pero los ingredientes son incompatibles (chocolate, caramelo, dulce de leche como protagonistas), respondé:
    {"recipes": [], "error": "no_flavor_match", "message": "Estos ingredientes no combinan con una receta salada."}
 
-2. UNA SOLA RECETA: Generá exactamente 1 receta. Ni más ni menos.
+2. DOS RECETAS: Generá exactamente 2 recetas DISTINTAS. Si con los ingredientes solo es posible 1 receta coherente, generá 1.
 
 3. TIEMPO: La receta DEBE realizarse dentro del tiempo máximo indicado. Si es corto, priorizá técnicas rápidas (sartén, wok, microondas).
 
@@ -1226,7 +1226,7 @@ FORMATO JSON EXACTO (sin texto adicional, sin markdown, sin bloques de código):
 {
   "recipes": [
     {
-      "name": "Nombre preciso y apetitoso",
+      "name": "Nombre preciso y apetitoso (receta 1)",
       "time": 30,
       "difficulty": "fácil",
       "servings": 4,
@@ -1239,7 +1239,7 @@ FORMATO JSON EXACTO (sin texto adicional, sin markdown, sin bloques de código):
         "Paso 5 — emplatado y presentación"
       ],
       "tip": "Secreto real de chef que mejora este plato específico",
-      "variation": "Cambio concreto que transforma el plato (ej: versión al horno, versión cremosa, versión picante)",
+      "variation": "Cambio concreto que transforma el plato",
       "nutrition": {
         "calories": 380,
         "protein": 28,
@@ -1248,13 +1248,39 @@ FORMATO JSON EXACTO (sin texto adicional, sin markdown, sin bloques de código):
         "fiber": 3
       },
       "tags": ["pollo", "arroz", "casero", "almuerzo"]
+    },
+    {
+      "name": "Nombre preciso y apetitoso (receta 2 — estilo diferente a la 1)",
+      "time": 25,
+      "difficulty": "media",
+      "servings": 4,
+      "ingredients": ["400g de pollo", "1 taza de arroz", "2 papas"],
+      "steps": [
+        "Paso 1...",
+        "Paso 2...",
+        "Paso 3...",
+        "Paso 4...",
+        "Paso 5..."
+      ],
+      "tip": "Otro secreto de chef distinto al de la receta 1",
+      "variation": "Otra variación",
+      "nutrition": {
+        "calories": 350,
+        "protein": 26,
+        "carbs": 32,
+        "fat": 10,
+        "fiber": 4
+      },
+      "tags": ["pollo", "arroz", "al horno"]
     }
   ]
 }
 
 ⚠️ VERIFICACIÓN FINAL OBLIGATORIA antes de responder:
-Contá cuántos ingredientes ingresó el usuario. Confirmá que cada uno aparece LITERALMENTE en el campo "ingredients".
-Si falta alguno → reescribí la receta. No hay excepciones.`
+1. Contá cuántos ingredientes ingresó el usuario. Confirmá que cada uno aparece LITERALMENTE en el campo "ingredients" de CADA receta.
+2. Las 2 recetas deben ser DIFERENTES en técnica de cocción, presentación o perfil de sabor.
+3. Si solo es posible 1 receta coherente con esos ingredientes, incluí solo esa.
+Si falta algún ingrediente → reescribí la receta. No hay excepciones.`
 };
 
 serve(async (req) => {
@@ -1343,7 +1369,7 @@ serve(async (req) => {
           }
           console.log(`✅ Serving ${validCached.length} validated cached recipes (score: ${cacheResult.matchScore.toFixed(2)})`);
           return new Response(JSON.stringify({ 
-            recipes: validCached.slice(0, 1),
+            recipes: validCached.slice(0, 2),
             source: 'cache',
             isInstant: true,
             matchScore: cacheResult.matchScore,
@@ -1423,9 +1449,10 @@ PROHIBICIONES ABSOLUTAS (no sustituir NUNCA):
 - "espinaca" → SOLO espinaca. Jamás acelga ni rúcula.
 - Solo podés agregar condimentos básicos: sal, pimienta, aceite, ajo, cebolla, agua, especias.
 
-OBJETIVO: Generá 1 SOLA receta DELICIOSA, CREATIVA y DETALLADA que use los ${ingCount} ingredientes.
+OBJETIVO: Generá 2 recetas DELICIOSAS, CREATIVAS y DETALLADAS que usen los ${ingCount} ingredientes, con técnicas o estilos distintos entre ellas.
+Si solo hay una combinación coherente posible con esos ingredientes, generá 1 sola.
 Tiempo máximo de cocción: ${time} minutos.
-¡Sorprendé con una combinación sabrosa que haga que el usuario quiera cocinarla ahora mismo!\n`;
+¡Sorprendé con combinaciones sabrosas que hagan que el usuario quiera cocinar ahora mismo!\n`;
 
       if (mealType) {
         const mealTypes: Record<string, string> = {
@@ -1531,7 +1558,7 @@ PROHIBIDO: Generar una receta dulce o de postre cuando el usuario seleccionó SA
         userPrompt += `Presupuesto: ${budgetLabels[budget] || budget}\n`;
       }
 
-      if (randomize) userPrompt += `IMPORTANTE: Sorprendeme con una receta creativa e inesperada. Sugiere solo UNA receta.\n`;
+      if (randomize) userPrompt += `IMPORTANTE: Sorprendeme con recetas creativas e inesperadas. Generá 2 recetas distintas.\n`;
 
       if (excludeRecipes && excludeRecipes.length > 0) {
         userPrompt += `IMPORTANTE - NO sugerir estas recetas que ya cociné recientemente: ${excludeRecipes.join(', ')}\n`;
@@ -1618,7 +1645,7 @@ PROHIBIDO: Generar una receta dulce o de postre cuando el usuario seleccionó SA
               await consumeDailyCredit(limitCheck.userId, limitCheck.isPremium);
             }
             return new Response(JSON.stringify({
-              recipes: validFallback.slice(0, 1),
+              recipes: validFallback.slice(0, 2),
               source: 'cache',
               isInstant: true,
               fallbackReason: 'ai_unavailable',
