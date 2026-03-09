@@ -329,20 +329,21 @@ export default function Index() {
        // Handle cache hit with match info
        if (data?.recipes && data.recipes.length > 0 && data.source === 'cache') {
          setRecipes(data.recipes);
-         addCookedRecipe(data.recipes[0]);
-         // Track shown recipe name for rotation
-         const recipeName = data.recipes[0]?.name || '';
-         if (recipeName) {
-           setShownRecipeNames(prev => [...prev, recipeName.toLowerCase()]);
-         }
+         data.recipes.forEach((r: Recipe) => addCookedRecipe(r));
+         // Track shown recipe names for rotation
+         data.recipes.forEach((r: Recipe) => {
+           const recipeName = r?.name || '';
+           if (recipeName) setShownRecipeNames(prev => [...prev, recipeName.toLowerCase()]);
+         });
          
          const matchInfo = data.matchInfo;
          const isPartial = matchInfo && matchInfo.percentage < 100;
+         const count = data.recipes.length;
          toast({
-           title: isPartial ? `Receta con ${matchInfo.matched} de ${matchInfo.total} ingredientes` : "¡Receta lista!",
+           title: isPartial ? `Receta con ${matchInfo.matched} de ${matchInfo.total} ingredientes` : count > 1 ? `¡${count} recetas listas!` : "¡Receta lista!",
            description: isPartial 
              ? `Coincidencia del ${matchInfo.percentage}%. Probá quitando algún ingrediente para más opciones.`
-             : "¡Encontré una receta perfecta para vos!",
+             : count > 1 ? "¡Preparé 2 opciones para vos!" : "¡Encontré una receta perfecta para vos!",
          });
          setIsLoading(false);
          setIsGeneratingAI(false);
