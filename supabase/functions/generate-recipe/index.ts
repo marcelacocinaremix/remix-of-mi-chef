@@ -1449,9 +1449,10 @@ PROHIBICIONES ABSOLUTAS (no sustituir NUNCA):
 - "espinaca" → SOLO espinaca. Jamás acelga ni rúcula.
 - Solo podés agregar condimentos básicos: sal, pimienta, aceite, ajo, cebolla, agua, especias.
 
-OBJETIVO: Generá 1 SOLA receta DELICIOSA, CREATIVA y DETALLADA que use los ${ingCount} ingredientes.
+OBJETIVO: Generá 2 recetas DELICIOSAS, CREATIVAS y DETALLADAS que usen los ${ingCount} ingredientes, con técnicas o estilos distintos entre ellas.
+Si solo hay una combinación coherente posible con esos ingredientes, generá 1 sola.
 Tiempo máximo de cocción: ${time} minutos.
-¡Sorprendé con una combinación sabrosa que haga que el usuario quiera cocinarla ahora mismo!\n`;
+¡Sorprendé con combinaciones sabrosas que hagan que el usuario quiera cocinar ahora mismo!\n`;
 
       if (mealType) {
         const mealTypes: Record<string, string> = {
