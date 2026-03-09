@@ -1557,7 +1557,7 @@ PROHIBIDO: Generar una receta dulce o de postre cuando el usuario seleccionó SA
         userPrompt += `Presupuesto: ${budgetLabels[budget] || budget}\n`;
       }
 
-      if (randomize) userPrompt += `IMPORTANTE: Sorprendeme con una receta creativa e inesperada. Sugiere solo UNA receta.\n`;
+      if (randomize) userPrompt += `IMPORTANTE: Sorprendeme con recetas creativas e inesperadas. Generá 2 recetas distintas.\n`;
 
       if (excludeRecipes && excludeRecipes.length > 0) {
         userPrompt += `IMPORTANTE - NO sugerir estas recetas que ya cociné recientemente: ${excludeRecipes.join(', ')}\n`;
