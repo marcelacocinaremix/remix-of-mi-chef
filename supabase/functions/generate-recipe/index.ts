@@ -1369,7 +1369,7 @@ serve(async (req) => {
           }
           console.log(`✅ Serving ${validCached.length} validated cached recipes (score: ${cacheResult.matchScore.toFixed(2)})`);
           return new Response(JSON.stringify({ 
-            recipes: validCached.slice(0, 1),
+            recipes: validCached.slice(0, 2),
             source: 'cache',
             isInstant: true,
             matchScore: cacheResult.matchScore,
