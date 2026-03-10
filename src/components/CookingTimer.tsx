@@ -42,7 +42,7 @@ export function CookingTimer({ minutes, stepText, onTimerStart, onTimerEnd }: Co
 
   // Timer logic
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    let interval: ReturnType<typeof setInterval> | null = null;
 
     if (state === 'running' && timeLeft > 0) {
       interval = setInterval(() => {
