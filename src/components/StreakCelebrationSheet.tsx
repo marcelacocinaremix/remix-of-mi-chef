@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { getMilestoneInfo } from "@/hooks/useStreak";
@@ -12,9 +12,22 @@ interface StreakCelebrationSheetProps {
 export function StreakCelebrationSheet({ milestone, onDismiss }: StreakCelebrationSheetProps) {
   const info = milestone ? getMilestoneInfo(milestone) : null;
   const confettiFired = useRef(false);
+  // Delay showing the sheet to avoid white flash during app load / context re-renders
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (milestone && info && !confettiFired.current) {
+    if (milestone && info) {
+      // Short delay prevents flash when streak is recorded on mount
+      const t = setTimeout(() => setVisible(true), 400);
+      return () => clearTimeout(t);
+    } else {
+      setVisible(false);
+      confettiFired.current = false;
+    }
+  }, [milestone, info]);
+
+  useEffect(() => {
+    if (visible && milestone && info && !confettiFired.current) {
       confettiFired.current = true;
       confetti({
         particleCount: 120,
@@ -23,21 +36,19 @@ export function StreakCelebrationSheet({ milestone, onDismiss }: StreakCelebrati
         colors: ["#f97316", "#fb923c", "#fbbf24", "#ef4444", "#fde68a"],
       });
     }
-    if (!milestone) {
-      confettiFired.current = false;
-    }
-  }, [milestone, info]);
+  }, [visible, milestone, info]);
 
   return (
     <AnimatePresence>
-      {milestone && info && (
+      {visible && milestone && info && (
         <>
-          {/* Backdrop — does NOT close on click per spec */}
+          {/* Backdrop */}
           <motion.div
             key="backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
             className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
           />
 
