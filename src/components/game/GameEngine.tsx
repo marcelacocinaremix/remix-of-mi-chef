@@ -3,10 +3,10 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Star, Timer, Flame, X, CheckCircle, XCircle } from "lucide-react";
+import { Heart, Star, Timer, Flame, X, CheckCircle, XCircle, Target } from "lucide-react";
 import { useSound } from "@/hooks/useSound";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { GAME_RECIPES, INGREDIENTS_POOL } from "./gameConfig";
+import { GAME_RECIPES, INGREDIENTS_POOL, getDailyChallenge } from "./gameConfig";
 import marcelaCharacter from "@/assets/marcela-character.png";
 
 type GameMode = "recipe" | "order" | "ingredients";
