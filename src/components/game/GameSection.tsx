@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChefHat, SortAsc, Salad, ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
