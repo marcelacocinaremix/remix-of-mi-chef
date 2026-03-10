@@ -3,10 +3,10 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Star, Timer, Flame, X, CheckCircle, XCircle } from "lucide-react";
+import { Heart, Star, Timer, Flame, X, CheckCircle, XCircle, Target } from "lucide-react";
 import { useSound } from "@/hooks/useSound";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { GAME_RECIPES, INGREDIENTS_POOL } from "./gameConfig";
+import { GAME_RECIPES, INGREDIENTS_POOL, getDailyChallenge } from "./gameConfig";
 import marcelaCharacter from "@/assets/marcela-character.png";
 
 type GameMode = "recipe" | "order" | "ingredients";
@@ -47,6 +47,19 @@ function getRecipeOptions(correctRecipeId: string) {
   return [...others, correct].sort(() => Math.random() - 0.5);
 }
 
+// Persist daily challenge progress in localStorage
+function getTodayChallengeKey() {
+  const today = new Date().toISOString().slice(0, 10);
+  const ch = getDailyChallenge();
+  return `miChef_challenge_${ch.id}_${today}`;
+}
+function loadChallengeProgress(): number {
+  try { return parseInt(localStorage.getItem(getTodayChallengeKey()) || "0", 10); } catch { return 0; }
+}
+function saveChallengeProgress(val: number) {
+  try { localStorage.setItem(getTodayChallengeKey(), String(val)); } catch {}
+}
+
 export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
   const { play } = useSound();
   const { t } = useLanguage();
@@ -76,6 +89,11 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
   const [recipeOptions, setRecipeOptions] = useState(() =>
     getRecipeOptions(buildIngredientQuestions()[0]?.correctRecipeId ?? GAME_RECIPES[0].id)
   );
+
+  // Daily challenge
+  const dailyChallenge = getDailyChallenge();
+  const [challengeProgress] = useState(() => loadChallengeProgress());
+  const challengeDone = challengeProgress >= dailyChallenge.targetValue;
 
   const currentRecipe = GAME_RECIPES[recipeIndex % GAME_RECIPES.length];
   const currentIngredientQ = ingredientQuestions[ingredientQIndex % ingredientQuestions.length];
@@ -121,10 +139,14 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
     if (gameOver) return;
     setGameOver(true);
     const timePlayed = Math.floor((Date.now() - startTime) / 1000);
-    // XP = recetas completadas * 50 + racha máxima * 10 + bonus de tiempo
     const xp = completedRecipes.length * 50 + maxStreak * 10 + Math.floor(score / 10);
+
+    // Update daily challenge progress
+    const newProgress = challengeProgress + completedRecipes.length;
+    saveChallengeProgress(newProgress);
+
     onGameEnd({ score, streak: maxStreak, recipesCompleted: completedRecipes.length, timePlayed, xp });
-  }, [gameOver, score, maxStreak, completedRecipes.length, startTime, onGameEnd]);
+  }, [gameOver, score, maxStreak, completedRecipes.length, startTime, onGameEnd, challengeProgress]);
 
   const showFeedback = useCallback((type: "correct" | "wrong") => {
     setFeedback(type);
@@ -259,6 +281,19 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
               <div className="flex items-center gap-1 bg-orange-500/10 rounded-xl px-2 py-1">
                 <Flame className="w-3.5 h-3.5 text-orange-500" />
                 <span className="text-orange-500 font-black text-xs">×{streak}</span>
+              </div>
+            )}
+            {/* Daily challenge indicator */}
+            {!challengeDone && (
+              <div className="flex items-center gap-1 bg-amber-500/10 rounded-xl px-2 py-1">
+                <Target className="w-3.5 h-3.5 text-amber-500" />
+                <span className="text-amber-600 font-bold text-xs">{challengeProgress}/{dailyChallenge.targetValue}</span>
+              </div>
+            )}
+            {challengeDone && (
+              <div className="flex items-center gap-1 bg-green-500/10 rounded-xl px-2 py-1">
+                <Target className="w-3.5 h-3.5 text-green-500" />
+                <span className="text-green-600 font-bold text-xs">✓</span>
               </div>
             )}
           </div>

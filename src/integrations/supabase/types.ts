@@ -1068,6 +1068,17 @@ export type Database = {
         | { Args: { p_user_id: string }; Returns: number }
       is_subscription_active: { Args: { p_user_id: string }; Returns: boolean }
       record_streak_activity: { Args: never; Returns: Json }
+      save_game_result: {
+        Args: {
+          p_mode: string
+          p_recipes_completed: number
+          p_score: number
+          p_streak: number
+          p_time_played: number
+          p_xp_earned?: number
+        }
+        Returns: Json
+      }
       start_trial: { Args: { p_user_id: string }; Returns: Json }
       unlock_achievement: {
         Args: { p_achievement_type: string; p_recipe_count?: number }
