@@ -47,6 +47,19 @@ function getRecipeOptions(correctRecipeId: string) {
   return [...others, correct].sort(() => Math.random() - 0.5);
 }
 
+// Persist daily challenge progress in localStorage
+function getTodayChallengeKey() {
+  const today = new Date().toISOString().slice(0, 10);
+  const ch = getDailyChallenge();
+  return `miChef_challenge_${ch.id}_${today}`;
+}
+function loadChallengeProgress(): number {
+  try { return parseInt(localStorage.getItem(getTodayChallengeKey()) || "0", 10); } catch { return 0; }
+}
+function saveChallengeProgress(val: number) {
+  try { localStorage.setItem(getTodayChallengeKey(), String(val)); } catch {}
+}
+
 export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
   const { play } = useSound();
   const { t } = useLanguage();
@@ -76,6 +89,11 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
   const [recipeOptions, setRecipeOptions] = useState(() =>
     getRecipeOptions(buildIngredientQuestions()[0]?.correctRecipeId ?? GAME_RECIPES[0].id)
   );
+
+  // Daily challenge
+  const dailyChallenge = getDailyChallenge();
+  const [challengeProgress] = useState(() => loadChallengeProgress());
+  const challengeDone = challengeProgress >= dailyChallenge.targetValue;
 
   const currentRecipe = GAME_RECIPES[recipeIndex % GAME_RECIPES.length];
   const currentIngredientQ = ingredientQuestions[ingredientQIndex % ingredientQuestions.length];
