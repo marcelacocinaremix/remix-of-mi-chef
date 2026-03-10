@@ -30,6 +30,13 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
 
   const dateLocale = language === 'en' ? enUS : language === 'pt' ? pt : language === 'it' ? it : language === 'de' ? de : language === 'fr' ? fr : es;
 
+  // Daily challenge real progress from localStorage
+  const dailyChallenge = getDailyChallenge();
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const challengeProgress = parseInt(localStorage.getItem(`miChef_challenge_${dailyChallenge.id}_${todayKey}`) || "0", 10);
+  const challengeDone = challengeProgress >= dailyChallenge.targetValue;
+  const challengePct = Math.min((challengeProgress / dailyChallenge.targetValue) * 100, 100);
+
   const MODE_META: Record<string, { label: string; emoji: string }> = {
     recipe:      { label: t("gameModeRecipe"),      emoji: "👨‍🍳" },
     order:       { label: t("gameModeOrder"),        emoji: "📋" },
