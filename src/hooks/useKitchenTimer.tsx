@@ -32,8 +32,8 @@ export function KitchenTimerProvider({ children }: { children: ReactNode }) {
   const [isFinished, setIsFinished] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isAlarmRinging, setIsAlarmRinging] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const alarmIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const alarmIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { play: playSound } = useSound();
 
   // Stop alarm function
