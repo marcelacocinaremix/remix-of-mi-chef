@@ -283,6 +283,19 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
                 <span className="text-orange-500 font-black text-xs">×{streak}</span>
               </div>
             )}
+            {/* Daily challenge indicator */}
+            {!challengeDone && (
+              <div className="flex items-center gap-1 bg-amber-500/10 rounded-xl px-2 py-1">
+                <Target className="w-3.5 h-3.5 text-amber-500" />
+                <span className="text-amber-600 font-bold text-xs">{challengeProgress}/{dailyChallenge.targetValue}</span>
+              </div>
+            )}
+            {challengeDone && (
+              <div className="flex items-center gap-1 bg-green-500/10 rounded-xl px-2 py-1">
+                <Target className="w-3.5 h-3.5 text-green-500" />
+                <span className="text-green-600 font-bold text-xs">✓</span>
+              </div>
+            )}
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center hover:bg-muted transition-colors">
             <X className="w-4 h-4 text-muted-foreground" />
