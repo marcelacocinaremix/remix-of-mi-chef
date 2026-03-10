@@ -305,19 +305,27 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
         transition={{ delay: 0.5 }}
         className="w-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-2xl p-4 border border-amber-500/20 flex items-center gap-3"
       >
-        <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-          <Target className="w-5 h-5 text-amber-500" />
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${challengeDone ? "bg-green-500/20" : "bg-amber-500/20"}`}>
+          {challengeDone
+            ? <CheckCircle2 className="w-5 h-5 text-green-500" />
+            : <Target className="w-5 h-5 text-amber-500" />}
         </div>
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-sm font-bold text-foreground">{t("gameDailyChallenge")}</span>
-            <Badge className="bg-amber-500/20 text-amber-600 border-amber-500/30 text-[10px]">
-              {t("gameNew")}
-            </Badge>
+            {challengeDone
+              ? <Badge className="bg-green-500/20 text-green-600 border-green-500/30 text-[10px]">✓ Completado</Badge>
+              : <Badge className="bg-amber-500/20 text-amber-600 border-amber-500/30 text-[10px]">{dailyChallenge.xpReward} XP</Badge>
+            }
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5">{t("gameDailyChallengeDesc")}</p>
+          <div className="flex items-center gap-2 mt-1">
+            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+              <div className="h-full bg-amber-500 rounded-full transition-all" style={{ width: `${challengePct}%` }} />
+            </div>
+            <span className="text-[10px] text-muted-foreground flex-shrink-0">{challengeProgress}/{dailyChallenge.targetValue}</span>
+          </div>
         </div>
-        <Zap className="w-4 h-4 text-amber-500 flex-shrink-0" />
+        <Zap className={`w-4 h-4 flex-shrink-0 ${challengeDone ? "text-green-500" : "text-amber-500"}`} />
       </motion.div>
     </div>
   );
