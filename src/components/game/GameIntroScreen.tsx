@@ -2,15 +2,16 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { 
   Play, Trophy, Flame, Zap, ChefHat,
-  SortAsc, Salad, Target, History, Star
+  SortAsc, Salad, Target, History, Star, CheckCircle2
 } from "lucide-react";
 import { useGameStats } from "@/hooks/useGameStats";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import marcelaCharacter from "@/assets/marcela-character.png";
-import { PLAYER_LEVELS } from "./gameConfig";
+import { PLAYER_LEVELS, getDailyChallenge } from "./gameConfig";
 import { GameLeaderboard } from "./GameLeaderboard";
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS, pt, it, de, fr } from "date-fns/locale";
