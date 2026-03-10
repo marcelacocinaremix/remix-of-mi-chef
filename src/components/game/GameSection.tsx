@@ -62,10 +62,14 @@ export function GameSection() {
   ];
 
   const handleGameEnd = useCallback(async (result: GameResult) => {
+    // Set result first so results screen is ready
     setLastResult(result);
-    setPhase("results");
-    await saveGameResult(result.score, result.streak, result.recipesCompleted, result.timePlayed, selectedMode, result.xp);
-    // Trigger 3: playing a game
+    // Small delay to allow results screen to mount before unmounting game (avoids white flash)
+    requestAnimationFrame(() => {
+      setPhase("results");
+    });
+    // Save async in background — don't await to avoid blocking UI
+    saveGameResult(result.score, result.streak, result.recipesCompleted, result.timePlayed, selectedMode, result.xp);
     recordStreak();
 
     if (result.recipesCompleted >= 3) unlockGameAchievement("game_chef");
@@ -178,7 +182,9 @@ export function GameSection() {
             key="playing"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
+            // No exit animation — instant removal to avoid white flash
+            exit={{ opacity: 1 }}
+            transition={{ duration: 0.15 }}
             className="fixed inset-0 z-50 bg-background"
           >
             <GameEngine
@@ -195,6 +201,7 @@ export function GameSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
           >
             <GameResultScreen
               score={lastResult.score}
