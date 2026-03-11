@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,7 @@ import {
 import { useGameStats } from "@/hooks/useGameStats";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 import marcelaCharacter from "@/assets/marcela-character.png";
 import { PLAYER_LEVELS, getDailyChallenge } from "./gameConfig";
 import { GameLeaderboard } from "./GameLeaderboard";
@@ -26,6 +27,17 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
   const { user } = useAuth();
   const { stats, sessions } = useGameStats();
   const { t, language } = useLanguage();
+  const [displayName, setDisplayName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    // Fetch display name from profile
+    supabase.from("profiles").select("display_name").eq("id", user.id).single()
+      .then(({ data }) => {
+        if (data?.display_name) setDisplayName(data.display_name);
+        else setDisplayName(user.user_metadata?.display_name || user.email?.split("@")[0] || null);
+      });
+  }, [user]);
   const [activeTab, setActiveTab] = useState<Tab>("stats");
 
   const dateLocale = language === 'en' ? enUS : language === 'pt' ? pt : language === 'it' ? it : language === 'de' ? de : language === 'fr' ? fr : es;
@@ -100,7 +112,12 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
           <h1 className="text-3xl font-black text-white mb-1 tracking-tight">
             {t("gameTitle")}
           </h1>
-          <p className="text-white/80 text-sm mb-5 max-w-xs mx-auto">
+          {displayName && (
+            <p className="text-white font-bold text-base mb-1">
+              👋 ¡Hola, {displayName}!
+            </p>
+          )}
+          <p className="text-white/70 text-sm mb-5 max-w-xs mx-auto">
             {t("gameSubtitle")}
           </p>
 

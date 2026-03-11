@@ -5,10 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { Trophy, Flame, ChefHat, Star, Zap, RotateCcw, Home, Crown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useGameStats } from "@/hooks/useGameStats";
+import { useAuth } from "@/hooks/useAuth";
 import { PLAYER_LEVELS } from "./gameConfig";
 import marcelaCharacter from "@/assets/marcela-character.png";
 import confetti from "canvas-confetti";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface GameResultScreenProps {
   score: number;
@@ -22,7 +24,18 @@ interface GameResultScreenProps {
 export function GameResultScreen({ score, streak, recipesCompleted, xpEarned, onPlayAgain, onGoHome }: GameResultScreenProps) {
   const { t } = useLanguage();
   const { stats } = useGameStats();
+  const { user } = useAuth();
+  const [displayName, setDisplayName] = useState<string | null>(null);
   const isNewHighScore = score > stats.highScore;
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("profiles").select("display_name").eq("id", user.id).single()
+      .then(({ data }) => {
+        if (data?.display_name) setDisplayName(data.display_name);
+        else setDisplayName(user.user_metadata?.display_name || null);
+      });
+  }, [user]);
 
   // XP total acumulado real (viene de la base de datos, ya incluye esta partida)
   const totalXP = stats.totalXP;
@@ -67,7 +80,9 @@ export function GameResultScreen({ score, streak, recipesCompleted, xpEarned, on
         </div>
 
         <h2 className="text-2xl font-black text-foreground">
-          {isWin ? t("gameYouWon") : t("gameGameOver")}
+          {isWin
+            ? (displayName ? `¡Bravo, ${displayName}! 🎉` : t("gameYouWon"))
+            : (displayName ? `¡Buena partida, ${displayName}!` : t("gameGameOver"))}
         </h2>
         <p className="text-muted-foreground text-sm mt-1">
           {isWin ? t("gameWonDesc") : t("gameLostDesc")}
