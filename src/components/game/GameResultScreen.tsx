@@ -80,7 +80,9 @@ export function GameResultScreen({ score, streak, recipesCompleted, xpEarned, on
         </div>
 
         <h2 className="text-2xl font-black text-foreground">
-          {isWin ? t("gameYouWon") : t("gameGameOver")}
+          {isWin
+            ? (displayName ? `¡Bravo, ${displayName}! 🎉` : t("gameYouWon"))
+            : (displayName ? `¡Buena partida, ${displayName}!` : t("gameGameOver"))}
         </h2>
         <p className="text-muted-foreground text-sm mt-1">
           {isWin ? t("gameWonDesc") : t("gameLostDesc")}
