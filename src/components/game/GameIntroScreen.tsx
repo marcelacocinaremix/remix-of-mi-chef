@@ -112,7 +112,12 @@ export function GameIntroScreen({ onStart }: GameIntroScreenProps) {
           <h1 className="text-3xl font-black text-white mb-1 tracking-tight">
             {t("gameTitle")}
           </h1>
-          <p className="text-white/80 text-sm mb-5 max-w-xs mx-auto">
+          {displayName && (
+            <p className="text-white font-bold text-base mb-1">
+              👋 ¡Hola, {displayName}!
+            </p>
+          )}
+          <p className="text-white/70 text-sm mb-5 max-w-xs mx-auto">
             {t("gameSubtitle")}
           </p>
 
