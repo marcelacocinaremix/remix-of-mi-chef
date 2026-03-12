@@ -101,7 +101,7 @@ export function GameSection() {
 
   return (
     <div className="max-w-lg mx-auto">
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="sync">
         {phase === "intro" && (
           <motion.div
             key="intro"
