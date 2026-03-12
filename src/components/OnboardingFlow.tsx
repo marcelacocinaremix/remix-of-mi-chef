@@ -161,6 +161,33 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     setStep("language");
   };
 
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    try {
+      const { GoogleAuth } = await import("@codetrix-studio/capacitor-google-auth");
+      const googleUser = await GoogleAuth.signIn();
+      if (!googleUser?.authentication?.idToken) {
+        throw new Error("No se obtuvo el token de Google");
+      }
+      const { error } = await supabase.auth.signInWithIdToken({
+        provider: "google",
+        token: googleUser.authentication.idToken,
+      });
+      if (error) throw error;
+      toast({ title: t("authWelcomeBack"), description: "Sesión iniciada con Google." });
+      onComplete();
+    } catch (error: any) {
+      if (error?.message?.includes("cancelled") || error?.message?.includes("canceled") || error?.code === 12501) return;
+      toast({
+        title: "Error con Google",
+        description: error instanceof Error ? error.message : "No se pudo iniciar sesión con Google",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
   const handleAuth = async () => {
     if (!email || !password) {
       toast({
