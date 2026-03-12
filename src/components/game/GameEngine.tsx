@@ -135,8 +135,12 @@ export function GameEngine({ mode, onClose, onGameEnd }: GameEngineProps) {
     return () => clearInterval(timer);
   }, [gameOver, mode]);
 
+  const endingRef = useRef(false);
+
   const endGame = useCallback(() => {
-    if (gameOver) return;
+    // Hard guard: use ref to prevent any double-call even across async/timeout boundaries
+    if (gameOver || endingRef.current) return;
+    endingRef.current = true;
     setGameOver(true);
     const timePlayed = Math.floor((Date.now() - startTime) / 1000);
     const xp = completedRecipes.length * 50 + maxStreak * 10 + Math.floor(score / 10);
