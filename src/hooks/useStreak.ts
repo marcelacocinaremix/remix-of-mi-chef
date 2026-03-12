@@ -36,8 +36,11 @@ export function useStreak(): StreakResult {
   const [streakData, setStreakData] = useState<StreakData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [celebrationMilestone, setCelebrationMilestone] = useState<number | null>(null);
-  // Guard to avoid double-calling recordActivity in StrictMode
+
+  // Guards to prevent double calls and infinite loops
   const activityInProgress = useRef(false);
+  const celebrationShownForMilestone = useRef<number | null>(null);
+  const isDismissing = useRef(false);
 
   const fetchStreak = useCallback(async () => {
     if (!user) {
@@ -55,7 +58,6 @@ export function useStreak(): StreakResult {
       if (error) throw error;
 
       if (data) {
-        // Use local date (not UTC) to match server-side Argentina timezone logic
         const now = new Date();
         const todayLocal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
         setStreakData({
@@ -104,9 +106,18 @@ export function useStreak(): StreakResult {
         alreadyActiveToday: true,
       });
 
-      // Show celebration only for new milestones on new days
-      if (result.milestone_reached > 0 && result.is_new_day) {
-        setCelebrationMilestone(result.milestone_reached);
+      // Show celebration only for NEW milestones on NEW days, and only once per milestone
+      if (
+        result.milestone_reached > 0 &&
+        result.is_new_day &&
+        celebrationShownForMilestone.current !== result.milestone_reached
+      ) {
+        celebrationShownForMilestone.current = result.milestone_reached;
+        isDismissing.current = false;
+        // Delay to avoid racing with any existing state updates / layout
+        setTimeout(() => {
+          setCelebrationMilestone(result.milestone_reached);
+        }, 500);
 
         // Unlock permanent achievement for major milestones
         if ([30, 60, 90].includes(result.milestone_reached)) {
@@ -124,6 +135,8 @@ export function useStreak(): StreakResult {
   }, [user]);
 
   const dismissCelebration = useCallback(() => {
+    if (isDismissing.current) return;
+    isDismissing.current = true;
     setCelebrationMilestone(null);
   }, []);
 

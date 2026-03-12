@@ -12,19 +12,26 @@ interface StreakCelebrationSheetProps {
 export function StreakCelebrationSheet({ milestone, onDismiss }: StreakCelebrationSheetProps) {
   const info = milestone ? getMilestoneInfo(milestone) : null;
   const confettiFired = useRef(false);
-  // Delay showing the sheet to avoid white flash during app load / context re-renders
+  const lastMilestoneRef = useRef<number | null>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (milestone && info) {
+    // Only trigger the sheet when a NEW milestone value arrives (not on re-renders with same value)
+    if (milestone && info && milestone !== lastMilestoneRef.current) {
+      lastMilestoneRef.current = milestone;
+      confettiFired.current = false;
       // Short delay prevents flash when streak is recorded on mount
       const t = setTimeout(() => setVisible(true), 400);
       return () => clearTimeout(t);
-    } else {
-      setVisible(false);
+    } else if (!milestone) {
+      // Only hide when milestone is explicitly cleared
+      lastMilestoneRef.current = null;
       confettiFired.current = false;
+      setVisible(false);
     }
-  }, [milestone, info]);
+    // Intentionally NOT reacting to `info` changes to prevent oscillation
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [milestone]);
 
   useEffect(() => {
     if (visible && milestone && info && !confettiFired.current) {
@@ -38,11 +45,19 @@ export function StreakCelebrationSheet({ milestone, onDismiss }: StreakCelebrati
     }
   }, [visible, milestone, info]);
 
+  const handleDismiss = () => {
+    setVisible(false);
+    // Wait for exit animation before clearing the parent state
+    setTimeout(() => {
+      onDismiss();
+    }, 350);
+  };
+
   return (
     <AnimatePresence>
       {visible && milestone && info && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop — clicking backdrop does nothing, prevents accidental dismiss */}
           <motion.div
             key="backdrop"
             initial={{ opacity: 0 }}
@@ -119,7 +134,7 @@ export function StreakCelebrationSheet({ milestone, onDismiss }: StreakCelebrati
               {/* Close button */}
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                onClick={onDismiss}
+                onClick={handleDismiss}
                 className="mt-2 flex items-center gap-2 bg-primary text-primary-foreground font-bold px-8 py-3 rounded-2xl text-base shadow-lg active:opacity-90 transition-opacity w-full justify-center"
               >
                 ¡Genial!
