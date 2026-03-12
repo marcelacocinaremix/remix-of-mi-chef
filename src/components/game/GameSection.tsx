@@ -62,12 +62,9 @@ export function GameSection() {
   ];
 
   const handleGameEnd = useCallback(async (result: GameResult) => {
-    // Set result first so results screen is ready
+    // Set result AND phase atomically before unmounting game to avoid white flash
     setLastResult(result);
-    // Small delay to allow results screen to mount before unmounting game (avoids white flash)
-    requestAnimationFrame(() => {
-      setPhase("results");
-    });
+    setPhase("results");
     // Save async in background — don't await to avoid blocking UI
     saveGameResult(result.score, result.streak, result.recipesCompleted, result.timePlayed, selectedMode, result.xp);
     recordStreak();
