@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Language, translations, TranslationKey } from "@/i18n/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { Capacitor } from "@capacitor/core";
 
 import { useToast } from "@/hooks/use-toast";
 
