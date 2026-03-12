@@ -179,9 +179,8 @@ export function GameSection() {
             key="playing"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            // No exit animation — instant removal to avoid white flash
-            exit={{ opacity: 1 }}
-            transition={{ duration: 0.15 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className="fixed inset-0 z-50 bg-background"
           >
             <GameEngine
@@ -195,10 +194,10 @@ export function GameSection() {
         {phase === "results" && lastResult && (
           <motion.div
             key="results"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.25 }}
           >
             <GameResultScreen
               score={lastResult.score}
