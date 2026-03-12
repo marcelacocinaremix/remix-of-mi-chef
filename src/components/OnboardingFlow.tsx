@@ -139,6 +139,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<Language>("es");
@@ -146,6 +147,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const { setLanguage } = useLanguage();
   const { toast } = useToast();
+  const isNative = Capacitor.isNativePlatform();
 
   // Create translation function based on selected language
   const t = (key: TranslationKey): string => {
