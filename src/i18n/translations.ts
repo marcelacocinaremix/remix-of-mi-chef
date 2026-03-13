@@ -7315,7 +7315,7 @@ export const translations = {
     searchYoutubeDesc: "Vidéos de la chaîne Marcela Cocina",
     searchCommunityDesc: "Groupe pour cuisiner ensemble",
     searchTipsDesc: "Conseils et astuces de cuisine",
-    learnGuide: "Guide alimentaire",
+    learnGuide: "Trucs du Chef",
     learnTechniques: "Techniques de cuisine",
     learnBasics: "Cuisine de base",
     learnAdvanced: "Cuisine avancée",
