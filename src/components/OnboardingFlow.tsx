@@ -165,6 +165,15 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     setIsGoogleLoading(true);
     try {
       const { GoogleAuth } = await import("@codetrix-studio/capacitor-google-auth");
+      
+      // Initialize is required for v3.4.x before calling signIn
+      // otherwise googleSignInClient is null and the app crashes on Android
+      await GoogleAuth.initialize({
+        clientId: '985393750270-1rj9jjo9at4t798dski3vg56ujhv4hs0.apps.googleusercontent.com',
+        scopes: ['profile', 'email'],
+        grantOfflineAccess: true,
+      });
+
       const googleUser = await GoogleAuth.signIn();
       if (!googleUser?.authentication?.idToken) {
         throw new Error("No se obtuvo el token de Google");
