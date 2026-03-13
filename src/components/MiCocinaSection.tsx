@@ -29,8 +29,7 @@ export const MiCocinaSection = ({
 
   const subTabs = [
     { id: "favoritos" as SubTab, label: t("subTabFavorites"), icon: Heart, descKey: "favoritesBannerDesc" as const },
-    { id: "historial" as SubTab, label: t("subTabHistory"), icon: History, descKey: "historyBannerDesc" as const },
-    { id: "logros" as SubTab, label: t("subTabAchievements"), icon: Trophy, descKey: "achievementsBannerDesc" as const },
+    { id: "historial" as SubTab, label: t("subTabHistory"),   icon: History, descKey: "historyBannerDesc" as const },
   ];
 
   const activeTabData = subTabs.find(tab => tab.id === activeSubTab);
