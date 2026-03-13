@@ -630,13 +630,13 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
         )}
 
         {activeTab === "actividad" && (
-          <div className={cn("space-y-6", balanceBlocked && "opacity-60 pointer-events-none")}>
-            <div className="relative w-full h-32 rounded-xl overflow-hidden">
+          <div className={cn("space-y-4", balanceBlocked && "opacity-60 pointer-events-none")}>
+            <div className="relative w-full h-[100px] rounded-xl overflow-hidden">
               <img src={actividadBanner} alt="Actividad física" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent flex items-center">
+              <div className="absolute inset-0 bg-gradient-to-r from-black/75 to-transparent flex items-center">
                 <div className="px-4">
-                  <h3 className="text-white font-bold text-lg">{t("balanceActivityTitle")}</h3>
-                  <p className="text-white/80 text-sm">{t("balanceActivitySubtitle")}</p>
+                  <h3 className="text-white font-semibold text-base">{t("balanceActivityTitle")}</h3>
+                  <p className="text-white/80 text-xs font-light">{t("balanceActivitySubtitle")}</p>
                 </div>
               </div>
             </div>
