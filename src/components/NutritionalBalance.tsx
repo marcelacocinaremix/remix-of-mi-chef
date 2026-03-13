@@ -298,7 +298,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
         {activeTab === "balance" && (
           <div className="space-y-4">
             {/* Banner */}
-            <div className="relative w-full h-32 rounded-xl overflow-hidden">
+            <div className="relative w-full h-[100px] rounded-xl overflow-hidden">
               <img
                 src={balanceSubTab === "guia" ? nutrientsBanner : balanceBanner}
                 alt={balanceSubTab === "guia" ? "Trucos del Chef" : "Mi Nutrición"}
