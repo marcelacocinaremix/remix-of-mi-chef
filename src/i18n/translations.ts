@@ -1782,7 +1782,7 @@ export const translations = {
     balanceBannerSubtitle: "Log what you eat",
     balanceBannerCharts: "Charts",
     balanceBannerChartsSubtitle: "Visualize your balance",
-    balanceBannerGuide: "Food Guide",
+    balanceBannerGuide: "Chef's Tricks",
     balanceBannerGuideSubtitle: "Nutritional information",
     balancePeriodDay: "Day",
     balancePeriodWeek: "Week",
