@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Camera, User, Save, X, Loader2, Globe } from "lucide-react";
+import { Camera, User, Save, X, Loader2, Globe, Crown, Clock, Sparkles } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -22,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { UNIQUE_COUNTRIES } from "@/data/countries";
+import { usePremium } from "@/hooks/usePremium";
 
 interface UserProfileModalProps {
   open: boolean;
