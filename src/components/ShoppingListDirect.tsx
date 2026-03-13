@@ -3,7 +3,7 @@ import {
   ShoppingCart, Check, Trash2, Copy, Plus, Minus,
   Star, Sparkles, Trophy, Search, ChevronDown, ChevronUp,
   ListChecks, Package2, CircleCheck, ShoppingBag, ArrowRight,
-  PackageCheck, X, Undo2, Clock, TrendingUp, Zap
+  PackageCheck, X, Undo2, Clock, TrendingUp, Zap, Lock, Crown
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { usePremium } from "@/hooks/usePremium";
+import { PaywallModal } from "@/components/PaywallModal";
 import { SuperSmartHistory } from "./SuperSmartHistory";
 
 const CATEGORY_KEYS: Record<string, { emoji: string; order: number; color: string; tKey: string }> = {
@@ -180,6 +182,9 @@ export function ShoppingListDirect() {
   const { toast } = useToast();
   const { t } = useLanguage();
   const { items, isLoading, togglePurchased, removeItem, clearPurchased, pendingCount, addItem, updateQuantity, updateUnit, refetch } = useShoppingList();
+  const { canUseFeature } = usePremium();
+  const superBlocked = !canUseFeature('balance_add'); // same lock as balance/pantry
+  const [showSuperPaywall, setShowSuperPaywall] = useState(false);
   
   const STEPS_CONFIG = [
     { id: "agregar" as ShoppingStep, label: t("superStepAdd"), icon: Plus, description: t("superStepAddDesc") },
@@ -403,7 +408,21 @@ export function ShoppingListDirect() {
 
   return (
     <div className="space-y-4 pb-6">
-      {/* Help banner */}
+      {/* Blocked banner */}
+      {superBlocked && (
+        <div
+          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 cursor-pointer"
+          onClick={() => setShowSuperPaywall(true)}
+        >
+          <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-amber-700 dark:text-amber-300">Solo lectura — Prueba finalizada</p>
+            <p className="text-xs text-amber-600/80 dark:text-amber-400/80">Activá Premium para agregar y editar ítems</p>
+          </div>
+          <Crown className="w-4 h-4 text-amber-500 shrink-0" />
+        </div>
+      )}
+      <PaywallModal open={showSuperPaywall} onOpenChange={setShowSuperPaywall} />
       {/* Header Card with Stats */}
       <Card className="overflow-hidden border-0 shadow-card bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <CardContent className="p-4">

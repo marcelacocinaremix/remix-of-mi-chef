@@ -1939,7 +1939,20 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
         </div>
       </div>
 
-
+      {/* Blocked banner for Aprender — shown when trial expired */}
+      {learnBlocked && activeSubMenu === "aprender" && (
+        <div
+          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 cursor-pointer"
+          onClick={() => setShowPaywall(true)}
+        >
+          <span className="text-lg shrink-0">🔒</span>
+          <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-amber-700 dark:text-amber-300">Solo lectura — Prueba finalizada</p>
+            <p className="text-xs text-amber-600/80 dark:text-amber-400/80">Activá Premium para guardar tu progreso</p>
+          </div>
+          <span className="text-xs font-semibold text-amber-600 shrink-0">Ver Premium →</span>
+        </div>
+      )}
 
       {/* Aprender a Cocinar Content */}
       {activeSubMenu === "aprender" && (
