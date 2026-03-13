@@ -485,15 +485,15 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
             className={cn(
               "flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-medium transition-all",
               activeTab === tab
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                ? "border-b-2 border-primary text-primary bg-transparent"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/60 border-b-2 border-transparent"
             )}
           >
             {tab === "recetas" ? <UtensilsCrossed className="w-4 h-4" /> : <BookOpen className="w-4 h-4" />}
             {tab === "recetas" ? t("favMyRecipes") : t("favMyTips")}
             <span className={cn(
               "text-xs px-1.5 py-0.5 rounded-full font-semibold",
-              activeTab === tab ? "bg-primary-foreground/20" : "bg-muted text-muted-foreground"
+              activeTab === tab ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
             )}>
               {tab === "recetas" ? favorites.length : favoriteTips.length}
             </span>
