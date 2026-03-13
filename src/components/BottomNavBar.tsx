@@ -62,7 +62,6 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
                     size={24}
                     strokeWidth={isActive ? 2 : 1.5}
                     className="relative z-10 transition-all duration-200"
-                    fill={isActive ? "hsl(var(--primary) / 0.12)" : "none"}
                   />
                   {showLock && (
                     <Lock
