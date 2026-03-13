@@ -1,8 +1,6 @@
-import { GraduationCap, Gamepad2, Youtube, User, Lock } from "lucide-react";
+import { GraduationCap, Gamepad2, Youtube, User } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAppTheme } from "@/contexts/ThemeContext";
-import { usePremium } from "@/hooks/usePremium";
-import { useAuth } from "@/hooks/useAuth";
 
 interface MasSectionProps {
   onNavigate: (tab: string) => void;
@@ -11,8 +9,6 @@ interface MasSectionProps {
 export function MasSection({ onNavigate }: MasSectionProps) {
   const { t } = useLanguage();
   const { theme } = useAppTheme();
-  const { user } = useAuth();
-  const { hasAnyAccess } = usePremium();
   const isFuture = theme === "future";
 
   const items = [
@@ -20,37 +16,25 @@ export function MasSection({ onNavigate }: MasSectionProps) {
       id: "aprender",
       label: t("menuLearn"),
       icon: GraduationCap,
-      color: "from-blue-500 to-cyan-500",
-      bgColor: "bg-blue-500/10",
-      iconColor: "text-blue-500",
-      requiresAuth: false,
+      gradient: "from-[hsl(205_100%_50%)] to-[hsl(185_100%_45%)]",
     },
     {
       id: "jugar",
       label: t("menuPlay"),
       icon: Gamepad2,
-      color: "from-purple-500 to-violet-500",
-      bgColor: "bg-purple-500/10",
-      iconColor: "text-purple-500",
-      requiresAuth: false,
+      gradient: "from-[hsl(265_80%_60%)] to-[hsl(280_80%_65%)]",
     },
     {
       id: "marcela",
       label: t("menuRecipes"),
       icon: Youtube,
-      color: "from-red-500 to-rose-500",
-      bgColor: "bg-red-500/10",
-      iconColor: "text-red-500",
-      requiresAuth: false,
+      gradient: "from-[hsl(0_80%_55%)] to-[hsl(345_80%_55%)]",
     },
     {
       id: "perfil",
       label: t("myProfile"),
       icon: User,
-      color: "from-amber-500 to-orange-500",
-      bgColor: "bg-amber-500/10",
-      iconColor: "text-amber-500",
-      requiresAuth: true,
+      gradient: "from-[hsl(35_90%_55%)] to-[hsl(20_90%_55%)]",
     },
   ];
 
@@ -66,12 +50,11 @@ export function MasSection({ onNavigate }: MasSectionProps) {
               onClick={() => onNavigate(item.id)}
               className={`
                 flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border border-border/50 
-                transition-all duration-200 active:scale-95 hover:shadow-md
-                ${item.bgColor} bg-card/80
-                ${isFuture ? "hover:border-primary/50 hover:shadow-primary/10" : "hover:border-border"}
+                bg-card/80 transition-all duration-200 active:scale-95
+                ${isFuture ? "hover:border-primary/50" : "hover:border-border hover:bg-card"}
               `}
             >
-              <div className={`p-3 rounded-xl bg-gradient-to-br ${item.color} bg-opacity-20`}>
+              <div className={`p-3 rounded-xl bg-gradient-to-br ${item.gradient}`}>
                 <Icon className="w-7 h-7 text-white" />
               </div>
               <span className="text-sm font-medium text-foreground">{item.label}</span>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Youtube, Instagram, Users, LogOut, User, Globe, Settings, Crown, Clock, Sparkles, Palette } from "lucide-react";
+import { Youtube, Instagram, Users, LogOut, User, Globe, Settings, Crown, Clock, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
@@ -54,16 +54,16 @@ export function AppHeader() {
               className="gap-1.5 text-muted-foreground hover:text-foreground px-2"
             >
               <Users className="w-4 h-4" />
-              <span className="text-xs hidden xs:inline">Comunidad</span>
+              <span className="text-xs hidden sm:inline">Comunidad</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-44">
             <DropdownMenuItem onClick={() => window.open("https://www.youtube.com/@marcelacocina", "_blank")}>
-              <Youtube className="w-4 h-4 mr-2 text-red-500" />
+              <Youtube className="w-4 h-4 mr-2 text-destructive" />
               YouTube
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => window.open("https://instagram.com/marcelacocina_ok", "_blank", "noopener,noreferrer")}>
-              <Instagram className="w-4 h-4 mr-2 text-pink-500" />
+              <Instagram className="w-4 h-4 mr-2 text-primary" />
               Instagram
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -71,7 +71,7 @@ export function AppHeader() {
       </div>
 
       {/* CENTER: Logo */}
-      <div className="flex items-center gap-2 cursor-pointer select-none">
+      <div className="flex items-center gap-2 select-none">
         <img src={logo} alt="Mi Chef" className="h-8 w-8 object-contain" />
         <span className="font-display font-semibold text-base text-foreground tracking-tight hidden sm:inline">
           Mi Chef
@@ -88,19 +88,19 @@ export function AppHeader() {
             className="gap-1 text-xs px-2"
           >
             <User className="w-4 h-4" />
-            <span className="hidden xs:inline">{t("login")}</span>
+            <span className="hidden sm:inline">{t("login")}</span>
           </Button>
         ) : (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-1.5 group">
+              <button className="flex items-center gap-1.5 group outline-none">
                 {isPremium ? (
-                  <Badge className="bg-amber-500 text-white gap-1 text-[10px] px-1.5 py-0.5">
+                  <Badge className="bg-amber-500 text-primary-foreground gap-1 text-[10px] px-1.5 py-0.5">
                     <Crown className="w-2.5 h-2.5" />
                     Premium
                   </Badge>
                 ) : isTrialActive ? (
-                  <Badge className="bg-emerald-500 text-white gap-1 text-[10px] px-1.5 py-0.5">
+                  <Badge className="bg-emerald-500 text-primary-foreground gap-1 text-[10px] px-1.5 py-0.5">
                     <Clock className="w-2.5 h-2.5" />
                     {trialDaysRemaining}d
                   </Badge>
