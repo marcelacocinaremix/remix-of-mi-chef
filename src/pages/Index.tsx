@@ -328,7 +328,7 @@ export default function Index() {
   const handleMasNavigate = (id: string) => {
     if (id === "perfil") { setShowProfileModal(true); return; }
     setMasSubTab(id as MasSubTab);
-    if (user && ["aprender"].includes(id)) recordStreak();
+    if (user && ["aprender", "balance"].includes(id)) recordStreak();
     setTimeout(() => scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 50);
   };
 
