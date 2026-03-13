@@ -22,7 +22,7 @@ interface PremiumContextType {
   isTrialActive: boolean;
   isTrialExpired: boolean;
   trialDaysRemaining: number;
-  canUseFeature: (feature: 'balance_add' | 'planificador_modify' | 'learn' | 'general') => boolean;
+  canUseFeature: (feature: 'balance_add' | 'planificador_modify' | 'learn' | 'food_guide' | 'general') => boolean;
   hasAnyAccess: boolean; // premium OR trial active
   showPaywall: boolean;
   setShowPaywall: (show: boolean) => void;
