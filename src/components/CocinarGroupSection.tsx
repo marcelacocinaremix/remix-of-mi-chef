@@ -54,19 +54,19 @@ export const CocinarGroupSection = ({
   return (
     <div className="space-y-6">
 
-      {/* Section Banner Image */}
-      <div className="relative w-full h-32 md:h-40 rounded-2xl overflow-hidden shadow-lg">
-        <img 
-          src={cookingBanner} 
-          alt="Recetas" 
-          className="w-full h-full object-cover"
+      {/* Slim Banner */}
+      <div className="relative w-full h-[100px] rounded-xl overflow-hidden shadow-md">
+        <img
+          src={cookingBanner}
+          alt="Recetas"
+          className="w-full h-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent flex items-center">
-          <div className="px-5">
-            <h3 className="text-white font-bold text-xl drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent flex items-center">
+          <div className="px-4">
+            <h3 className="text-white font-semibold text-base drop-shadow-lg">
               {t("subTabRecipes")}
             </h3>
-            <p className="text-white text-sm drop-shadow-md" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>
+            <p className="text-white/80 text-xs font-light drop-shadow-md">
               {t("recipesBannerDesc")}
             </p>
           </div>
