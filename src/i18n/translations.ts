@@ -6030,7 +6030,7 @@ export const translations = {
     searchYoutubeDesc: "Videos vom Marcela Cocina Kanal",
     searchCommunityDesc: "Gruppe zum gemeinsamen Kochen",
     searchTipsDesc: "Kochtipps und -tricks",
-    learnGuide: "Lebensmittelführer",
+    learnGuide: "Küchentricks",
     learnTechniques: "Kochtechniken",
     learnBasics: "Grundlegendes Kochen",
     learnAdvanced: "Fortgeschrittenes Kochen",
