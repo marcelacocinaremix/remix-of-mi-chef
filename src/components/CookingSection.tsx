@@ -95,13 +95,6 @@ export function CookingSection({
   const { t } = useLanguage();
   const { hasAnyAccess } = usePremium();
 
-  const [showHelp, setShowHelp] = useState(false);
-
-  const dismissHelp = () => {
-    localStorage.setItem(COOKING_HELP_KEY, "1");
-    setShowHelp(false);
-  };
-
   const activeFlavor = quickFilters.find(f => f === "dulce" || f === "salado") ?? null;
 
   const toggleFlavor = (id: string) => {
