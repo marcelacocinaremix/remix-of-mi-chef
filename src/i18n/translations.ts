@@ -1688,6 +1688,7 @@ export const translations = {
     menuPlay: "Play",
     menuRecipes: "Recipes",
     menuSearch: "Search",
+    menuMore: "More",
     
     // CocinarGroupSection subtabs
     subTabRecipes: "Recipes",
