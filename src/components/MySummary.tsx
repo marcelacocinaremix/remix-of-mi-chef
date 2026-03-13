@@ -235,9 +235,6 @@ const MySummary = ({
           Marcelacocina
         </p>
         <div className="mx-auto w-16 h-0.5 rounded-full bg-primary" />
-        <p className="text-sm text-muted-foreground px-6 leading-relaxed">
-          🍳 {t("summaryDescription")}
-        </p>
       </div>
 
       {/* Streak Display */}
