@@ -1,6 +1,8 @@
-import { GraduationCap, Gamepad2, Youtube, User, HeartPulse, Lightbulb } from "lucide-react";
+import { GraduationCap, Gamepad2, Youtube, User, HeartPulse, Lightbulb, Palette } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAppTheme } from "@/contexts/ThemeContext";
+import { useState } from "react";
+import { ThemePickerModal } from "@/components/ThemePickerModal";
 
 interface MasSectionProps {
   onNavigate: (tab: string) => void;
@@ -10,6 +12,7 @@ export function MasSection({ onNavigate }: MasSectionProps) {
   const { t } = useLanguage();
   const { theme } = useAppTheme();
   const isFuture = theme === "future";
+  const [showThemes, setShowThemes] = useState(false);
 
   const items = [
     {
@@ -53,54 +56,50 @@ export function MasSection({ onNavigate }: MasSectionProps) {
   const gridItems = items.slice(0, 4);
   const lastItems = items.slice(4);
 
+  const renderButton = (item: typeof items[0]) => {
+    const Icon = item.icon;
+    return (
+      <button
+        key={item.id}
+        onClick={() => onNavigate(item.id)}
+        className={`
+          flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border border-border/50 
+          bg-card/80 transition-all duration-200 active:scale-95
+          ${isFuture ? "hover:border-primary/50" : "hover:border-border hover:bg-card"}
+        `}
+      >
+        <div className={`p-3 rounded-xl bg-gradient-to-br ${item.gradient}`}>
+          <Icon className="w-7 h-7 text-white" />
+        </div>
+        <span className="text-sm font-medium text-foreground">{item.label}</span>
+      </button>
+    );
+  };
+
   return (
     <div className="space-y-4 px-1 py-2 animate-fade-in">
       <h2 className="text-lg font-semibold text-foreground px-1">{t("menuMore")}</h2>
       <div className="grid grid-cols-2 gap-3">
-        {gridItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <button
-              key={item.id}
-              onClick={() => onNavigate(item.id)}
-              className={`
-                flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border border-border/50 
-                bg-card/80 transition-all duration-200 active:scale-95
-                ${isFuture ? "hover:border-primary/50" : "hover:border-border hover:bg-card"}
-              `}
-            >
-              <div className={`p-3 rounded-xl bg-gradient-to-br ${item.gradient}`}>
-                <Icon className="w-7 h-7 text-white" />
-              </div>
-              <span className="text-sm font-medium text-foreground">{item.label}</span>
-            </button>
-          );
-        })}
+        {gridItems.map(renderButton)}
       </div>
-      {/* Last 2 items centered */}
-      {lastItems.length > 0 && (
-        <div className="grid grid-cols-2 gap-3">
-          {lastItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                onClick={() => onNavigate(item.id)}
-                className={`
-                  flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border border-border/50 
-                  bg-card/80 transition-all duration-200 active:scale-95
-                  ${isFuture ? "hover:border-primary/50" : "hover:border-border hover:bg-card"}
-                `}
-              >
-                <div className={`p-3 rounded-xl bg-gradient-to-br ${item.gradient}`}>
-                  <Icon className="w-7 h-7 text-white" />
-                </div>
-                <span className="text-sm font-medium text-foreground">{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      )}
+      <div className="grid grid-cols-2 gap-3">
+        {lastItems.map(renderButton)}
+        {/* Temas */}
+        <button
+          onClick={() => setShowThemes(true)}
+          className={`
+            flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border border-border/50 
+            bg-card/80 transition-all duration-200 active:scale-95
+            ${isFuture ? "hover:border-primary/50" : "hover:border-border hover:bg-card"}
+          `}
+        >
+          <div className="p-3 rounded-xl bg-gradient-to-br from-[hsl(280_70%_55%)] to-[hsl(310_70%_60%)]">
+            <Palette className="w-7 h-7 text-white" />
+          </div>
+          <span className="text-sm font-medium text-foreground">Temas</span>
+        </button>
+      </div>
+      <ThemePickerModal open={showThemes} onOpenChange={setShowThemes} />
     </div>
   );
 }
