@@ -1623,6 +1623,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
   const { canUseFeature, isTrialActive, trialDaysRemaining, isPremium } = usePremium();
   const [showPaywall, setShowPaywall] = useState(false);
   const learnBlocked = !canUseFeature('learn');
+  const foodGuideBlocked = !canUseFeature('food_guide');
   const [activeSubMenu, setActiveSubMenu] = useState<"aprender" | "guia">("aprender");
   const [activeLevel, setActiveLevel] = useState("principiante");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
