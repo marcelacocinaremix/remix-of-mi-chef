@@ -1,6 +1,8 @@
-import { GraduationCap, Gamepad2, Youtube, User, HeartPulse, Lightbulb } from "lucide-react";
+import { GraduationCap, Gamepad2, Youtube, User, HeartPulse, Lightbulb, Palette } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAppTheme } from "@/contexts/ThemeContext";
+import { useState } from "react";
+import { ThemePickerModal } from "@/components/ThemePickerModal";
 
 interface MasSectionProps {
   onNavigate: (tab: string) => void;
