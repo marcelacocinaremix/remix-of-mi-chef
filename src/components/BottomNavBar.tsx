@@ -61,7 +61,7 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
                 )}
                 <div className={`relative ${isClicked ? "animate-bounce" : ""}`}>
                   <Icon
-                    className={`w-6 h-6 relative z-10 transition-all duration-200 ${
+                    className={`w-7 h-7 relative z-10 transition-all duration-200 ${
                       isActive ? "drop-shadow-sm scale-110" : ""
                     }`}
                   />
