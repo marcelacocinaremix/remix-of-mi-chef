@@ -224,6 +224,12 @@ export function FoodStorageGuide({ onBlockedAction }: { onBlockedAction?: () => 
   };
 
   const handleSearch = async (foodOverride?: string, categoryOverride?: string) => {
+    // If blocked, trigger paywall instead
+    if (onBlockedAction) {
+      onBlockedAction();
+      return;
+    }
+
     const foodToUse = (foodOverride || foodName).trim();
     const categoryToUse = categoryOverride || selectedCategory;
     
