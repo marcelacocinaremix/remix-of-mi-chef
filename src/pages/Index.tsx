@@ -508,7 +508,7 @@ export default function Index() {
           <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[60] animate-in fade-in slide-in-from-bottom-4 duration-300">
             <div className="bg-card border border-border shadow-lg rounded-full px-4 py-2 flex items-center gap-2">
               <span className="text-lg">🔐</span>
-              <span className="text-sm font-medium">{t("loginToAccess")}</span>
+              <span className="text-sm font-medium">{t("loginRequired")}</span>
             </div>
           </div>
         )}
