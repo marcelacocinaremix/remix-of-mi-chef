@@ -6318,7 +6318,7 @@ export const translations = {
     learnTrialDays: "verbleibende Tage",
     learnTrialActive: "🎁 Kostenloser Test:",
     learnTrialEnded: "Dein kostenloser Test ist abgelaufen",
-    learnGuideReadOnly: "Der Lebensmittelführer ist schreibgeschützt. Mit Premium freischalten.",
+    learnGuideReadOnly: "Küchentricks ist schreibgeschützt. Mit Premium freischalten.",
     tipsCuts: "Schnitte",
     tipsTemperatures: "Temperaturen",
     tipsConservation: "Konservierung",
