@@ -462,7 +462,28 @@ export default function Index() {
                       />
                     )}
                     {masSubTab === "guia" && (
-                      <FoodStorageGuide />
+                      (() => {
+                        const foodGuideBlocked = !canUseFeature('food_guide');
+                        return foodGuideBlocked ? (
+                          <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
+                            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                              <span className="text-3xl">🔒</span>
+                            </div>
+                            <div>
+                              <p className="font-semibold text-base">Trucos del Chef — Premium</p>
+                              <p className="text-sm text-muted-foreground mt-1">Tu prueba gratuita ha finalizado.<br/>Suscribite para seguir accediendo.</p>
+                            </div>
+                            <button
+                              onClick={() => setShowFoodGuidePaywall(true)}
+                              className="px-5 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
+                            >
+                              Ver planes Premium
+                            </button>
+                          </div>
+                        ) : (
+                          <FoodStorageGuide />
+                        );
+                      })()
                     )}
                     {masSubTab === "jugar" && (
                       <div className="max-w-lg mx-auto">
