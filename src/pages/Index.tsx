@@ -18,6 +18,7 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { NutritionalBalance } from "@/components/NutritionalBalance";
 import { CocinarGroupSection } from "@/components/CocinarGroupSection";
 import { PlanificarSection } from "@/components/PlanificarSection";
+import { AchievementsSection } from "@/components/AchievementsSection";
 import { MiCocinaSection } from "@/components/MiCocinaSection";
 import { MarcelaSection } from "@/components/MarcelaSection";
 import { LearnSection } from "@/components/LearnSection";
@@ -40,7 +41,7 @@ import { useKitchenTimer } from "@/hooks/useKitchenTimer";
 import { ArrowLeft } from "lucide-react";
 
 // Sub-tabs inside "Más" that render as full sections
-type MasSubTab = "aprender" | "jugar" | "marcela" | "perfil" | "balance" | "guia" | null;
+type MasSubTab = "aprender" | "jugar" | "marcela" | "perfil" | "balance" | "guia" | "logros" | null;
 
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
@@ -469,6 +470,11 @@ export default function Index() {
                       </div>
                     )}
                     {masSubTab === "marcela" && <MarcelaSection />}
+                    {masSubTab === "logros" && (
+                      <div className="max-w-xl mx-auto">
+                        <AchievementsSection />
+                      </div>
+                    )}
                     {masSubTab === "balance" && (
                       <div className="max-w-xl mx-auto">
                         <NutritionalBalance
