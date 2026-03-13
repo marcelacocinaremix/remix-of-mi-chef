@@ -459,14 +459,14 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           </motion.div>
         )}
 
-        {/* STEP 3: Feature Tour */}
+        {/* STEP 3: Feature Tour - 2 páginas con 4 features en grilla */}
         {step === "tour" && (
           <motion.div
             key="tour"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-black"
+            className="absolute inset-0 flex flex-col bg-black"
           >
             {/* Back button */}
             <Button
@@ -494,55 +494,48 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -50 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="w-full max-w-md flex flex-col items-center text-center"
+                className="flex flex-col flex-1 items-center justify-center px-6 pt-16 pb-6"
               >
-                {/* Icon with gradient background */}
-                <motion.div
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
-                  className={cn(
-                    "w-32 h-32 rounded-3xl flex items-center justify-center mb-8 bg-gradient-to-br shadow-2xl",
-                    FEATURE_SLIDES[currentSlide].color
-                  )}
-                >
-                  {(() => {
-                    const IconComponent = FEATURE_SLIDES[currentSlide].icon;
-                    return <IconComponent className="w-16 h-16 text-white" strokeWidth={1.5} />;
-                  })()}
-                </motion.div>
-
-                {/* Title */}
+                {/* Page title */}
                 <motion.h2
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="font-display text-3xl font-bold text-white mb-4"
+                  transition={{ delay: 0.1 }}
+                  className="font-display text-2xl font-bold text-white mb-6 text-center"
                 >
-                  {FEATURE_SLIDES[currentSlide].title}
+                  {currentSlide === 0 ? "¿Qué podés hacer?" : "Y mucho más..."}
                 </motion.h2>
 
-                {/* Description */}
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-white/70 text-lg leading-relaxed mb-12 px-4"
-                >
-                  {FEATURE_SLIDES[currentSlide].description}
-                </motion.p>
+                {/* 2x2 grid */}
+                <div className="grid grid-cols-2 gap-4 w-full max-w-sm mb-8">
+                  {FEATURE_SLIDES[currentSlide].map((feature, index) => {
+                    const IconComponent = feature.icon;
+                    return (
+                      <motion.div
+                        key={feature.id}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.1 + index * 0.08, type: "spring", stiffness: 250 }}
+                        className="flex flex-col items-center gap-3 bg-white/5 border border-white/10 rounded-2xl p-4"
+                      >
+                        <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br shadow-lg", feature.color)}>
+                          <IconComponent className="w-7 h-7 text-white" strokeWidth={1.5} />
+                        </div>
+                        <p className="text-white text-xs font-semibold text-center leading-tight">{feature.title}</p>
+                      </motion.div>
+                    );
+                  })}
+                </div>
 
-                {/* Slide indicators */}
-                <div className="flex gap-2 mb-8">
+                {/* Indicators */}
+                <div className="flex gap-2 mb-6">
                   {FEATURE_SLIDES.map((_, index) => (
                     <motion.button
                       key={index}
                       onClick={() => setCurrentSlide(index)}
                       className={cn(
                         "h-2 rounded-full transition-all duration-300",
-                        currentSlide === index 
-                          ? "w-8 bg-white" 
-                          : "w-2 bg-white/30 hover:bg-white/50"
+                        currentSlide === index ? "w-8 bg-white" : "w-2 bg-white/30 hover:bg-white/50"
                       )}
                     />
                   ))}
@@ -552,10 +545,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 <Button
                   size="lg"
                   onClick={handleNextSlide}
-                  className={cn(
-                    "w-full py-6 text-lg rounded-2xl shadow-lg transition-all group bg-gradient-to-r",
-                    FEATURE_SLIDES[currentSlide].color
-                  )}
+                  className="w-full max-w-sm py-6 text-lg rounded-2xl shadow-lg transition-all group bg-gradient-to-r from-orange-500 to-red-500 hover:opacity-90"
                 >
                   <span>{currentSlide === FEATURE_SLIDES.length - 1 ? t("onboardingLetsStart") : t("onboardingContinue")}</span>
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
