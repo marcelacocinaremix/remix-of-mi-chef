@@ -76,12 +76,12 @@ export function FloatingTimerButton() {
 
   return (
     <>
-      <div className="fixed z-50" style={{ bottom: "148px", right: "16px" }}>
+      <div className="fixed z-50" style={{ bottom: "158px", right: "16px" }}>
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setShowTimer(!showTimer)}
-          className="rounded-full bg-card/90 backdrop-blur-sm border border-border/50 hover:bg-card shadow-lg hover:scale-105 transition-transform h-11 w-11"
+          className="rounded-full bg-card/90 backdrop-blur-sm border border-border/50 hover:bg-card shadow-lg hover:scale-105 transition-transform h-12 w-12"
           aria-label={t("kitchenTimer")}
         >
           <Timer className="h-5 w-5 text-primary" />
