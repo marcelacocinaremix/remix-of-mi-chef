@@ -95,6 +95,6 @@ export function AdBanner() {
   // On web or premium: render nothing
   if (!Capacitor.isNativePlatform() || isPremium) return null;
 
-  // Reserve space at bottom so content isn't hidden behind the banner (~50px)
-  return <div style={{ height: 60 }} aria-hidden="true" />;
+  // Reserve extra space: nav bar (~56px) + banner (~50px) so content isn't hidden
+  return <div style={{ height: 50 }} aria-hidden="true" />;
 }
