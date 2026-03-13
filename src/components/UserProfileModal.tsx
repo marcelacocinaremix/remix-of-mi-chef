@@ -33,6 +33,7 @@ interface UserProfileModalProps {
 export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { isPremium, isTrialActive, trialDaysRemaining } = usePremium();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(false);
