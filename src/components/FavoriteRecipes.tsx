@@ -845,7 +845,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
           {!showTipsHelp && (
             <button
               onClick={() => setShowTipsHelp(true)}
-              className="animate-neon-pulse flex items-center justify-center w-8 h-8 rounded-full border border-amber-400/40 bg-amber-500/5 text-amber-500 transition-colors duration-300 hover:bg-amber-500/15 hover:border-amber-400/70"
+              className="animate-neon-pulse flex items-center justify-center w-8 h-8 rounded-full border border-sky-400/40 bg-sky-500/5 text-sky-500 transition-colors duration-300 hover:bg-sky-500/15 hover:border-sky-400/70"
             >
               <Info className="w-4 h-4" />
             </button>
