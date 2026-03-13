@@ -3380,7 +3380,7 @@ export const translations = {
     searchTipsDesc: "Dicas e truques de cozinha",
     
     // Deep search features - Learn
-    learnGuide: "Guia de Alimentos",
+    learnGuide: "Truques do Chef",
     learnTechniques: "Técnicas de Cozinha",
     learnBasics: "Cozinha Básica",
     learnAdvanced: "Cozinha Avançada",
