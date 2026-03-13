@@ -3,13 +3,9 @@ import {
   ShoppingCart, Check, Trash2, Copy, Plus, Minus,
   Star, Sparkles, Trophy, Search, ChevronDown, ChevronUp,
   ListChecks, Package2, CircleCheck, ShoppingBag, ArrowRight,
-  PackageCheck, X, Undo2, Clock, TrendingUp, Zap, Info
+  PackageCheck, X, Undo2, Clock, TrendingUp, Zap
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-const SUPER_HELP_KEY = "miChef_super_help_dismissed";
-
-function SuperHelpBanner({ onDismiss }: { onDismiss: () => void }) {
   const { t } = useLanguage();
   const steps = [
     { num: 1, emoji: "✏️", title: t("superStep1Title"), desc: t("superStep1Desc") },

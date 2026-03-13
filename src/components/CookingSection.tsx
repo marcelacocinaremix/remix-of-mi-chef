@@ -8,14 +8,10 @@ import {
   Shuffle,
   Candy,
   Utensils,
-  Info,
-  X,
   Heart,
   Clock,
   Sliders,
 } from "lucide-react";
-
-const COOKING_HELP_KEY = "miChef_cooking_help_dismissed";
 
 function CookingHelpBanner({ onDismiss }: { onDismiss: () => void }) {
   const { t } = useLanguage();

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
   ChevronLeft, ChevronRight, Plus, Trash2, Sparkles, BookOpen, X,
-  Coffee, Sun, Cookie, Moon, Info
+  Coffee, Sun, Cookie, Moon
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
