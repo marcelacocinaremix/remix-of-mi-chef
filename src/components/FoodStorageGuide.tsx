@@ -25,7 +25,9 @@ import {
   ShoppingCart,
   Shuffle,
   Leaf,
-  ChefHat
+  ChefHat,
+  Lock,
+  Crown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -182,7 +184,7 @@ interface SearchHistoryItem {
 const HISTORY_KEY = "food_tips_history";
 const MAX_HISTORY = 10;
 
-export function FoodStorageGuide() {
+export function FoodStorageGuide({ onBlockedAction }: { onBlockedAction?: () => void }) {
   const [foodName, setFoodName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("conservacion");
   const [isLoading, setIsLoading] = useState(false);
@@ -224,6 +226,12 @@ export function FoodStorageGuide() {
   };
 
   const handleSearch = async (foodOverride?: string, categoryOverride?: string) => {
+    // If blocked, trigger paywall instead
+    if (onBlockedAction) {
+      onBlockedAction();
+      return;
+    }
+
     const foodToUse = (foodOverride || foodName).trim();
     const categoryToUse = categoryOverride || selectedCategory;
     
@@ -377,6 +385,20 @@ export function FoodStorageGuide() {
 
   return (
     <div className="space-y-5 animate-fade-in">
+      {/* Blocked banner */}
+      {onBlockedAction && (
+        <div
+          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 cursor-pointer"
+          onClick={onBlockedAction}
+        >
+          <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-amber-700 dark:text-amber-300">Prueba finalizada</p>
+            <p className="text-xs text-amber-600/80 dark:text-amber-400/80">Suscribite a Premium para seguir usando Trucos del Chef</p>
+          </div>
+          <Crown className="w-4 h-4 text-amber-500 shrink-0" />
+        </div>
+      )}
       {/* Step 1: Search Input */}
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-amber-500/5">
         <CardContent className="py-5">
