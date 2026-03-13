@@ -209,10 +209,9 @@ export function CookingSection({
         <div className="flex items-center justify-between gap-3">
           <button
             onClick={() => setShowHelp(true)}
-            className="animate-neon-pulse group flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/40 bg-primary/5 text-primary text-xs font-medium transition-colors duration-300 hover:bg-primary/15 hover:border-primary/70"
+            className="animate-neon-pulse flex items-center justify-center w-8 h-8 rounded-full border border-primary/40 bg-primary/5 text-primary transition-colors duration-300 hover:bg-primary/15 hover:border-primary/70"
           >
-            <Info className="w-3.5 h-3.5" />
-            <span>{t("cookingViewHowItWorks")}</span>
+            <Info className="w-4 h-4" />
           </button>
           <DailyUsageIndicator />
         </div>
