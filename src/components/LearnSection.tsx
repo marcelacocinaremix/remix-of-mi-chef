@@ -1937,46 +1937,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
         </div>
       </div>
 
-      {/* Submenu Tabs */}
-      <div className="bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5 rounded-2xl p-1.5 border border-border/50">
-        <div className="grid grid-cols-2 gap-1.5">
-          <button
-            onClick={() => {
-              setActiveSubMenu("aprender");
-              onSubTabChange?.("aprender");
-            }}
-            className={cn(
-              "flex flex-col items-center justify-center gap-1.5 py-3 px-3 rounded-xl font-medium transition-all duration-300",
-              activeSubMenu === "aprender"
-                ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]"
-                : "bg-background/60 hover:bg-background text-foreground"
-            )}
-          >
-            <BookOpen className={cn("w-6 h-6", activeSubMenu === "aprender" && "animate-bounce")} />
-            <span className="text-xs">{t("learnTabAprender")}</span>
-          </button>
-          <button
-            onClick={() => {
-              setActiveSubMenu("guia");
-              onSubTabChange?.("guia");
-            }}
-            className={cn(
-              "flex flex-col items-center justify-center gap-1.5 py-3 px-3 rounded-xl font-medium transition-all duration-300",
-              activeSubMenu === "guia"
-                ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]"
-                : "bg-background/60 hover:bg-background text-foreground"
-            )}
-          >
-            <div className="relative">
-              <Lightbulb className={cn("w-6 h-6", activeSubMenu === "guia" && "animate-pulse")} />
-              {learnBlocked && (
-                <Lock className="w-2.5 h-2.5 absolute -top-1 -right-1 text-amber-500" />
-              )}
-            </div>
-            <span className="text-xs">{t("learnTabGuia")}</span>
-          </button>
-        </div>
-      </div>
+
 
       {/* Aprender a Cocinar Content */}
       {activeSubMenu === "aprender" && (
@@ -2201,26 +2162,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
         </div>
       )}
 
-      {/* Guía de Alimentos Content */}
-      {activeSubMenu === "guia" && (
-        <>
-          {learnBlocked && (
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center gap-3 mb-4">
-              <Lock className="w-5 h-5 text-amber-600 flex-shrink-0" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">{t("learnTrialEnded")}</p>
-                <p className="text-xs text-muted-foreground">{t("learnGuideReadOnly")}</p>
-              </div>
-              <Button size="sm" onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs">
-                Premium
-              </Button>
-            </div>
-          )}
-          <div className={cn(learnBlocked && "opacity-60 pointer-events-none")}>
-            <FoodStorageGuide />
-          </div>
-        </>
-      )}
+
 
       {/* Trial info */}
       {!isPremium && isTrialActive && (

@@ -1,4 +1,4 @@
-import { GraduationCap, Gamepad2, Youtube, User, HeartPulse } from "lucide-react";
+import { GraduationCap, Gamepad2, Youtube, User, HeartPulse, Lightbulb } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAppTheme } from "@/contexts/ThemeContext";
 
@@ -25,6 +25,12 @@ export function MasSection({ onNavigate }: MasSectionProps) {
       gradient: "from-[hsl(265_80%_60%)] to-[hsl(280_80%_65%)]",
     },
     {
+      id: "guia",
+      label: t("learnTabGuia"),
+      icon: Lightbulb,
+      gradient: "from-[hsl(40_90%_50%)] to-[hsl(30_90%_50%)]",
+    },
+    {
       id: "balance",
       label: t("subTabHealth"),
       icon: HeartPulse,
@@ -45,7 +51,7 @@ export function MasSection({ onNavigate }: MasSectionProps) {
   ];
 
   const gridItems = items.slice(0, 4);
-  const lastItem = items[4];
+  const lastItems = items.slice(4);
 
   return (
     <div className="space-y-4 px-1 py-2 animate-fade-in">
@@ -71,25 +77,30 @@ export function MasSection({ onNavigate }: MasSectionProps) {
           );
         })}
       </div>
-      {/* 5th item centrado */}
-      {lastItem && (() => {
-        const Icon = lastItem.icon;
-        return (
-          <button
-            onClick={() => onNavigate(lastItem.id)}
-            className={`
-              w-1/2 mx-auto flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border border-border/50 
-              bg-card/80 transition-all duration-200 active:scale-95
-              ${isFuture ? "hover:border-primary/50" : "hover:border-border hover:bg-card"}
-            `}
-          >
-            <div className={`p-3 rounded-xl bg-gradient-to-br ${lastItem.gradient}`}>
-              <Icon className="w-7 h-7 text-white" />
-            </div>
-            <span className="text-sm font-medium text-foreground">{lastItem.label}</span>
-          </button>
-        );
-      })()}
+      {/* Last 2 items centered */}
+      {lastItems.length > 0 && (
+        <div className="grid grid-cols-2 gap-3">
+          {lastItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.id}
+                onClick={() => onNavigate(item.id)}
+                className={`
+                  flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border border-border/50 
+                  bg-card/80 transition-all duration-200 active:scale-95
+                  ${isFuture ? "hover:border-primary/50" : "hover:border-border hover:bg-card"}
+                `}
+              >
+                <div className={`p-3 rounded-xl bg-gradient-to-br ${item.gradient}`}>
+                  <Icon className="w-7 h-7 text-white" />
+                </div>
+                <span className="text-sm font-medium text-foreground">{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

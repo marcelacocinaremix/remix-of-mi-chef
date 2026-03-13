@@ -21,6 +21,7 @@ import { PlanificarSection } from "@/components/PlanificarSection";
 import { MiCocinaSection } from "@/components/MiCocinaSection";
 import { MarcelaSection } from "@/components/MarcelaSection";
 import { LearnSection } from "@/components/LearnSection";
+import { FoodStorageGuide } from "@/components/FoodStorageGuide";
 import { GameSection } from "@/components/game/GameSection";
 import { useToast } from "@/hooks/use-toast";
 import { useSound } from "@/hooks/useSound";
@@ -39,7 +40,7 @@ import { useKitchenTimer } from "@/hooks/useKitchenTimer";
 import { ArrowLeft } from "lucide-react";
 
 // Sub-tabs inside "Más" that render as full sections
-type MasSubTab = "aprender" | "jugar" | "marcela" | "perfil" | "balance" | null;
+type MasSubTab = "aprender" | "jugar" | "marcela" | "perfil" | "balance" | "guia" | null;
 
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
@@ -458,6 +459,9 @@ export default function Index() {
                         onNavigateToGame={() => { setActiveTab("mas"); setMasSubTab("jugar"); }}
                         onSubTabChange={setActiveSubTab}
                       />
+                    )}
+                    {masSubTab === "guia" && (
+                      <FoodStorageGuide />
                     )}
                     {masSubTab === "jugar" && (
                       <div className="max-w-lg mx-auto">
