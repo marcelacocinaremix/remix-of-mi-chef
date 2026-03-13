@@ -4593,7 +4593,7 @@ export const translations = {
     balanceBannerSubtitle: "Registra ciò che mangi",
     balanceBannerCharts: "Grafici",
     balanceBannerChartsSubtitle: "Visualizza il tuo bilancio",
-    balanceBannerGuide: "Guida Alimentare",
+    balanceBannerGuide: "Trucchi dello Chef",
     balanceBannerGuideSubtitle: "Informazioni nutrizionali",
     balancePeriodDay: "Giorno",
     balancePeriodWeek: "Settimana",
