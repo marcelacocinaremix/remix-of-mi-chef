@@ -316,7 +316,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
             <div className="relative w-full h-32 rounded-xl overflow-hidden">
               <img
                 src={balanceSubTab === "guia" ? nutrientsBanner : balanceBanner}
-                alt={balanceSubTab === "guia" ? "Guía de Alimentos" : "Mi Nutrición"}
+                alt={balanceSubTab === "guia" ? "Trucos del Chef" : "Mi Nutrición"}
                 className="w-full h-full object-cover transition-all duration-300"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent flex items-center">

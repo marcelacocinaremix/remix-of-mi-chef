@@ -224,7 +224,7 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
                   { label: "Despensa", free: false },
                   { label: "Lista del supermercado", free: false },
                   { label: "Balance y salud", free: false },
-                  { label: "Guía de alimentos", free: false },
+                  { label: "Trucos del Chef", free: false },
                 ].map((f) => {
                   const hasAccess = isPremium || isTrialActive || f.free;
                   return (
