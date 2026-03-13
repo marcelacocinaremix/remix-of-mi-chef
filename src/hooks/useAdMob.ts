@@ -39,7 +39,7 @@ export function useAdMob() {
       try {
         await AdMob.prepareInterstitial({
           adId: INTERSTITIAL_AD_UNIT_ID,
-          isTesting: false,
+          isTesting: true,
         });
         console.log('[AdMob] Interstitial prepared');
       } catch (prepareErr) {

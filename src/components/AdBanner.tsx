@@ -72,12 +72,13 @@ export function AdBanner() {
           return;
         }
 
+        // Nav bar height ~56px + safe area. Banner sits above it.
         await AdMob.showBanner({
           adId: BANNER_AD_UNIT_ID,
           adSize: 'ADAPTIVE_BANNER',
           position: 'BOTTOM_CENTER',
-          margin: 0,
-          isTesting: false,
+          margin: 56,
+          isTesting: true,
         });
 
         bannerShowing = true;
@@ -94,6 +95,6 @@ export function AdBanner() {
   // On web or premium: render nothing
   if (!Capacitor.isNativePlatform() || isPremium) return null;
 
-  // Reserve space at bottom so content isn't hidden behind the banner (~50px)
-  return <div style={{ height: 60 }} aria-hidden="true" />;
+  // Reserve extra space: nav bar (~56px) + banner (~50px) so content isn't hidden
+  return <div style={{ height: 50 }} aria-hidden="true" />;
 }
