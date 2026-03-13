@@ -1947,13 +1947,12 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
         >
           <span className="text-lg shrink-0">🔒</span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-amber-700 dark:text-amber-300">Solo lectura — Prueba finalizada</p>
+          <p className="text-sm font-medium text-amber-700 dark:text-amber-300">Solo lectura — Prueba finalizada</p>
             <p className="text-xs text-amber-600/80 dark:text-amber-400/80">Activá Premium para guardar tu progreso</p>
           </div>
           <span className="text-xs font-semibold text-amber-600 shrink-0">Ver Premium →</span>
         </div>
       )}
-      <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
 
       {/* Aprender a Cocinar Content */}
       {activeSubMenu === "aprender" && (
