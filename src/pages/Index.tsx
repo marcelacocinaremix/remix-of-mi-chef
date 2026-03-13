@@ -18,6 +18,7 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { NutritionalBalance } from "@/components/NutritionalBalance";
 import { CocinarGroupSection } from "@/components/CocinarGroupSection";
 import { PlanificarSection } from "@/components/PlanificarSection";
+import { AchievementsSection } from "@/components/AchievementsSection";
 import { MiCocinaSection } from "@/components/MiCocinaSection";
 import { MarcelaSection } from "@/components/MarcelaSection";
 import { LearnSection } from "@/components/LearnSection";
