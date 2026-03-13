@@ -250,6 +250,7 @@ export const translations = {
     menuPlay: "Jugar",
     menuRecipes: "Recetas",
     menuSearch: "Buscar",
+    menuMore: "Más",
     
     // CocinarGroupSection subtabs
     subTabRecipes: "Recetas",
@@ -1687,6 +1688,7 @@ export const translations = {
     menuPlay: "Play",
     menuRecipes: "Recipes",
     menuSearch: "Search",
+    menuMore: "More",
     
     // CocinarGroupSection subtabs
     subTabRecipes: "Recipes",
@@ -3120,6 +3122,7 @@ export const translations = {
     menuPlay: "Jogar",
     menuRecipes: "Receitas",
     menuSearch: "Buscar",
+    menuMore: "Mais",
     
     // CocinarGroupSection subtabs
     subTabRecipes: "Receitas",
@@ -4507,6 +4510,7 @@ export const translations = {
     menuPlay: "Gioca",
     menuRecipes: "Ricette",
     menuSearch: "Cerca",
+    menuMore: "Altro",
     subTabRecipes: "Ricette",
     subTabTimer: "Timer",
     timerBannerDesc: "Controlla i tempi di cottura",
@@ -5791,6 +5795,7 @@ export const translations = {
     menuPlay: "Spielen",
     menuRecipes: "Rezepte",
     menuSearch: "Suchen",
+    menuMore: "Mehr",
     subTabRecipes: "Rezepte",
     subTabTimer: "Timer",
     timerBannerDesc: "Kochzeiten kontrollieren",
@@ -7075,6 +7080,7 @@ export const translations = {
     menuPlay: "Jouer",
     menuRecipes: "Recettes",
     menuSearch: "Rechercher",
+    menuMore: "Plus",
     subTabRecipes: "Recettes",
     subTabTimer: "Minuteur",
     timerBannerDesc: "Contrôlez les temps de cuisson",
