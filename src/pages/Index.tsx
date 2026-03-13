@@ -469,6 +469,11 @@ export default function Index() {
                       </div>
                     )}
                     {masSubTab === "marcela" && <MarcelaSection />}
+                    {masSubTab === "logros" && (
+                      <div className="max-w-xl mx-auto">
+                        <AchievementsSection />
+                      </div>
+                    )}
                     {masSubTab === "balance" && (
                       <div className="max-w-xl mx-auto">
                         <NutritionalBalance
