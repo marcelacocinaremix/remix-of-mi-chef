@@ -459,6 +459,9 @@ export default function Index() {
                         onSubTabChange={setActiveSubTab}
                       />
                     )}
+                    {masSubTab === "guia" && (
+                      <FoodStorageGuide />
+                    )}
                     {masSubTab === "jugar" && (
                       <div className="max-w-lg mx-auto">
                         <GameSection />
