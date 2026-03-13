@@ -3708,7 +3708,7 @@ export const translations = {
     learnTrialDays: "dias restantes",
     learnTrialActive: "🎁 Período gratuito:",
     learnTrialEnded: "Seu período gratuito terminou",
-    learnGuideReadOnly: "O Guia de Alimentos é somente leitura. Desbloqueie com Premium.",
+    learnGuideReadOnly: "Truques do Chef é somente leitura. Desbloqueie com Premium.",
     
 
     // Tips Category Names
