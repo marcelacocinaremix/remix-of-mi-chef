@@ -125,21 +125,10 @@ export function CookingSection({
   };
 
   return (
-    <div className="space-y-4">
 
-      {/* Help Banner */}
-      {showHelp && <CookingHelpBanner onDismiss={dismissHelp} />}
-      {!showHelp && (
-        <div className="flex items-center justify-between gap-3">
-          <button
-            onClick={() => setShowHelp(true)}
-            className="animate-neon-pulse flex items-center justify-center w-8 h-8 rounded-full border border-primary/40 bg-primary/5 text-primary transition-colors duration-300 hover:bg-primary/15 hover:border-primary/70"
-          >
-            <Info className="w-4 h-4" />
-          </button>
-          <DailyUsageIndicator />
-        </div>
-      )}
+      <div className="flex items-center justify-end gap-3">
+        <DailyUsageIndicator />
+      </div>
 
       {pendingSuggestion && (
         <Card className="border-2 border-primary/30 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 animate-fade-in">
