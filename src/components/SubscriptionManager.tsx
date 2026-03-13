@@ -149,7 +149,7 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
                   <span className={isPremium || isTrialActive ? "text-green-500" : "text-destructive"}>
                     {isPremium || isTrialActive ? "✓" : "✗"}
                   </span>
-                  Guía de Alimentos {isFullyFree && <Badge variant="outline" className="text-[10px] px-1">Solo lectura</Badge>}
+                  Trucos del Chef {isFullyFree && <Badge variant="outline" className="text-[10px] px-1">Solo lectura</Badge>}
                 </li>
                 {isPremium && (
                   <li className="flex items-center gap-2">
