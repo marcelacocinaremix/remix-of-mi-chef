@@ -3122,6 +3122,7 @@ export const translations = {
     menuPlay: "Jogar",
     menuRecipes: "Receitas",
     menuSearch: "Buscar",
+    menuMore: "Mais",
     
     // CocinarGroupSection subtabs
     subTabRecipes: "Receitas",
