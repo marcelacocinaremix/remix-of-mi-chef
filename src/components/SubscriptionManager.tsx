@@ -1,4 +1,4 @@
-import { Crown, Sparkles, Clock, AlertCircle, XCircle } from "lucide-react";
+import { Crown, Sparkles, Clock, AlertCircle, XCircle, Check, X, Minus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -8,29 +8,122 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { usePremium } from "@/hooks/usePremium";
-import { PaywallModal } from "@/components/PaywallModal";
-import { useState } from "react";
 
 interface SubscriptionManagerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
+const features = [
+  {
+    label: "Generar recetas con IA",
+    free: "3/día",
+    trial: "3/día",
+    premium: "10/día",
+    freeOk: true,
+    trialOk: true,
+    premiumOk: true,
+  },
+  {
+    label: "Calendario semanal/mensual",
+    free: "✓",
+    trial: "✓",
+    premium: "✓",
+    freeOk: true,
+    trialOk: true,
+    premiumOk: true,
+  },
+  {
+    label: "Juego Chef Arena",
+    free: "✓",
+    trial: "✓",
+    premium: "✓",
+    freeOk: true,
+    trialOk: true,
+    premiumOk: true,
+  },
+  {
+    label: "Asistente Marcela",
+    free: "✓",
+    trial: "✓",
+    premium: "✓",
+    freeOk: true,
+    trialOk: true,
+    premiumOk: true,
+  },
+  {
+    label: "Despensa",
+    free: "Solo lectura",
+    trial: "✓",
+    premium: "✓",
+    freeOk: false,
+    trialOk: true,
+    premiumOk: true,
+  },
+  {
+    label: "Lista de súper",
+    free: "Solo lectura",
+    trial: "✓",
+    premium: "✓",
+    freeOk: false,
+    trialOk: true,
+    premiumOk: true,
+  },
+  {
+    label: "Balance nutricional",
+    free: "Solo lectura",
+    trial: "✓",
+    premium: "✓",
+    freeOk: false,
+    trialOk: true,
+    premiumOk: true,
+  },
+  {
+    label: "Trucos del Chef",
+    free: "Solo lectura",
+    trial: "✓",
+    premium: "✓",
+    freeOk: false,
+    trialOk: true,
+    premiumOk: true,
+  },
+  {
+    label: "Sin publicidad",
+    free: "✗",
+    trial: "✗",
+    premium: "✓",
+    freeOk: false,
+    trialOk: false,
+    premiumOk: true,
+  },
+];
+
+function CellIcon({ ok, value }: { ok: boolean; value: string }) {
+  if (value === "✓" || (ok && value !== "✗" && value !== "Solo lectura")) {
+    return <Check className="w-4 h-4 text-emerald-500 mx-auto" />;
+  }
+  if (value === "✗") {
+    return <X className="w-4 h-4 text-destructive mx-auto" />;
+  }
+  if (value === "Solo lectura") {
+    return <span className="text-[10px] text-muted-foreground text-center block leading-tight">Solo<br/>lectura</span>;
+  }
+  return <span className="text-xs font-medium text-center block">{value}</span>;
+}
+
 export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerProps) {
   const {
     isPremium, isTrialActive, isTrialExpired,
     trialDaysRemaining, isCancelled, daysRemaining,
-    subscriptionEnd, planType,
+    subscriptionEnd,
   } = usePremium();
-  const [showPaywall, setShowPaywall] = useState(false);
 
-  // Determine state label + badge
-  const isFullyFree = !isPremium && !isTrialActive && !isCancelled;
   const isCancelledButActive = isCancelled && isPremium;
 
   const stateLabel = isPremium
     ? isCancelledButActive ? "Premium (cancelado)" : "Premium Activo"
-    : isTrialActive ? "Prueba gratuita"
+    : isTrialActive ? "Prueba gratuita (15 días)"
+    : isTrialExpired ? "Prueba finalizada"
     : "Plan gratuito";
 
   const badgeColor = isPremium
@@ -40,14 +133,14 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
 
   const badgeText = isPremium
     ? isCancelledButActive ? `${daysRemaining}d restantes` : "✨ Activo"
-    : isTrialActive ? `${trialDaysRemaining} días`
+    : isTrialActive ? `${trialDaysRemaining} día${trialDaysRemaining !== 1 ? "s" : ""} restantes`
     : isTrialExpired ? "Expirada" : "Gratis";
 
   const cardGradient = isPremium
     ? "from-amber-50 to-orange-50 border-amber-200 dark:from-amber-950/30 dark:to-orange-950/30 dark:border-amber-800"
     : isTrialActive
       ? "from-emerald-50 to-teal-50 border-emerald-200 dark:from-emerald-950/30 dark:to-teal-950/30 dark:border-emerald-800"
-      : "from-muted to-muted border-border";
+      : "from-muted/50 to-muted/30 border-border";
 
   const StatusIcon = isPremium ? Crown : isTrialActive ? Clock : isTrialExpired ? XCircle : Sparkles;
   const iconColor = isPremium ? "text-amber-500" : isTrialActive ? "text-emerald-500" : "text-muted-foreground";
@@ -56,159 +149,131 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
     ? new Date(subscriptionEnd).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })
     : null;
 
-  const trialEndFormatted = isTrialActive && trialDaysRemaining > 0
-    ? `Tu prueba vence en ${trialDaysRemaining} día${trialDaysRemaining !== 1 ? "s" : ""}.`
-    : null;
+  const handleSubscribe = () => {
+    if ((window as any).AndroidInterface) {
+      try {
+        (window as any).AndroidInterface.iniciarCompra();
+      } catch (error) {
+        console.error("Error al llamar a la interfaz nativa:", error);
+      }
+    } else {
+      alert("La pasarela de pago solo está disponible en la App instalada en Android.");
+    }
+    onOpenChange(false);
+  };
+
+  // Highlight active column
+  const activeCol = isPremium ? "premium" : isTrialActive ? "trial" : "free";
 
   return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold flex items-center gap-2">
-              <Crown className="w-5 h-5 text-amber-500" />
-              Mi Chef
-            </DialogTitle>
-          </DialogHeader>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold flex items-center gap-2">
+            <Crown className="w-5 h-5 text-amber-500" />
+            Mi Chef
+          </DialogTitle>
+        </DialogHeader>
 
-          <div className="space-y-6">
-            {/* Status Card */}
-            <div className={`p-4 rounded-xl border-2 bg-gradient-to-br ${cardGradient}`}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <StatusIcon className={`w-6 h-6 ${iconColor}`} />
-                  <span className="font-semibold text-lg">{stateLabel}</span>
-                </div>
-                <Badge variant="default" className={badgeColor}>
-                  {badgeText}
-                </Badge>
+        <div className="space-y-5">
+          {/* Status Card */}
+          <div className={`p-4 rounded-xl border-2 bg-gradient-to-br ${cardGradient}`}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <StatusIcon className={`w-6 h-6 ${iconColor}`} />
+                <span className="font-semibold">{stateLabel}</span>
               </div>
-
-              <p className="text-sm text-muted-foreground">
-                {isPremium
-                  ? isCancelledButActive
-                    ? `Cancelaste la renovación. Seguís con Premium hasta el ${endDateFormatted}.`
-                    : "¡Felicidades! Disfrutás de todas las funciones de Mi Chef sin límites ni publicidad."
-                  : isTrialActive
-                    ? trialEndFormatted ?? `Estás en período de prueba gratuita.`
-                    : isTrialExpired
-                      ? "Tu prueba terminó. Algunas funciones están limitadas."
-                      : "Estás en el plan gratuito con funciones básicas."}
-              </p>
-
-              {/* Cancellation notice */}
-              {isCancelledButActive && endDateFormatted && (
-                <div className="mt-3 flex items-start gap-2 p-2.5 bg-amber-500/10 rounded-lg">
-                  <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-amber-700 dark:text-amber-400">
-                    Después del {endDateFormatted} la cuenta pasará automáticamente al plan gratuito.
-                  </p>
-                </div>
-              )}
+              <Badge variant="default" className={badgeColor}>
+                {badgeText}
+              </Badge>
             </div>
 
-            {/* Benefits */}
-            <div className="space-y-3">
-              <h4 className="font-semibold">
-                {isPremium ? "🎉 Tus beneficios Premium:" : "✨ Comparativa de planes:"}
-              </h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2">
-                  <span className={isPremium ? "text-amber-500" : isTrialActive ? "text-emerald-500" : "text-muted-foreground"}>
-                    {isPremium || isTrialActive ? "✓" : "–"}
-                  </span>
-                  {isPremium ? "10 recetas por día" : isTrialActive ? "3 recetas por día (prueba)" : "3 recetas por día"}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-green-500">✓</span>
-                  Calendario mensual / semanal
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className={isPremium || isTrialActive ? "text-green-500" : "text-destructive"}>
-                    {isPremium || isTrialActive ? "✓" : "✗"}
-                  </span>
-                  Despensa {isFullyFree && <Badge variant="outline" className="text-[10px] px-1">Solo lectura</Badge>}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className={isPremium || isTrialActive ? "text-green-500" : "text-destructive"}>
-                    {isPremium || isTrialActive ? "✓" : "✗"}
-                  </span>
-                  Lista de supermercado {isFullyFree && <Badge variant="outline" className="text-[10px] px-1">Solo lectura</Badge>}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className={isPremium || isTrialActive ? "text-green-500" : "text-destructive"}>
-                    {isPremium || isTrialActive ? "✓" : "✗"}
-                  </span>
-                  Balance nutricional {isFullyFree && <Badge variant="outline" className="text-[10px] px-1">Solo lectura</Badge>}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-green-500">✓</span>
-                  Curso de cocina y tips
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className={isPremium || isTrialActive ? "text-green-500" : "text-destructive"}>
-                    {isPremium || isTrialActive ? "✓" : "✗"}
-                  </span>
-                  Trucos del Chef {isFullyFree && <Badge variant="outline" className="text-[10px] px-1">Solo lectura</Badge>}
-                </li>
-                {isPremium && (
-                  <li className="flex items-center gap-2">
-                    <span className="text-amber-500">✓</span>
-                    Sin publicidad
-                  </li>
-                )}
-              </ul>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              {isPremium
+                ? isCancelledButActive
+                  ? `Cancelaste la renovación. Seguís con Premium hasta el ${endDateFormatted}.`
+                  : "¡Disfrutás todas las funciones sin límites ni publicidad!"
+                : isTrialActive
+                  ? `Estás en la prueba gratuita. Te quedan ${trialDaysRemaining} día${trialDaysRemaining !== 1 ? "s" : ""} para disfrutar Premium.`
+                  : isTrialExpired
+                    ? "Tu prueba de 15 días terminó. Activá Premium para seguir usando todo."
+                    : "Usás el plan gratuito con funciones básicas."}
+            </p>
 
-            {/* Upgrade CTA — show when not on paid premium */}
-            {!isPremium && (
-              <Button
-                onClick={() => {
-                  if ((window as any).AndroidInterface) {
-                    try {
-                      (window as any).AndroidInterface.iniciarCompra();
-                    } catch (error) {
-                      console.error("Error al llamar a la interfaz nativa:", error);
-                    }
-                  } else {
-                    alert("La pasarela de pago solo está disponible en la App instalada en Android.");
-                  }
-                  onOpenChange(false);
-                }}
-                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold py-5"
-              >
-                <Crown className="mr-2 h-4 w-4" />
-                {isTrialActive ? "Activar Premium" : "Actualizar a Premium"}
-              </Button>
-            )}
-
-            {/* Renew CTA — cancelled but still active */}
-            {isCancelledButActive && (
-              <Button
-                variant="outline"
-                onClick={() => {
-                  if ((window as any).AndroidInterface) {
-                    try {
-                      (window as any).AndroidInterface.iniciarCompra();
-                    } catch (error) {
-                      console.error("Error al llamar a la interfaz nativa:", error);
-                    }
-                  } else {
-                    alert("La renovación está disponible en la App instalada en Android.");
-                  }
-                  onOpenChange(false);
-                }}
-                className="w-full border-amber-500/50 text-amber-600 hover:bg-amber-500/10"
-              >
-                <Crown className="mr-2 h-4 w-4" />
-                Renovar suscripción
-              </Button>
+            {isCancelledButActive && endDateFormatted && (
+              <div className="mt-3 flex items-start gap-2 p-2.5 bg-amber-500/10 rounded-lg">
+                <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-amber-700 dark:text-amber-400">
+                  Después del {endDateFormatted} la cuenta pasará automáticamente al plan gratuito.
+                </p>
+              </div>
             )}
           </div>
-        </DialogContent>
-      </Dialog>
 
-      <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
-    </>
+          {/* Plan comparison table */}
+          <div>
+            <h4 className="font-semibold text-sm mb-3">Comparativa de planes</h4>
+            <div className="rounded-xl border overflow-hidden text-sm">
+              {/* Header */}
+              <div className="grid grid-cols-4 bg-muted/50">
+                <div className="p-2 text-xs text-muted-foreground font-medium">Función</div>
+                <div className={`p-2 text-center text-xs font-semibold ${activeCol === "free" ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}>
+                  Gratis
+                </div>
+                <div className={`p-2 text-center text-xs font-semibold ${activeCol === "trial" ? "bg-emerald-500/10 text-emerald-600" : "text-muted-foreground"}`}>
+                  Prueba
+                  <div className="text-[10px] font-normal opacity-70">15 días</div>
+                </div>
+                <div className={`p-2 text-center text-xs font-semibold ${activeCol === "premium" ? "bg-amber-500/10 text-amber-600" : "text-muted-foreground"}`}>
+                  Premium
+                  <div className="text-[10px] font-normal opacity-70">💎</div>
+                </div>
+              </div>
+
+              {/* Rows */}
+              {features.map((f, i) => (
+                <div
+                  key={f.label}
+                  className={`grid grid-cols-4 border-t ${i % 2 === 0 ? "" : "bg-muted/20"}`}
+                >
+                  <div className="p-2 text-xs text-foreground leading-tight flex items-center">{f.label}</div>
+                  <div className={`p-2 flex items-center justify-center ${activeCol === "free" ? "bg-primary/5" : ""}`}>
+                    <CellIcon ok={f.freeOk} value={f.free} />
+                  </div>
+                  <div className={`p-2 flex items-center justify-center ${activeCol === "trial" ? "bg-emerald-500/5" : ""}`}>
+                    <CellIcon ok={f.trialOk} value={f.trial} />
+                  </div>
+                  <div className={`p-2 flex items-center justify-center ${activeCol === "premium" ? "bg-amber-500/5" : ""}`}>
+                    <CellIcon ok={f.premiumOk} value={f.premium} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* CTA */}
+          {!isPremium && (
+            <Button
+              onClick={handleSubscribe}
+              className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold py-5"
+            >
+              <Crown className="mr-2 h-4 w-4" />
+              {isTrialActive ? "Activar Premium ahora" : "Actualizar a Premium"}
+            </Button>
+          )}
+
+          {isCancelledButActive && (
+            <Button
+              variant="outline"
+              onClick={handleSubscribe}
+              className="w-full border-amber-500/50 text-amber-600 hover:bg-amber-500/10"
+            >
+              <Crown className="mr-2 h-4 w-4" />
+              Renovar suscripción
+            </Button>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
