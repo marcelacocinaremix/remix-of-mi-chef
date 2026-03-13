@@ -1,4 +1,4 @@
-import { GraduationCap, Gamepad2, Youtube, User, HeartPulse, Lightbulb, Palette } from "lucide-react";
+import { GraduationCap, Gamepad2, Youtube, User, Activity, Lightbulb, Palette } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAppTheme } from "@/contexts/ThemeContext";
 import { useState } from "react";
@@ -15,12 +15,12 @@ export function MasSection({ onNavigate }: MasSectionProps) {
   const [showThemes, setShowThemes] = useState(false);
 
   const items = [
-    { id: "aprender", label: t("menuLearn"),       icon: GraduationCap, gradient: "from-[hsl(205_100%_50%)] to-[hsl(185_100%_45%)]" },
-    { id: "jugar",    label: t("menuPlay"),         icon: Gamepad2,      gradient: "from-[hsl(265_80%_60%)] to-[hsl(280_80%_65%)]"   },
-    { id: "guia",     label: t("learnTabGuia"),     icon: Lightbulb,     gradient: "from-[hsl(40_90%_50%)] to-[hsl(30_90%_50%)]"     },
-    { id: "balance",  label: t("subTabHealth"),     icon: HeartPulse,    gradient: "from-[hsl(150_70%_40%)] to-[hsl(165_70%_45%)]"   },
-    { id: "marcela",  label: t("menuRecipes"),      icon: Youtube,       gradient: "from-[hsl(0_80%_55%)] to-[hsl(345_80%_55%)]"     },
-    { id: "perfil",   label: t("myProfile"),        icon: User,          gradient: "from-[hsl(35_90%_55%)] to-[hsl(20_90%_55%)]"     },
+    { id: "aprender", label: t("menuLearn"),   icon: GraduationCap },
+    { id: "jugar",    label: t("menuPlay"),     icon: Gamepad2      },
+    { id: "guia",     label: t("learnTabGuia"), icon: Lightbulb     },
+    { id: "balance",  label: t("subTabHealth"), icon: Activity      },
+    { id: "marcela",  label: t("menuRecipes"),  icon: Youtube       },
+    { id: "perfil",   label: t("myProfile"),    icon: User          },
   ];
 
   const renderButton = (item: typeof items[0]) => {
@@ -30,14 +30,12 @@ export function MasSection({ onNavigate }: MasSectionProps) {
         key={item.id}
         onClick={() => onNavigate(item.id)}
         className={`
-          flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border border-border/50 
-          bg-card/80 transition-all duration-200 active:scale-95
-          ${isFuture ? "hover:border-primary/50" : "hover:border-border hover:bg-card"}
+          flex flex-col items-center justify-center gap-3 p-5 rounded-xl border border-slate-100 dark:border-border/50
+          bg-card transition-all duration-200 active:scale-95
+          ${isFuture ? "hover:border-primary/50" : "hover:border-border hover:bg-accent/30"}
         `}
       >
-        <div className={`p-3 rounded-xl bg-gradient-to-br ${item.gradient}`}>
-          <Icon className="w-7 h-7 text-white" />
-        </div>
+        <Icon size={32} strokeWidth={1.5} className="text-slate-800 dark:text-slate-200" />
         <span className="text-sm font-medium text-foreground">{item.label}</span>
       </button>
     );
@@ -55,14 +53,12 @@ export function MasSection({ onNavigate }: MasSectionProps) {
         <button
           onClick={() => setShowThemes(true)}
           className={`
-            flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border border-border/50 
-            bg-card/80 transition-all duration-200 active:scale-95
-            ${isFuture ? "hover:border-primary/50" : "hover:border-border hover:bg-card"}
+            flex flex-col items-center justify-center gap-3 p-5 rounded-xl border border-slate-100 dark:border-border/50
+            bg-card transition-all duration-200 active:scale-95
+            ${isFuture ? "hover:border-primary/50" : "hover:border-border hover:bg-accent/30"}
           `}
         >
-          <div className="p-3 rounded-xl bg-gradient-to-br from-[hsl(280_70%_55%)] to-[hsl(310_70%_60%)]">
-            <Palette className="w-7 h-7 text-white" />
-          </div>
+          <Palette size={32} strokeWidth={1.5} className="text-slate-800 dark:text-slate-200" />
           <span className="text-sm font-medium text-foreground">Temas</span>
         </button>
       </div>

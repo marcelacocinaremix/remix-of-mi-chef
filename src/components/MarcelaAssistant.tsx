@@ -609,7 +609,7 @@ export function MarcelaAssistant({
     return (
       <button
         onClick={() => setIsHidden(false)}
-        className="fixed bottom-24 right-4 z-[60] w-12 h-12 bg-card border border-border text-primary rounded-full shadow-lg flex items-center justify-center hover:scale-110 hover:bg-accent transition-all duration-200"
+        className="fixed bottom-[100px] right-[20px] z-[60] w-14 h-14 bg-background border border-border/40 text-primary rounded-full shadow-sm flex items-center justify-center hover:scale-110 hover:bg-accent transition-all duration-200"
         title={tLocal("marcelaShowTitle")}
       >
         <HelpCircle className="w-6 h-6" />
