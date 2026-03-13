@@ -4510,6 +4510,7 @@ export const translations = {
     menuPlay: "Gioca",
     menuRecipes: "Ricette",
     menuSearch: "Cerca",
+    menuMore: "Altro",
     subTabRecipes: "Ricette",
     subTabTimer: "Timer",
     timerBannerDesc: "Controlla i tempi di cottura",
