@@ -25,7 +25,9 @@ import {
   ShoppingCart,
   Shuffle,
   Leaf,
-  ChefHat
+  ChefHat,
+  Lock,
+  Crown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
