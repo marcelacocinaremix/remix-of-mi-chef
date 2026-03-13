@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Globe, Check, User, Mail, Lock, ChefHat, ArrowRight, ArrowLeft, UtensilsCrossed, GraduationCap, Calendar, ShoppingCart, HeartPulse, Trophy, Bot, Timer, Gamepad2, Eye, EyeOff, X } from "lucide-react";
+import { Globe, Check, User, Mail, Lock, ChefHat, ArrowRight, ArrowLeft, UtensilsCrossed, GraduationCap, Calendar, ShoppingCart, HeartPulse, Trophy, Timer, Gamepad2, Eye, EyeOff, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
