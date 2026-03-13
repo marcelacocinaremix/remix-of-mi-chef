@@ -383,10 +383,6 @@ export function MarcelaAssistant({
           <HelpCircle className="w-6 h-6" />
         )}
 
-        {/* New reaction badge */}
-        {hasNewReaction && !isOpen && (
-          <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-primary rounded-full border-2 border-background" />
-        )}
       </button>
     </div>
   );
