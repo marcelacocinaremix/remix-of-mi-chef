@@ -2280,7 +2280,7 @@ export const translations = {
     learnTrialDays: "days remaining",
     learnTrialActive: "🎁 Free trial:",
     learnTrialEnded: "Your free trial has ended",
-    learnGuideReadOnly: "The Food Guide is read-only. Unlock with Premium.",
+    learnGuideReadOnly: "Chef's Tricks is read-only. Unlock with Premium.",
     
 
     // Tips Category Names
