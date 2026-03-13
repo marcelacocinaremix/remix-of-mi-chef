@@ -56,6 +56,33 @@ export const MiCocinaSection = ({
         </div>
       </div>
 
+      {/* Sub-navigation */}
+      <div className="bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5 rounded-2xl p-1.5 border border-border/50">
+        <div className="grid grid-cols-3 gap-1.5">
+          {subTabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveSubTab(tab.id);
+                  onSubTabChange?.(tab.id);
+                }}
+                className={cn(
+                  "future-nav-btn flex flex-col items-center justify-center gap-1 py-2.5 px-2 rounded-xl font-medium text-xs transition-all duration-300",
+                  activeSubTab === tab.id
+                    ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]"
+                    : "bg-background/60 hover:bg-background text-foreground"
+                )}
+              >
+                <Icon className={cn("w-4 h-4", activeSubTab === tab.id && "animate-pulse")} />
+                <span className="truncate">{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Content */}
       <div className="animate-fade-in">
         {activeSubTab === "favoritos" && (
