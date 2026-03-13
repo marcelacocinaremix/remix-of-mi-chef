@@ -52,6 +52,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { usePremium } from "@/hooks/usePremium";
+import { PaywallModal } from "@/components/PaywallModal";
 import { useToast } from "@/hooks/use-toast";
 import { useShoppingList } from "@/hooks/useShoppingList";
 import { Progress } from "@/components/ui/progress";
