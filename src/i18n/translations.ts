@@ -2273,7 +2273,7 @@ export const translations = {
     learnPercentDone: "% completed",
     learnCompleted100: "completed",
     learnTabAprender: "Learn",
-    learnTabGuia: "Food Guide",
+    learnTabGuia: "Chef's Tricks",
     learnBannerTitle: "Learn",
     learnBannerSubtitle: "Master cooking with Marcela",
     learnMotivational: "\"Cooking is an art learned through practice. Every mistake brings you closer to mastery!\" - Marcela",
