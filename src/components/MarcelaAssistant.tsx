@@ -341,33 +341,25 @@ export function MarcelaAssistant({
           style={{ maxWidth: "65vw", width: "max-content", minWidth: "180px" }}
         >
           <div
-            className="relative rounded-xl border border-border/40 shadow-lg overflow-hidden text-[12px] leading-relaxed"
+            className="relative rounded-xl border border-border/40 shadow-lg overflow-hidden text-[12px] leading-relaxed bg-background/80 dark:bg-card/85"
             style={{
               backdropFilter: "blur(8px)",
               WebkitBackdropFilter: "blur(8px)",
-              background: "rgba(255,255,255,0.72)",
               padding: "8px 10px",
             }}
           >
-            {/* Dark mode override via CSS variable */}
-            <style>{`.dark .marcela-popover-inner { background: rgba(15,15,20,0.82) !important; }`}</style>
-            <div className="marcela-popover-inner">
-              {/* Close button */}
-              <button
-                onClick={() => setIsOpen(false)}
-                className="absolute top-1.5 right-1.5 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <X className="w-3 h-3" />
-              </button>
-              <div className="pr-4">
-                {renderPopoverContent()}
-              </div>
+            {/* Close button */}
+            <button
+              onClick={() => setIsOpen(false)}
+              className="absolute top-1.5 right-1.5 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="w-3 h-3" />
+            </button>
+            <div className="pr-4">
+              {renderPopoverContent()}
             </div>
             {/* Tail pointing down-right toward the FAB */}
-            <div
-              className="absolute -bottom-[5px] right-4 w-2.5 h-2.5 rotate-45 border-r border-b border-border/40"
-              style={{ background: "rgba(255,255,255,0.72)" }}
-            />
+            <div className="absolute -bottom-[5px] right-4 w-2.5 h-2.5 rotate-45 border-r border-b border-border/40 bg-background/80 dark:bg-card/85" />
           </div>
         </div>
       )}
