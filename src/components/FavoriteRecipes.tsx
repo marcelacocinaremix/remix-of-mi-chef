@@ -797,6 +797,60 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
       {/* ════════ TIPS ════════ */}
       {activeTab === "tips" && (
         <div className="space-y-4">
+
+          {/* Banner cómo funciona Trucos */}
+          {showTipsHelp && (
+            <div className="rounded-2xl border-2 border-amber-400/30 bg-gradient-to-br from-amber-500/8 to-primary/5 p-4 animate-fade-in">
+              <div className="flex items-start justify-between gap-2 mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-amber-500/15 flex items-center justify-center">
+                    <ChefHat className="w-4 h-4 text-amber-500" />
+                  </div>
+                  <span className="font-semibold text-sm text-foreground">¿Cómo se guardan los Trucos?</span>
+                </div>
+                <button
+                  onClick={() => { localStorage.setItem("tips_help_dismissed", "1"); setShowTipsHelp(false); }}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="grid grid-cols-1 gap-2.5">
+                <div className="flex items-start gap-3 p-2.5 rounded-xl bg-background/60">
+                  <span className="text-lg shrink-0">🔍</span>
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">Ir a "Trucos del Chef"</p>
+                    <p className="text-xs text-muted-foreground">Entrá en Más → Trucos del Chef y buscá un alimento que te interese</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-2.5 rounded-xl bg-background/60">
+                  <span className="text-lg shrink-0">❤️</span>
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">Tocá el corazón</p>
+                    <p className="text-xs text-muted-foreground">Dale ❤️ a cualquier truco para guardarlo instantáneamente acá</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-2.5 rounded-xl bg-background/60">
+                  <span className="text-lg shrink-0">📂</span>
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">Organizá con carpetas</p>
+                    <p className="text-xs text-muted-foreground">Creá carpetas para agrupar tus trucos por categoría o tema</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Botón para volver a ver ayuda */}
+          {!showTipsHelp && (
+            <button
+              onClick={() => setShowTipsHelp(true)}
+              className="animate-neon-pulse flex items-center justify-center w-8 h-8 rounded-full border border-amber-400/40 bg-amber-500/5 text-amber-500 transition-colors duration-300 hover:bg-amber-500/15 hover:border-amber-400/70"
+            >
+              <Info className="w-4 h-4" />
+            </button>
+          )}
+
           {/* PASO 1 — Carpetas de tips */}
           <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
             <CardContent className="p-4 space-y-3">
