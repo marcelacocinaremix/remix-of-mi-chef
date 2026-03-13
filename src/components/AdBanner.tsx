@@ -72,12 +72,13 @@ export function AdBanner() {
           return;
         }
 
+        // Nav bar height ~56px + safe area. Banner sits above it.
         await AdMob.showBanner({
           adId: BANNER_AD_UNIT_ID,
           adSize: 'ADAPTIVE_BANNER',
           position: 'BOTTOM_CENTER',
-          margin: 0,
-          isTesting: false,
+          margin: 56,
+          isTesting: true,
         });
 
         bannerShowing = true;
