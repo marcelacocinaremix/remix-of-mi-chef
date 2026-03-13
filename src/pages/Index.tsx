@@ -437,25 +437,6 @@ export default function Index() {
                 />
               </TabsContent>
 
-              {/* Balance (= antes Salud) */}
-              <TabsContent value="balance" className="space-y-6 animate-fade-in mt-0">
-                <div className="max-w-xl mx-auto">
-                  <NutritionalBalance
-                    onRecommendRecipes={() => {
-                      setActiveTab("cocinar");
-                      scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-                      toast({ title: t("marcelaTipTitle"), description: t("marcelaTipNutrients") });
-                    }}
-                    onAddIngredientToCook={(ingredientName) => {
-                      setIngredients(prev => [...new Set([...prev, ingredientName])]);
-                      setActiveTab("cocinar");
-                      toast({ title: "✅ Ingrediente agregado", description: `"${ingredientName}" fue agregado a tu lista de cocinar` });
-                    }}
-                    onSubTabChange={setActiveSubTab}
-                  />
-                </div>
-              </TabsContent>
-
               {/* Más — muestra grid o sub-sección */}
               <TabsContent value="mas" className="animate-fade-in mt-0">
                 {!masSubTab ? (
