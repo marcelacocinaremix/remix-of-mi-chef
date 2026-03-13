@@ -95,6 +95,7 @@ export default function Index() {
   const [shoppingListOpened, setShoppingListOpened] = useState(false);
   const [calendarOpened, setCalendarOpened] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showFoodGuidePaywall, setShowFoodGuidePaywall] = useState(false);
 
   const marcelaActiveTab = activeSubTab || activeTab;
 
