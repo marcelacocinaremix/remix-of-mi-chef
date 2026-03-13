@@ -39,7 +39,7 @@ import { useKitchenTimer } from "@/hooks/useKitchenTimer";
 import { ArrowLeft } from "lucide-react";
 
 // Sub-tabs inside "Más" that render as full sections
-type MasSubTab = "aprender" | "jugar" | "marcela" | "perfil" | null;
+type MasSubTab = "aprender" | "jugar" | "marcela" | "perfil" | "balance" | null;
 
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
@@ -298,7 +298,7 @@ export default function Index() {
     setTimeout(() => setClickedTab(null), 400);
 
     // Auth guard
-    const requiresAuth = ["micocina", "planificar", "balance"].includes(tab);
+    const requiresAuth = ["micocina", "planificar"].includes(tab);
     if (requiresAuth && !user) {
       setShowLoginFloatingMessage(true);
       setTimeout(() => setShowLoginFloatingMessage(false), 3000);
@@ -328,7 +328,7 @@ export default function Index() {
   const handleMasNavigate = (id: string) => {
     if (id === "perfil") { setShowProfileModal(true); return; }
     setMasSubTab(id as MasSubTab);
-    if (user && ["aprender"].includes(id)) recordStreak();
+    if (user && ["aprender", "balance"].includes(id)) recordStreak();
     setTimeout(() => scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 50);
   };
 
@@ -437,25 +437,6 @@ export default function Index() {
                 />
               </TabsContent>
 
-              {/* Balance (= antes Salud) */}
-              <TabsContent value="balance" className="space-y-6 animate-fade-in mt-0">
-                <div className="max-w-xl mx-auto">
-                  <NutritionalBalance
-                    onRecommendRecipes={() => {
-                      setActiveTab("cocinar");
-                      scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-                      toast({ title: t("marcelaTipTitle"), description: t("marcelaTipNutrients") });
-                    }}
-                    onAddIngredientToCook={(ingredientName) => {
-                      setIngredients(prev => [...new Set([...prev, ingredientName])]);
-                      setActiveTab("cocinar");
-                      toast({ title: "✅ Ingrediente agregado", description: `"${ingredientName}" fue agregado a tu lista de cocinar` });
-                    }}
-                    onSubTabChange={setActiveSubTab}
-                  />
-                </div>
-              </TabsContent>
-
               {/* Más — muestra grid o sub-sección */}
               <TabsContent value="mas" className="animate-fade-in mt-0">
                 {!masSubTab ? (
@@ -484,6 +465,23 @@ export default function Index() {
                       </div>
                     )}
                     {masSubTab === "marcela" && <MarcelaSection />}
+                    {masSubTab === "balance" && (
+                      <div className="max-w-xl mx-auto">
+                        <NutritionalBalance
+                          onRecommendRecipes={() => {
+                            setActiveTab("cocinar");
+                            scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+                            toast({ title: t("marcelaTipTitle"), description: t("marcelaTipNutrients") });
+                          }}
+                          onAddIngredientToCook={(ingredientName) => {
+                            setIngredients(prev => [...new Set([...prev, ingredientName])]);
+                            setActiveTab("cocinar");
+                            toast({ title: "✅ Ingrediente agregado", description: `"${ingredientName}" fue agregado a tu lista de cocinar` });
+                          }}
+                          onSubTabChange={setActiveSubTab}
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
               </TabsContent>

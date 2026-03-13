@@ -1,4 +1,4 @@
-import { Home, ChefHat, Heart, Calendar, HeartPulse, MoreHorizontal, Lock } from "lucide-react";
+import { Home, ChefHat, Heart, Calendar, MoreHorizontal, Lock } from "lucide-react";
 import { useAppTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
@@ -13,11 +13,10 @@ interface BottomNavBarProps {
 }
 
 const NAV_ITEMS: { id: MainTab; labelKey: string; icon: React.ElementType; requiresAuth: boolean; lockedWhenExpired?: boolean }[] = [
-  { id: "inicio",     labelKey: "menuHome",       icon: Home,       requiresAuth: false },
-  { id: "cocinar",    labelKey: "menuCook",        icon: ChefHat,    requiresAuth: false },
-  { id: "micocina",   labelKey: "menuMyKitchen",   icon: Heart,      requiresAuth: true  },
-  { id: "planificar", labelKey: "menuPlan",        icon: Calendar,   requiresAuth: true  },
-  { id: "balance",    labelKey: "subTabHealth",    icon: HeartPulse, requiresAuth: true,  lockedWhenExpired: true },
+  { id: "inicio",     labelKey: "menuHome",       icon: Home,           requiresAuth: false },
+  { id: "cocinar",    labelKey: "menuCook",        icon: ChefHat,        requiresAuth: false },
+  { id: "micocina",   labelKey: "menuMyKitchen",   icon: Heart,          requiresAuth: true  },
+  { id: "planificar", labelKey: "menuPlan",        icon: Calendar,       requiresAuth: true  },
   { id: "mas",        labelKey: "menuMore",        icon: MoreHorizontal, requiresAuth: false },
 ];
 

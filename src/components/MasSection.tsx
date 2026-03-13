@@ -1,4 +1,4 @@
-import { GraduationCap, Gamepad2, Youtube, User } from "lucide-react";
+import { GraduationCap, Gamepad2, Youtube, User, HeartPulse } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAppTheme } from "@/contexts/ThemeContext";
 
@@ -25,6 +25,12 @@ export function MasSection({ onNavigate }: MasSectionProps) {
       gradient: "from-[hsl(265_80%_60%)] to-[hsl(280_80%_65%)]",
     },
     {
+      id: "balance",
+      label: t("subTabHealth"),
+      icon: HeartPulse,
+      gradient: "from-[hsl(150_70%_40%)] to-[hsl(165_70%_45%)]",
+    },
+    {
       id: "marcela",
       label: t("menuRecipes"),
       icon: Youtube,
@@ -38,11 +44,14 @@ export function MasSection({ onNavigate }: MasSectionProps) {
     },
   ];
 
+  const gridItems = items.slice(0, 4);
+  const lastItem = items[4];
+
   return (
     <div className="space-y-4 px-1 py-2 animate-fade-in">
       <h2 className="text-lg font-semibold text-foreground px-1">{t("menuMore")}</h2>
       <div className="grid grid-cols-2 gap-3">
-        {items.map((item) => {
+        {gridItems.map((item) => {
           const Icon = item.icon;
           return (
             <button
@@ -62,6 +71,25 @@ export function MasSection({ onNavigate }: MasSectionProps) {
           );
         })}
       </div>
+      {/* 5th item centrado */}
+      {lastItem && (() => {
+        const Icon = lastItem.icon;
+        return (
+          <button
+            onClick={() => onNavigate(lastItem.id)}
+            className={`
+              w-1/2 mx-auto flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border border-border/50 
+              bg-card/80 transition-all duration-200 active:scale-95
+              ${isFuture ? "hover:border-primary/50" : "hover:border-border hover:bg-card"}
+            `}
+          >
+            <div className={`p-3 rounded-xl bg-gradient-to-br ${lastItem.gradient}`}>
+              <Icon className="w-7 h-7 text-white" />
+            </div>
+            <span className="text-sm font-medium text-foreground">{lastItem.label}</span>
+          </button>
+        );
+      })()}
     </div>
   );
 }
