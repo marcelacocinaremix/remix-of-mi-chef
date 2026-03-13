@@ -3,49 +3,9 @@ import {
   ShoppingCart, Check, Trash2, Copy, Plus, Minus,
   Star, Sparkles, Trophy, Search, ChevronDown, ChevronUp,
   ListChecks, Package2, CircleCheck, ShoppingBag, ArrowRight,
-  PackageCheck, X, Undo2, Clock, TrendingUp, Zap, Info
+  PackageCheck, X, Undo2, Clock, TrendingUp, Zap
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-const SUPER_HELP_KEY = "miChef_super_help_dismissed";
-
-function SuperHelpBanner({ onDismiss }: { onDismiss: () => void }) {
-  const { t } = useLanguage();
-  const steps = [
-    { num: 1, emoji: "✏️", title: t("superStep1Title"), desc: t("superStep1Desc") },
-    { num: 2, emoji: "✅", title: t("superStep2Title"), desc: t("superStep2Desc") },
-    { num: 3, emoji: "🍳", title: t("superStep3Title"), desc: t("superStep3Desc") },
-    { num: 4, emoji: "🗑️", title: t("superStep4Title"), desc: t("superStep4Desc") },
-  ];
-  return (
-    <div className="rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-accent/8 p-4 animate-fade-in">
-      <div className="flex items-start justify-between gap-2 mb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-            <Info className="w-4 h-4 text-primary" />
-          </div>
-          <span className="font-semibold text-sm text-foreground">{t("superHowItWorks")}</span>
-        </div>
-        <button onClick={onDismiss} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-      <div className="grid grid-cols-1 gap-2.5">
-        {steps.map((s) => (
-          <div key={s.num} className="flex items-start gap-3 p-3 rounded-xl border border-border bg-background/70">
-            <div className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border border-primary/20 bg-primary/10 text-primary">
-              {s.num}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground flex items-center gap-1.5"><span>{s.emoji}</span> {s.title}</p>
-              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{s.desc}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -237,7 +197,6 @@ export function ShoppingListDirect() {
   const [selectedCategory, setSelectedCategory] = useState("otros");
   
   // UI state
-  const [showHelp, setShowHelp] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [showPurchased, setShowPurchased] = useState(false);
@@ -445,15 +404,6 @@ export function ShoppingListDirect() {
   return (
     <div className="space-y-4 pb-6">
       {/* Help banner */}
-      {showHelp && <SuperHelpBanner onDismiss={() => { localStorage.setItem(SUPER_HELP_KEY, "1"); setShowHelp(false); }} />}
-      {!showHelp && (
-        <button
-          onClick={() => setShowHelp(true)}
-          className="animate-neon-pulse flex items-center justify-center w-8 h-8 rounded-full border border-sky-400/40 bg-sky-500/5 text-sky-500 transition-colors duration-300 hover:bg-sky-500/15 hover:border-sky-400/70"
-        >
-          <Info className="w-4 h-4" />
-        </button>
-      )}
       {/* Header Card with Stats */}
       <Card className="overflow-hidden border-0 shadow-card bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <CardContent className="p-4">

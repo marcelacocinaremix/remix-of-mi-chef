@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
@@ -8,80 +7,11 @@ import {
   Shuffle,
   Candy,
   Utensils,
-  Info,
-  X,
   Heart,
   Clock,
   Sliders,
 } from "lucide-react";
 
-const COOKING_HELP_KEY = "miChef_cooking_help_dismissed";
-
-function CookingHelpBanner({ onDismiss }: { onDismiss: () => void }) {
-  const { t } = useLanguage();
-
-  const steps = [
-    {
-      num: 1,
-      emoji: "✨",
-      title: t("cookingStep1Title"),
-      desc: t("cookingStep1Desc"),
-      color: "bg-primary/10 text-primary border-primary/20",
-    },
-    {
-      num: 2,
-      emoji: "❤️",
-      title: t("cookingStep2Title"),
-      desc: t("cookingStep2Desc"),
-      color: "bg-rose-500/10 text-rose-500 border-rose-500/20",
-    },
-    {
-      num: 3,
-      emoji: "👨‍🍳",
-      title: t("cookingStep3Title"),
-      desc: t("cookingStep3Desc"),
-      color: "bg-amber-500/10 text-amber-600 border-amber-500/20",
-    },
-    {
-      num: 4,
-      emoji: "🏆",
-      title: t("cookingStep4Title"),
-      desc: t("cookingStep4Desc"),
-      color: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
-    },
-  ];
-
-  return (
-    <div className="rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-accent/8 p-4 animate-fade-in">
-      <div className="flex items-start justify-between gap-2 mb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-            <Info className="w-4 h-4 text-primary" />
-          </div>
-          <span className="font-semibold text-sm text-foreground">{t("cookingHowItWorks")}</span>
-        </div>
-        <button onClick={onDismiss} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-      <div className="grid grid-cols-1 gap-2.5">
-        {steps.map((s) => (
-          <div key={s.num} className={cn("flex items-start gap-3 p-3 rounded-xl border bg-background/70", s.color.split(" ")[2])}>
-            <div className={cn("w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border", s.color)}>
-              {s.num}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-                <span>{s.emoji}</span> {s.title}
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{s.desc}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 import { IngredientInput } from "@/components/IngredientInput";
 import { DailyUsageIndicator } from "@/components/DailyUsageIndicator";
 import { IngredientCategorySelector } from "@/components/IngredientCategorySelector";
@@ -164,13 +94,6 @@ export function CookingSection({
   const { t } = useLanguage();
   const { hasAnyAccess } = usePremium();
 
-  const [showHelp, setShowHelp] = useState(false);
-
-  const dismissHelp = () => {
-    localStorage.setItem(COOKING_HELP_KEY, "1");
-    setShowHelp(false);
-  };
-
   const activeFlavor = quickFilters.find(f => f === "dulce" || f === "salado") ?? null;
 
   const toggleFlavor = (id: string) => {
@@ -203,19 +126,9 @@ export function CookingSection({
   return (
     <div className="space-y-4">
 
-      {/* Help Banner */}
-      {showHelp && <CookingHelpBanner onDismiss={dismissHelp} />}
-      {!showHelp && (
-        <div className="flex items-center justify-between gap-3">
-          <button
-            onClick={() => setShowHelp(true)}
-            className="animate-neon-pulse flex items-center justify-center w-8 h-8 rounded-full border border-primary/40 bg-primary/5 text-primary transition-colors duration-300 hover:bg-primary/15 hover:border-primary/70"
-          >
-            <Info className="w-4 h-4" />
-          </button>
-          <DailyUsageIndicator />
-        </div>
-      )}
+      <div className="flex items-center justify-end gap-3">
+        <DailyUsageIndicator />
+      </div>
 
       {pendingSuggestion && (
         <Card className="border-2 border-primary/30 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 animate-fade-in">
