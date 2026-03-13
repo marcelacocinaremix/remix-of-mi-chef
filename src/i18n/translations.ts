@@ -7163,7 +7163,7 @@ export const translations = {
     balanceBannerSubtitle: "Enregistrez ce que vous mangez",
     balanceBannerCharts: "Graphiques",
     balanceBannerChartsSubtitle: "Visualisez votre équilibre",
-    balanceBannerGuide: "Guide Alimentaire",
+    balanceBannerGuide: "Trucs du Chef",
     balanceBannerGuideSubtitle: "Informations nutritionnelles",
     balancePeriodDay: "Jour",
     balancePeriodWeek: "Semaine",
