@@ -182,6 +182,35 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
               <p className="text-xs text-muted-foreground">{t("profilePhotoHint")}</p>
             </div>
 
+            {/* Plan actual */}
+            <div className="flex items-center justify-between px-4 py-3 rounded-xl border border-border/50 bg-muted/30">
+              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                {isPremium ? (
+                  <Crown className="w-4 h-4 text-amber-500" />
+                ) : isTrialActive ? (
+                  <Clock className="w-4 h-4 text-emerald-500" />
+                ) : (
+                  <Sparkles className="w-4 h-4 text-primary" />
+                )}
+                Mi plan
+              </div>
+              {isPremium ? (
+                <Badge className="bg-amber-500 text-primary-foreground gap-1 text-xs px-2 py-0.5">
+                  <Crown className="w-3 h-3" />
+                  Premium
+                </Badge>
+              ) : isTrialActive ? (
+                <Badge className="bg-emerald-500 text-primary-foreground gap-1 text-xs px-2 py-0.5">
+                  <Clock className="w-3 h-3" />
+                  Prueba · {trialDaysRemaining}d restantes
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-xs px-2 py-0.5">
+                  Plan Gratuito
+                </Badge>
+              )}
+            </div>
+
             {/* Nombre */}
             <div>
               <Label htmlFor="display_name">{t("profileName")}</Label>
