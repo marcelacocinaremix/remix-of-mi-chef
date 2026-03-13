@@ -18,45 +18,6 @@ import {
   getDay, differenceInCalendarDays
 } from "date-fns";
 
-const CALENDAR_HELP_KEY = "miChef_calendar_help_dismissed";
-
-function CalendarHelpBanner({ onDismiss }: { onDismiss: () => void }) {
-  const { t } = useLanguage();
-  const steps = [
-    { num: 1, emoji: "📅", title: t("calendarStep1Title"), desc: t("calendarStep1Desc") },
-    { num: 2, emoji: "➕", title: t("calendarStep2Title"), desc: t("calendarStep2Desc") },
-    { num: 3, emoji: "🟢", title: t("calendarStep3Title"), desc: t("calendarStep3Desc") },
-    { num: 4, emoji: "👆", title: t("calendarStep4Title"), desc: t("calendarStep4Desc") },
-  ];
-  return (
-    <div className="rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/8 to-accent/8 p-4 animate-fade-in">
-      <div className="flex items-start justify-between gap-2 mb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-            <Info className="w-4 h-4 text-primary" />
-          </div>
-          <span className="font-semibold text-sm text-foreground">{t("calendarHowItWorks")}</span>
-        </div>
-        <button onClick={onDismiss} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-      <div className="grid grid-cols-1 gap-2.5">
-        {steps.map((s) => (
-          <div key={s.num} className="flex items-start gap-3 p-3 rounded-xl border border-border bg-background/70">
-            <div className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border border-primary/20 bg-primary/10 text-primary">
-              {s.num}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground flex items-center gap-1.5"><span>{s.emoji}</span> {s.title}</p>
-              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{s.desc}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 import { es } from "date-fns/locale";
 
   const MEAL_TYPES = [
