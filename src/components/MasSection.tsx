@@ -25,6 +25,12 @@ export function MasSection({ onNavigate }: MasSectionProps) {
       gradient: "from-[hsl(265_80%_60%)] to-[hsl(280_80%_65%)]",
     },
     {
+      id: "guia",
+      label: t("learnTabGuia"),
+      icon: Lightbulb,
+      gradient: "from-[hsl(40_90%_50%)] to-[hsl(30_90%_50%)]",
+    },
+    {
       id: "balance",
       label: t("subTabHealth"),
       icon: HeartPulse,
@@ -45,7 +51,7 @@ export function MasSection({ onNavigate }: MasSectionProps) {
   ];
 
   const gridItems = items.slice(0, 4);
-  const lastItem = items[4];
+  const lastItems = items.slice(4);
 
   return (
     <div className="space-y-4 px-1 py-2 animate-fade-in">
