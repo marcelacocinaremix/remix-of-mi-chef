@@ -368,7 +368,7 @@ export function MarcelaAssistant({
       <button
         ref={fabRef}
         onClick={() => setIsOpen(prev => !prev)}
-        className="relative w-14 h-14 bg-background border border-border/40 text-primary rounded-full shadow-sm flex items-center justify-center hover:scale-105 hover:bg-accent/30 transition-all duration-200 active:scale-95"
+        className="relative w-14 h-14 bg-transparent text-primary rounded-full flex items-center justify-center hover:scale-105 transition-all duration-200 active:scale-95"
         title={tLocal("marcelaShowTitle")}
       >
         {isOpen ? (
