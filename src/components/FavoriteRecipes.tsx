@@ -210,6 +210,9 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [showTipsHelp, setShowTipsHelp] = useState(
+    localStorage.getItem("tips_help_dismissed") !== "1"
+  );
 
   // Carpetas recetas
   const [folders, setFolders] = useState<string[]>(getFolders());
