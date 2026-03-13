@@ -1952,7 +1952,7 @@ export const translations = {
     searchTipsDesc: "Cooking tips and tricks",
     
     // Deep search features - Learn
-    learnGuide: "Food Guide",
+    learnGuide: "Chef's Tricks",
     learnTechniques: "Cooking Techniques",
     learnBasics: "Basic Cooking",
     learnAdvanced: "Advanced Cooking",
