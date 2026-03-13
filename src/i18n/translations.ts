@@ -835,7 +835,7 @@ export const translations = {
     learnPercentDone: "% completado",
     learnCompleted100: "completado",
     learnTabAprender: "Aprender",
-    learnTabGuia: "Guía de Alimentos",
+    learnTabGuia: "Trucos del Chef",
     learnBannerTitle: "Aprender",
     learnBannerSubtitle: "Dominá la cocina con Marcela",
     learnMotivational: "\"La cocina es un arte que se aprende practicando. ¡Cada error te acerca más a la maestría!\" - Marcela",
