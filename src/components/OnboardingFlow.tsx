@@ -63,71 +63,19 @@ const LANGUAGES: { code: Language; name: string; flag: string; greeting: string 
 ];
 
 const getFeatureSlides = (t: (key: TranslationKey) => string) => [
-  {
-    id: "cocinar",
-    icon: UtensilsCrossed,
-    title: t("tourCocinar"),
-    description: t("tourCocinarDesc"),
-    color: "from-orange-500 to-red-500",
-  },
-  {
-    id: "aprender",
-    icon: GraduationCap,
-    title: t("tourAprender"),
-    description: t("tourAprenderDesc"),
-    color: "from-blue-500 to-cyan-500",
-  },
-  {
-    id: "planificar",
-    icon: Calendar,
-    title: t("tourPlanificar"),
-    description: t("tourPlanificarDesc"),
-    color: "from-green-500 to-emerald-500",
-  },
-  {
-    id: "super",
-    icon: ShoppingCart,
-    title: t("tourSuper"),
-    description: t("tourSuperDesc"),
-    color: "from-purple-500 to-violet-500",
-  },
-  {
-    id: "salud",
-    icon: HeartPulse,
-    title: t("tourSalud"),
-    description: t("tourSaludDesc"),
-    color: "from-rose-500 to-pink-500",
-  },
-  {
-    id: "logros",
-    icon: Trophy,
-    title: t("tourLogros"),
-    description: t("tourLogrosDesc"),
-    color: "from-yellow-500 to-orange-500",
-  },
-  {
-    id: "marcela",
-    icon: Bot,
-    title: t("tourMarcela"),
-    description: t("tourMarcelaDesc"),
-    color: "from-cyan-500 to-teal-500",
-  },
-  {
-    id: "timer",
-    icon: Timer,
-    title: t("tourTimer"),
-    description: t("tourTimerDesc"),
-    color: "from-amber-500 to-orange-500",
-  },
-  {
-    id: "juego",
-    icon: Gamepad2,
-    title: t("tourJuego"),
-    description: t("tourJuegoDesc"),
-    color: "from-violet-500 to-purple-500",
-  },
+  [
+    { id: "cocinar",    icon: UtensilsCrossed, title: t("tourCocinar"),    description: t("tourCocinarDesc"),    color: "from-orange-500 to-red-500"     },
+    { id: "aprender",  icon: GraduationCap,   title: t("tourAprender"),   description: t("tourAprenderDesc"),   color: "from-blue-500 to-cyan-500"      },
+    { id: "planificar",icon: Calendar,        title: t("tourPlanificar"), description: t("tourPlanificarDesc"), color: "from-green-500 to-emerald-500"  },
+    { id: "super",     icon: ShoppingCart,    title: t("tourSuper"),      description: t("tourSuperDesc"),      color: "from-purple-500 to-violet-500"  },
+  ],
+  [
+    { id: "salud",     icon: HeartPulse,      title: t("tourSalud"),      description: t("tourSaludDesc"),      color: "from-rose-500 to-pink-500"      },
+    { id: "logros",    icon: Trophy,          title: t("tourLogros"),     description: t("tourLogrosDesc"),     color: "from-yellow-500 to-orange-500" },
+    { id: "timer",     icon: Timer,           title: t("tourTimer"),      description: t("tourTimerDesc"),      color: "from-amber-500 to-orange-500"  },
+    { id: "juego",     icon: Gamepad2,        title: t("tourJuego"),      description: t("tourJuegoDesc"),      color: "from-violet-500 to-purple-500" },
+  ],
 ];
-
 interface OnboardingFlowProps {
   onComplete: () => void;
 }
