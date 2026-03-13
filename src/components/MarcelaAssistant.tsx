@@ -609,7 +609,7 @@ export function MarcelaAssistant({
     return (
       <button
         onClick={() => setIsHidden(false)}
-        className="fixed bottom-24 right-4 z-50 w-12 h-12 bg-card border border-border text-primary rounded-full shadow-lg flex items-center justify-center hover:scale-110 hover:bg-accent transition-all duration-200"
+        className="fixed bottom-24 right-4 z-[60] w-12 h-12 bg-card border border-border text-primary rounded-full shadow-lg flex items-center justify-center hover:scale-110 hover:bg-accent transition-all duration-200"
         title={tLocal("marcelaShowTitle")}
       >
         <HelpCircle className="w-6 h-6" />
@@ -620,7 +620,7 @@ export function MarcelaAssistant({
   return (
     <div
       ref={dragRef}
-      className={`fixed z-50 flex items-end gap-3 ${
+      className={`fixed z-[60] flex items-end gap-3 ${
         isDragging ? "cursor-grabbing" : "transition-opacity duration-300"
       } ${isVisible ? "opacity-100" : "opacity-0"}`}
       style={{

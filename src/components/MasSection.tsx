@@ -1,4 +1,4 @@
-import { GraduationCap, Gamepad2, Youtube, User, HeartPulse, Lightbulb, Palette, Trophy } from "lucide-react";
+import { GraduationCap, Gamepad2, Youtube, User, HeartPulse, Lightbulb, Palette } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAppTheme } from "@/contexts/ThemeContext";
 import { useState } from "react";
@@ -19,7 +19,6 @@ export function MasSection({ onNavigate }: MasSectionProps) {
     { id: "jugar",    label: t("menuPlay"),         icon: Gamepad2,      gradient: "from-[hsl(265_80%_60%)] to-[hsl(280_80%_65%)]"   },
     { id: "guia",     label: t("learnTabGuia"),     icon: Lightbulb,     gradient: "from-[hsl(40_90%_50%)] to-[hsl(30_90%_50%)]"     },
     { id: "balance",  label: t("subTabHealth"),     icon: HeartPulse,    gradient: "from-[hsl(150_70%_40%)] to-[hsl(165_70%_45%)]"   },
-    { id: "logros",   label: t("subTabAchievements"), icon: Trophy,      gradient: "from-[hsl(45_90%_50%)] to-[hsl(30_90%_50%)]"    },
     { id: "marcela",  label: t("menuRecipes"),      icon: Youtube,       gradient: "from-[hsl(0_80%_55%)] to-[hsl(345_80%_55%)]"     },
     { id: "perfil",   label: t("myProfile"),        icon: User,          gradient: "from-[hsl(35_90%_55%)] to-[hsl(20_90%_55%)]"     },
   ];
