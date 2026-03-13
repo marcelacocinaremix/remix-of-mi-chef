@@ -655,7 +655,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
   const [editExpirationDate, setEditExpirationDate] = useState("");
   const [showPantryPaywall, setShowPantryPaywall] = useState(false);
   const { canUseFeature } = usePremium();
-  const pantryBlocked = !canUseFeature('general') ? false : !canUseFeature('balance_add'); // reuse same logic: blocked if trial expired/free
+  const pantryBlocked = !canUseFeature('balance_add'); // blocked when trial expired or free
 
   useEffect(() => {
     if (user) {
