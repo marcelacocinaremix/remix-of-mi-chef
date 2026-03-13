@@ -28,7 +28,8 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
   const isFuture = theme === "future";
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-t border-border/50 safe-area-inset-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-t border-border/50"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
       <div className="flex items-stretch justify-around max-w-lg mx-auto">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
