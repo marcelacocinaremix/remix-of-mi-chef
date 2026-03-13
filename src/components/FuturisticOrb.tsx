@@ -114,22 +114,24 @@ export function FuturisticOrb({
         ctx.fill();
       });
 
-      // Bright white-blue core
-      const corePulse = 1 + Math.sin(time * 0.01) * 0.25;
-      const coreSize = radius * 0.35 * corePulse * sizeMultiplier;
-      const coreGradient = ctx.createRadialGradient(
-        centerX, centerY, 0,
-        centerX, centerY, coreSize
-      );
-      coreGradient.addColorStop(0, "rgba(255, 255, 255, 1)");
-      coreGradient.addColorStop(0.25, "rgba(220, 240, 255, 0.9)");
-      coreGradient.addColorStop(0.6, "rgba(100, 200, 255, 0.5)");
-      coreGradient.addColorStop(1, "rgba(50, 150, 255, 0)");
+      // Bright white-blue core — only visible when active or thinking
+      if (isActive || isThinking) {
+        const corePulse = 1 + Math.sin(time * 0.01) * 0.25;
+        const coreSize = radius * 0.35 * corePulse * sizeMultiplier;
+        const coreGradient = ctx.createRadialGradient(
+          centerX, centerY, 0,
+          centerX, centerY, coreSize
+        );
+        coreGradient.addColorStop(0, "rgba(255, 255, 255, 1)");
+        coreGradient.addColorStop(0.25, "rgba(220, 240, 255, 0.9)");
+        coreGradient.addColorStop(0.6, "rgba(100, 200, 255, 0.5)");
+        coreGradient.addColorStop(1, "rgba(50, 150, 255, 0)");
 
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, coreSize, 0, Math.PI * 2);
-      ctx.fillStyle = coreGradient;
-      ctx.fill();
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, coreSize, 0, Math.PI * 2);
+        ctx.fillStyle = coreGradient;
+        ctx.fill();
+      }
 
       ctx.restore();
 
