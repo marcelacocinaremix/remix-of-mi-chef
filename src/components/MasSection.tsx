@@ -44,11 +44,14 @@ export function MasSection({ onNavigate }: MasSectionProps) {
     },
   ];
 
+  const gridItems = items.slice(0, 4);
+  const lastItem = items[4];
+
   return (
     <div className="space-y-4 px-1 py-2 animate-fade-in">
       <h2 className="text-lg font-semibold text-foreground px-1">{t("menuMore")}</h2>
       <div className="grid grid-cols-2 gap-3">
-        {items.map((item) => {
+        {gridItems.map((item) => {
           const Icon = item.icon;
           return (
             <button
