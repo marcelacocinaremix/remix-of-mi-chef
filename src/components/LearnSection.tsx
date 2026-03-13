@@ -1937,46 +1937,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
         </div>
       </div>
 
-      {/* Submenu Tabs */}
-      <div className="bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5 rounded-2xl p-1.5 border border-border/50">
-        <div className="grid grid-cols-2 gap-1.5">
-          <button
-            onClick={() => {
-              setActiveSubMenu("aprender");
-              onSubTabChange?.("aprender");
-            }}
-            className={cn(
-              "flex flex-col items-center justify-center gap-1.5 py-3 px-3 rounded-xl font-medium transition-all duration-300",
-              activeSubMenu === "aprender"
-                ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]"
-                : "bg-background/60 hover:bg-background text-foreground"
-            )}
-          >
-            <BookOpen className={cn("w-6 h-6", activeSubMenu === "aprender" && "animate-bounce")} />
-            <span className="text-xs">{t("learnTabAprender")}</span>
-          </button>
-          <button
-            onClick={() => {
-              setActiveSubMenu("guia");
-              onSubTabChange?.("guia");
-            }}
-            className={cn(
-              "flex flex-col items-center justify-center gap-1.5 py-3 px-3 rounded-xl font-medium transition-all duration-300",
-              activeSubMenu === "guia"
-                ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]"
-                : "bg-background/60 hover:bg-background text-foreground"
-            )}
-          >
-            <div className="relative">
-              <Lightbulb className={cn("w-6 h-6", activeSubMenu === "guia" && "animate-pulse")} />
-              {learnBlocked && (
-                <Lock className="w-2.5 h-2.5 absolute -top-1 -right-1 text-amber-500" />
-              )}
-            </div>
-            <span className="text-xs">{t("learnTabGuia")}</span>
-          </button>
-        </div>
-      </div>
+
 
       {/* Aprender a Cocinar Content */}
       {activeSubMenu === "aprender" && (
