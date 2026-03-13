@@ -182,7 +182,7 @@ interface SearchHistoryItem {
 const HISTORY_KEY = "food_tips_history";
 const MAX_HISTORY = 10;
 
-export function FoodStorageGuide() {
+export function FoodStorageGuide({ onBlockedAction }: { onBlockedAction?: () => void }) {
   const [foodName, setFoodName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("conservacion");
   const [isLoading, setIsLoading] = useState(false);
