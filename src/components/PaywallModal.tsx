@@ -51,6 +51,20 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         </div>
 
         <div className="p-5 space-y-4">
+          {/* Recipe limit highlight */}
+          <div className="grid grid-cols-2 gap-2 text-center">
+            <div className="rounded-xl border-2 border-border p-3 bg-muted/30">
+              <p className="text-2xl font-black text-muted-foreground">3</p>
+              <p className="text-xs text-muted-foreground font-medium">recetas / día</p>
+              <p className="text-[10px] text-muted-foreground/70 mt-0.5">Plan Gratis</p>
+            </div>
+            <div className="rounded-xl border-2 border-amber-400 p-3 bg-amber-50 dark:bg-amber-950/30">
+              <p className="text-2xl font-black text-amber-500">10</p>
+              <p className="text-xs text-amber-600 font-medium">recetas / día</p>
+              <p className="text-[10px] text-amber-500/70 mt-0.5">✨ Premium</p>
+            </div>
+          </div>
+
           {/* Plan comparison */}
           <div className="grid grid-cols-2 gap-3">
             {/* Free col */}
