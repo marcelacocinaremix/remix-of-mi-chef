@@ -99,7 +99,7 @@ const features = [
 ];
 
 function CellIcon({ ok, value }: { ok: boolean; value: string }) {
-  if (value === "✓" || (ok && value !== "✗" && value !== "Solo lectura")) {
+  if (value === "✓") {
     return <Check className="w-4 h-4 text-emerald-500 mx-auto" />;
   }
   if (value === "✗") {
@@ -108,7 +108,12 @@ function CellIcon({ ok, value }: { ok: boolean; value: string }) {
   if (value === "Solo lectura") {
     return <span className="text-[10px] text-muted-foreground text-center block leading-tight">Solo<br/>lectura</span>;
   }
-  return <span className="text-xs font-medium text-center block">{value}</span>;
+  // Numeric/text values (e.g. "3/día", "10/día")
+  return (
+    <span className={`text-xs font-semibold text-center block ${ok ? "text-emerald-600" : "text-muted-foreground"}`}>
+      {value}
+    </span>
+  );
 }
 
 export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerProps) {
