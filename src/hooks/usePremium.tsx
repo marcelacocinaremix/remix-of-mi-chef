@@ -22,7 +22,7 @@ interface PremiumContextType {
   isTrialActive: boolean;
   isTrialExpired: boolean;
   trialDaysRemaining: number;
-  canUseFeature: (feature: 'balance_add' | 'planificador_modify' | 'learn' | 'general') => boolean;
+  canUseFeature: (feature: 'balance_add' | 'planificador_modify' | 'learn' | 'food_guide' | 'general') => boolean;
   hasAnyAccess: boolean; // premium OR trial active
   showPaywall: boolean;
   setShowPaywall: (show: boolean) => void;
@@ -94,11 +94,11 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   // Daily limit depends on paid status
   const effectiveLimit = paidPeriodActive ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
 
-  const canUseFeature = useCallback((feature: 'balance_add' | 'planificador_modify' | 'learn' | 'general') => {
+  const canUseFeature = useCallback((feature: 'balance_add' | 'planificador_modify' | 'learn' | 'food_guide' | 'general') => {
     if (paidPeriodActive) return true;
     if (isTrialActive) return true;
     // Trial expired and no active paid period — block premium features
-    if (feature === 'balance_add' || feature === 'planificador_modify' || feature === 'learn') return false;
+    if (feature === 'balance_add' || feature === 'planificador_modify' || feature === 'learn' || feature === 'food_guide') return false;
     return true; // General viewing still allowed
   }, [paidPeriodActive, isTrialActive]);
 
