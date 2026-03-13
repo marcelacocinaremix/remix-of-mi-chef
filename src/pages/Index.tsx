@@ -555,6 +555,9 @@ export default function Index() {
       {/* Profile modal (opened from Más > Perfil) */}
       <UserProfileModal open={showProfileModal} onOpenChange={setShowProfileModal} />
 
+      {/* Food Guide paywall */}
+      <PaywallModal open={showFoodGuidePaywall} onOpenChange={setShowFoodGuidePaywall} />
+
       <TrialNoticeModal />
     </div>
   );
