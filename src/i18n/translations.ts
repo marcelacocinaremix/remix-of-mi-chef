@@ -4098,7 +4098,7 @@ export const translations = {
     favLoginDesc: "Faça login para salvar seus favoritos",
     favLoading: "Carregando favoritos...",
     favMyRecipes: "Minhas Receitas",
-    favMyTips: "Minhas Dicas",
+    favMyTips: "Trucos",
     favHowItWorks: "Como funciona?",
     favHowItWorksStep1Title: "Salve uma receita",
     favHowItWorksStep1Desc: "Toque no ❤️ em qualquer receita gerada para adicioná-la aqui",
