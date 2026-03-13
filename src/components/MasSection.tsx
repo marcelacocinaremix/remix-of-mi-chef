@@ -71,6 +71,25 @@ export function MasSection({ onNavigate }: MasSectionProps) {
           );
         })}
       </div>
+      {/* 5th item centrado */}
+      {lastItem && (() => {
+        const Icon = lastItem.icon;
+        return (
+          <button
+            onClick={() => onNavigate(lastItem.id)}
+            className={`
+              w-1/2 mx-auto flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border border-border/50 
+              bg-card/80 transition-all duration-200 active:scale-95
+              ${isFuture ? "hover:border-primary/50" : "hover:border-border hover:bg-card"}
+            `}
+          >
+            <div className={`p-3 rounded-xl bg-gradient-to-br ${lastItem.gradient}`}>
+              <Icon className="w-7 h-7 text-white" />
+            </div>
+            <span className="text-sm font-medium text-foreground">{lastItem.label}</span>
+          </button>
+        );
+      })()}
     </div>
   );
 }
