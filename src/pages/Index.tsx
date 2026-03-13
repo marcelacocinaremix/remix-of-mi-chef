@@ -340,7 +340,7 @@ export default function Index() {
   const showTimerButton = activeTab === "cocinar" || timerIsRunning || timerIsFinished;
 
   return (
-    <div className="h-[100dvh] gradient-hero relative overflow-hidden w-screen max-w-[100vw] flex flex-col">
+    <div className="h-[100dvh] gradient-hero relative w-screen max-w-[100vw] flex flex-col" style={{ overflow: "visible" }}>
       <FuturisticBackground />
 
       {/* Sticky header */}
@@ -349,8 +349,8 @@ export default function Index() {
       {/* Scrollable content area — padded to avoid overlap with bottom nav */}
       <div
         ref={scrollContainerRef}
-        className="w-full max-w-4xl mx-auto px-3 sm:px-4 relative z-10 flex-1 overflow-y-auto overflow-x-hidden box-border pb-24"
-        style={{ paddingBottom: "calc(4.5rem + env(safe-area-inset-bottom, 0px))" }}
+        className="w-full max-w-4xl mx-auto px-3 sm:px-4 relative z-10 flex-1 overflow-y-auto overflow-x-hidden box-border"
+        style={{ paddingBottom: "calc(6.5rem + env(safe-area-inset-bottom, 0px))" }}
       >
         {/* Marcela Assistant (always rendered; hidden by default per design) */}
         <MarcelaAssistant
