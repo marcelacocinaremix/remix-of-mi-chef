@@ -5878,7 +5878,7 @@ export const translations = {
     balanceBannerSubtitle: "Erfasse was du isst",
     balanceBannerCharts: "Diagramme",
     balanceBannerChartsSubtitle: "Visualisiere dein Gleichgewicht",
-    balanceBannerGuide: "Ernährungsführer",
+    balanceBannerGuide: "Küchentricks",
     balanceBannerGuideSubtitle: "Nährwertinformationen",
     balancePeriodDay: "Tag",
     balancePeriodWeek: "Woche",
