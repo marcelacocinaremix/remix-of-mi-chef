@@ -76,7 +76,7 @@ export function FloatingTimerButton() {
 
   return (
     <>
-      <div className="fixed z-50" style={{ bottom: "90px", right: "16px" }}>
+      <div className="fixed z-50" style={{ bottom: "148px", right: "16px" }}>
         <Button
           variant="ghost"
           size="icon"
