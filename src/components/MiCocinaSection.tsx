@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { FavoriteRecipes } from "./FavoriteRecipes";
 import SmartHistory from "./SmartHistory";
-import { Heart, History } from "lucide-react";
+import { AchievementsSection } from "./AchievementsSection";
+import { Heart, History, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Recipe } from "./RecipeList";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -14,7 +15,7 @@ interface MiCocinaSectionProps {
   onSubTabChange?: (subTab: string) => void;
 }
 
-type SubTab = "favoritos" | "historial";
+type SubTab = "favoritos" | "historial" | "logros";
 
 export const MiCocinaSection = ({
   onSelectRecipe,
@@ -26,51 +27,54 @@ export const MiCocinaSection = ({
   const { t } = useLanguage();
 
   const subTabs = [
-    { id: "favoritos" as SubTab, label: t("subTabFavorites"), icon: Heart,   descKey: "favoritesBannerDesc" as const },
-    { id: "historial" as SubTab, label: t("subTabHistory"),   icon: History, descKey: "historyBannerDesc"   as const },
+    { id: "favoritos" as SubTab, label: t("subTabFavorites"), icon: Heart },
+    { id: "historial" as SubTab, label: t("subTabHistory"),   icon: History },
+    { id: "logros"    as SubTab, label: t("subTabAchievements"), icon: Trophy },
   ];
 
-  const activeTabData = subTabs.find(tab => tab.id === activeSubTab);
+  const handleTabChange = (id: SubTab) => {
+    setActiveSubTab(id);
+    onSubTabChange?.(id);
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Section Banner Image */}
-      <div className="relative w-full h-32 md:h-40 rounded-2xl overflow-hidden shadow-lg">
-        <img src={miCocinaBanner} alt="Mi Cocina" className="w-full h-full object-cover transition-all duration-150" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent flex items-center">
-          <div className="px-5">
-            <h3 className="text-white font-bold text-xl drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
-              {activeSubTab === "favoritos" ? t("miCocinaBannerFavTitle") : activeTabData?.label}
-            </h3>
-            <p className="text-white text-sm drop-shadow-md" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>
-              {activeSubTab === "favoritos" ? t("miCocinaBannerFavDesc") : (activeTabData ? t(activeTabData.descKey) : '')}
-            </p>
+    <div className="space-y-4">
+      {/* Slim Banner */}
+      <div className="relative w-full h-[100px] rounded-xl overflow-hidden shadow-md">
+        <img src={miCocinaBanner} alt="Mi Cocina" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent flex items-center">
+          <div className="px-4">
+            <h3 className="text-white font-semibold text-base drop-shadow-lg">Mi Cocina</h3>
+            <p className="text-white/80 text-xs font-light">Tus recetas guardadas</p>
           </div>
         </div>
       </div>
 
-      {/* Sub-navigation */}
-      <div className="bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5 rounded-2xl p-1.5 border border-border/50">
-        <div className="grid grid-cols-2 gap-1.5">
-          {subTabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => { setActiveSubTab(tab.id); onSubTabChange?.(tab.id); }}
-                className={cn(
-                  "future-nav-btn flex flex-col items-center justify-center gap-1 py-2.5 px-2 rounded-xl font-medium text-xs transition-all duration-300",
-                  activeSubTab === tab.id
-                    ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]"
-                    : "bg-background/60 hover:bg-background text-foreground"
-                )}
-              >
-                <Icon className={cn("w-4 h-4", activeSubTab === tab.id && "animate-pulse")} />
-                <span className="truncate">{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
+      {/* Segmented Control — underline style */}
+      <div className="flex border-b border-border/50">
+        {subTabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeSubTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => handleTabChange(tab.id)}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-1.5 pb-2.5 pt-1 text-xs font-medium transition-all duration-200 relative",
+                isActive
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Icon className="w-3.5 h-3.5" strokeWidth={isActive ? 2 : 1.5} />
+              <span>{tab.label}</span>
+              {/* Active underline indicator */}
+              {isActive && (
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-4/5 bg-primary rounded-full" />
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Content */}
@@ -86,6 +90,11 @@ export const MiCocinaSection = ({
             onSelectRecipe={onSelectRecipe}
             onSelectSuggestion={onSelectSuggestion}
           />
+        )}
+        {activeSubTab === "logros" && (
+          <div className="max-w-xl mx-auto">
+            <AchievementsSection />
+          </div>
         )}
       </div>
     </div>
