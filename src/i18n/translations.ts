@@ -5033,7 +5033,7 @@ export const translations = {
     learnTrialDays: "giorni rimanenti",
     learnTrialActive: "🎁 Prova gratuita:",
     learnTrialEnded: "La tua prova gratuita è terminata",
-    learnGuideReadOnly: "La Guida Alimentare è di sola lettura. Sblocca con Premium.",
+    learnGuideReadOnly: "Trucchi dello Chef è di sola lettura. Sblocca con Premium.",
     tipsCuts: "Tagli",
     tipsTemperatures: "Temperature",
     tipsConservation: "Conservazione",
