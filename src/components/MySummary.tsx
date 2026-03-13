@@ -227,7 +227,7 @@ const MySummary = ({
   return (
     <div className="space-y-4 mb-6">
       {/* Hero Header */}
-      <div className="text-center pt-4 pb-2 space-y-2">
+      <div className="text-center pt-4 pb-4 space-y-2">
         <h1 className="text-4xl font-black text-foreground tracking-tight leading-none">
           Mi Chef
         </h1>
