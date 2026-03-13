@@ -3,7 +3,8 @@ import { createPortal } from "react-dom";
 import {
   Plus, X, Package, Search, Star, ShoppingCart, ChefHat,
   Calendar, AlertTriangle, Sparkles, Trophy, Gift, Heart,
-  ArrowRight, Lightbulb, Filter, Grid3X3, List, DoorOpen, Refrigerator, Check, Info
+  ArrowRight, Lightbulb, Filter, Grid3X3, List, DoorOpen, Refrigerator, Check, Info,
+  Lock, Crown
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 

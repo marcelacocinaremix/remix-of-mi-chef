@@ -3,7 +3,7 @@ import {
   ShoppingCart, Check, Trash2, Copy, Plus, Minus,
   Star, Sparkles, Trophy, Search, ChevronDown, ChevronUp,
   ListChecks, Package2, CircleCheck, ShoppingBag, ArrowRight,
-  PackageCheck, X, Undo2, Clock, TrendingUp, Zap
+  PackageCheck, X, Undo2, Clock, TrendingUp, Zap, Lock, Crown
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { usePremium } from "@/hooks/usePremium";
+import { PaywallModal } from "@/components/PaywallModal";
 import { SuperSmartHistory } from "./SuperSmartHistory";
 
 const CATEGORY_KEYS: Record<string, { emoji: string; order: number; color: string; tKey: string }> = {
