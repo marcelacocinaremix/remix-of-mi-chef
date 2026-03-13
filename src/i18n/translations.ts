@@ -6732,7 +6732,7 @@ export const translations = {
     calendarNoRecent: "Du hast noch keine Rezepte gekocht",
     favLoading: "Favoriten laden...",
     favMyRecipes: "Meine Rezepte",
-    favMyTips: "Meine Tipps",
+    favMyTips: "Trucos",
     favHowItWorks: "Wie funktioniert es?",
     favHowItWorksStep1Title: "Rezept speichern",
     favHowItWorksStep1Desc: "Tippe auf das ❤️ in einem generierten Rezept, um es hier hinzuzufügen",
