@@ -1,4 +1,4 @@
-import { GraduationCap, Gamepad2, Youtube, User } from "lucide-react";
+import { GraduationCap, Gamepad2, Youtube, User, HeartPulse } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAppTheme } from "@/contexts/ThemeContext";
 
@@ -23,6 +23,12 @@ export function MasSection({ onNavigate }: MasSectionProps) {
       label: t("menuPlay"),
       icon: Gamepad2,
       gradient: "from-[hsl(265_80%_60%)] to-[hsl(280_80%_65%)]",
+    },
+    {
+      id: "balance",
+      label: t("subTabHealth"),
+      icon: HeartPulse,
+      gradient: "from-[hsl(150_70%_40%)] to-[hsl(165_70%_45%)]",
     },
     {
       id: "marcela",

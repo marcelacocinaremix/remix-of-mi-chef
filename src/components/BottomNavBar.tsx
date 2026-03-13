@@ -1,4 +1,4 @@
-import { Home, ChefHat, Heart, Calendar, HeartPulse, MoreHorizontal, Lock } from "lucide-react";
+import { Home, ChefHat, Heart, Calendar, MoreHorizontal, Lock } from "lucide-react";
 import { useAppTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
