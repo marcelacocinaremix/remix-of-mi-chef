@@ -8017,7 +8017,7 @@ export const translations = {
     calendarNoRecent: "Vous n'avez pas encore cuisiné de recettes",
     favLoading: "Chargement des favoris...",
     favMyRecipes: "Mes recettes",
-    favMyTips: "Mes conseils",
+    favMyTips: "Trucos",
     favHowItWorks: "Comment ça marche ?",
     favHowItWorksStep1Title: "Sauvegardez une recette",
     favHowItWorksStep1Desc: "Appuyez sur le ❤️ dans une recette générée pour l'ajouter ici",
