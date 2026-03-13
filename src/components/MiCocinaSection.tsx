@@ -37,6 +37,25 @@ export const MiCocinaSection = ({
 
   return (
     <div className="space-y-6">
+      {/* Section Banner Image */}
+      <div className="relative w-full h-32 md:h-40 rounded-2xl overflow-hidden shadow-lg">
+        <img 
+          src={miCocinaBanner} 
+          alt="Mi Cocina" 
+          className="w-full h-full object-cover transition-all duration-150"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent flex items-center">
+          <div className="px-5">
+            <h3 className="text-white font-bold text-xl drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+              {activeSubTab === "favoritos" ? t("miCocinaBannerFavTitle") : activeTabData?.label}
+            </h3>
+            <p className="text-white text-sm drop-shadow-md" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>
+              {activeSubTab === "favoritos" ? t("miCocinaBannerFavDesc") : (activeTabData ? t(activeTabData.descKey) : '')}
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Sub-navigation */}
       <div className="bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5 rounded-2xl p-1.5 border border-border/50">
         <div className="grid grid-cols-3 gap-1.5">
@@ -61,25 +80,6 @@ export const MiCocinaSection = ({
               </button>
             );
           })}
-        </div>
-      </div>
-
-      {/* Section Banner Image */}
-      <div className="relative w-full h-32 md:h-40 rounded-2xl overflow-hidden shadow-lg">
-        <img 
-          src={miCocinaBanner} 
-          alt="Mi Cocina" 
-          className="w-full h-full object-cover transition-all duration-150"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent flex items-center">
-          <div className="px-5">
-            <h3 className="text-white font-bold text-xl drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
-              {activeSubTab === "favoritos" ? t("miCocinaBannerFavTitle") : activeTabData?.label}
-            </h3>
-            <p className="text-white text-sm drop-shadow-md" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>
-              {activeSubTab === "favoritos" ? t("miCocinaBannerFavDesc") : (activeTabData ? t(activeTabData.descKey) : '')}
-            </p>
-          </div>
         </div>
       </div>
 

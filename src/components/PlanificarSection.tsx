@@ -59,7 +59,26 @@ export const PlanificarSection = ({
 
   return (
     <div className="space-y-6">
-      {/* Blocked banner - shown FIRST above tabs, only for Despensa/Super */}
+      {/* Section Banner Image */}
+      <div className="relative w-full h-32 md:h-40 rounded-2xl overflow-hidden shadow-lg">
+        <img 
+          src={currentBanner.src} 
+          alt={currentBanner.alt} 
+          className="w-full h-full object-cover transition-all duration-150"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent flex items-center">
+          <div className="px-5">
+            <h3 className="text-white font-bold text-xl drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+              {currentBanner.title}
+            </h3>
+            <p className="text-white text-sm drop-shadow-md" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>
+              {currentBanner.description}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Blocked banner - shown only for Despensa/Super */}
       {currentTabBlocked && (
         <Card className="border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 shadow-md">
           <CardContent className="py-5 px-4">
@@ -116,24 +135,6 @@ export const PlanificarSection = ({
         </div>
       </div>
 
-      {/* Section Banner Image */}
-      <div className="relative w-full h-32 md:h-40 rounded-2xl overflow-hidden shadow-lg">
-        <img 
-          src={currentBanner.src} 
-          alt={currentBanner.alt} 
-          className="w-full h-full object-cover transition-all duration-150"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent flex items-center">
-          <div className="px-5">
-            <h3 className="text-white font-bold text-xl drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
-              {currentBanner.title}
-            </h3>
-            <p className="text-white text-sm drop-shadow-md" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>
-              {currentBanner.description}
-            </p>
-          </div>
-        </div>
-      </div>
 
       {/* Content with overlay when blocked */}
       <div className="relative">
