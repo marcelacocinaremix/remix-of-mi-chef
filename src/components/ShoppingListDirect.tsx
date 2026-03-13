@@ -182,6 +182,9 @@ export function ShoppingListDirect() {
   const { toast } = useToast();
   const { t } = useLanguage();
   const { items, isLoading, togglePurchased, removeItem, clearPurchased, pendingCount, addItem, updateQuantity, updateUnit, refetch } = useShoppingList();
+  const { canUseFeature } = usePremium();
+  const superBlocked = !canUseFeature('balance_add'); // same lock as balance/pantry
+  const [showSuperPaywall, setShowSuperPaywall] = useState(false);
   
   const STEPS_CONFIG = [
     { id: "agregar" as ShoppingStep, label: t("superStepAdd"), icon: Plus, description: t("superStepAddDesc") },
