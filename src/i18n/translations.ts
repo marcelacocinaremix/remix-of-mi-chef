@@ -243,7 +243,7 @@ export const translations = {
     
     // Menu items
     menuHome: "Inicio",
-    menuCook: "Cocinar",
+    menuCook: "Generar",
     menuMyKitchen: "Mi Cocina",
     menuPlan: "Planificar",
     menuLearn: "Aprender",
