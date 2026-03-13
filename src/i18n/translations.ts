@@ -1299,7 +1299,7 @@ export const translations = {
     favLoginDesc: "Iniciá sesión para guardar tus favoritos",
     favLoading: "Cargando favoritos...",
     favMyRecipes: "Mis Recetas",
-    favMyTips: "Mis Tips",
+    favMyTips: "Trucos",
     favHowItWorks: "¿Cómo funciona?",
     favHowItWorksStep1Title: "Guardá una receta",
     favHowItWorksStep1Desc: "Tocá el ❤️ en cualquier receta generada para agregarla acá",
