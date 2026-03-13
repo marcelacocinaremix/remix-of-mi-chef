@@ -7080,6 +7080,7 @@ export const translations = {
     menuPlay: "Jouer",
     menuRecipes: "Recettes",
     menuSearch: "Rechercher",
+    menuMore: "Plus",
     subTabRecipes: "Recettes",
     subTabTimer: "Minuteur",
     timerBannerDesc: "Contrôlez les temps de cuisson",
