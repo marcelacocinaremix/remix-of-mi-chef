@@ -76,7 +76,7 @@ export function FloatingTimer({ activeTab, onNavigateToTimer }: FloatingTimerPro
   return (
     <div
       ref={elRef}
-      className="fixed z-50"
+      className="fixed z-[55]"
       style={{ bottom: "140px", right: "16px", touchAction: "none" }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
