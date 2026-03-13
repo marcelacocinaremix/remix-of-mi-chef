@@ -125,6 +125,7 @@ export function CookingSection({
   };
 
   return (
+    <div className="space-y-4">
 
       <div className="flex items-center justify-end gap-3">
         <DailyUsageIndicator />
