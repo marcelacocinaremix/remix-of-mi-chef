@@ -21,6 +21,7 @@ import { PlanificarSection } from "@/components/PlanificarSection";
 import { MiCocinaSection } from "@/components/MiCocinaSection";
 import { MarcelaSection } from "@/components/MarcelaSection";
 import { LearnSection } from "@/components/LearnSection";
+import { FoodStorageGuide } from "@/components/FoodStorageGuide";
 import { GameSection } from "@/components/game/GameSection";
 import { useToast } from "@/hooks/use-toast";
 import { useSound } from "@/hooks/useSound";
