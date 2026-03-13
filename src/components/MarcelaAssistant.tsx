@@ -624,7 +624,7 @@ export function MarcelaAssistant({
         isDragging ? "cursor-grabbing" : "transition-opacity duration-300"
       } ${isVisible ? "opacity-100" : "opacity-0"}`}
       style={{
-        bottom: `${24 - position.y}px`,
+        bottom: `${88 - position.y}px`,
         right: `${16 - position.x}px`,
         touchAction: 'none',
         willChange: isDragging ? 'bottom, right' : 'auto'
