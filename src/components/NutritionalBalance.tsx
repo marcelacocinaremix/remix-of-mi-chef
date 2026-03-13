@@ -234,46 +234,31 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
         </div>
       )}
 
-      {/* Sub-navigation */}
-      <div className="bg-card/50 rounded-xl p-1.5 border border-border/30">
-        <div className="grid grid-cols-3 gap-1.5">
-          <button
-            onClick={() => { setActiveTab("balance"); onSubTabChange?.("balance"); }}
-            className={cn(
-              "flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-lg font-medium transition-all duration-300",
-              activeTab === "balance"
-                ? "bg-primary text-primary-foreground shadow-md"
-                : "bg-background hover:bg-background/80 text-foreground"
-            )}
-          >
-            <BarChart3 className="w-5 h-5" strokeWidth={1.5} />
-            <span className="text-xs">{t("healthTabBalance")}</span>
-          </button>
-          <button
-            onClick={() => { setActiveTab("actividad"); onSubTabChange?.("actividad"); }}
-            className={cn(
-              "flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-lg font-medium transition-all duration-300",
-              activeTab === "actividad"
-                ? "bg-primary text-primary-foreground shadow-md"
-                : "bg-background hover:bg-background/80 text-foreground"
-            )}
-          >
-            <Dumbbell className="w-5 h-5" strokeWidth={1.5} />
-            <span className="text-xs">{t("healthTabActivity")}</span>
-          </button>
-          <button
-            onClick={() => { setActiveTab("resumen"); onSubTabChange?.("resumen"); }}
-            className={cn(
-              "flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-lg font-medium transition-all duration-300",
-              activeTab === "resumen"
-                ? "bg-primary text-primary-foreground shadow-md"
-                : "bg-background hover:bg-background/80 text-foreground"
-            )}
-          >
-            <LayoutDashboard className="w-5 h-5" strokeWidth={1.5} />
-            <span className="text-xs">{t("healthTabSummary")}</span>
-          </button>
-        </div>
+      {/* Segmented Control — underline style */}
+      <div className="flex border-b border-border/50">
+        {([
+          { id: "balance",   label: "Nutrición", icon: BarChart3      },
+          { id: "actividad", label: "Actividad", icon: Dumbbell        },
+          { id: "resumen",   label: "Resumen",   icon: LayoutDashboard },
+        ] as const).map(({ id, label, icon: Icon }) => {
+          const isActive = activeTab === id;
+          return (
+            <button
+              key={id}
+              onClick={() => { setActiveTab(id); onSubTabChange?.(id); }}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-1.5 pb-2.5 pt-1 text-xs font-medium transition-all duration-200 relative",
+                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Icon className="w-3.5 h-3.5" strokeWidth={isActive ? 2 : 1.5} />
+              <span>{label}</span>
+              {isActive && (
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-4/5 bg-primary rounded-full" />
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Content */}
