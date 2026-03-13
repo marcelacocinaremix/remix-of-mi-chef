@@ -371,19 +371,17 @@ export function MarcelaAssistant({
         className="relative w-14 h-14 bg-background border border-border/40 text-primary rounded-full shadow-sm flex items-center justify-center hover:scale-105 hover:bg-accent/30 transition-all duration-200 active:scale-95"
         title={tLocal("marcelaShowTitle")}
       >
-        {/* Orb inside button when reactions are active */}
-        <div className={isOpen ? "opacity-0 absolute" : "flex items-center justify-center w-full h-full"}>
-          {shouldShowSparkles || isLoading ? (
-            <FuturisticOrb
-              size={44}
-              isActive={shouldShowSparkles || isCharacterAnimating}
-              isThinking={isLoading || currentMood === 'thinking' || isAILoading}
-            />
-          ) : (
-            <HelpCircle className="w-6 h-6" />
-          )}
-        </div>
-        {isOpen && <X className="w-5 h-5" />}
+        {isOpen ? (
+          <X className="w-5 h-5" />
+        ) : shouldShowSparkles || isLoading ? (
+          <FuturisticOrb
+            size={44}
+            isActive={shouldShowSparkles || isCharacterAnimating}
+            isThinking={isLoading || currentMood === 'thinking' || isAILoading}
+          />
+        ) : (
+          <HelpCircle className="w-6 h-6" />
+        )}
 
         {/* New reaction badge */}
         {hasNewReaction && !isOpen && (
