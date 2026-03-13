@@ -5795,6 +5795,7 @@ export const translations = {
     menuPlay: "Spielen",
     menuRecipes: "Rezepte",
     menuSearch: "Suchen",
+    menuMore: "Mehr",
     subTabRecipes: "Rezepte",
     subTabTimer: "Timer",
     timerBannerDesc: "Kochzeiten kontrollieren",
