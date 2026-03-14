@@ -350,7 +350,9 @@ export default function Index() {
       <div
         ref={scrollContainerRef}
         className="w-full max-w-4xl mx-auto px-3 sm:px-4 relative z-10 flex-1 overflow-y-auto overflow-x-hidden box-border"
-        style={{ paddingBottom: "calc(6.5rem + env(safe-area-inset-bottom, 0px))" }}
+        style={{ paddingBottom: isPremium
+          ? "calc(6.5rem + env(safe-area-inset-bottom, 0px))"
+          : "calc(6.5rem + 85px + env(safe-area-inset-bottom, 0px))" }}
       >
         {/* Marcela Assistant (always rendered; hidden by default per design) */}
         <MarcelaAssistant
