@@ -17,7 +17,7 @@ export function markAdMobReady() {
   sdkReadyCallbacks = [];
 }
 
-function waitForAdMobReady(): Promise<void> {
+export function waitForAdMobReady(): Promise<void> {
   if (sdkReady) return Promise.resolve();
   return new Promise(resolve => {
     sdkReadyCallbacks.push(resolve);
