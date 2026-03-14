@@ -57,12 +57,31 @@ export default function Auth() {
         throw new Error("No se obtuvo el token de Google");
       }
 
-      const { error } = await supabase.auth.signInWithIdToken({
+      const { data: authData, error } = await supabase.auth.signInWithIdToken({
         provider: "google",
         token: googleUser.authentication.idToken,
       });
 
       if (error) throw error;
+
+      // Upsert profile so Google users always have a record
+      if (authData?.user) {
+        await supabase.from("profiles").upsert(
+          {
+            id: authData.user.id,
+            display_name:
+              (googleUser as any).displayName ||
+              authData.user.user_metadata?.full_name ||
+              null,
+            avatar_url:
+              googleUser.imageUrl ||
+              authData.user.user_metadata?.avatar_url ||
+              null,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "id", ignoreDuplicates: false }
+        );
+      }
 
       toast({ title: "¡Bienvenido/a!", description: "Sesión iniciada con Google." });
     } catch (error: any) {
