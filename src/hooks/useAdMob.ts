@@ -67,66 +67,55 @@ export function useAdMob() {
   }, []);
 
   const showInterstitial = useCallback(async (): Promise<boolean> => {
-    if (!Capacitor.isNativePlatform()) {
-      return true;
-    }
-
+    if (!Capacitor.isNativePlatform()) return true;
     if (loadingRef.current) return true;
     loadingRef.current = true;
 
     try {
       const AdMob = await getAdMob();
-      if (!AdMob) {
-        loadingRef.current = false;
-        return true;
-      }
+      if (!AdMob) { loadingRef.current = false; return true; }
 
-      // If the ad isn't ready yet, skip gracefully — don't block the user
       if (!interstitialReady) {
-        console.warn('[AdMob] Interstitial not ready yet — skipping');
+        console.warn('[AdMob] Interstitial not ready — skipping');
         loadingRef.current = false;
         return true;
       }
 
-      // Show and wait for dismiss or fail, with a 15s safety timeout
-      return new Promise<boolean>((resolve) => {
+      // Promise.race: 2500ms hard timeout wins if ad stalls (Error 3 / No Fill)
+      const adPromise = new Promise<boolean>((resolve) => {
         let resolved = false;
-        const done = () => {
+        const done = (reason?: string) => {
           if (resolved) return;
           resolved = true;
           loadingRef.current = false;
+          if (reason) console.warn(`[AdMob] Interstitial resolved: ${reason}`);
           resolve(true);
         };
 
-        const timeout = setTimeout(() => {
-          console.warn('[AdMob] Interstitial show timeout — unblocking');
-          done();
-        }, 15000);
-
-        const failListener = AdMob.addListener(
-          'onInterstitialAdFailedToShow',
-          (err: any) => {
-            console.warn('[AdMob] Interstitial failed to show:', err);
-            clearTimeout(timeout);
-            failListener?.remove?.();
-            done();
-          }
-        );
+        const failListener = AdMob.addListener('onInterstitialAdFailedToShow', (err: any) => {
+          console.warn('[AdMob] Interstitial failed to show:', err);
+          failListener?.remove?.();
+          done('failedToShow');
+        });
 
         AdMob.showInterstitial()
-          .then(() => {
-            // Actual dismissal is handled by the persistent listener in prepareInterstitialAd
-            clearTimeout(timeout);
-            failListener?.remove?.();
-            done();
-          })
+          .then(() => { failListener?.remove?.(); done('shown'); })
           .catch((err: any) => {
             console.warn('[AdMob] showInterstitial error:', err);
-            clearTimeout(timeout);
             failListener?.remove?.();
-            done();
+            done('showError');
           });
       });
+
+      const timeoutPromise = new Promise<boolean>((resolve) =>
+        setTimeout(() => {
+          console.warn('[AdMob] Interstitial 2500ms timeout — unblocking recipe generation');
+          loadingRef.current = false;
+          resolve(true);
+        }, 2500)
+      );
+
+      return Promise.race([adPromise, timeoutPromise]);
     } catch (e) {
       console.warn('[AdMob] Interstitial error:', e);
       loadingRef.current = false;
