@@ -2,7 +2,7 @@ import { useCallback, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
 
 // AdMob IDs
-const INTERSTITIAL_AD_UNIT_ID = 'ca-app-pub-2070932144567614/7133653740';
+const INTERSTITIAL_AD_UNIT_ID = 'ca-app-pub-3940256099942544/1033173712'; // TEST ID
 
 let admobModule: any = null;
 
