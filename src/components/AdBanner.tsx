@@ -73,6 +73,14 @@ export function AdBanner() {
         }
 
         // Nav bar height ~56px + safe area. Banner sits above it.
+        // Listen for load/fail events before showing
+        AdMob.addListener('onBannerAdLoaded', () => {
+          console.log('[AdBanner] ✅ Banner ad loaded successfully');
+        });
+        AdMob.addListener('onBannerAdFailedToLoad', (err: any) => {
+          console.warn('[AdBanner] ❌ Banner failed to load:', JSON.stringify(err));
+        });
+
         await AdMob.showBanner({
           adId: BANNER_AD_UNIT_ID,
           adSize: 'ADAPTIVE_BANNER',
@@ -83,7 +91,7 @@ export function AdBanner() {
 
         bannerShowing = true;
         shownRef.current = true;
-        console.log('[AdBanner] Banner shown successfully');
+        console.log('[AdBanner] showBanner() called — waiting for onBannerAdLoaded');
       } catch (e) {
         console.warn('[AdBanner] Error showing banner:', e);
       }
