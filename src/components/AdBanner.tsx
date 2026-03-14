@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { usePremium } from '@/hooks/usePremium';
 
-const BANNER_AD_UNIT_ID = 'ca-app-pub-3940256099942544/6300978111'; // TEST ID
+const BANNER_AD_UNIT_ID = 'ca-app-pub-2070193214456761/7836431130'; // PRODUCTION ID
 
 let admobModule: any = null;
 let bannerShowing = false;
