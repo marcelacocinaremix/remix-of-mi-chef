@@ -66,6 +66,9 @@ export function AdBanner() {
         // Wait for SDK to be fully initialized
         await waitForAdMobReady();
 
+        // 2s delay so the WebView is fully rendered before banner loads
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
         const AdMob = await getAdMob();
         if (!AdMob) {
           console.warn('[AdBanner] AdMob module not available');
