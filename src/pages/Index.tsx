@@ -157,21 +157,8 @@ export default function Index() {
     return false;
   };
 
-  // ──────────────── Generate recipe ────────────────
-  const handleGenerateRecipe = async () => {
-    if (ingredients.length === 0) {
-      toast({ title: "¡Agregá ingredientes!", description: "Necesito saber qué tenés disponible para sugerirte recetas.", variant: "destructive" });
-      return;
-    }
-    if (user) {
-      const usageResult = await checkDailyUsage();
-      if (!usageResult.allowed) {
-        toast({ title: "🍳 ¡Se acabaron tus recetas de hoy!", description: usageResult.message || `Ya usaste tus ${isPremium ? '10' : '3'} recetas del día. ¡Volvé mañana para seguir cocinando!`, variant: "destructive" });
-        return;
-      }
-    }
-    if (!isPremium) await showInterstitial();
-
+  // ──────────────── Generate recipe content (decoupled from ad) ────────────────
+  const generateRecipeContent = async () => {
     playSound('magic');
     setIsCharacterAnimating(true);
     setTimeout(() => setIsCharacterAnimating(false), 2500);
@@ -251,6 +238,33 @@ export default function Index() {
     } finally {
       setIsLoading(false); setIsGeneratingAI(false); refetchPremium(); recordStreak();
     }
+  };
+
+  // ──────────────── Handle generate (decoupled ad + recipe) ────────────────
+  const handleGenerateRecipe = async () => {
+    if (ingredients.length === 0) {
+      toast({ title: "¡Agregá ingredientes!", description: "Necesito saber qué tenés disponible para sugerirte recetas.", variant: "destructive" });
+      return;
+    }
+    if (user) {
+      const usageResult = await checkDailyUsage();
+      if (!usageResult.allowed) {
+        toast({ title: "🍳 ¡Se acabaron tus recetas de hoy!", description: usageResult.message || `Ya usaste tus ${isPremium ? '10' : '3'} recetas del día. ¡Volvé mañana para seguir cocinando!`, variant: "destructive" });
+        return;
+      }
+    }
+
+    // Ad is fire-and-forget: race against 3s timeout so it NEVER blocks recipe generation
+    if (!isPremium) {
+      const adRace = Promise.race([
+        showInterstitial().catch(() => {}),
+        new Promise<void>(resolve => setTimeout(resolve, 3000)),
+      ]);
+      adRace.finally(() => {}); // detach — we don't await this
+    }
+
+    // Recipe generation is immediate and independent of the ad result
+    generateRecipeContent();
   };
 
   const handleReset = () => {
