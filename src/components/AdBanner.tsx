@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { usePremium } from '@/hooks/usePremium';
 
-const BANNER_AD_UNIT_ID = 'ca-app-pub-2070932144567614/7836431130';
+const BANNER_AD_UNIT_ID = 'ca-app-pub-3940256099942544/6300978111'; // TEST ID
 
 let admobModule: any = null;
 let bannerShowing = false;
@@ -85,7 +85,6 @@ export function AdBanner() {
           adId: BANNER_AD_UNIT_ID,
           adSize: 'ADAPTIVE_BANNER',
           position: 'BOTTOM_CENTER',
-          margin: 56,
           isTesting: false,
         });
 
