@@ -70,7 +70,7 @@ export default function Auth() {
           {
             id: authData.user.id,
             display_name:
-              googleUser.displayName ||
+              (googleUser as any).displayName ||
               authData.user.user_metadata?.full_name ||
               null,
             avatar_url:
