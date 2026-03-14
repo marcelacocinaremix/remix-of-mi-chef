@@ -88,7 +88,9 @@ export function AdBanner() {
           adId: BANNER_AD_UNIT_ID,
           adSize: 'ADAPTIVE_BANNER',
           position: 'TOP_CENTER',
+          margin: 0,
           isTesting: false,
+          marginLayout: true,
         });
 
         bannerShowing = true;
