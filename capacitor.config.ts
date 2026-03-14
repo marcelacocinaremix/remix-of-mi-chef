@@ -15,6 +15,12 @@ const config: CapacitorConfig = {
       scopes: ['profile', 'email'],
       serverClientId: '985393750270-1rj9jjo9at4t798dski3vg56ujhv4hs0.apps.googleusercontent.com',
       forceCodeForRefreshToken: true
+    },
+    AdMob: {
+      appId: {
+        android: 'ca-app-pub-2070193214456761~5626242502',
+        ios: 'ca-app-pub-2070193214456761~5626242502'
+      }
     }
   }
   // NOTE: Do NOT add server.url here for production builds.

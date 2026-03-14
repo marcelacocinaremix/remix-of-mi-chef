@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { usePremium } from '@/hooks/usePremium';
 
-const BANNER_AD_UNIT_ID = 'ca-app-pub-3940256099942544/6300978111'; // TEST ID
+const BANNER_AD_UNIT_ID = 'ca-app-pub-2070193214456761/7836431130'; // PRODUCTION ID
 
 let admobModule: any = null;
 let bannerShowing = false;
@@ -66,6 +66,9 @@ export function AdBanner() {
         // Wait for SDK to be fully initialized
         await waitForAdMobReady();
 
+        // 2s delay so the WebView is fully rendered before banner loads
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
         const AdMob = await getAdMob();
         if (!AdMob) {
           console.warn('[AdBanner] AdMob module not available');
@@ -85,7 +88,9 @@ export function AdBanner() {
           adId: BANNER_AD_UNIT_ID,
           adSize: 'ADAPTIVE_BANNER',
           position: 'TOP_CENTER',
+          margin: 0,
           isTesting: false,
+          marginLayout: true,
         });
 
         bannerShowing = true;
