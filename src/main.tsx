@@ -17,6 +17,7 @@ async function initAdMob() {
   try {
     const { AdMob } = await import("@capacitor-community/admob");
     await AdMob.initialize({
+      requestTrackingAuthorization: true,
       initializeForTesting: false,
       tagForChildDirectedTreatment: false,
       tagForUnderAgeOfConsent: false,
