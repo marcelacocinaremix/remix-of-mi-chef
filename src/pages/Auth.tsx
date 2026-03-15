@@ -51,6 +51,14 @@ export default function Auth() {
     setIsGoogleLoading(true);
     try {
       const { GoogleAuth } = await import("@codetrix-studio/capacitor-google-auth");
+      
+      // Must initialize before signing in
+      await GoogleAuth.initialize({
+        clientId: "985393750270-1rj9jjo9at4t798dski3vg56ujhv4hs0.apps.googleusercontent.com",
+        scopes: ["profile", "email"],
+        grantOfflineAccess: true,
+      });
+      
       const googleUser = await GoogleAuth.signIn();
 
       if (!googleUser?.authentication?.idToken) {
@@ -65,6 +73,7 @@ export default function Auth() {
       if (error) throw error;
 
       // Upsert profile so Google users always have a record
+      // (trigger handles new users, but returning users need profile sync)
       if (authData?.user) {
         await supabase.from("profiles").upsert(
           {
@@ -72,6 +81,7 @@ export default function Auth() {
             display_name:
               (googleUser as any).displayName ||
               authData.user.user_metadata?.full_name ||
+              authData.user.user_metadata?.name ||
               null,
             avatar_url:
               googleUser.imageUrl ||
@@ -81,6 +91,19 @@ export default function Auth() {
           },
           { onConflict: "id", ignoreDuplicates: false }
         );
+
+        // Ensure subscription row exists for Google users (new users get it via trigger,
+        // but existing users created before the trigger was added might not have it)
+        const { data: sub } = await supabase
+          .from("user_subscriptions")
+          .select("user_id")
+          .eq("user_id", authData.user.id)
+          .maybeSingle();
+
+        if (!sub) {
+          // No subscription found — call start-trial to create it
+          await supabase.functions.invoke("start-trial");
+        }
       }
 
       toast({ title: "¡Bienvenido/a!", description: "Sesión iniciada con Google." });
