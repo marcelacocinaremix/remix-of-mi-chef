@@ -161,9 +161,12 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
         (window as any).AndroidInterface.iniciarCompra();
       } catch (error) {
         console.error("Error al llamar a la interfaz nativa:", error);
+        toast.error("Error al iniciar la compra. Intentá de nuevo.");
       }
     } else {
-      alert("La pasarela de pago solo está disponible en la App instalada en Android.");
+      toast.info("El pago se procesa desde la App instalada en tu dispositivo Android.", {
+        duration: 4000,
+      });
     }
     onOpenChange(false);
   };
