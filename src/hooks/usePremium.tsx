@@ -27,17 +27,17 @@ interface PremiumContextType {
   showPaywall: boolean;
   setShowPaywall: (show: boolean) => void;
   isCancelled: boolean;
+  isCancelledActive: boolean; // cancelled but still within paid period
 }
 
 const PremiumContext = createContext<PremiumContextType | undefined>(undefined);
 
 const DAILY_LIMIT_FREE = 3;
 const DAILY_LIMIT_PREMIUM = 10;
-const TRIAL_DAYS = 15;
 
 export function PremiumProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true); // true until first fetch completes
+  const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
   const [dailyUsage, setDailyUsage] = useState<DailyUsageInfo | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
@@ -47,30 +47,33 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   const [planType, setPlanType] = useState<string | null>(null);
   const [subscriptionStatus, setSubscriptionStatus] = useState('inactive');
   const [subscriptionEnd, setSubscriptionEnd] = useState<Date | null>(null);
-  const [trialStartDate, setTrialStartDate] = useState<Date | null>(null);
   const [trialEndDate, setTrialEndDate] = useState<Date | null>(null);
   const [trialUsedDb, setTrialUsedDb] = useState(false);
 
   // ── DERIVED STATE ──────────────────────────────────────────────────────────
 
-  // Paid period is active when is_premium=true AND subscription hasn't expired
+  // Paid period is active: is_premium=true AND subscription hasn't expired
+  // This includes BOTH 'active' and 'cancelled' statuses while within the paid window
   const paidPeriodActive = useMemo(() => {
     if (!dbIsPremium) return false;
-    if (!subscriptionEnd) return true; // no end date = indefinite (lifetime)
+    if (!subscriptionEnd) return true; // no end date = indefinite/lifetime
     return new Date() < subscriptionEnd;
   }, [dbIsPremium, subscriptionEnd]);
 
-  // Cancelled but still within the paid period the user already paid for
-  const isCancelled = useMemo(() => {
+  // Cancelled but still within the paid period (grace period)
+  const isCancelledActive = useMemo(() => {
     return subscriptionStatus === 'cancelled' && paidPeriodActive;
   }, [subscriptionStatus, paidPeriodActive]);
+
+  // Legacy alias
+  const isCancelled = isCancelledActive;
 
   // Trial active: trial_used=true AND not expired AND no paid plan running
   const isTrialActive = useMemo(() => {
     if (!isInitialized) return false;
-    if (paidPeriodActive) return false;      // paid overrides trial
-    if (!trialUsedDb) return false;          // trial never started
-    if (!trialEndDate) return false;         // no trial data
+    if (paidPeriodActive) return false;      // paid overrides trial display
+    if (!trialUsedDb) return false;
+    if (!trialEndDate) return false;
     return new Date() < trialEndDate;
   }, [isInitialized, paidPeriodActive, trialUsedDb, trialEndDate]);
 
@@ -87,13 +90,12 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
   }, [isTrialActive, trialEndDate]);
 
-  // isPremium = only paid period (used to show "Premium" badge)
+  // isPremium = only paid period (used for "Premium" badge)
   const isPremium = paidPeriodActive;
 
-  // hasAnyAccess = paid OR trial (used to gate premium features)
+  // hasAnyAccess = paid OR trial (gates premium features)
   const hasAccess = paidPeriodActive || isTrialActive;
 
-  // Daily recipe limit: 10 for premium, 3 for everyone else
   const effectiveLimit = paidPeriodActive ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
 
   const canUseFeature = useCallback((
@@ -101,7 +103,6 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   ) => {
     if (paidPeriodActive) return true;
     if (isTrialActive) return true;
-    // Expired trial or free — block write-access features
     const premiumOnly: typeof feature[] = ['balance_add', 'planificador_modify', 'learn', 'food_guide'];
     if (premiumOnly.includes(feature)) return false;
     return true;
@@ -122,7 +123,6 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       setPlanType('free');
       setSubscriptionStatus('inactive');
       setSubscriptionEnd(null);
-      setTrialStartDate(null);
       setTrialEndDate(null);
       setTrialUsedDb(false);
       setDailyUsage(null);
@@ -144,12 +144,10 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // If no subscription record exists, call start-trial to create it
-      // (safety net for users created before triggers were in place)
+      // Safety net: no subscription record → create it
       if (!data) {
-        console.log('No subscription found for user, initializing trial...');
+        console.log('No subscription found, initializing trial...');
         await supabase.functions.invoke('start-trial');
-        // Re-fetch after creating
         const refetch = await supabase
           .from('user_subscriptions')
           .select('*')
@@ -159,24 +157,31 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       }
 
       if (data) {
-        setDbIsPremium(data.is_premium || false);
+        // ── CRITICAL: subscription_end beats everything ──────────────────────
+        // If subscription_end is in the future, is_premium is authoritative.
+        // The trigger handles expiry server-side, but we double-check client-side
+        // for cancelled-but-active (grace period) case.
+        const rawEnd = data.subscription_end ? new Date(data.subscription_end) : null;
+        const now = new Date();
+
+        // A cancelled subscription with future end date = still premium
+        let effectivePremium = data.is_premium || false;
+        if (data.subscription_status === 'cancelled' && rawEnd && rawEnd > now) {
+          effectivePremium = true; // grace period — client override
+        }
+
+        setDbIsPremium(effectivePremium);
         setPlanType(data.plan_type || 'free');
         setSubscriptionStatus(data.subscription_status || 'inactive');
-        setSubscriptionEnd(data.subscription_end ? new Date(data.subscription_end) : null);
+        setSubscriptionEnd(rawEnd);
         setTrialUsedDb(data.trial_used === true);
-        if (data.trial_start_date) setTrialStartDate(new Date(data.trial_start_date));
         if (data.trial_end_date) setTrialEndDate(new Date(data.trial_end_date));
 
-        // ── DAILY USAGE CALCULATION ─────────────────────────────────────────
-        const today = new Date().toISOString().split('T')[0];
-        const lastUseDate = data.last_use_date;
-        const usesToday = (lastUseDate === today) ? (data.daily_uses || 0) : 0;
-
-        // Premium: is_premium=true AND not expired
-        const strictPaid = data.is_premium === true &&
-          (!data.subscription_end || new Date() < new Date(data.subscription_end));
+        // Daily usage
+        const today = now.toISOString().split('T')[0];
+        const usesToday = (data.last_use_date === today) ? (data.daily_uses || 0) : 0;
+        const strictPaid = effectivePremium && (!rawEnd || rawEnd > now);
         const userLimit = strictPaid ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
-
         setDailyUsage({
           usesToday,
           remaining: Math.max(0, userLimit - usesToday),
@@ -198,10 +203,9 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
 
     try {
       setIsLoading(true);
-      // READ-ONLY: fetch full subscription data to compute limit accurately
       const { data: subData, error } = await supabase
         .from('user_subscriptions')
-        .select('daily_uses, last_use_date, is_premium, subscription_end, trial_used, trial_end_date')
+        .select('daily_uses, last_use_date, is_premium, subscription_end, subscription_status, trial_used, trial_end_date')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -214,16 +218,19 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       const today = now.toISOString().split('T')[0];
       const usesToday = (subData?.last_use_date === today) ? (subData?.daily_uses || 0) : 0;
 
-      // Recompute limit from fresh server data
-      const strictPaid = subData?.is_premium === true &&
-        (!subData?.subscription_end || new Date(subData.subscription_end) > now);
+      // Grace period: cancelled but end date still in future
+      const rawEnd = subData?.subscription_end ? new Date(subData.subscription_end) : null;
+      const inGracePeriod = subData?.subscription_status === 'cancelled' && rawEnd && rawEnd > now;
+      const strictPaid = (subData?.is_premium === true || inGracePeriod) &&
+        (!rawEnd || rawEnd > now);
       const currentLimit = strictPaid ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
-
       const remaining = Math.max(0, currentLimit - usesToday);
+
       setDailyUsage({ usesToday, remaining, limit: currentLimit });
 
       if (usesToday >= currentLimit) {
-        const isPaidOrTrial = strictPaid || (subData?.trial_used && subData?.trial_end_date && new Date(subData.trial_end_date) > now);
+        const isPaidOrTrial = strictPaid ||
+          (subData?.trial_used && subData?.trial_end_date && new Date(subData.trial_end_date) > now);
         return {
           allowed: false,
           message: isPaidOrTrial
@@ -241,9 +248,44 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
+  // Initial fetch
   useEffect(() => {
     fetchSubscription();
   }, [fetchSubscription]);
+
+  // ── AUTO-SYNC: refetch when app regains visibility ────────────────────────
+  // This handles the case where a Google Play purchase/cancellation happened
+  // while the app was in the background or the WebView was reloaded.
+  useEffect(() => {
+    if (!user) return;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('[usePremium] App visible — syncing subscription state');
+        fetchSubscription();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [user, fetchSubscription]);
+
+  // ── AUTH CHANGE: reset state on logout immediately ────────────────────────
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        setDbIsPremium(false);
+        setPlanType('free');
+        setSubscriptionStatus('inactive');
+        setSubscriptionEnd(null);
+        setTrialEndDate(null);
+        setTrialUsedDb(false);
+        setDailyUsage(null);
+        setIsInitialized(false);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <PremiumContext.Provider value={{
@@ -265,6 +307,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       showPaywall,
       setShowPaywall,
       isCancelled,
+      isCancelledActive,
     }}>
       {children}
     </PremiumContext.Provider>
@@ -280,7 +323,7 @@ export function usePremium() {
       subscriptionStatus: 'free',
       subscriptionEnd: null,
       planType: 'free',
-    trialUsed: false,
+      trialUsed: false,
       daysRemaining: null,
       refetch: async () => {},
       dailyUsage: null,
@@ -293,6 +336,7 @@ export function usePremium() {
       showPaywall: false,
       setShowPaywall: () => {},
       isCancelled: false,
+      isCancelledActive: false,
     } as PremiumContextType;
   }
   return context;
