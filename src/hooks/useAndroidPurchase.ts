@@ -8,9 +8,9 @@ import confetti from "canvas-confetti";
 /**
  * Hook that listens for Android Google Play purchase callbacks.
  * Handles:
- *  - onPurchaseSuccess(token)    → new purchase confirmed
+ *  - onPurchaseSuccess(token)    → new purchase confirmed (token may be missing if already owned)
  *  - onPurchaseCancelled()       → user cancelled purchase flow
- *  - onPurchaseError(code)       → native billing error
+ *  - onPurchaseError(code, token?) → native billing error; ITEM_ALREADY_OWNED sends token
  *  - onSubscriptionCancelled(token) → user cancelled auto-renewal in Play Store
  *  - onPurchaseSync(token)       → bridge detected existing active subscription on app start
  */
@@ -21,35 +21,81 @@ export function useAndroidPurchase() {
   useEffect(() => {
     if (!user) return;
 
+    const triggerConfetti = () => {
+      const duration = 3000;
+      const end = Date.now() + duration;
+      const colors = ["#f59e0b", "#f97316", "#eab308", "#fbbf24", "#ffffff"];
+      const frame = () => {
+        confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0, y: 0.6 }, colors });
+        confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1, y: 0.6 }, colors });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      };
+      frame();
+    };
+
+    /**
+     * Restore/sync an existing subscription using the purchase token.
+     * Used when: ITEM_ALREADY_OWNED, onPurchaseSync, or token provided on error.
+     */
+    const syncExistingSubscription = async (purchaseToken?: string, silent = false) => {
+      console.log("[AndroidPurchase] Syncing existing subscription via sync-subscription...");
+      try {
+        const { data, error } = await supabase.functions.invoke("sync-subscription", {
+          body: purchaseToken ? { purchaseToken } : {},
+        });
+
+        if (!error && data?.success) {
+          await refetch();
+          if (data.is_premium) {
+            triggerConfetti();
+            toast.success("🎉 ¡Premium restaurado! Disfrutá de todas las funciones.", { duration: 5000 });
+          } else if (!silent) {
+            toast.info("No se encontró una suscripción activa asociada a esta cuenta.");
+          }
+          return true;
+        } else {
+          console.error("[AndroidPurchase] sync-subscription failed:", error || data);
+          if (!silent) toast.error("No se pudo verificar la suscripción. Intentá de nuevo.");
+          return false;
+        }
+      } catch (err) {
+        console.error("[AndroidPurchase] Error in syncExistingSubscription:", err);
+        if (!silent) toast.error("Error al verificar la suscripción.");
+        return false;
+      }
+    };
+
     // ── New purchase confirmed ─────────────────────────────────────────────
+    // NOTE: If purchaseToken is missing, Google Play may have already processed
+    // the purchase before (ITEM_ALREADY_OWNED case). In that case we sync instead.
     const handlePurchaseSuccess = async (purchaseToken?: string) => {
+      const token = purchaseToken?.trim();
+
+      // No token = subscription already owned; sync from DB/Google Play
+      if (!token) {
+        console.log("[AndroidPurchase] onPurchaseSuccess with no token — subscription already owned, syncing...");
+        await syncExistingSubscription(undefined, false);
+        return;
+      }
+
       try {
         const { data, error } = await supabase.functions.invoke("confirm-purchase", {
-          body: { purchaseToken: purchaseToken || null },
+          body: { purchaseToken: token },
         });
 
         if (error || !data?.success) {
-          console.error("Error confirming purchase:", error || data);
-          toast.error("Error al activar Premium. Contactá soporte.");
+          console.error("[AndroidPurchase] confirm-purchase failed:", error || data);
+          // Fallback: try sync in case the purchase was already acknowledged
+          console.log("[AndroidPurchase] Falling back to sync-subscription...");
+          await syncExistingSubscription(token, false);
           return;
         }
 
         await refetch();
-
-        // 🎉 Confetti
-        const duration = 3000;
-        const end = Date.now() + duration;
-        const colors = ["#f59e0b", "#f97316", "#eab308", "#fbbf24", "#ffffff"];
-        const frame = () => {
-          confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0, y: 0.6 }, colors });
-          confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1, y: 0.6 }, colors });
-          if (Date.now() < end) requestAnimationFrame(frame);
-        };
-        frame();
-
+        triggerConfetti();
         toast.success("🎉 ¡Premium activado! Disfrutá de todas las funciones.", { duration: 5000 });
       } catch (err) {
-        console.error("Error in purchase confirmation:", err);
+        console.error("[AndroidPurchase] Error in purchase confirmation:", err);
         toast.error("Error al confirmar la compra.");
       }
     };
@@ -104,9 +150,15 @@ export function useAndroidPurchase() {
       console.log("[AndroidPurchase] Purchase cancelled by user");
     };
 
-    (window as any).onPurchaseError = (errorCode?: string) => {
-      console.error("[AndroidPurchase] Purchase error:", errorCode);
-      toast.error(`Error de compra (${errorCode || 'desconocido'}). Intentá de nuevo.`);
+    // onPurchaseError: ITEM_ALREADY_OWNED may include a token — use it to restore
+    (window as any).onPurchaseError = (errorCode?: string, purchaseToken?: string) => {
+      console.error("[AndroidPurchase] Purchase error:", errorCode, purchaseToken ? "(has token)" : "");
+      if (errorCode === "ITEM_ALREADY_OWNED" || errorCode === "itemAlreadyOwned") {
+        console.log("[AndroidPurchase] ITEM_ALREADY_OWNED — restoring subscription...");
+        syncExistingSubscription(purchaseToken, false);
+      } else {
+        toast.error(`Error de compra (${errorCode || 'desconocido'}). Si ya compraste, usá "Restaurar compra".`);
+      }
     };
 
     (window as any).onSubscriptionCancelled = (purchaseToken?: string) => {

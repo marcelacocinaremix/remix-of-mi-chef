@@ -1,5 +1,6 @@
-import { Crown, Sparkles, Clock, AlertCircle, XCircle, Check, X, Minus } from "lucide-react";
+import { Crown, Sparkles, Clock, AlertCircle, XCircle, Check, X, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { usePremium } from "@/hooks/usePremium";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SubscriptionManagerProps {
   open: boolean;
@@ -121,8 +123,10 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
   const {
     isPremium, isTrialActive, isTrialExpired,
     trialDaysRemaining, isCancelled, daysRemaining,
-    subscriptionEnd,
+    subscriptionEnd, refetch,
   } = usePremium();
+
+  const [isRestoring, setIsRestoring] = useState(false);
 
   const isCancelledButActive = isCancelled && isPremium;
 
@@ -307,6 +311,52 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
             >
               <Crown className="mr-2 h-4 w-4" />
               Renovar suscripción
+            </Button>
+          )}
+
+          {/* Restore purchase — shown when not premium (covers ITEM_ALREADY_OWNED case) */}
+          {!isPremium && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={async () => {
+                setIsRestoring(true);
+                const androidBridge =
+                  (window as any).AndroidInterface ||
+                  (window as any).Android ||
+                  (window as any).MiChefBridge ||
+                  (window as any).JSBridge;
+
+                if (androidBridge && typeof androidBridge.restaurarCompra === "function") {
+                  androidBridge.restaurarCompra();
+                  toast.info("Verificando compra existente...");
+                  setIsRestoring(false);
+                  onOpenChange(false);
+                  return;
+                }
+
+                try {
+                  const { data, error } = await supabase.functions.invoke("sync-subscription", {});
+                  if (!error && data?.is_premium) {
+                    await refetch();
+                    toast.success("🎉 ¡Suscripción Premium restaurada!", { duration: 5000 });
+                    onOpenChange(false);
+                  } else {
+                    toast.info("No se encontró una suscripción activa. Si acabás de comprar, esperá un momento e intentá de nuevo.", {
+                      duration: 6000,
+                    });
+                  }
+                } catch {
+                  toast.error("No se pudo verificar la compra. Intentá de nuevo.");
+                } finally {
+                  setIsRestoring(false);
+                }
+              }}
+              disabled={isRestoring}
+              className="w-full text-muted-foreground hover:text-foreground text-xs"
+            >
+              <RotateCcw className={`mr-1.5 h-3.5 w-3.5 ${isRestoring ? "animate-spin" : ""}`} />
+              {isRestoring ? "Verificando..." : "¿Ya compraste? Restaurar compra"}
             </Button>
           )}
         </div>
