@@ -124,6 +124,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       setSubscriptionEnd(null);
       setTrialStartDate(null);
       setTrialEndDate(null);
+      setTrialUsedDb(false);
       setDailyUsage(null);
       setIsInitialized(true);
       setIsLoading(false);
@@ -132,7 +133,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('user_subscriptions')
         .select('*')
         .eq('user_id', user.id)
@@ -141,6 +142,20 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       if (error) {
         console.error('Error fetching subscription:', error);
         return;
+      }
+
+      // If no subscription record exists, call start-trial to create it
+      // (safety net for users created before triggers were in place)
+      if (!data) {
+        console.log('No subscription found for user, initializing trial...');
+        await supabase.functions.invoke('start-trial');
+        // Re-fetch after creating
+        const refetch = await supabase
+          .from('user_subscriptions')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        data = refetch.data;
       }
 
       if (data) {
@@ -152,7 +167,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         if (data.trial_start_date) setTrialStartDate(new Date(data.trial_start_date));
         if (data.trial_end_date) setTrialEndDate(new Date(data.trial_end_date));
 
-        // ── STRICT DAILY USAGE CALCULATION ─────────────────────────────────
+        // ── DAILY USAGE CALCULATION ─────────────────────────────────────────
         const today = new Date().toISOString().split('T')[0];
         const lastUseDate = data.last_use_date;
         const usesToday = (lastUseDate === today) ? (data.daily_uses || 0) : 0;
