@@ -22,14 +22,16 @@ const benefits = [
 
 export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const handleSubscribe = () => {
-    if ((window as any).AndroidInterface) {
+    const androidBridge = (window as any).AndroidInterface;
+
+    if (androidBridge) {
       try {
-        (window as any).AndroidInterface.iniciarCompra();
+        if (typeof androidBridge.iniciarCompra === "function") {
+          androidBridge.iniciarCompra("premium_mensual");
+        }
       } catch (error) {
         console.error("Error al llamar a la interfaz nativa:", error);
       }
-    } else {
-      alert("La pasarela de pago solo está disponible en la App instalada en Android.");
     }
     onOpenChange(false);
   };

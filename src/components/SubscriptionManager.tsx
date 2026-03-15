@@ -156,16 +156,23 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
     : null;
 
   const handleSubscribe = () => {
-    if ((window as any).AndroidInterface) {
+    const androidBridge = (window as any).AndroidInterface;
+
+    if (androidBridge) {
       try {
-        (window as any).AndroidInterface.iniciarCompra();
+        // Pass the subscription product ID so the native bridge knows what to purchase
+        if (typeof androidBridge.iniciarCompra === "function") {
+          androidBridge.iniciarCompra("premium_mensual");
+        } else {
+          toast.error("La interfaz de pago no está disponible. Actualizá la app.");
+        }
       } catch (error) {
         console.error("Error al llamar a la interfaz nativa:", error);
         toast.error("Error al iniciar la compra. Intentá de nuevo.");
       }
     } else {
       toast.info("El pago se procesa desde la App instalada en tu dispositivo Android.", {
-        duration: 4000,
+        duration: 5000,
       });
     }
     onOpenChange(false);
