@@ -150,9 +150,15 @@ export function useAndroidPurchase() {
       console.log("[AndroidPurchase] Purchase cancelled by user");
     };
 
-    (window as any).onPurchaseError = (errorCode?: string) => {
-      console.error("[AndroidPurchase] Purchase error:", errorCode);
-      toast.error(`Error de compra (${errorCode || 'desconocido'}). Intentá de nuevo.`);
+    // onPurchaseError: ITEM_ALREADY_OWNED may include a token — use it to restore
+    (window as any).onPurchaseError = (errorCode?: string, purchaseToken?: string) => {
+      console.error("[AndroidPurchase] Purchase error:", errorCode, purchaseToken ? "(has token)" : "");
+      if (errorCode === "ITEM_ALREADY_OWNED" || errorCode === "itemAlreadyOwned") {
+        console.log("[AndroidPurchase] ITEM_ALREADY_OWNED — restoring subscription...");
+        syncExistingSubscription(purchaseToken, false);
+      } else {
+        toast.error(`Error de compra (${errorCode || 'desconocido'}). Si ya compraste, usá "Restaurar compra".`);
+      }
     };
 
     (window as any).onSubscriptionCancelled = (purchaseToken?: string) => {
