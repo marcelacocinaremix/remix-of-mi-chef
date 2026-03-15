@@ -66,27 +66,34 @@ export function useAndroidPurchase() {
     };
 
     // ── New purchase confirmed ─────────────────────────────────────────────
-    // NOTE: If purchaseToken is missing, Google Play may have already processed
-    // the purchase before (ITEM_ALREADY_OWNED case). In that case we sync instead.
     const handlePurchaseSuccess = async (purchaseToken?: string) => {
       const token = purchaseToken?.trim();
 
-      // No token = subscription already owned; sync from DB/Google Play
+      console.log("[AndroidPurchase] onPurchaseSuccess called — token:", token ? `"${token.substring(0, 30)}..."` : "EMPTY/UNDEFINED");
+
+      // No token = sync with Google Play to find active subscription
       if (!token) {
-        console.log("[AndroidPurchase] onPurchaseSuccess with no token — subscription already owned, syncing...");
-        await syncExistingSubscription(undefined, false);
+        console.log("[AndroidPurchase] No token received — syncing via sync-subscription...");
+        const synced = await syncExistingSubscription(undefined, false);
+        if (!synced) {
+          // Last resort: force a refetch from DB
+          console.log("[AndroidPurchase] Sync failed, forcing DB refetch...");
+          await refetch();
+        }
         return;
       }
 
+      console.log("[AndroidPurchase] Calling confirm-purchase with token...");
       try {
         const { data, error } = await supabase.functions.invoke("confirm-purchase", {
           body: { purchaseToken: token },
         });
 
+        console.log("[AndroidPurchase] confirm-purchase response:", JSON.stringify({ data, error }));
+
         if (error || !data?.success) {
           console.error("[AndroidPurchase] confirm-purchase failed:", error || data);
-          // Fallback: try sync in case the purchase was already acknowledged
-          console.log("[AndroidPurchase] Falling back to sync-subscription...");
+          console.log("[AndroidPurchase] Falling back to sync-subscription with token...");
           await syncExistingSubscription(token, false);
           return;
         }
@@ -142,7 +149,8 @@ export function useAndroidPurchase() {
 
     // ── Register global callbacks ──────────────────────────────────────────
     (window as any).onPurchaseSuccess = (purchaseToken?: string) => {
-      console.log("[AndroidPurchase] onPurchaseSuccess", purchaseToken ? "with token" : "no token");
+      console.log("[AndroidPurchase] onPurchaseSuccess RAW args:", arguments);
+      console.log("[AndroidPurchase] onPurchaseSuccess token value:", JSON.stringify(purchaseToken));
       handlePurchaseSuccess(purchaseToken);
     };
 
@@ -152,9 +160,9 @@ export function useAndroidPurchase() {
 
     // onPurchaseError: ITEM_ALREADY_OWNED may include a token — use it to restore
     (window as any).onPurchaseError = (errorCode?: string, purchaseToken?: string) => {
-      console.error("[AndroidPurchase] Purchase error:", errorCode, purchaseToken ? "(has token)" : "");
+      console.error("[AndroidPurchase] onPurchaseError RAW:", JSON.stringify({ errorCode, purchaseToken }));
       if (errorCode === "ITEM_ALREADY_OWNED" || errorCode === "itemAlreadyOwned") {
-        console.log("[AndroidPurchase] ITEM_ALREADY_OWNED — restoring subscription...");
+        console.log("[AndroidPurchase] ITEM_ALREADY_OWNED token:", purchaseToken ? `"${String(purchaseToken).substring(0, 30)}..."` : "NONE");
         syncExistingSubscription(purchaseToken, false);
       } else {
         toast.error(`Error de compra (${errorCode || 'desconocido'}). Si ya compraste, usá "Restaurar compra".`);
@@ -162,13 +170,13 @@ export function useAndroidPurchase() {
     };
 
     (window as any).onSubscriptionCancelled = (purchaseToken?: string) => {
-      console.log("[AndroidPurchase] onSubscriptionCancelled");
+      console.log("[AndroidPurchase] onSubscriptionCancelled token:", JSON.stringify(purchaseToken));
       handleSubscriptionCancelled(purchaseToken);
     };
 
     // Called by native bridge on app start when it finds an existing active subscription
     (window as any).onPurchaseSync = (purchaseToken?: string) => {
-      console.log("[AndroidPurchase] onPurchaseSync called on startup");
+      console.log("[AndroidPurchase] onPurchaseSync token:", JSON.stringify(purchaseToken));
       handlePurchaseSync(purchaseToken);
     };
 
