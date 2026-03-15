@@ -1,6 +1,10 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Crown, Sparkles, Check, X } from "lucide-react";
+import { Crown, Sparkles, Check, X, RotateCcw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { usePremium } from "@/hooks/usePremium";
+import { toast } from "sonner";
+import { useState } from "react";
 
 interface PaywallModalProps {
   open: boolean;
