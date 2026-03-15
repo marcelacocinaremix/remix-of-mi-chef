@@ -66,27 +66,34 @@ export function useAndroidPurchase() {
     };
 
     // ── New purchase confirmed ─────────────────────────────────────────────
-    // NOTE: If purchaseToken is missing, Google Play may have already processed
-    // the purchase before (ITEM_ALREADY_OWNED case). In that case we sync instead.
     const handlePurchaseSuccess = async (purchaseToken?: string) => {
       const token = purchaseToken?.trim();
 
-      // No token = subscription already owned; sync from DB/Google Play
+      console.log("[AndroidPurchase] onPurchaseSuccess called — token:", token ? `"${token.substring(0, 30)}..."` : "EMPTY/UNDEFINED");
+
+      // No token = sync with Google Play to find active subscription
       if (!token) {
-        console.log("[AndroidPurchase] onPurchaseSuccess with no token — subscription already owned, syncing...");
-        await syncExistingSubscription(undefined, false);
+        console.log("[AndroidPurchase] No token received — syncing via sync-subscription...");
+        const synced = await syncExistingSubscription(undefined, false);
+        if (!synced) {
+          // Last resort: force a refetch from DB
+          console.log("[AndroidPurchase] Sync failed, forcing DB refetch...");
+          await refetch();
+        }
         return;
       }
 
+      console.log("[AndroidPurchase] Calling confirm-purchase with token...");
       try {
         const { data, error } = await supabase.functions.invoke("confirm-purchase", {
           body: { purchaseToken: token },
         });
 
+        console.log("[AndroidPurchase] confirm-purchase response:", JSON.stringify({ data, error }));
+
         if (error || !data?.success) {
           console.error("[AndroidPurchase] confirm-purchase failed:", error || data);
-          // Fallback: try sync in case the purchase was already acknowledged
-          console.log("[AndroidPurchase] Falling back to sync-subscription...");
+          console.log("[AndroidPurchase] Falling back to sync-subscription with token...");
           await syncExistingSubscription(token, false);
           return;
         }
