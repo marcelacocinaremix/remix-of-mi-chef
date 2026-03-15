@@ -22,12 +22,21 @@ const benefits = [
 
 export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const handleSubscribe = () => {
-    const androidBridge = (window as any).AndroidInterface;
+    const androidBridge =
+      (window as any).AndroidInterface ||
+      (window as any).Android ||
+      (window as any).MiChefBridge ||
+      (window as any).JSBridge;
+
+    console.log("[Paywall] bridge found:", !!androidBridge, "| UA:", navigator.userAgent);
 
     if (androidBridge) {
       try {
         if (typeof androidBridge.iniciarCompra === "function") {
           androidBridge.iniciarCompra("premium_mensual");
+        } else {
+          const methods = Object.getOwnPropertyNames(androidBridge).join(", ");
+          console.error("[Paywall] iniciarCompra not found. Available:", methods);
         }
       } catch (error) {
         console.error("Error al llamar a la interfaz nativa:", error);
