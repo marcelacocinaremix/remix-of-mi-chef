@@ -102,6 +102,8 @@ export function useAndroidPurchase() {
 
     return () => {
       delete (window as any).onPurchaseSuccess;
+      delete (window as any).onPurchaseCancelled;
+      delete (window as any).onPurchaseError;
       window.removeEventListener("purchaseSuccess", handleEvent);
     };
   }, [user, refetch]);
