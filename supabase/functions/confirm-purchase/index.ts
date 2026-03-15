@@ -233,20 +233,50 @@ Deno.serve(async (req) => {
     // SECURITY: Derive subscription end date ONLY from Google Play response
     const subscriptionEnd = new Date(parseInt(purchaseData.expiryTimeMillis, 10)).toISOString();
 
+    // REQUIRED by Google Play: acknowledge the purchase within 3 days or it gets
+    // automatically cancelled and refunded. Only acknowledge if not already acknowledged.
+    if (purchaseData.acknowledgementState === 0) {
+      console.log(`Acknowledging purchase for user ${user.id}...`);
+      const acknowledged = await acknowledgeGooglePlayPurchase(
+        googlePackageName,
+        googleSubscriptionId,
+        purchaseToken.trim(),
+        accessToken
+      );
+      if (!acknowledged) {
+        // Log the error but don't block — activation still proceeds.
+        // Google Play gives 3 days; next call will retry.
+        console.error("⚠️ Purchase acknowledgement failed — will retry on next confirm call");
+      }
+    } else {
+      console.log("Purchase already acknowledged, skipping acknowledgement");
+    }
+
     // Use service role to bypass RLS
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Preserve existing trial fields when activating premium
+    const { data: existingSub } = await adminClient
+      .from("user_subscriptions")
+      .select("trial_used, trial_start_date, trial_end_date")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
     const { error: updateError } = await adminClient
       .from("user_subscriptions")
-      .update({
+      .upsert({
+        user_id: user.id,
         is_premium: true,
         plan_type: "premium",
         subscription_status: "active",
         subscription_start: new Date().toISOString(),
         subscription_end: subscriptionEnd,
         updated_at: new Date().toISOString(),
-      })
-      .eq("user_id", user.id);
+        // CRITICAL: preserve trial fields — never overwrite them
+        ...(existingSub?.trial_used !== undefined && { trial_used: existingSub.trial_used }),
+        ...(existingSub?.trial_start_date && { trial_start_date: existingSub.trial_start_date }),
+        ...(existingSub?.trial_end_date && { trial_end_date: existingSub.trial_end_date }),
+      }, { onConflict: "user_id" });
 
     if (updateError) {
       console.error("Error updating subscription:", updateError);
@@ -258,7 +288,7 @@ Deno.serve(async (req) => {
 
     console.log(`✅ Premium activated for user ${user.id}, expires: ${subscriptionEnd}`);
 
-    return new Response(JSON.stringify({ success: true, is_premium: true }), {
+    return new Response(JSON.stringify({ success: true, is_premium: true, subscription_end: subscriptionEnd }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
