@@ -25,6 +25,9 @@ const benefits = [
 ];
 
 export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
+  const { refetch } = usePremium();
+  const [isRestoring, setIsRestoring] = useState(false);
+
   const handleSubscribe = () => {
     const androidBridge =
       (window as any).AndroidInterface ||
@@ -47,6 +50,51 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       }
     }
     onOpenChange(false);
+  };
+
+  /**
+   * "Restaurar compra" — calls sync-subscription without a token.
+   * This asks the backend to check DB state, or the native bridge to
+   * query Google Play for the existing token.
+   */
+  const handleRestore = async () => {
+    setIsRestoring(true);
+
+    // Prefer native bridge restore method if available
+    const androidBridge =
+      (window as any).AndroidInterface ||
+      (window as any).Android ||
+      (window as any).MiChefBridge ||
+      (window as any).JSBridge;
+
+    if (androidBridge && typeof androidBridge.restaurarCompra === "function") {
+      console.log("[Paywall] Calling native restaurarCompra...");
+      androidBridge.restaurarCompra();
+      // The native bridge will call onPurchaseSuccess / onPurchaseSync with the token
+      toast.info("Verificando compra existente...");
+      setIsRestoring(false);
+      onOpenChange(false);
+      return;
+    }
+
+    // Fallback: query sync-subscription (checks DB state + grace period)
+    try {
+      const { data, error } = await supabase.functions.invoke("sync-subscription", {});
+      if (!error && data?.is_premium) {
+        await refetch();
+        toast.success("🎉 ¡Suscripción Premium restaurada!", { duration: 5000 });
+        onOpenChange(false);
+      } else {
+        toast.info("No se encontró una suscripción activa. Si acabás de comprar, esperá un momento e intentá de nuevo.", {
+          duration: 6000,
+        });
+      }
+    } catch (err) {
+      console.error("[Paywall] Error restoring purchase:", err);
+      toast.error("No se pudo verificar la compra. Intentá de nuevo.");
+    } finally {
+      setIsRestoring(false);
+    }
   };
 
   return (
@@ -122,9 +170,17 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
             Activar Premium
           </Button>
 
-          <p className="text-center text-xs text-muted-foreground">
-            Podés seguir usando las funciones básicas gratis
-          </p>
+          {/* Restore purchase */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRestore}
+            disabled={isRestoring}
+            className="w-full text-muted-foreground hover:text-foreground text-xs"
+          >
+            <RotateCcw className={`mr-1.5 h-3.5 w-3.5 ${isRestoring ? "animate-spin" : ""}`} />
+            {isRestoring ? "Verificando..." : "¿Ya compraste? Restaurar compra"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

@@ -1,5 +1,6 @@
-import { Crown, Sparkles, Clock, AlertCircle, XCircle, Check, X, Minus } from "lucide-react";
+import { Crown, Sparkles, Clock, AlertCircle, XCircle, Check, X, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { usePremium } from "@/hooks/usePremium";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SubscriptionManagerProps {
   open: boolean;
