@@ -51,55 +51,60 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   const [trialEndDate, setTrialEndDate] = useState<Date | null>(null);
   const [trialUsedDb, setTrialUsedDb] = useState(false);
 
-  // Derived: is the paid period still valid?
+  // ── DERIVED STATE ──────────────────────────────────────────────────────────
+
+  // Paid period is active when is_premium=true AND subscription hasn't expired
   const paidPeriodActive = useMemo(() => {
     if (!dbIsPremium) return false;
-    // If no end date, premium is indefinite (lifetime or no expiry set)
-    if (!subscriptionEnd) return true;
+    if (!subscriptionEnd) return true; // no end date = indefinite (lifetime)
     return new Date() < subscriptionEnd;
   }, [dbIsPremium, subscriptionEnd]);
 
-  // Derived: cancelled but still within paid period
+  // Cancelled but still within the paid period the user already paid for
   const isCancelled = useMemo(() => {
     return subscriptionStatus === 'cancelled' && paidPeriodActive;
   }, [subscriptionStatus, paidPeriodActive]);
 
-  // Derived: trial status — STRICT: requires trial_used=true AND not expired AND not in paid period
+  // Trial active: trial_used=true AND not expired AND no paid plan running
   const isTrialActive = useMemo(() => {
-    if (!isInitialized) return false; // Don't assume active until data loaded
-    if (paidPeriodActive) return false;
-    if (!trialUsedDb) return false;   // Trial must have been explicitly started
-    if (!trialEndDate) return false;  // No trial data = not in trial
+    if (!isInitialized) return false;
+    if (paidPeriodActive) return false;      // paid overrides trial
+    if (!trialUsedDb) return false;          // trial never started
+    if (!trialEndDate) return false;         // no trial data
     return new Date() < trialEndDate;
   }, [isInitialized, paidPeriodActive, trialUsedDb, trialEndDate]);
 
+  // Trial expired and no active paid plan
   const isTrialExpired = useMemo(() => {
     if (paidPeriodActive) return false;
     if (!trialEndDate) return false;
-    return new Date() >= trialEndDate;
-  }, [paidPeriodActive, trialEndDate]);
+    return trialUsedDb && new Date() >= trialEndDate;
+  }, [paidPeriodActive, trialUsedDb, trialEndDate]);
 
   const trialDaysRemaining = useMemo(() => {
-    if (!trialEndDate) return 0; // No trial set → 0 days, not 15
+    if (!isTrialActive || !trialEndDate) return 0;
     const diff = trialEndDate.getTime() - Date.now();
     return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-  }, [trialEndDate]);
+  }, [isTrialActive, trialEndDate]);
 
-  // Effective premium: paid period active OR trial still active
+  // isPremium = only paid period (used to show "Premium" badge)
   const isPremium = paidPeriodActive;
 
-  // Has access to premium sections? Either paid or within trial
+  // hasAnyAccess = paid OR trial (used to gate premium features)
   const hasAccess = paidPeriodActive || isTrialActive;
 
-  // Daily limit depends on paid status
+  // Daily recipe limit: 10 for premium, 3 for everyone else
   const effectiveLimit = paidPeriodActive ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
 
-  const canUseFeature = useCallback((feature: 'balance_add' | 'planificador_modify' | 'learn' | 'food_guide' | 'general') => {
+  const canUseFeature = useCallback((
+    feature: 'balance_add' | 'planificador_modify' | 'learn' | 'food_guide' | 'general'
+  ) => {
     if (paidPeriodActive) return true;
     if (isTrialActive) return true;
-    // Trial expired and no active paid period — block premium features
-    if (feature === 'balance_add' || feature === 'planificador_modify' || feature === 'learn' || feature === 'food_guide') return false;
-    return true; // General viewing still allowed
+    // Expired trial or free — block write-access features
+    const premiumOnly: typeof feature[] = ['balance_add', 'planificador_modify', 'learn', 'food_guide'];
+    if (premiumOnly.includes(feature)) return false;
+    return true;
   }, [paidPeriodActive, isTrialActive]);
 
   const daysRemaining = useMemo(() => {

@@ -210,17 +210,20 @@ serve(async (req) => {
       }
 
       // Build update object — PRESERVE trial fields (never overwrite them)
+      // plan_type is always 'premium' when the user has a paid subscription
       const updateData: Record<string, unknown> = {
         mp_preapproval_id: preapprovalId,
         mp_subscription_id: preapproval.id,
-        plan_type: planId || '1_month',
+        plan_type: isPremium ? 'premium' : 'free',
         subscription_status: subscriptionStatus,
-        subscription_start: isPremium && status !== 'cancelled' ? now.toISOString() : (existingSub?.subscription_end ? undefined : null),
+        subscription_start: isPremium && status !== 'cancelled'
+          ? now.toISOString()
+          : existingSub?.subscription_end ?? null,
         subscription_end: finalSubscriptionEnd,
         is_premium: isPremium,
-        unlocked_at: isPremium ? now.toISOString() : null,
+        unlocked_at: isPremium ? (existingSub?.subscription_end ? undefined : now.toISOString()) : null,
         updated_at: now.toISOString(),
-        // CRITICAL: preserve trial fields — never set them to null
+        // CRITICAL: preserve trial fields — NEVER overwrite them
         ...(existingSub?.trial_used !== undefined && { trial_used: existingSub.trial_used }),
         ...(existingSub?.trial_start_date !== undefined && { trial_start_date: existingSub.trial_start_date }),
         ...(existingSub?.trial_end_date !== undefined && { trial_end_date: existingSub.trial_end_date }),
