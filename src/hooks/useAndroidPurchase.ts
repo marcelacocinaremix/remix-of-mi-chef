@@ -77,8 +77,20 @@ export function useAndroidPurchase() {
     };
 
     // Expose the callback for Android native bridge
+    // Called by Java: WebView.evaluateJavascript("window.onPurchaseSuccess(token)", null)
     (window as any).onPurchaseSuccess = (purchaseToken?: string) => {
+      console.log("[AndroidPurchase] onPurchaseSuccess called", purchaseToken ? "with token" : "no token");
       handlePurchaseSuccess(purchaseToken);
+    };
+
+    // Expose cancel callback so the native side can clean up UI
+    (window as any).onPurchaseCancelled = () => {
+      console.log("[AndroidPurchase] Purchase cancelled by user");
+    };
+
+    // Expose error callback
+    (window as any).onPurchaseError = (errorCode?: string) => {
+      console.error("[AndroidPurchase] Purchase error:", errorCode);
     };
 
     // Also listen for a custom event (alternative bridge method)
