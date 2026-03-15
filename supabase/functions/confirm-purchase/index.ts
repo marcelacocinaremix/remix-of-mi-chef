@@ -14,7 +14,7 @@ async function validateGooglePlayPurchase(
   subscriptionId: string,
   purchaseToken: string,
   accessToken: string
-): Promise<{ expiryTimeMillis: string; paymentState: number } | null> {
+): Promise<{ expiryTimeMillis: string; paymentState: number; acknowledgementState: number } | null> {
   try {
     const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${packageName}/purchases/subscriptions/${subscriptionId}/tokens/${purchaseToken}`;
 
@@ -32,10 +32,49 @@ async function validateGooglePlayPurchase(
     return {
       expiryTimeMillis: data.expiryTimeMillis,
       paymentState: data.paymentState,
+      acknowledgementState: data.acknowledgementState ?? 0,
     };
   } catch (err) {
     console.error("Error calling Google Play API:", err);
     return null;
+  }
+}
+
+/**
+ * Acknowledges a Google Play subscription purchase.
+ * REQUIRED by Google Play: purchases must be acknowledged within 3 days
+ * or they are automatically cancelled and refunded.
+ */
+async function acknowledgeGooglePlayPurchase(
+  packageName: string,
+  subscriptionId: string,
+  purchaseToken: string,
+  accessToken: string
+): Promise<boolean> {
+  try {
+    const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${packageName}/purchases/subscriptions/${subscriptionId}/tokens/${purchaseToken}:acknowledge`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ developerPayload: "" }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Google Play acknowledge failed:", response.status, errorText);
+      return false;
+    }
+
+    // 204 No Content = success
+    console.log("✅ Purchase acknowledged successfully");
+    return true;
+  } catch (err) {
+    console.error("Error acknowledging Google Play purchase:", err);
+    return false;
   }
 }
 
