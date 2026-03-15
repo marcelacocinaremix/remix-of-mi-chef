@@ -156,24 +156,45 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
     : null;
 
   const handleSubscribe = () => {
-    const androidBridge = (window as any).AndroidInterface;
+    // Try multiple possible bridge names registered by the WebView
+    const androidBridge =
+      (window as any).AndroidInterface ||
+      (window as any).Android ||
+      (window as any).MiChefBridge ||
+      (window as any).JSBridge;
+
+    console.log("[Purchase] AndroidInterface:", !!(window as any).AndroidInterface);
+    console.log("[Purchase] Android:", !!(window as any).Android);
+    console.log("[Purchase] MiChefBridge:", !!(window as any).MiChefBridge);
+    console.log("[Purchase] bridge found:", !!androidBridge);
+    console.log("[Purchase] userAgent:", navigator.userAgent);
 
     if (androidBridge) {
       try {
-        // Pass the subscription product ID so the native bridge knows what to purchase
         if (typeof androidBridge.iniciarCompra === "function") {
           androidBridge.iniciarCompra("premium_mensual");
         } else {
-          toast.error("La interfaz de pago no está disponible. Actualizá la app.");
+          // Bridge found but method missing — list available methods for debugging
+          const methods = Object.getOwnPropertyNames(androidBridge).join(", ");
+          console.error("[Purchase] iniciarCompra not found. Available:", methods);
+          toast.error(`Método de pago no encontrado. Métodos disponibles: ${methods || "ninguno"}`);
         }
       } catch (error) {
         console.error("Error al llamar a la interfaz nativa:", error);
         toast.error("Error al iniciar la compra. Intentá de nuevo.");
       }
     } else {
-      toast.info("El pago se procesa desde la App instalada en tu dispositivo Android.", {
-        duration: 5000,
-      });
+      // Running outside the native app — show helpful message
+      const isAndroid = /android/i.test(navigator.userAgent);
+      if (isAndroid) {
+        toast.error("No se encontró el puente nativo. Verificá que AndroidInterface esté registrado en el WebView.", {
+          duration: 6000,
+        });
+      } else {
+        toast.info("El pago se procesa desde la App instalada en tu dispositivo Android.", {
+          duration: 5000,
+        });
+      }
     }
     onOpenChange(false);
   };
