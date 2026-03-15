@@ -32,7 +32,6 @@ const verifyMercadoPagoSignature = (req: Request, dataId: string): boolean => {
   }
   
   try {
-    // Extract signature parts (format: ts=123456,v1=abc123)
     const signatureParts: Record<string, string> = {};
     xSignature.split(',').forEach(part => {
       const [key, value] = part.split('=');
@@ -49,15 +48,11 @@ const verifyMercadoPagoSignature = (req: Request, dataId: string): boolean => {
       return false;
     }
     
-    // Construct manifest according to Mercado Pago docs
     const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
-    
-    // Calculate expected signature
     const hmac = createHmac('sha256', mpWebhookSecret);
     hmac.update(manifest);
     const expectedHash = hmac.digest('hex');
     
-    // Timing-safe comparison to prevent timing attacks
     if (hash.length !== expectedHash.length) {
       console.error('Signature length mismatch');
       return false;
@@ -75,7 +70,6 @@ const verifyMercadoPagoSignature = (req: Request, dataId: string): boolean => {
       return false;
     }
     
-    // Check timestamp to prevent replay attacks (reject if older than 5 minutes)
     const timestampMs = parseInt(ts) * 1000;
     const now = Date.now();
     if (Math.abs(now - timestampMs) > 5 * 60 * 1000) {
@@ -105,7 +99,6 @@ serve(async (req) => {
       throw new Error('Missing environment variables');
     }
 
-    // Log request details for auditing
     console.log('Subscription webhook received from IP:', req.headers.get('x-forwarded-for') || 'unknown');
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -116,7 +109,6 @@ serve(async (req) => {
     const { type, data } = body;
     const dataId = data?.id?.toString();
 
-    // Verify webhook signature before processing
     if (dataId) {
       const isValidSignature = verifyMercadoPagoSignature(req, dataId);
       if (!isValidSignature) {
@@ -134,15 +126,11 @@ serve(async (req) => {
       );
     }
 
-    // Handle different webhook types
     if (type === 'subscription_preapproval') {
       const preapprovalId = data.id;
       
-      // Fetch preapproval details from MP to verify the data
       const mpResponse = await fetch(`https://api.mercadopago.com/preapproval/${preapprovalId}`, {
-        headers: {
-          'Authorization': `Bearer ${mpAccessToken}`,
-        },
+        headers: { 'Authorization': `Bearer ${mpAccessToken}` },
       });
 
       if (!mpResponse.ok) {
@@ -151,7 +139,7 @@ serve(async (req) => {
       }
 
       const preapproval = await mpResponse.json();
-      console.log('Preapproval details:', JSON.stringify(preapproval, null, 2));
+      console.log('Preapproval status:', preapproval.status, 'external_reference:', preapproval.external_reference);
 
       const externalReference = preapproval.external_reference || '';
       const [userId, planId] = externalReference.split('|');
@@ -164,12 +152,11 @@ serve(async (req) => {
       const status = preapproval.status;
       const planDuration = PLAN_DURATIONS[planId] || 1;
       
-      // Calculate subscription end date
       const now = new Date();
       let subscriptionEnd = new Date(now);
       subscriptionEnd.setMonth(subscriptionEnd.getMonth() + planDuration);
 
-      // Map MP status to our status
+      // Map MP status to our internal status
       let subscriptionStatus = 'pending';
       let isPremium = false;
 
@@ -184,8 +171,10 @@ serve(async (req) => {
           isPremium = true; // Still premium while paused
           break;
         case 'cancelled':
+          // IMPORTANT: On cancellation, keep is_premium = true until subscription_end.
+          // The client-side usePremium hook checks subscription_end to determine access.
           subscriptionStatus = 'cancelled';
-          isPremium = false;
+          isPremium = true; // Access continues until subscription_end date
           break;
         case 'pending':
           subscriptionStatus = 'pending';
@@ -195,22 +184,58 @@ serve(async (req) => {
           subscriptionStatus = status;
       }
 
-      console.log(`Updating subscription for user ${userId}: status=${subscriptionStatus}, premium=${isPremium}`);
+      console.log(`Updating subscription for user ${userId}: MP status=${status}, internal status=${subscriptionStatus}, premium=${isPremium}`);
 
-      // Update user subscription
+      // FIRST: check existing subscription to preserve trial fields
+      const { data: existingSub } = await supabase
+        .from('user_subscriptions')
+        .select('trial_used, trial_start_date, trial_end_date, subscription_end, is_premium')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      // For cancelled: keep the existing subscription_end if it's in the future
+      // (don't shorten the paid period the user already paid for)
+      let finalSubscriptionEnd: string | null = null;
+      if (isPremium) {
+        if (status === 'cancelled' && existingSub?.subscription_end) {
+          // Keep existing end date (don't cut short a paid period)
+          finalSubscriptionEnd = existingSub.subscription_end;
+        } else if (status === 'cancelled') {
+          // No existing end date but cancelling — keep current period
+          finalSubscriptionEnd = subscriptionEnd.toISOString();
+        } else {
+          // Active/authorized: set new end date
+          finalSubscriptionEnd = subscriptionEnd.toISOString();
+        }
+      }
+
+      // Build update object — PRESERVE trial fields (never overwrite them)
+      const updateData: Record<string, unknown> = {
+        mp_preapproval_id: preapprovalId,
+        mp_subscription_id: preapproval.id,
+        plan_type: planId || '1_month',
+        subscription_status: subscriptionStatus,
+        subscription_start: isPremium && status !== 'cancelled' ? now.toISOString() : (existingSub?.subscription_end ? undefined : null),
+        subscription_end: finalSubscriptionEnd,
+        is_premium: isPremium,
+        unlocked_at: isPremium ? now.toISOString() : null,
+        updated_at: now.toISOString(),
+        // CRITICAL: preserve trial fields — never set them to null
+        ...(existingSub?.trial_used !== undefined && { trial_used: existingSub.trial_used }),
+        ...(existingSub?.trial_start_date !== undefined && { trial_start_date: existingSub.trial_start_date }),
+        ...(existingSub?.trial_end_date !== undefined && { trial_end_date: existingSub.trial_end_date }),
+      };
+
+      // Remove undefined values
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key] === undefined) delete updateData[key];
+      });
+
       const { error: updateError } = await supabase
         .from('user_subscriptions')
         .upsert({
           user_id: userId,
-          mp_preapproval_id: preapprovalId,
-          mp_subscription_id: preapproval.id,
-          plan_type: planId || '1_month',
-          subscription_status: subscriptionStatus,
-          subscription_start: isPremium ? now.toISOString() : null,
-          subscription_end: isPremium ? subscriptionEnd.toISOString() : null,
-          is_premium: isPremium,
-          unlocked_at: isPremium ? now.toISOString() : null,
-          updated_at: now.toISOString(),
+          ...updateData,
         }, {
           onConflict: 'user_id',
         });
@@ -231,28 +256,22 @@ serve(async (req) => {
         })
         .eq('preference_id', preapprovalId);
 
-      console.log('Subscription updated successfully');
+      console.log(`✅ Subscription updated for user ${userId}: status=${subscriptionStatus}, premium=${isPremium}, end=${finalSubscriptionEnd}`);
 
     } else if (type === 'subscription_authorized_payment') {
-      // Payment was made for subscription
       const paymentId = data.id;
       
       console.log('Subscription payment received:', paymentId);
 
-      // Fetch payment details from MP to verify
       const mpResponse = await fetch(`https://api.mercadopago.com/authorized_payments/${paymentId}`, {
-        headers: {
-          'Authorization': `Bearer ${mpAccessToken}`,
-        },
+        headers: { 'Authorization': `Bearer ${mpAccessToken}` },
       });
 
       if (mpResponse.ok) {
         const payment = await mpResponse.json();
-        console.log('Payment details:', JSON.stringify(payment, null, 2));
+        console.log('Payment status:', payment.status, 'preapproval_id:', payment.preapproval_id);
 
-        // Extend subscription if payment successful
         if (payment.status === 'approved' && payment.preapproval_id) {
-          // Get current subscription
           const { data: subData } = await supabase
             .from('user_subscriptions')
             .select('*')
@@ -272,10 +291,14 @@ serve(async (req) => {
                 is_premium: true,
                 subscription_status: 'active',
                 updated_at: new Date().toISOString(),
+                // Preserve trial fields — never overwrite them
+                trial_used: subData.trial_used,
+                trial_start_date: subData.trial_start_date,
+                trial_end_date: subData.trial_end_date,
               })
               .eq('user_id', subData.user_id);
 
-            console.log(`Extended subscription for user ${subData.user_id} until ${newEnd.toISOString()}`);
+            console.log(`✅ Extended subscription for user ${subData.user_id} until ${newEnd.toISOString()}`);
           }
         }
       }

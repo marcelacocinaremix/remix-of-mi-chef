@@ -233,13 +233,27 @@ serve(async (req) => {
     if (payment.status === 'approved') {
       console.log('Payment approved! Activating premium for user:', paymentRecord.user_id);
 
+      // Fetch existing subscription to preserve trial fields
+      const { data: existingSub } = await supabase
+        .from('user_subscriptions')
+        .select('trial_used, trial_start_date, trial_end_date')
+        .eq('user_id', paymentRecord.user_id)
+        .maybeSingle();
+
       const { error: premiumError } = await supabase
         .from('user_subscriptions')
         .upsert({
           user_id: paymentRecord.user_id,
           is_premium: true,
+          subscription_status: 'active',
+          plan_type: 'premium',
+          subscription_start: new Date().toISOString(),
           unlocked_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          // CRITICAL: preserve trial fields — never overwrite them on payment approval
+          ...(existingSub?.trial_used !== undefined && { trial_used: existingSub.trial_used }),
+          ...(existingSub?.trial_start_date && { trial_start_date: existingSub.trial_start_date }),
+          ...(existingSub?.trial_end_date && { trial_end_date: existingSub.trial_end_date }),
         }, {
           onConflict: 'user_id'
         });
@@ -249,7 +263,7 @@ serve(async (req) => {
         return new Response('Error', { status: 500, headers: corsHeaders });
       }
 
-      console.log('Premium activated successfully!');
+      console.log('✅ Premium activated successfully!');
     } else {
       console.log('Payment status is:', payment.status, '- Premium NOT activated');
     }
