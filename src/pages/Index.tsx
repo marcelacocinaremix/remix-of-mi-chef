@@ -107,8 +107,8 @@ export default function Index() {
     }
   }, [user]);
 
-  // Show onboarding if first visit OR if user is not logged in
-  if (isFirstVisit || !user) {
+  // Show onboarding only on first visit — login is no longer required
+  if (isFirstVisit) {
     return <OnboardingFlow onComplete={setFirstVisitComplete} />;
   }
 
