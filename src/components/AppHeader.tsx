@@ -1,21 +1,17 @@
 import { useState } from "react";
-import { Youtube, Instagram, Users, LogOut, User, Globe, Settings, Crown, Clock, Palette } from "lucide-react";
+import { Youtube, Instagram, Users, User, Globe, Settings, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { usePremium } from "@/hooks/usePremium";
 import { useNavigate } from "react-router-dom";
 import { useAppTheme, THEMES } from "@/contexts/ThemeContext";
 import { LanguageSettingsModal } from "@/components/LanguageSettingsModal";
 import { UserProfileModal } from "@/components/UserProfileModal";
-import { SubscriptionManager } from "@/components/SubscriptionManager";
 import { ThemePickerModal } from "@/components/ThemePickerModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import logo from "@/assets/logo.png";
