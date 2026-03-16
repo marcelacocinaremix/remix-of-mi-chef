@@ -479,10 +479,10 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               <ArrowLeft className="w-6 h-6" />
             </Button>
 
-            {/* Skip button */}
+            {/* Skip button — enters app directly */}
             <Button
               variant="ghost"
-              onClick={() => setStep("auth")}
+              onClick={() => onComplete()}
               className="absolute top-6 right-6 text-white/50 hover:text-white text-sm z-10"
             >
               {t("onboardingSkip")}
