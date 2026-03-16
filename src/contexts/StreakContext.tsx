@@ -1,6 +1,5 @@
-import { createContext, useContext, ReactNode, useCallback } from "react";
+import { createContext, useContext, ReactNode } from "react";
 import { useStreak, StreakData } from "@/hooks/useStreak";
-import { StreakCelebrationSheet } from "@/components/StreakCelebrationSheet";
 
 interface StreakContextType {
   streakData: StreakData | null;
@@ -12,12 +11,11 @@ interface StreakContextType {
 const StreakContext = createContext<StreakContextType | undefined>(undefined);
 
 export function StreakProvider({ children }: { children: ReactNode }) {
-  const { streakData, isLoading, celebrationMilestone, recordActivity, dismissCelebration, refetch } = useStreak();
+  const { streakData, isLoading, recordActivity, refetch } = useStreak();
 
   return (
     <StreakContext.Provider value={{ streakData, isLoading, recordActivity, refetch }}>
       {children}
-      <StreakCelebrationSheet milestone={celebrationMilestone} onDismiss={dismissCelebration} />
     </StreakContext.Provider>
   );
 }
