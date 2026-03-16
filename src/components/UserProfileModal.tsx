@@ -182,66 +182,6 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
               <p className="text-xs text-muted-foreground">{t("profilePhotoHint")}</p>
             </div>
 
-            {/* Plan actual */}
-            <div className="rounded-xl border border-border/50 bg-muted/30 overflow-hidden">
-              {/* Header */}
-              <div className="flex items-center justify-between px-4 py-3">
-                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                  {isPremium ? (
-                    <Crown className="w-4 h-4 text-amber-500" />
-                  ) : isTrialActive ? (
-                    <Clock className="w-4 h-4 text-emerald-500" />
-                  ) : (
-                    <Sparkles className="w-4 h-4 text-primary" />
-                  )}
-                  Mi plan
-                </div>
-                {isPremium ? (
-                  <Badge className="bg-amber-500 text-primary-foreground gap-1 text-xs px-2 py-0.5">
-                    <Crown className="w-3 h-3" />
-                    Premium
-                  </Badge>
-                ) : isTrialActive ? (
-                  <Badge className="bg-emerald-500 text-primary-foreground gap-1 text-xs px-2 py-0.5">
-                    <Clock className="w-3 h-3" />
-                    Prueba · {trialDaysRemaining}d restantes
-                  </Badge>
-                ) : (
-                  <Badge variant="outline" className="text-xs px-2 py-0.5">
-                    Plan Gratuito
-                  </Badge>
-                )}
-              </div>
-
-              {/* Included features */}
-              <div className="border-t border-border/40 px-4 py-3 space-y-1.5">
-                {[
-                  { label: "Generador de recetas con IA", free: true },
-                  { label: "Aprender a cocinar", free: true },
-                  { label: "Calendario de comidas", free: true },
-                  { label: "Juego Chef Arena", free: true },
-                  { label: "Mi Cocina (favoritos e historial)", free: true },
-                  { label: "Despensa", free: false },
-                  { label: "Lista del supermercado", free: false },
-                  { label: "Balance y salud", free: false },
-                  { label: "Trucos del Chef", free: false },
-                ].map((f) => {
-                  const hasAccess = isPremium || isTrialActive || f.free;
-                  return (
-                    <div key={f.label} className="flex items-center gap-2">
-                      {hasAccess ? (
-                        <span className="w-4 h-4 flex items-center justify-center rounded-full bg-emerald-500/15 text-emerald-500 text-[10px] font-bold flex-shrink-0">✓</span>
-                      ) : (
-                        <span className="w-4 h-4 flex items-center justify-center rounded-full bg-muted text-muted-foreground text-[10px] flex-shrink-0">✕</span>
-                      )}
-                      <span className={`text-xs ${hasAccess ? "text-foreground" : "text-muted-foreground"}`}>
-                        {f.label}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
 
             {/* Nombre */}
             <div>
