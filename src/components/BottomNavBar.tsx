@@ -1,6 +1,8 @@
-import { Home, UtensilsCrossed, Bookmark, Calendar, LayoutGrid } from "lucide-react";
+import { Home, UtensilsCrossed, Bookmark, Calendar, LayoutGrid, Lock } from "lucide-react";
 import { useAppTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePremium } from "@/hooks/usePremium";
+import { useAuth } from "@/hooks/useAuth";
 
 export type MainTab = "inicio" | "cocinar" | "micocina" | "planificar" | "balance" | "mas";
 
@@ -21,6 +23,8 @@ const NAV_ITEMS: { id: MainTab; labelKey: string; icon: React.ElementType; requi
 export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBarProps) {
   const { theme } = useAppTheme();
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const { hasAnyAccess } = usePremium();
   const isFuture = theme === "future";
 
   return (
@@ -33,7 +37,7 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
           const Icon = item.icon;
           const isActive = activeTab === item.id;
           const isClicked = clickedTab === item.id;
-          // No lock icons in free-only mode
+          const showLock = item.lockedWhenExpired && user && !hasAnyAccess;
 
           return (
             <button
@@ -59,7 +63,13 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
                     strokeWidth={isActive ? 2 : 1.5}
                     className="relative z-10 transition-all duration-200"
                   />
-                  {/* Lock icon removed in free-only mode */}
+                  {showLock && (
+                    <Lock
+                      size={9}
+                      strokeWidth={2}
+                      className="absolute -top-1 -right-1 text-amber-500 z-20"
+                    />
+                  )}
                 </div>
               </div>
               <span

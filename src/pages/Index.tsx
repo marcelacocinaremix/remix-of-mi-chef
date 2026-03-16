@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocalDailyLimit } from "@/hooks/useLocalDailyLimit";
 import { AppHeader } from "@/components/AppHeader";
 import { BottomNavBar, MainTab } from "@/components/BottomNavBar";
 import { FuturisticBackground } from "@/components/FuturisticBackground";
@@ -48,10 +47,7 @@ type MasSubTab = "aprender" | "jugar" | "marcela" | "perfil" | "balance" | "guia
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
   const { user } = useAuth();
-  // Keep usePremium for internal infra but don't expose UI for it
-  const { refetch: refetchPremium, canUseFeature } = usePremium();
-  // Local daily limit — 3 recipes/day stored in localStorage, no login needed
-  const { checkAndIncrement: checkLocalLimit, remaining: localRemaining, isAtLimit: localIsAtLimit } = useLocalDailyLimit();
+  const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium, hasAnyAccess, isTrialExpired, canUseFeature } = usePremium();
   const { showInterstitial } = useAdMob();
   const isMobile = useIsMobile();
   const { theme } = useAppTheme();
@@ -111,8 +107,8 @@ export default function Index() {
     }
   }, [user]);
 
-  // Show onboarding only on first visit — login is no longer required
-  if (isFirstVisit) {
+  // Show onboarding if first visit OR if user is not logged in
+  if (isFirstVisit || !user) {
     return <OnboardingFlow onComplete={setFirstVisitComplete} />;
   }
 
@@ -136,17 +132,18 @@ export default function Index() {
   const handleGenerateRecipeInvokeError = (err: any) => {
     const { status, code, message } = parseEdgeFunctionError(err);
     if (status === 401 || code === 'AUTH_REQUIRED') {
-      toast({ title: 'Límite diario alcanzado', description: '¡Volvé mañana para más recetas! (3 por día)', variant: 'destructive' });
+      toast({ title: 'Iniciá sesión', description: 'Necesitás iniciar sesión para generar recetas.', variant: 'destructive' });
+      window.location.href = '/auth?redirect=/';
       return true;
     }
     if (code === 'FREE_LIMIT_EXCEEDED' || code === 'PAYWALL_REQUIRED' || status === 402 || status === 403) {
-      toast({ title: 'Límite diario alcanzado', description: '¡Volvé mañana para más recetas! (3 por día)', variant: 'destructive' });
+      toast({ title: 'Límite diario alcanzado', description: `¡Volvé mañana para más recetas! (${isPremium ? 10 : 3} por día)`, variant: 'destructive' });
       return true;
     }
     if (status === 429 || code === 'RATE_LIMITED') {
       const isDailyLimit = err?.context?.body?.dailyLimitReached;
       if (isDailyLimit) {
-        toast({ title: '🍳 ¡Se acabaron tus recetas de hoy!', description: 'Ya usaste tus 3 recetas del día. ¡Volvé mañana para seguir cocinando!', variant: 'destructive' });
+        toast({ title: '🍳 ¡Se acabaron tus recetas de hoy!', description: `Ya usaste tus ${isPremium ? 10 : 3} recetas del día. ¡Volvé mañana para seguir cocinando!`, variant: 'destructive' });
         refetchPremium();
       } else {
         toast({ title: 'Estamos con mucha demanda', description: 'Probá de nuevo en un ratito.', variant: 'destructive' });
@@ -183,14 +180,14 @@ export default function Index() {
         const errorStr = JSON.stringify(error).toLowerCase();
         const is429 = error.message?.includes('429') || error.status === 429 || errorStr.includes('429') || errorStr.includes('dailylimitreached') || errorStr.includes('límite');
         if (is429) {
-          toast({ title: "🍳 ¡Se acabaron tus recetas de hoy!", description: "Ya usaste tus 3 recetas del día. ¡Volvé mañana para seguir cocinando!", variant: "destructive" });
+          toast({ title: "🍳 ¡Se acabaron tus recetas de hoy!", description: `Ya usaste tus ${isPremium ? 10 : 3} recetas del día. ¡Volvé mañana para seguir cocinando!`, variant: "destructive" });
           setIsLoading(false); setIsGeneratingAI(false); return;
         }
         throw error;
       }
 
       if (data?.dailyLimitReached) {
-        toast({ title: "🍳 ¡Se acabaron tus recetas de hoy!", description: "Ya usaste tus 3 recetas del día. ¡Volvé mañana para seguir cocinando!", variant: "destructive" });
+        toast({ title: "🍳 ¡Se acabaron tus recetas de hoy!", description: `Ya usaste tus ${isPremium ? 10 : 3} recetas del día. ¡Volvé mañana para seguir cocinando!`, variant: "destructive" });
         setIsLoading(false); setIsGeneratingAI(false); return;
       }
       if (data?.error === 'no_flavor_match') {
@@ -249,20 +246,22 @@ export default function Index() {
       toast({ title: "¡Agregá ingredientes!", description: "Necesito saber qué tenés disponible para sugerirte recetas.", variant: "destructive" });
       return;
     }
-
-    // Local limit check — 3/day in localStorage
-    const allowed = checkLocalLimit();
-    if (!allowed) {
-      toast({ title: "🍳 ¡Se acabaron tus recetas de hoy!", description: "Ya usaste tus 3 recetas del día. ¡Volvé mañana para seguir cocinando!", variant: "destructive" });
-      return;
+    if (user) {
+      const usageResult = await checkDailyUsage();
+      if (!usageResult.allowed) {
+        toast({ title: "🍳 ¡Se acabaron tus recetas de hoy!", description: usageResult.message || `Ya usaste tus ${isPremium ? '10' : '3'} recetas del día. ¡Volvé mañana para seguir cocinando!`, variant: "destructive" });
+        return;
+      }
     }
 
-    // Ad is fire-and-forget for all users (free-only mode)
-    const adRace = Promise.race([
-      showInterstitial().catch(() => {}),
-      new Promise<void>(resolve => setTimeout(resolve, 3000)),
-    ]);
-    adRace.finally(() => {}); // detach — we don't await this
+    // Ad is fire-and-forget: race against 3s timeout so it NEVER blocks recipe generation
+    if (!isPremium) {
+      const adRace = Promise.race([
+        showInterstitial().catch(() => {}),
+        new Promise<void>(resolve => setTimeout(resolve, 3000)),
+      ]);
+      adRace.finally(() => {}); // detach — we don't await this
+    }
 
     // Recipe generation is immediate and independent of the ad result
     generateRecipeContent();
@@ -361,11 +360,13 @@ export default function Index() {
       {/* Sticky header */}
       <AppHeader />
 
-      {/* Scrollable content area — padded to account for bottom nav + ad banner */}
+      {/* Scrollable content area — padded to avoid overlap with bottom nav */}
       <div
         ref={scrollContainerRef}
         className="w-full max-w-4xl mx-auto px-3 sm:px-4 relative z-10 flex-1 overflow-y-auto overflow-x-hidden box-border"
-        style={{ paddingBottom: "calc(6.5rem + 85px + env(safe-area-inset-bottom, 0px))" }}
+        style={{ paddingBottom: isPremium
+          ? "calc(6.5rem + env(safe-area-inset-bottom, 0px))"
+          : "calc(6.5rem + 85px + env(safe-area-inset-bottom, 0px))" }}
       >
         {/* Marcela Assistant (always rendered; hidden by default per design) */}
         <MarcelaAssistant
@@ -480,7 +481,7 @@ export default function Index() {
                     )}
                     {masSubTab === "guia" && (
                       <FoodStorageGuide
-                        onBlockedAction={undefined}
+                        onBlockedAction={!canUseFeature('food_guide') ? () => setShowFoodGuidePaywall(true) : undefined}
                       />
                     )}
                     {masSubTab === "jugar" && (
@@ -551,9 +552,10 @@ export default function Index() {
       {/* Profile modal (opened from Más > Perfil) */}
       <UserProfileModal open={showProfileModal} onOpenChange={setShowProfileModal} />
 
-      {/* PaywallModal & TrialNoticeModal are hidden in free-only mode */}
-      {/* <PaywallModal open={showFoodGuidePaywall} onOpenChange={setShowFoodGuidePaywall} /> */}
-      {/* <TrialNoticeModal /> */}
+      {/* Food Guide paywall */}
+      <PaywallModal open={showFoodGuidePaywall} onOpenChange={setShowFoodGuidePaywall} />
+
+      <TrialNoticeModal />
     </div>
   );
 }
