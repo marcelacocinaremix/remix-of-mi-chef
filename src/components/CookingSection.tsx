@@ -126,6 +126,10 @@ export function CookingSection({
   return (
     <div className="space-y-4">
 
+      <div className="flex items-center justify-end gap-3">
+        <DailyUsageIndicator />
+      </div>
+
       {pendingSuggestion && (
         <Card className="border-2 border-primary/30 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 animate-fade-in">
           <CardContent className="p-4">

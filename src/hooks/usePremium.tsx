@@ -98,10 +98,15 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
 
   const effectiveLimit = paidPeriodActive ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
 
-  // All features are free — no paywall
   const canUseFeature = useCallback((
-    _feature: 'balance_add' | 'planificador_modify' | 'learn' | 'food_guide' | 'general'
-  ) => true, []);
+    feature: 'balance_add' | 'planificador_modify' | 'learn' | 'food_guide' | 'general'
+  ) => {
+    if (paidPeriodActive) return true;
+    if (isTrialActive) return true;
+    const premiumOnly: typeof feature[] = ['balance_add', 'planificador_modify', 'learn', 'food_guide'];
+    if (premiumOnly.includes(feature)) return false;
+    return true;
+  }, [paidPeriodActive, isTrialActive]);
 
   const daysRemaining = useMemo(() => {
     if (paidPeriodActive && subscriptionEnd) {
