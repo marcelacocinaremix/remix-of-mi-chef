@@ -17,16 +17,13 @@ import {
 import logo from "@/assets/logo.png";
 
 export function AppHeader() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const { t, language } = useLanguage();
-  const { isPremium, isTrialActive, trialDaysRemaining } = usePremium();
   const { theme } = useAppTheme();
-  const navigate = useNavigate();
 
   const [showCommunityMenu, setShowCommunityMenu] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showSubscription, setShowSubscription] = useState(false);
   const [showThemePicker, setShowThemePicker] = useState(false);
 
   const currentThemeLabel = THEMES.find(th => th.id === theme)?.label ?? "Tema";
