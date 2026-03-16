@@ -89,23 +89,29 @@ Deno.serve(async (req) => {
     const purchaseToken = body.purchaseToken as string | undefined;
 
     // ── Case 1: purchaseToken provided → validate against Google Play ──────
+    console.log(`[sync-sub] purchaseToken present: ${!!purchaseToken}, hasServiceKey: ${!!googleServiceAccountKey}, packageName: ${googlePackageName}, subscriptionId: ${googleSubscriptionId}`);
+
     if (purchaseToken && googleServiceAccountKey && googlePackageName && googleSubscriptionId) {
+      console.log(`[sync-sub] Attempting Google access token for package: ${googlePackageName}`);
       const accessToken = await getGoogleAccessToken(googleServiceAccountKey);
       if (!accessToken) {
+        console.error("[sync-sub] Failed to get Google access token — check GOOGLE_PLAY_SERVICE_ACCOUNT_KEY format");
         return new Response(JSON.stringify({ error: "Could not obtain Google access token" }), {
           status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+      console.log("[sync-sub] Got Google access token ✅");
 
       const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${googlePackageName}/purchases/subscriptions/${googleSubscriptionId}/tokens/${purchaseToken.trim()}`;
+      console.log(`[sync-sub] Calling Google Play API: ${url.substring(0, 120)}...`);
       const gpResponse = await fetch(url, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
       if (!gpResponse.ok) {
         const errText = await gpResponse.text();
-        console.error("Google Play sync error:", gpResponse.status, errText);
-        return new Response(JSON.stringify({ error: "Google Play validation failed" }), {
+        console.error(`[sync-sub] Google Play API error ${gpResponse.status}:`, errText);
+        return new Response(JSON.stringify({ error: "Google Play validation failed", details: errText }), {
           status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
