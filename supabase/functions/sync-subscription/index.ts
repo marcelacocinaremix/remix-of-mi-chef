@@ -67,10 +67,15 @@ async function getGoogleAccessToken(serviceAccountKey: string): Promise<string |
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
     });
-    if (!tokenResponse.ok) return null;
+    if (!tokenResponse.ok) {
+      const errText = await tokenResponse.text();
+      console.error(`[sync-sub] OAuth token fetch failed (${tokenResponse.status}):`, errText);
+      return null;
+    }
     const tokenData = await tokenResponse.json();
     return tokenData.access_token;
-  } catch {
+  } catch (e) {
+    console.error("[sync-sub] Exception in getGoogleAccessToken:", e instanceof Error ? e.message : String(e));
     return null;
   }
 }
