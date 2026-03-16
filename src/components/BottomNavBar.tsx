@@ -21,8 +21,6 @@ const NAV_ITEMS: { id: MainTab; labelKey: string; icon: React.ElementType; requi
 export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBarProps) {
   const { theme } = useAppTheme();
   const { t } = useLanguage();
-  const { user } = useAuth();
-  const { hasAnyAccess } = usePremium();
   const isFuture = theme === "future";
 
   return (
