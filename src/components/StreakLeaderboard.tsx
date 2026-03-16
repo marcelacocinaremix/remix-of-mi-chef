@@ -25,6 +25,76 @@ interface MyStreakData {
 
 const RANK_MEDALS: Record<number, string> = { 1: "🥇", 2: "🥈", 3: "🥉" };
 
+interface PodiumEntryProps {
+  entry: StreakLeaderboardEntry;
+  size?: "sm" | "md" | "lg";
+  barHeight: number;
+  isMe: boolean;
+}
+
+function PodiumEntry({ entry, size = "md", barHeight, isMe }: PodiumEntryProps) {
+  const avatarSize = size === "lg" ? "w-16 h-16" : "w-12 h-12";
+  const colors = {
+    border: entry.rank === 1 ? "border-orange-400 shadow-lg shadow-orange-500/30" : entry.rank === 2 ? "border-muted" : "border-amber-700/40",
+    fallback: entry.rank === 1 ? "bg-orange-500/20 text-orange-700" : entry.rank === 2 ? "bg-muted text-foreground" : "bg-amber-700/10 text-amber-800",
+    bar: entry.rank === 1 ? "bg-orange-500/20 border border-orange-500/30" : entry.rank === 2 ? "bg-muted/60" : "bg-amber-700/10",
+    rankText: entry.rank === 1 ? "text-orange-600" : entry.rank === 2 ? "text-muted-foreground" : "text-amber-800",
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: (entry.rank - 1) * 0.1 }}
+      className={cn("flex flex-col items-center gap-1", entry.rank === 1 && "-mb-2")}
+    >
+      {entry.rank === 1 && (
+        <motion.div
+          animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="text-2xl"
+        >
+          👑
+        </motion.div>
+      )}
+      <Avatar className={`${avatarSize} border-4 ${colors.border}`}>
+        <AvatarImage src={entry.avatarUrl || ""} />
+        <AvatarFallback className={`${colors.fallback} ${size === "lg" ? "text-lg font-black" : "text-sm font-bold"}`}>
+          {entry.displayName[0]?.toUpperCase()}
+        </AvatarFallback>
+      </Avatar>
+      <span className="text-lg">{RANK_MEDALS[entry.rank]}</span>
+      <div className="flex items-center gap-1">
+        {entry.country && <span className="text-sm">{entry.country}</span>}
+        <span className={`${size === "lg" ? "text-[11px] font-black" : "text-[10px] font-bold"} text-foreground truncate max-w-[70px] text-center`}>
+          {entry.displayName}
+        </span>
+        {isMe && (
+          <Badge className="bg-primary/20 text-primary border-primary/30 text-[9px] px-1 py-0">yo</Badge>
+        )}
+      </div>
+      <div className="flex items-center gap-1">
+        <Flame className="w-3 h-3 text-orange-500" />
+        {entry.rank === 1 ? (
+          <Badge className="bg-orange-500/20 text-orange-700 border-orange-500/30 text-[10px] px-2">
+            {entry.currentStreak} días
+          </Badge>
+        ) : (
+          <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
+            {entry.currentStreak} días
+          </Badge>
+        )}
+      </div>
+      <div
+        className={`w-14 rounded-t-lg flex items-center justify-center ${colors.bar}`}
+        style={{ height: barHeight }}
+      >
+        <span className={`text-sm font-black ${colors.rankText}`}>{entry.rank}</span>
+      </div>
+    </motion.div>
+  );
+}
+
 export function StreakLeaderboard() {
   const { user } = useAuth();
   const [leaderboard, setLeaderboard] = useState<StreakLeaderboardEntry[]>([]);
