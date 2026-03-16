@@ -48,8 +48,14 @@ export function useAndroidPurchase() {
       console.log(`[AndroidPurchase] syncSubscription — token: ${tokenSnippet}, isNew: ${isNewPurchase}`);
 
       try {
+        const bodyPayload = purchaseToken
+          ? { purchaseToken: purchaseToken.trim() }
+          : {};
+
+        console.log("[AndroidPurchase] Invoking sync-subscription with body keys:", Object.keys(bodyPayload));
+
         const { data, error } = await supabase.functions.invoke("sync-subscription", {
-          body: purchaseToken ? { purchaseToken } : {},
+          body: bodyPayload,
         });
 
         console.log("[AndroidPurchase] sync-subscription response:", JSON.stringify({ data, error }));
@@ -61,6 +67,7 @@ export function useAndroidPurchase() {
         }
 
         if (data?.success) {
+          // Wait for refetch to complete before triggering UI/confetti
           await refetch();
           if (data.is_premium) {
             triggerConfetti();
@@ -87,8 +94,17 @@ export function useAndroidPurchase() {
     };
 
     // ── Handle a new/restored purchase ────────────────────────────────────
-    const handlePurchaseSuccess = async (purchaseToken?: string) => {
-      const token = purchaseToken?.trim() || undefined;
+    const handlePurchaseSuccess = async (rawToken?: string | Record<string, any>) => {
+      // Normalize: Android bridges sometimes pass an object instead of a string
+      let token: string | undefined;
+      if (typeof rawToken === "string") {
+        token = rawToken.trim() || undefined;
+      } else if (rawToken && typeof rawToken === "object") {
+        // e.g. { purchaseToken: "...", ... } passed directly as the argument
+        token = (rawToken as any).purchaseToken || (rawToken as any).token || undefined;
+        if (token) token = String(token).trim();
+      }
+
       console.log("[AndroidPurchase] handlePurchaseSuccess — token:", token ? `"${token.substring(0, 40)}..."` : "EMPTY");
 
       if (!token) {
