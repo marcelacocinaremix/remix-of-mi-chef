@@ -1,8 +1,6 @@
-import { Home, UtensilsCrossed, Bookmark, Calendar, LayoutGrid, Lock } from "lucide-react";
+import { Home, UtensilsCrossed, Bookmark, Calendar, LayoutGrid } from "lucide-react";
 import { useAppTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { usePremium } from "@/hooks/usePremium";
-import { useAuth } from "@/hooks/useAuth";
 
 export type MainTab = "inicio" | "cocinar" | "micocina" | "planificar" | "balance" | "mas";
 
