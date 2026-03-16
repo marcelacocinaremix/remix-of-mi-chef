@@ -190,7 +190,7 @@ export default function Index() {
       }
 
       if (data?.dailyLimitReached) {
-        toast({ title: "🍳 ¡Se acabaron tus recetas de hoy!", description: `Ya usaste tus ${isPremium ? 10 : 3} recetas del día. ¡Volvé mañana para seguir cocinando!`, variant: "destructive" });
+        toast({ title: "🍳 ¡Se acabaron tus recetas de hoy!", description: "Ya usaste tus 3 recetas del día. ¡Volvé mañana para seguir cocinando!", variant: "destructive" });
         setIsLoading(false); setIsGeneratingAI(false); return;
       }
       if (data?.error === 'no_flavor_match') {
