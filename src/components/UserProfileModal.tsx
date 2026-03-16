@@ -300,6 +300,11 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
                 {t("save")}
               </Button>
             </div>
+            {/* Storage info notice */}
+            <p className="text-xs text-muted-foreground text-center flex items-center justify-center gap-1">
+              <span>📱</span>
+              Tus datos se guardan en este dispositivo.
+            </p>
           </div>
         )}
       </DialogContent>
