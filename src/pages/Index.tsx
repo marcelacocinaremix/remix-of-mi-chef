@@ -87,7 +87,7 @@ export default function Index() {
   const [clickedTab, setClickedTab] = useState<string | null>(null);
   const [historyDeleted, setHistoryDeleted] = useState(false);
   const [loginRequired, setLoginRequired] = useState<string | null>(null);
-  const [showLoginFloatingMessage, setShowLoginFloatingMessage] = useState(false);
+  
   const [pendingSuggestion, setPendingSuggestion] = useState<{ name: string; reason: string } | null>(null);
   const [shownRecipeNames, setShownRecipeNames] = useState<string[]>([]);
   const [quickFilters, setQuickFilters] = useState<string[]>([]);
