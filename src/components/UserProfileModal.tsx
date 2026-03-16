@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Camera, User, Save, X, Loader2, Globe, Crown, Clock, Sparkles } from "lucide-react";
+import { Camera, User, Save, X, Loader2, Globe } from "lucide-react";
 import {
   Dialog,
   DialogContent,
