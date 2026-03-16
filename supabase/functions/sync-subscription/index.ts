@@ -7,7 +7,29 @@ const corsHeaders = {
 
 async function getGoogleAccessToken(serviceAccountKey: string): Promise<string | null> {
   try {
-    const key = JSON.parse(serviceAccountKey);
+    // Handle double-encoded JSON (secret stored as escaped string)
+    let key: any;
+    try {
+      key = JSON.parse(serviceAccountKey);
+    } catch {
+      console.error("[sync-sub] First JSON.parse failed, secret may be malformed");
+      return null;
+    }
+    // If still a string after first parse, try again (double-encoded)
+    if (typeof key === "string") {
+      try {
+        key = JSON.parse(key);
+      } catch {
+        console.error("[sync-sub] Second JSON.parse failed — key is not valid JSON");
+        return null;
+      }
+    }
+    if (!key?.private_key || !key?.client_email) {
+      console.error("[sync-sub] Service account key missing private_key or client_email. Keys found:", Object.keys(key || {}));
+      return null;
+    }
+    console.log(`[sync-sub] Using service account: ${key.client_email}`);
+
     const header = { alg: "RS256", typ: "JWT" };
     const now = Math.floor(Date.now() / 1000);
     const payload = {
@@ -45,10 +67,15 @@ async function getGoogleAccessToken(serviceAccountKey: string): Promise<string |
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
     });
-    if (!tokenResponse.ok) return null;
+    if (!tokenResponse.ok) {
+      const errText = await tokenResponse.text();
+      console.error(`[sync-sub] OAuth token fetch failed (${tokenResponse.status}):`, errText);
+      return null;
+    }
     const tokenData = await tokenResponse.json();
     return tokenData.access_token;
-  } catch {
+  } catch (e) {
+    console.error("[sync-sub] Exception in getGoogleAccessToken:", e instanceof Error ? e.message : String(e));
     return null;
   }
 }
