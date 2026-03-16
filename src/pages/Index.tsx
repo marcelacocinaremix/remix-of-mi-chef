@@ -87,7 +87,7 @@ export default function Index() {
   const [clickedTab, setClickedTab] = useState<string | null>(null);
   const [historyDeleted, setHistoryDeleted] = useState(false);
   const [loginRequired, setLoginRequired] = useState<string | null>(null);
-  const [showLoginFloatingMessage, setShowLoginFloatingMessage] = useState(false);
+  
   const [pendingSuggestion, setPendingSuggestion] = useState<{ name: string; reason: string } | null>(null);
   const [shownRecipeNames, setShownRecipeNames] = useState<string[]>([]);
   const [quickFilters, setQuickFilters] = useState<string[]>([]);
@@ -315,13 +315,6 @@ export default function Index() {
     setClickedTab(tab);
     setTimeout(() => setClickedTab(null), 400);
 
-    // Auth guard
-    const requiresAuth = ["micocina", "planificar"].includes(tab);
-    if (requiresAuth && !user) {
-      setShowLoginFloatingMessage(true);
-      setTimeout(() => setShowLoginFloatingMessage(false), 3000);
-      return;
-    }
 
     setActiveTab(tab);
     setActiveSubTab(null);
@@ -531,15 +524,6 @@ export default function Index() {
         {/* Timer FAB: solo en cocinar, o si hay timer activo */}
         {showTimerButton && <FloatingTimerButton />}
 
-        {/* Login message */}
-        {showLoginFloatingMessage && (
-          <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[60] animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <div className="bg-card border border-border shadow-lg rounded-full px-4 py-2 flex items-center gap-2">
-              <span className="text-lg">🔐</span>
-              <span className="text-sm font-medium">{t("loginRequired")}</span>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* ─── Fixed Bottom Navigation ─── */}
