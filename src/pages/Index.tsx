@@ -183,7 +183,7 @@ export default function Index() {
         const errorStr = JSON.stringify(error).toLowerCase();
         const is429 = error.message?.includes('429') || error.status === 429 || errorStr.includes('429') || errorStr.includes('dailylimitreached') || errorStr.includes('límite');
         if (is429) {
-          toast({ title: "🍳 ¡Se acabaron tus recetas de hoy!", description: `Ya usaste tus ${isPremium ? 10 : 3} recetas del día. ¡Volvé mañana para seguir cocinando!`, variant: "destructive" });
+          toast({ title: "🍳 ¡Se acabaron tus recetas de hoy!", description: "Ya usaste tus 3 recetas del día. ¡Volvé mañana para seguir cocinando!", variant: "destructive" });
           setIsLoading(false); setIsGeneratingAI(false); return;
         }
         throw error;
