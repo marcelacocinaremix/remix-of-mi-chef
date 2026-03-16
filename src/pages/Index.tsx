@@ -48,9 +48,10 @@ type MasSubTab = "aprender" | "jugar" | "marcela" | "perfil" | "balance" | "guia
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
   const { user } = useAuth();
-  const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium, hasAnyAccess, isTrialExpired, canUseFeature } = usePremium();
-  // Local daily limit (3/day) — works without login
-  const localLimit = useLocalDailyLimit ? undefined : undefined; // imported below
+  // Keep usePremium for internal infra but don't expose UI for it
+  const { refetch: refetchPremium, canUseFeature } = usePremium();
+  // Local daily limit — 3 recipes/day stored in localStorage, no login needed
+  const { checkAndIncrement: checkLocalLimit, remaining: localRemaining, isAtLimit: localIsAtLimit } = useLocalDailyLimit();
   const { showInterstitial } = useAdMob();
   const isMobile = useIsMobile();
   const { theme } = useAppTheme();
