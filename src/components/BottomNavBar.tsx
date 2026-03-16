@@ -33,7 +33,7 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
           const Icon = item.icon;
           const isActive = activeTab === item.id;
           const isClicked = clickedTab === item.id;
-          const showLock = item.lockedWhenExpired && user && !hasAnyAccess;
+          // No lock icons in free-only mode
 
           return (
             <button
