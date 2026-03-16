@@ -48,6 +48,8 @@ export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
   const { user } = useAuth();
   const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium, hasAnyAccess, isTrialExpired, canUseFeature } = usePremium();
+  // Local daily limit (3/day) — works without login
+  const localLimit = useLocalDailyLimit ? undefined : undefined; // imported below
   const { showInterstitial } = useAdMob();
   const isMobile = useIsMobile();
   const { theme } = useAppTheme();
