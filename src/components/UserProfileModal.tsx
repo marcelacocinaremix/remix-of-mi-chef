@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/select";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { UNIQUE_COUNTRIES } from "@/data/countries";
-import { usePremium } from "@/hooks/usePremium";
 
 interface UserProfileModalProps {
   open: boolean;
