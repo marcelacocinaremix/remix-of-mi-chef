@@ -261,7 +261,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     if (currentSlide < FEATURE_SLIDES.length - 1) {
       setCurrentSlide(currentSlide + 1);
     } else {
-      setStep("auth");
+      // No auth step — enter the app directly
+      onComplete();
     }
   };
 
