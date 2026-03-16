@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from "react";
 import { useLocalDailyLimit } from "@/hooks/useLocalDailyLimit";
 import { AppHeader } from "@/components/AppHeader";
 import { BottomNavBar, MainTab } from "@/components/BottomNavBar";
