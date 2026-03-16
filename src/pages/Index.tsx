@@ -315,13 +315,6 @@ export default function Index() {
     setClickedTab(tab);
     setTimeout(() => setClickedTab(null), 400);
 
-    // Auth guard
-    const requiresAuth = ["micocina", "planificar"].includes(tab);
-    if (requiresAuth && !user) {
-      setShowLoginFloatingMessage(true);
-      setTimeout(() => setShowLoginFloatingMessage(false), 3000);
-      return;
-    }
 
     setActiveTab(tab);
     setActiveSubTab(null);

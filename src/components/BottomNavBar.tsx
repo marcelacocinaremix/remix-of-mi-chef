@@ -12,12 +12,12 @@ interface BottomNavBarProps {
   clickedTab?: string | null;
 }
 
-const NAV_ITEMS: { id: MainTab; labelKey: string; icon: React.ElementType; requiresAuth: boolean; lockedWhenExpired?: boolean }[] = [
-  { id: "inicio",     labelKey: "menuHome",       icon: Home,             requiresAuth: false },
-  { id: "cocinar",    labelKey: "menuCook",        icon: UtensilsCrossed,  requiresAuth: false },
-  { id: "micocina",   labelKey: "menuMyKitchen",   icon: Bookmark,         requiresAuth: true  },
-  { id: "planificar", labelKey: "menuPlan",        icon: Calendar,         requiresAuth: true  },
-  { id: "mas",        labelKey: "menuMore",        icon: LayoutGrid,       requiresAuth: false },
+const NAV_ITEMS: { id: MainTab; labelKey: string; icon: React.ElementType; lockedWhenExpired?: boolean }[] = [
+  { id: "inicio",     labelKey: "menuHome",       icon: Home             },
+  { id: "cocinar",    labelKey: "menuCook",        icon: UtensilsCrossed  },
+  { id: "micocina",   labelKey: "menuMyKitchen",   icon: Bookmark         },
+  { id: "planificar", labelKey: "menuPlan",        icon: Calendar         },
+  { id: "mas",        labelKey: "menuMore",        icon: LayoutGrid       },
 ];
 
 export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBarProps) {
