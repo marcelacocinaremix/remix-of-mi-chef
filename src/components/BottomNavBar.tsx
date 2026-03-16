@@ -59,13 +59,7 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
                     strokeWidth={isActive ? 2 : 1.5}
                     className="relative z-10 transition-all duration-200"
                   />
-                  {showLock && (
-                    <Lock
-                      size={9}
-                      strokeWidth={2}
-                      className="absolute -top-1 -right-1 text-amber-500 z-20"
-                    />
-                  )}
+                  {/* Lock icon removed in free-only mode */}
                 </div>
               </div>
               <span
