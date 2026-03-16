@@ -51,7 +51,7 @@ const translateAuthError = (errorMessage: string, t: (key: TranslationKey) => st
   return t("authErrorGeneric");
 };
 
-type OnboardingStep = "intro" | "language" | "tour" | "auth";
+type OnboardingStep = "intro" | "language" | "tour";
 
 const LANGUAGES: { code: Language; name: string; flag: string; greeting: string }[] = [
   { code: "es", name: "Español", flag: "🇦🇷", greeting: "¡Hola!" },
