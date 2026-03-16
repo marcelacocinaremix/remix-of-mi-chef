@@ -222,7 +222,71 @@ const MySummary = ({
     return format(date, "d MMMM", { locale: getLocale() });
   };
 
-  if (authLoading || !user || !session) return null;
+  // Guest / unauthenticated view
+  if (authLoading) return null;
+
+  if (!user || !session) {
+    return (
+      <div className="space-y-4 mb-6">
+        {/* Hero Header */}
+        <div className="text-center pt-4 pb-4 space-y-2">
+          <h1 className="text-4xl font-black text-foreground tracking-tight leading-none">
+            Mi Chef
+          </h1>
+          <p className="text-xs font-semibold tracking-[0.3em] text-muted-foreground uppercase">
+            Marcelacocina
+          </p>
+          <div className="mx-auto w-16 h-0.5 rounded-full bg-primary" />
+        </div>
+
+        {/* Welcome Card */}
+        <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-primary/20">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                <ChefHat className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-foreground">
+                  {t("welcomeToMiChef")} 👋
+                </h2>
+                <p className="text-muted-foreground text-sm mt-1">
+                  {t("summaryDescription")}
+                </p>
+                <p className="text-primary text-sm font-medium mt-2">
+                  {t("summaryStartHint")}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick actions */}
+        <Card className="border-muted">
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-muted/40">
+                <UtensilsCrossed className="w-6 h-6 text-primary" />
+                <span className="text-xs font-medium text-center text-foreground">{t("menuCook")}</span>
+              </div>
+              <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-muted/40">
+                <Calendar className="w-6 h-6 text-primary" />
+                <span className="text-xs font-medium text-center text-foreground">{t("menuPlan")}</span>
+              </div>
+              <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-muted/40">
+                <Heart className="w-6 h-6 text-primary" />
+                <span className="text-xs font-medium text-center text-foreground">{t("menuMyKitchen")}</span>
+              </div>
+              <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-muted/40">
+                <ShoppingCart className="w-6 h-6 text-primary" />
+                <span className="text-xs font-medium text-center text-foreground">{t("menuMore")}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 mb-6">
