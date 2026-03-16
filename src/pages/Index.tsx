@@ -132,8 +132,7 @@ export default function Index() {
   const handleGenerateRecipeInvokeError = (err: any) => {
     const { status, code, message } = parseEdgeFunctionError(err);
     if (status === 401 || code === 'AUTH_REQUIRED') {
-      toast({ title: 'Iniciá sesión', description: 'Necesitás iniciar sesión para generar recetas.', variant: 'destructive' });
-      window.location.href = '/auth?redirect=/';
+      toast({ title: 'Error', description: 'Ocurrió un error al generar la receta. Intentá de nuevo.', variant: 'destructive' });
       return true;
     }
     if (code === 'FREE_LIMIT_EXCEEDED' || code === 'PAYWALL_REQUIRED' || status === 402 || status === 403) {

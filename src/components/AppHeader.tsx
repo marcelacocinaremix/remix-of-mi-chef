@@ -68,19 +68,9 @@ export function AppHeader() {
       {/* CENTER: empty */}
       <div />
 
-      {/* RIGHT: Profile / Login */}
+      {/* RIGHT: Profile (only when logged in) */}
       <div className="w-24 flex items-center justify-end">
-        {!user ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate("/auth")}
-            className="gap-1 text-xs px-2"
-          >
-            <User className="w-4 h-4" />
-            <span className="hidden sm:inline">{t("login")}</span>
-          </Button>
-        ) : (
+        {user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center group outline-none">
