@@ -21,6 +21,8 @@ import confetti from "canvas-confetti";
 export function useAndroidPurchase() {
   const { user } = useAuth();
   const { refetch } = usePremium();
+  // Guard: prevents concurrent processing (avoids race conditions / UI flicker)
+  const isProcessingRef = useRef(false);
 
   useEffect(() => {
     if (!user) return;
@@ -39,13 +41,22 @@ export function useAndroidPurchase() {
     };
 
     // ── Core: validate token with Google Play via sync-subscription ────────
+    // Returns true if successful, false otherwise.
+    // Shows toast.loading during the entire server round-trip so the UI
+    // never flickers — refetch() is called exactly ONCE after the response.
     const syncSubscription = async (
       purchaseToken?: string,
       options?: { silent?: boolean; isNewPurchase?: boolean }
-    ) => {
+    ): Promise<boolean> => {
       const { silent = false, isNewPurchase = false } = options ?? {};
       const tokenSnippet = purchaseToken ? `"${purchaseToken.substring(0, 40)}..."` : "NONE";
       console.log(`[AndroidPurchase] syncSubscription — token: ${tokenSnippet}, isNew: ${isNewPurchase}`);
+
+      // Show a non-blocking loading toast (replaces white screen)
+      let loadingToastId: string | number | undefined;
+      if (!silent) {
+        loadingToastId = toast.loading("Verificando tu suscripción con Google Play…");
+      }
 
       try {
         const bodyPayload = purchaseToken
@@ -60,6 +71,9 @@ export function useAndroidPurchase() {
 
         console.log("[AndroidPurchase] sync-subscription response:", JSON.stringify({ data, error }));
 
+        // Dismiss loading toast before any subsequent toast
+        if (loadingToastId !== undefined) toast.dismiss(loadingToastId);
+
         if (error) {
           console.error("[AndroidPurchase] sync-subscription error:", error);
           if (!silent) toast.error("No se pudo verificar la suscripción. Intentá de nuevo.");
@@ -67,8 +81,9 @@ export function useAndroidPurchase() {
         }
 
         if (data?.success) {
-          // Wait for refetch to complete before triggering UI/confetti
+          // Single authoritative refetch — DB is the source of truth
           await refetch();
+
           if (data.is_premium) {
             triggerConfetti();
             const msg = isNewPurchase
@@ -87,6 +102,7 @@ export function useAndroidPurchase() {
         return false;
 
       } catch (err) {
+        if (loadingToastId !== undefined) toast.dismiss(loadingToastId);
         console.error("[AndroidPurchase] Exception in syncSubscription:", err);
         if (!silent) toast.error("Error al verificar la suscripción.");
         return false;
@@ -95,30 +111,36 @@ export function useAndroidPurchase() {
 
     // ── Handle a new/restored purchase ────────────────────────────────────
     const handlePurchaseSuccess = async (rawToken?: string | Record<string, any>) => {
-      // Normalize: Android bridges sometimes pass an object instead of a string
-      let token: string | undefined;
-      if (typeof rawToken === "string") {
-        token = rawToken.trim() || undefined;
-      } else if (rawToken && typeof rawToken === "object") {
-        // e.g. { purchaseToken: "...", ... } passed directly as the argument
-        token = (rawToken as any).purchaseToken || (rawToken as any).token || undefined;
-        if (token) token = String(token).trim();
-      }
-
-      console.log("[AndroidPurchase] handlePurchaseSuccess — token:", token ? `"${token.substring(0, 40)}..."` : "EMPTY");
-
-      if (!token) {
-        console.warn("[AndroidPurchase] No token — syncing from DB only.");
-        const synced = await syncSubscription(undefined, { isNewPurchase: true });
-        if (!synced) await refetch();
+      // Deduplicate: ignore if another purchase flow is already running
+      if (isProcessingRef.current) {
+        console.warn("[AndroidPurchase] handlePurchaseSuccess called while already processing — skipped");
         return;
       }
+      isProcessingRef.current = true;
 
-      await syncSubscription(token, { isNewPurchase: true });
+      try {
+        // Normalize: Android bridges sometimes pass an object instead of a string
+        let token: string | undefined;
+        if (typeof rawToken === "string") {
+          token = rawToken.trim() || undefined;
+        } else if (rawToken && typeof rawToken === "object") {
+          token = (rawToken as any).purchaseToken || (rawToken as any).token || undefined;
+          if (token) token = String(token).trim();
+        }
+
+        console.log("[AndroidPurchase] handlePurchaseSuccess — token:", token ? `"${token.substring(0, 40)}..."` : "EMPTY");
+
+        // Always call syncSubscription — it shows loading toast and calls refetch() once
+        await syncSubscription(token || undefined, { isNewPurchase: true });
+      } finally {
+        isProcessingRef.current = false;
+      }
     };
 
     // ── Subscription cancelled (grace period) ─────────────────────────────
     const handleSubscriptionCancelled = async (purchaseToken?: string) => {
+      if (isProcessingRef.current) return;
+      isProcessingRef.current = true;
       console.log("[AndroidPurchase] handleSubscriptionCancelled — token:", JSON.stringify(purchaseToken));
       try {
         const { data, error } = await supabase.functions.invoke("sync-subscription", {
@@ -132,13 +154,21 @@ export function useAndroidPurchase() {
         }
       } catch (err) {
         console.error("[AndroidPurchase] Error syncing cancellation:", err);
+      } finally {
+        isProcessingRef.current = false;
       }
     };
 
-    // ── App-start sync ─────────────────────────────────────────────────────
+    // ── App-start sync (silent background check) ──────────────────────────
     const handlePurchaseSync = async (purchaseToken?: string) => {
+      if (isProcessingRef.current) return;
+      isProcessingRef.current = true;
       console.log("[AndroidPurchase] handlePurchaseSync — token:", JSON.stringify(purchaseToken));
-      await syncSubscription(purchaseToken, { silent: true });
+      try {
+        await syncSubscription(purchaseToken, { silent: true });
+      } finally {
+        isProcessingRef.current = false;
+      }
     };
 
     // ── Register global window callbacks (called by native Java/Kotlin) ────
@@ -156,7 +186,7 @@ export function useAndroidPurchase() {
       const alreadyOwned = errorCode === "ITEM_ALREADY_OWNED" || errorCode === "itemAlreadyOwned";
       if (alreadyOwned) {
         console.log("[AndroidPurchase] ITEM_ALREADY_OWNED — restoring...");
-        syncSubscription(purchaseToken, { silent: false, isNewPurchase: false });
+        handlePurchaseSuccess(purchaseToken);
       } else {
         toast.error(`Error de compra (${errorCode ?? "desconocido"}). Si ya compraste, usá "Restaurar compra".`);
       }
