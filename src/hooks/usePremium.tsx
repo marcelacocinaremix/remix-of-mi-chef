@@ -254,13 +254,18 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   }, [fetchSubscription]);
 
   // ── AUTO-SYNC: refetch when app regains visibility ────────────────────────
-  // This handles the case where a Google Play purchase/cancellation happened
-  // while the app was in the background or the WebView was reloaded.
+  // Skips the sync if a purchase flow is actively running (avoids race condition
+  // where visibilitychange fires right after the PaywallModal closes mid-purchase).
   useEffect(() => {
     if (!user) return;
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
+        // Guard: if a purchase is in flight, let useAndroidPurchase own the refetch
+        if ((window as any).__purchaseInProgress) {
+          console.log('[usePremium] Skipping visibility sync — purchase in progress');
+          return;
+        }
         console.log('[usePremium] App visible — syncing subscription state');
         fetchSubscription();
       }
