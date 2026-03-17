@@ -123,7 +123,7 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
   const {
     isPremium, isTrialActive, isTrialExpired,
     trialDaysRemaining, isCancelled, daysRemaining,
-    subscriptionEnd, refetch,
+    subscriptionEnd, trialUsed, refetch,
   } = usePremium();
 
   const [isRestoring, setIsRestoring] = useState(false);
@@ -158,6 +158,19 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
   const endDateFormatted = subscriptionEnd
     ? new Date(subscriptionEnd).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })
     : null;
+
+  // Trial end date display
+  const { trialEndDate } = (() => {
+    // Access trial end via hook — derive from daysRemaining + isTrialActive
+    const approxEnd = isTrialActive && trialDaysRemaining > 0
+      ? new Date(Date.now() + trialDaysRemaining * 24 * 60 * 60 * 1000)
+      : null;
+    return {
+      trialEndDate: approxEnd
+        ? approxEnd.toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })
+        : null,
+    };
+  })();
 
   const handleSubscribe = () => {
     // Try multiple possible bridge names registered by the WebView
@@ -235,7 +248,9 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
                   ? `Cancelaste la renovación. Seguís con Premium hasta el ${endDateFormatted}.`
                   : "¡Disfrutás todas las funciones sin límites ni publicidad!"
                 : isTrialActive
-                  ? `Estás en la prueba gratuita. Te quedan ${trialDaysRemaining} día${trialDaysRemaining !== 1 ? "s" : ""} para disfrutar Premium.`
+                  ? trialEndDate
+                    ? `Tu prueba finaliza el ${trialEndDate}.`
+                    : `Te quedan ${trialDaysRemaining} día${trialDaysRemaining !== 1 ? "s" : ""} de prueba.`
                   : isTrialExpired
                     ? "Tu prueba de 15 días terminó. Activá Premium para seguir usando todo."
                     : "Usás el plan gratuito con funciones básicas."}
@@ -337,10 +352,21 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
 
                 try {
                   const { data, error } = await supabase.functions.invoke("sync-subscription", {});
-                  if (!error && data?.is_premium) {
+                  if (!error && data?.success) {
                     await refetch();
-                    toast.success("🎉 ¡Suscripción Premium restaurada!", { duration: 5000 });
-                    onOpenChange(false);
+                    if (data.is_premium) {
+                      toast.success("🎉 ¡Suscripción Premium restaurada!", { duration: 5000 });
+                    } else if (data.trial_active && data.expiration_date) {
+                      const trialEnd = new Date(data.expiration_date).toLocaleDateString("es-AR", {
+                        day: "numeric", month: "long",
+                      });
+                      toast.success(`✨ Prueba activa. Finaliza el ${trialEnd}`, { duration: 5000 });
+                    } else {
+                      toast.info("No se encontró una suscripción activa. Si acabás de comprar, esperá un momento e intentá de nuevo.", {
+                        duration: 6000,
+                      });
+                    }
+                    if (data.is_premium || data.trial_active) onOpenChange(false);
                   } else {
                     toast.info("No se encontró una suscripción activa. Si acabás de comprar, esperá un momento e intentá de nuevo.", {
                       duration: 6000,

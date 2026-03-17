@@ -5,33 +5,39 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// ── Unified response shape consumed by the frontend ───────────────────────────
+interface SyncResult {
+  success: boolean;
+  is_premium: boolean;
+  trial_active: boolean;
+  expiration_date: string | null; // ISO string — covers both paid end & trial end
+  subscription_status: string;
+  plan_type: string | null;
+  cancelled_active?: boolean;
+}
+
 async function getGoogleAccessToken(serviceAccountKey: string): Promise<string | null> {
   try {
-    // Handle double-encoded JSON (secret stored as escaped string)
     let key: any;
-    try {
-      key = JSON.parse(serviceAccountKey);
-    } catch {
-      console.error("[sync-sub] First JSON.parse failed, secret may be malformed");
+    try { key = JSON.parse(serviceAccountKey); } catch {
+      console.error("[sync-sub] First JSON.parse failed");
       return null;
     }
-    // If still a string after first parse, try again (double-encoded)
     if (typeof key === "string") {
-      try {
-        key = JSON.parse(key);
-      } catch {
-        console.error("[sync-sub] Second JSON.parse failed — key is not valid JSON");
+      try { key = JSON.parse(key); } catch {
+        console.error("[sync-sub] Second JSON.parse failed");
         return null;
       }
     }
     if (!key?.private_key || !key?.client_email) {
-      console.error("[sync-sub] Service account key missing private_key or client_email. Keys found:", Object.keys(key || {}));
+      console.error("[sync-sub] Missing private_key or client_email. Keys:", Object.keys(key || {}));
       return null;
     }
-    console.log(`[sync-sub] Using service account: ${key.client_email}`);
+    console.log(`[sync-sub] Service account: ${key.client_email}`);
 
-    const header = { alg: "RS256", typ: "JWT" };
+    const encoder = new TextEncoder();
     const now = Math.floor(Date.now() / 1000);
+    const header = { alg: "RS256", typ: "JWT" };
     const payload = {
       iss: key.client_email,
       scope: "https://www.googleapis.com/auth/androidpublisher",
@@ -40,40 +46,34 @@ async function getGoogleAccessToken(serviceAccountKey: string): Promise<string |
       exp: now + 3600,
     };
 
-    const encoder = new TextEncoder();
-    const headerB64 = btoa(String.fromCharCode(...encoder.encode(JSON.stringify(header))))
-      .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-    const payloadB64 = btoa(String.fromCharCode(...encoder.encode(JSON.stringify(payload))))
-      .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-    const signInput = `${headerB64}.${payloadB64}`;
+    const toB64 = (obj: object) =>
+      btoa(String.fromCharCode(...encoder.encode(JSON.stringify(obj))))
+        .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 
+    const signInput = `${toB64(header)}.${toB64(payload)}`;
     const pemContent = key.private_key
       .replace("-----BEGIN PRIVATE KEY-----", "")
       .replace("-----END PRIVATE KEY-----", "")
       .replace(/\n/g, "");
     const binaryKey = Uint8Array.from(atob(pemContent), (c) => c.charCodeAt(0));
     const cryptoKey = await crypto.subtle.importKey(
-      "pkcs8", binaryKey,
-      { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
-      false, ["sign"]
+      "pkcs8", binaryKey, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]
     );
-    const signature = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", cryptoKey, encoder.encode(signInput));
-    const signatureB64 = btoa(String.fromCharCode(...new Uint8Array(signature)))
+    const sig = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", cryptoKey, encoder.encode(signInput));
+    const sigB64 = btoa(String.fromCharCode(...new Uint8Array(sig)))
       .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-    const jwt = `${signInput}.${signatureB64}`;
+    const jwt = `${signInput}.${sigB64}`;
 
-    const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
     });
-    if (!tokenResponse.ok) {
-      const errText = await tokenResponse.text();
-      console.error(`[sync-sub] OAuth token fetch failed (${tokenResponse.status}):`, errText);
+    if (!tokenRes.ok) {
+      console.error(`[sync-sub] OAuth token failed (${tokenRes.status}):`, await tokenRes.text());
       return null;
     }
-    const tokenData = await tokenResponse.json();
-    return tokenData.access_token;
+    return (await tokenRes.json()).access_token;
   } catch (e) {
     console.error("[sync-sub] Exception in getGoogleAccessToken:", e instanceof Error ? e.message : String(e));
     return null;
@@ -81,9 +81,7 @@ async function getGoogleAccessToken(serviceAccountKey: string): Promise<string |
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -92,14 +90,13 @@ Deno.serve(async (req) => {
     const googlePackageName = Deno.env.get("GOOGLE_PLAY_PACKAGE_NAME");
     const googleSubscriptionId = Deno.env.get("GOOGLE_PLAY_SUBSCRIPTION_ID");
 
-    // Authenticate user
+    // ── Auth ──────────────────────────────────────────────────────────────────
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "No authorization header" }), {
         status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
     const userClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -111,56 +108,49 @@ Deno.serve(async (req) => {
     }
 
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
-
     const body = await req.json().catch(() => ({}));
     const purchaseToken = body.purchaseToken as string | undefined;
 
-    // ── Case 1: purchaseToken provided → validate against Google Play ──────
-    console.log(`[sync-sub] purchaseToken present: ${!!purchaseToken}, hasServiceKey: ${!!googleServiceAccountKey}, packageName: ${googlePackageName}, subscriptionId: ${googleSubscriptionId}`);
+    console.log(`[sync-sub] user=${user.id} token=${!!purchaseToken} pkg=${googlePackageName} subId=${googleSubscriptionId}`);
 
+    // ── Case 1: Validate purchaseToken with Google Play ───────────────────────
     if (purchaseToken && googleServiceAccountKey && googlePackageName && googleSubscriptionId) {
-      console.log(`[sync-sub] Attempting Google access token for package: ${googlePackageName}`);
       const accessToken = await getGoogleAccessToken(googleServiceAccountKey);
       if (!accessToken) {
-        console.error("[sync-sub] Failed to get Google access token — check GOOGLE_PLAY_SERVICE_ACCOUNT_KEY format");
         return new Response(JSON.stringify({ error: "Could not obtain Google access token" }), {
           status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      console.log("[sync-sub] Got Google access token ✅");
 
-      const url = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${googlePackageName}/purchases/subscriptions/${googleSubscriptionId}/tokens/${purchaseToken.trim()}`;
-      console.log(`[sync-sub] Calling Google Play API: ${url.substring(0, 120)}...`);
-      const gpResponse = await fetch(url, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      const gpUrl = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${googlePackageName}/purchases/subscriptions/${googleSubscriptionId}/tokens/${purchaseToken.trim()}`;
+      const gpRes = await fetch(gpUrl, { headers: { Authorization: `Bearer ${accessToken}` } });
 
-      if (!gpResponse.ok) {
-        const errText = await gpResponse.text();
-        console.error(`[sync-sub] Google Play API error ${gpResponse.status}:`, errText);
+      if (!gpRes.ok) {
+        const errText = await gpRes.text();
+        console.error(`[sync-sub] Google Play error ${gpRes.status}:`, errText);
         return new Response(JSON.stringify({ error: "Google Play validation failed", details: errText }), {
           status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      const gpData = await gpResponse.json();
+      const gpData = await gpRes.json();
       const expiryMs = parseInt(gpData.expiryTimeMillis, 10);
       const subscriptionEnd = new Date(expiryMs).toISOString();
-      const now = Date.now();
-      const isActive = expiryMs > now;
-
-      // cancelReason: 0=user, 1=system, 2=replaced, 3=developer
+      const isActive = expiryMs > Date.now();
       const isCancelled = gpData.cancelReason !== undefined;
-      const newStatus = isCancelled ? 'cancelled' : (isActive ? 'active' : 'expired');
-      const newIsPremium = isActive; // true while within subscription_end, even if cancelled
 
+      // Cancelled-but-within-period = still premium (grace period)
+      const newStatus = isCancelled ? "cancelled" : isActive ? "active" : "expired";
+      const newIsPremium = isActive; // true while within paid window, even if cancelled
+
+      // Preserve trial data
       const { data: existingSub } = await adminClient
         .from("user_subscriptions")
         .select("trial_used, trial_start_date, trial_end_date")
         .eq("user_id", user.id)
         .maybeSingle();
 
-      const { error: updateError } = await adminClient
+      const { error: upsertError } = await adminClient
         .from("user_subscriptions")
         .upsert({
           user_id: user.id,
@@ -174,24 +164,30 @@ Deno.serve(async (req) => {
           ...(existingSub?.trial_end_date && { trial_end_date: existingSub.trial_end_date }),
         }, { onConflict: "user_id" });
 
-      if (updateError) {
-        console.error("Error syncing subscription:", updateError);
+      if (upsertError) {
+        console.error("[sync-sub] DB upsert error:", upsertError);
         return new Response(JSON.stringify({ error: "Failed to sync subscription" }), {
           status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      console.log(`✅ Synced Google Play subscription for user ${user.id}: status=${newStatus}, expires=${subscriptionEnd}`);
-      return new Response(JSON.stringify({
+      console.log(`✅ [sync-sub] Synced user=${user.id} status=${newStatus} expires=${subscriptionEnd}`);
+
+      const result: SyncResult = {
         success: true,
         is_premium: newIsPremium,
+        trial_active: false,
+        expiration_date: subscriptionEnd,
         subscription_status: newStatus,
-        subscription_end: subscriptionEnd,
-        cancelled: isCancelled,
-      }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        plan_type: newIsPremium ? "premium" : "free",
+        cancelled_active: isCancelled && isActive,
+      };
+      return new Response(JSON.stringify(result), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    // ── Case 2: No purchaseToken → just return current DB state ───────────
+    // ── Case 2: No token → return current DB state ────────────────────────────
     const { data: sub, error: fetchError } = await adminClient
       .from("user_subscriptions")
       .select("is_premium, subscription_status, subscription_end, trial_used, trial_end_date, plan_type")
@@ -205,27 +201,48 @@ Deno.serve(async (req) => {
     }
 
     if (!sub) {
-      return new Response(JSON.stringify({ is_premium: false, subscription_status: 'none' }), {
+      const result: SyncResult = {
+        success: true,
+        is_premium: false,
+        trial_active: false,
+        expiration_date: null,
+        subscription_status: "none",
+        plan_type: "free",
+      };
+      return new Response(JSON.stringify(result), {
         status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Apply grace period logic: cancelled + future end date = still premium
+    const now = new Date();
     const rawEnd = sub.subscription_end ? new Date(sub.subscription_end) : null;
-    const gracePeriodActive = sub.subscription_status === 'cancelled' && rawEnd && rawEnd > new Date();
+    const rawTrialEnd = sub.trial_end_date ? new Date(sub.trial_end_date) : null;
+
+    // Grace period: cancelled + future end = still premium
+    const gracePeriodActive = sub.subscription_status === "cancelled" && !!rawEnd && rawEnd > now;
     const effectivePremium = sub.is_premium || gracePeriodActive;
 
-    return new Response(JSON.stringify({
+    // Trial active: no paid plan, but trial hasn't expired
+    const trialActive = !effectivePremium && sub.trial_used === true && !!rawTrialEnd && rawTrialEnd > now;
+
+    // expiration_date = most relevant date for the frontend (paid end > trial end)
+    const expirationDate = rawEnd?.toISOString() ?? rawTrialEnd?.toISOString() ?? null;
+
+    const result: SyncResult = {
       success: true,
       is_premium: effectivePremium,
-      subscription_status: sub.subscription_status,
-      subscription_end: sub.subscription_end,
+      trial_active: trialActive,
+      expiration_date: expirationDate,
+      subscription_status: sub.subscription_status ?? "none",
       plan_type: sub.plan_type,
       cancelled_active: gracePeriodActive,
-    }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    };
+    return new Response(JSON.stringify(result), {
+      status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
 
   } catch (err) {
-    console.error("Error in sync-subscription:", err);
+    console.error("[sync-sub] Unhandled error:", err);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
