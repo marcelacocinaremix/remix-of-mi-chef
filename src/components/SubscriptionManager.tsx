@@ -352,10 +352,21 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
 
                 try {
                   const { data, error } = await supabase.functions.invoke("sync-subscription", {});
-                  if (!error && data?.is_premium) {
+                  if (!error && data?.success) {
                     await refetch();
-                    toast.success("🎉 ¡Suscripción Premium restaurada!", { duration: 5000 });
-                    onOpenChange(false);
+                    if (data.is_premium) {
+                      toast.success("🎉 ¡Suscripción Premium restaurada!", { duration: 5000 });
+                    } else if (data.trial_active && data.expiration_date) {
+                      const trialEnd = new Date(data.expiration_date).toLocaleDateString("es-AR", {
+                        day: "numeric", month: "long",
+                      });
+                      toast.success(`✨ Prueba activa. Finaliza el ${trialEnd}`, { duration: 5000 });
+                    } else {
+                      toast.info("No se encontró una suscripción activa. Si acabás de comprar, esperá un momento e intentá de nuevo.", {
+                        duration: 6000,
+                      });
+                    }
+                    if (data.is_premium || data.trial_active) onOpenChange(false);
                   } else {
                     toast.info("No se encontró una suscripción activa. Si acabás de comprar, esperá un momento e intentá de nuevo.", {
                       duration: 6000,
