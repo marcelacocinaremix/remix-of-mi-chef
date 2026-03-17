@@ -117,6 +117,7 @@ export function useAndroidPurchase() {
         return;
       }
       isProcessingRef.current = true;
+      (window as any).__purchaseInProgress = true; // block visibilitychange refetch
 
       try {
         // Normalize: Android bridges sometimes pass an object instead of a string
@@ -134,6 +135,7 @@ export function useAndroidPurchase() {
         await syncSubscription(token || undefined, { isNewPurchase: true });
       } finally {
         isProcessingRef.current = false;
+        (window as any).__purchaseInProgress = false;
       }
     };
 
