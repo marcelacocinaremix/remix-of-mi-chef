@@ -123,7 +123,7 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
   const {
     isPremium, isTrialActive, isTrialExpired,
     trialDaysRemaining, isCancelled, daysRemaining,
-    subscriptionEnd, refetch,
+    subscriptionEnd, trialUsed, refetch,
   } = usePremium();
 
   const [isRestoring, setIsRestoring] = useState(false);
