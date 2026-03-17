@@ -248,7 +248,9 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
                   ? `Cancelaste la renovación. Seguís con Premium hasta el ${endDateFormatted}.`
                   : "¡Disfrutás todas las funciones sin límites ni publicidad!"
                 : isTrialActive
-                  ? `Estás en la prueba gratuita. Te quedan ${trialDaysRemaining} día${trialDaysRemaining !== 1 ? "s" : ""} para disfrutar Premium.`
+                  ? trialEndDate
+                    ? `Tu prueba finaliza el ${trialEndDate}.`
+                    : `Te quedan ${trialDaysRemaining} día${trialDaysRemaining !== 1 ? "s" : ""} de prueba.`
                   : isTrialExpired
                     ? "Tu prueba de 15 días terminó. Activá Premium para seguir usando todo."
                     : "Usás el plan gratuito con funciones básicas."}
