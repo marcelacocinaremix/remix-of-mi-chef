@@ -159,6 +159,19 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
     ? new Date(subscriptionEnd).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })
     : null;
 
+  // Trial end date display
+  const { trialEndDate } = (() => {
+    // Access trial end via hook — derive from daysRemaining + isTrialActive
+    const approxEnd = isTrialActive && trialDaysRemaining > 0
+      ? new Date(Date.now() + trialDaysRemaining * 24 * 60 * 60 * 1000)
+      : null;
+    return {
+      trialEndDate: approxEnd
+        ? approxEnd.toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })
+        : null,
+    };
+  })();
+
   const handleSubscribe = () => {
     // Try multiple possible bridge names registered by the WebView
     const androidBridge =
