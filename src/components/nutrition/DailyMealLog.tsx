@@ -208,12 +208,31 @@ export function DailyMealLog({ onMealsChanged, fitnessGoal, onBlockedAction }: D
                 onBlockedAction();
                 return;
               }
+              if (atMealLimit) {
+                setShowMealLimitModal(true);
+                return;
+              }
               setAddMealType(mt);
             }}
             onDeleteMeal={handleDelete}
           />
         ))}
       </div>
+
+      {/* Meal limit indicator for today */}
+      {!isPremium && isToday && (
+        <p className="text-center text-[11px] text-muted-foreground">
+          {mealsToday}/{DAILY_MEAL_LIMIT} comidas registradas hoy
+          {atMealLimit && <span className="text-destructive font-medium"> · límite alcanzado</span>}
+        </p>
+      )}
+
+      {/* Daily meal limit modal */}
+      <DailyLimitModal
+        open={showMealLimitModal}
+        onOpenChange={setShowMealLimitModal}
+        type="meals"
+      />
 
       {/* Add meal dialog */}
       {addMealType && (
