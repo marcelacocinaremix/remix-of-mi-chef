@@ -7,7 +7,8 @@ import { SubscriptionManager } from "@/components/SubscriptionManager";
 
 export function DailyUsageIndicator() {
   const { user } = useAuth();
-  const { dailyUsage, isPremium, isTrialActive, refetch } = usePremium();
+  const { dailyUsage, isPremium, refetch } = usePremium();
+  const planLabel = isPremium ? "plan premium" : "plan gratis";
   const [showManager, setShowManager] = useState(false);
 
   useEffect(() => {

@@ -23,7 +23,7 @@ import logo from "@/assets/logo.png";
 export function AppHeader() {
   const { user, signOut } = useAuth();
   const { t, language } = useLanguage();
-  const { isPremium, isTrialActive, trialDaysRemaining } = usePremium();
+  const { isPremium } = usePremium();
   const { theme } = useAppTheme();
   const navigate = useNavigate();
 
