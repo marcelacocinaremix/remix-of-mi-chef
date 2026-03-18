@@ -201,7 +201,7 @@ export function FoodStorageGuide() {
   const { user } = useAuth();
   const { isPremium } = usePremium();
 
-  const DAILY_LIMIT = 3;
+  const DAILY_LIMIT = 2;
 
   // Load daily usage count from localStorage (keyed by user+date)
   useEffect(() => {

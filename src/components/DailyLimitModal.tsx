@@ -12,8 +12,8 @@ interface DailyLimitModalProps {
 
 const CONFIG = {
   recipe:  { emoji: "🍳", noun: "recetas",       limit: "3", MainIcon: ChefHat },
-  tips:    { emoji: "💡", noun: "trucos",         limit: "3", MainIcon: Sparkles },
-  meals:   { emoji: "🥗", noun: "comidas",        limit: "4", MainIcon: UtensilsCrossed },
+  tips:    { emoji: "💡", noun: "trucos",         limit: "2", MainIcon: Sparkles },
+  meals:   { emoji: "🥗", noun: "comidas",        limit: "3", MainIcon: UtensilsCrossed },
   workout: { emoji: "💪", noun: "entrenamientos", limit: "1", MainIcon: Dumbbell },
 };
 
