@@ -14,7 +14,7 @@ import { usePremium } from "@/hooks/usePremium";
 import { toast } from "sonner";
 
 const MEAL_TYPES: MealType[] = ["desayuno", "almuerzo", "merienda", "cena", "entre_comidas"];
-const DAILY_MEAL_LIMIT = 4;
+const DAILY_MEAL_LIMIT = 3;
 
 // Daily targets based on fitness goal
 function getDailyTargets(goal?: string) {
