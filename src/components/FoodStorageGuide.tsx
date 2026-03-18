@@ -26,13 +26,14 @@ import {
   Shuffle,
   Leaf,
   ChefHat,
-  Lock,
   Crown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { usePremium } from "@/hooks/usePremium";
+import { SubscriptionManager } from "@/components/SubscriptionManager";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface CategoryOption {
