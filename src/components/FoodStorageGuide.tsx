@@ -283,6 +283,15 @@ export function FoodStorageGuide() {
       } else if (data) {
         setFoodInfo(data);
         saveToHistory(foodToUse, categoryToUse);
+
+        // Increment daily counter for free users
+        if (!isPremium && user) {
+          const today = new Date().toISOString().split("T")[0];
+          const key = `food_guide_uses_${user.id}_${today}`;
+          const newCount = dailyUsed + 1;
+          setDailyUsed(newCount);
+          localStorage.setItem(key, String(newCount));
+        }
         
         // Check if already saved in favorites
         if (user) {
