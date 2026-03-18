@@ -108,6 +108,7 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
   const { user } = useAuth();
   const { language } = useLanguage();
   const { play } = useSound();
+  const { isPremium } = usePremium();
   const { 
     workouts, 
     goal, 
@@ -125,6 +126,7 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
   const [workoutRegistered, setWorkoutRegistered] = useState(false);
   const [editingWorkout, setEditingWorkout] = useState<string | null>(null);
   const [sessionWorkouts, setSessionWorkouts] = useState<{ type: WorkoutType; duration: number }[]>([]);
+  const [showWorkoutLimitModal, setShowWorkoutLimitModal] = useState(false);
   // Add workout form state
   const [workoutForm, setWorkoutForm] = useState({
     type: 'strength' as WorkoutType,
