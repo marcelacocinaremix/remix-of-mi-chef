@@ -21,7 +21,7 @@ const features = [
   {
     label: "Generar recetas con IA",
     free: "3/día",
-    premium: "10/día",
+    premium: "Ilimitado",
     freeOk: true,
     premiumOk: true,
   },
