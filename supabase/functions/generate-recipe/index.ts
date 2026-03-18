@@ -1303,9 +1303,10 @@ serve(async (req) => {
         error: limitCheck.message || '¡Llegaste al límite de recetas por hoy! Volvé mañana 🍳',
         dailyLimitReached: true,
         usesToday: limitCheck.usesToday,
-        remaining: limitCheck.remaining
+        remaining: limitCheck.remaining,
+        recipes: []
       }), {
-        status: 429,
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
