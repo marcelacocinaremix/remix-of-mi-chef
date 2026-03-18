@@ -40,7 +40,7 @@ export const PlanificarSection = ({
 }: PlanificarSectionProps) => {
   const [activeSubTab, setActiveSubTab] = useState<SubTab>("calendario");
   const { t } = useLanguage();
-  const { isTrialActive, trialDaysRemaining, isPremium, hasAnyAccess } = usePremium();
+  const { isPremium, hasAnyAccess } = usePremium();
   const [showPaywall, setShowPaywall] = useState(false);
 
   const currentTabBlocked = !hasAnyAccess && (activeSubTab === "despensa" || activeSubTab === "super");
