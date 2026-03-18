@@ -229,16 +229,9 @@ serve(async (req) => {
       console.error('Error updating payment record:', updateError);
     }
 
-    // If payment is approved, activate premium
+      // If payment is approved, activate premium
     if (payment.status === 'approved') {
       console.log('Payment approved! Activating premium for user:', paymentRecord.user_id);
-
-      // Fetch existing subscription to preserve trial fields
-      const { data: existingSub } = await supabase
-        .from('user_subscriptions')
-        .select('trial_used, trial_start_date, trial_end_date')
-        .eq('user_id', paymentRecord.user_id)
-        .maybeSingle();
 
       const { error: premiumError } = await supabase
         .from('user_subscriptions')
@@ -250,10 +243,6 @@ serve(async (req) => {
           subscription_start: new Date().toISOString(),
           unlocked_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-          // CRITICAL: preserve trial fields — never overwrite them on payment approval
-          ...(existingSub?.trial_used !== undefined && { trial_used: existingSub.trial_used }),
-          ...(existingSub?.trial_start_date && { trial_start_date: existingSub.trial_start_date }),
-          ...(existingSub?.trial_end_date && { trial_end_date: existingSub.trial_end_date }),
         }, {
           onConflict: 'user_id'
         });

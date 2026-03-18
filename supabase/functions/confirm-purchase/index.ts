@@ -255,13 +255,6 @@ Deno.serve(async (req) => {
     // Use service role to bypass RLS
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Preserve existing trial fields when activating premium
-    const { data: existingSub } = await adminClient
-      .from("user_subscriptions")
-      .select("trial_used, trial_start_date, trial_end_date")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
     const { error: updateError } = await adminClient
       .from("user_subscriptions")
       .upsert({
@@ -272,10 +265,6 @@ Deno.serve(async (req) => {
         subscription_start: new Date().toISOString(),
         subscription_end: subscriptionEnd,
         updated_at: new Date().toISOString(),
-        // CRITICAL: preserve trial fields — never overwrite them
-        ...(existingSub?.trial_used !== undefined && { trial_used: existingSub.trial_used }),
-        ...(existingSub?.trial_start_date && { trial_start_date: existingSub.trial_start_date }),
-        ...(existingSub?.trial_end_date && { trial_end_date: existingSub.trial_end_date }),
       }, { onConflict: "user_id" });
 
     if (updateError) {

@@ -8,7 +8,6 @@ const corsHeaders = {
 interface SyncResult {
   success: boolean;
   is_premium: boolean;
-  trial_active: boolean;
   expiration_date: string | null;
   subscription_status: string;
   plan_type: string | null;
@@ -172,19 +171,11 @@ Deno.serve(async (req) => {
       const subscriptionEnd = new Date(expiryMs).toISOString();
       const isActive = expiryMs > Date.now();
       const isCancelled = gpData.cancelReason !== undefined;
-      const isTrialPurchase = gpData.paymentState === 0; // 0 = free trial in Google Play
 
       const newStatus = isCancelled ? "cancelled" : isActive ? "active" : "expired";
       const newIsPremium = isActive;
 
-      console.log(`[sync-sub] GP response: expiryMs=${expiryMs} isActive=${isActive} isCancelled=${isCancelled} isTrialPurchase=${isTrialPurchase} paymentState=${gpData.paymentState}`);
-
-      // Preserve existing trial metadata
-      const { data: existingSub } = await adminClient
-        .from("user_subscriptions")
-        .select("trial_used, trial_start_date, trial_end_date, subscription_start")
-        .eq("user_id", user.id)
-        .maybeSingle();
+      console.log(`[sync-sub] GP response: expiryMs=${expiryMs} isActive=${isActive} isCancelled=${isCancelled} paymentState=${gpData.paymentState}`);
 
       // ── Upsert user_subscriptions (with retry) ────────────────────────────
       const { error: upsertError } = await withRetry(
@@ -194,12 +185,8 @@ Deno.serve(async (req) => {
           plan_type: newIsPremium ? "premium" : "free",
           subscription_status: newStatus,
           subscription_end: subscriptionEnd,
-          subscription_start: existingSub?.subscription_start ?? new Date().toISOString(),
+          subscription_start: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-          // Preserve trial fields so they're never lost
-          ...(existingSub?.trial_used !== undefined && { trial_used: existingSub.trial_used }),
-          ...(existingSub?.trial_start_date && { trial_start_date: existingSub.trial_start_date }),
-          ...(existingSub?.trial_end_date && { trial_end_date: existingSub.trial_end_date }),
         }, { onConflict: "user_id" }),
         3,
         "upsert-subscription"
@@ -256,7 +243,6 @@ Deno.serve(async (req) => {
       const result: SyncResult = {
         success: true,
         is_premium: newIsPremium,
-        trial_active: isTrialPurchase,
         expiration_date: subscriptionEnd,
         subscription_status: newStatus,
         plan_type: newIsPremium ? "premium" : "free",
@@ -270,7 +256,7 @@ Deno.serve(async (req) => {
     // ── Case 2: No token → return current DB state ────────────────────────────
     const { data: sub, error: fetchError } = await adminClient
       .from("user_subscriptions")
-      .select("is_premium, subscription_status, subscription_end, trial_used, trial_end_date, plan_type")
+      .select("is_premium, subscription_status, subscription_end, plan_type")
       .eq("user_id", user.id)
       .maybeSingle();
 
@@ -284,7 +270,6 @@ Deno.serve(async (req) => {
       const result: SyncResult = {
         success: true,
         is_premium: false,
-        trial_active: false,
         expiration_date: null,
         subscription_status: "none",
         plan_type: "free",
@@ -296,18 +281,14 @@ Deno.serve(async (req) => {
 
     const now = new Date();
     const rawEnd = sub.subscription_end ? new Date(sub.subscription_end) : null;
-    const rawTrialEnd = sub.trial_end_date ? new Date(sub.trial_end_date) : null;
 
     const gracePeriodActive = sub.subscription_status === "cancelled" && !!rawEnd && rawEnd > now;
     const effectivePremium = sub.is_premium || gracePeriodActive;
-    const trialActive = !effectivePremium && sub.trial_used === true && !!rawTrialEnd && rawTrialEnd > now;
-    const expirationDate = rawEnd?.toISOString() ?? rawTrialEnd?.toISOString() ?? null;
 
     const result: SyncResult = {
       success: true,
       is_premium: effectivePremium,
-      trial_active: trialActive,
-      expiration_date: expirationDate,
+      expiration_date: rawEnd?.toISOString() ?? null,
       subscription_status: sub.subscription_status ?? "none",
       plan_type: sub.plan_type,
       cancelled_active: gracePeriodActive,
