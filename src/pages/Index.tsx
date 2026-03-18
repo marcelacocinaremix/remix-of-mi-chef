@@ -213,6 +213,7 @@ export default function Index() {
         throw error;
       }
 
+      // Daily limit reached — returned as 200 with dailyLimitReached flag
       if (data?.dailyLimitReached) {
         setShowRecipeLimitModal(true);
         refetchPremium();
