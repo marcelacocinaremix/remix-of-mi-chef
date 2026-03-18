@@ -9,9 +9,12 @@ import { cn } from "@/lib/utils";
 import { MealType, useMealLogs } from "@/hooks/useMealLogs";
 import { MealSlot } from "./MealSlot";
 import { AddMealDialog } from "./AddMealDialog";
+import { DailyLimitModal } from "@/components/DailyLimitModal";
+import { usePremium } from "@/hooks/usePremium";
 import { toast } from "sonner";
 
 const MEAL_TYPES: MealType[] = ["desayuno", "almuerzo", "merienda", "cena", "entre_comidas"];
+const DAILY_MEAL_LIMIT = 4;
 
 // Daily targets based on fitness goal
 function getDailyTargets(goal?: string) {
@@ -43,11 +46,17 @@ export function DailyMealLog({ onMealsChanged, fitnessGoal, onBlockedAction }: D
     addMeal,
     deleteMeal,
   } = useMealLogs();
+  const { isPremium } = usePremium();
 
   const [addMealType, setAddMealType] = useState<MealType | null>(null);
+  const [showMealLimitModal, setShowMealLimitModal] = useState(false);
 
   const today = new Date().toISOString().split("T")[0];
   const isToday = selectedDate === today;
+
+  // Count meals for selected date
+  const mealsToday = dailyMeals.length;
+  const atMealLimit = !isPremium && isToday && mealsToday >= DAILY_MEAL_LIMIT;
 
   const navigateDate = (direction: -1 | 1) => {
     const d = new Date(selectedDate + "T12:00:00");
@@ -199,12 +208,31 @@ export function DailyMealLog({ onMealsChanged, fitnessGoal, onBlockedAction }: D
                 onBlockedAction();
                 return;
               }
+              if (atMealLimit) {
+                setShowMealLimitModal(true);
+                return;
+              }
               setAddMealType(mt);
             }}
             onDeleteMeal={handleDelete}
           />
         ))}
       </div>
+
+      {/* Meal limit indicator for today */}
+      {!isPremium && isToday && (
+        <p className="text-center text-[11px] text-muted-foreground">
+          {mealsToday}/{DAILY_MEAL_LIMIT} comidas registradas hoy
+          {atMealLimit && <span className="text-destructive font-medium"> · límite alcanzado</span>}
+        </p>
+      )}
+
+      {/* Daily meal limit modal */}
+      <DailyLimitModal
+        open={showMealLimitModal}
+        onOpenChange={setShowMealLimitModal}
+        type="meals"
+      />
 
       {/* Add meal dialog */}
       {addMealType && (

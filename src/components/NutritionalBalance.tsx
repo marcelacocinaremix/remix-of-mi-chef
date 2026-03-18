@@ -50,9 +50,8 @@ interface NutritionalBalanceProps {
 
 export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, onSubTabChange }: NutritionalBalanceProps) {
   const { meals, getTotalsForPeriod, getMealsForPeriod, deleteMeal, refetch: refetchMeals } = useMealLogs();
-  const { canUseFeature, isPremium } = usePremium();
+  const { isPremium } = usePremium();
   const [showPaywall, setShowPaywall] = useState(false);
-  const balanceBlocked = !canUseFeature('balance_add');
   const {
     goal,
     stats: activityStats,
@@ -157,26 +156,6 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
 
   return (
     <div className="space-y-6">
-      {/* Trial ended banner - shown at the very top */}
-      {balanceBlocked && (
-        <Card className="border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 shadow-md">
-          <CardContent className="py-5 px-4">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-                <Lock className="w-5 h-5 text-amber-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-foreground">{t("balanceTrialEnded")}</p>
-                <p className="text-xs text-muted-foreground mt-1">{t("balanceTrialEndedDesc")}</p>
-              </div>
-              <Button size="sm" onClick={() => setShowPaywall(true)} className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs flex-shrink-0">
-                <Crown className="w-3.5 h-3.5 mr-1" />
-                {t("balancePremium")}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* How it works */}
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
@@ -215,7 +194,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
       </Card>
 
       {/* Health Profile Setup */}
-      <div className={cn(balanceBlocked && "opacity-60 pointer-events-none")}>
+      <div>
         <HealthProfileSetup
           currentProfile={currentHealthProfile}
           onSave={handleSaveHealthProfile}
@@ -264,7 +243,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
       {/* Content */}
       <div className="animate-fade-in">
         {activeTab === "resumen" && (
-          <div className={cn(balanceBlocked && "opacity-60 pointer-events-none")}>
+          <div className="">
           <HealthSummary
             goal={goal}
             stats={activityStats}
@@ -360,7 +339,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
             {/* Registro - Daily meal log (main view) */}
             {balanceSubTab === "registro" && (
               <div className="space-y-6">
-                <DailyMealLog onMealsChanged={refetchMeals} fitnessGoal={goal?.goal} onBlockedAction={balanceBlocked ? () => setShowPaywall(true) : undefined} />
+                <DailyMealLog onMealsChanged={refetchMeals} fitnessGoal={goal?.goal} />
 
                 {/* Recommendations based on today's meals */}
                 <NutritionRecommendations
@@ -631,7 +610,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
         )}
 
         {activeTab === "actividad" && (
-          <div className={cn("space-y-4", balanceBlocked && "opacity-60 pointer-events-none")}>
+          <div className="space-y-4">
             <div className="relative w-full h-[100px] rounded-xl overflow-hidden">
               <img src={actividadBanner} alt="Actividad física" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-r from-black/75 to-transparent flex items-center">

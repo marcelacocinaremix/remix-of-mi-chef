@@ -14,6 +14,8 @@ import { useActivityTracking, FitnessGoal, WorkoutType } from "@/hooks/useActivi
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSound } from "@/hooks/useSound";
+import { usePremium } from "@/hooks/usePremium";
+import { DailyLimitModal } from "@/components/DailyLimitModal";
 import { toast } from "sonner";
 
 import { MetricCard } from "@/components/activity/MetricCard";
@@ -106,6 +108,7 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
   const { user } = useAuth();
   const { language } = useLanguage();
   const { play } = useSound();
+  const { isPremium } = usePremium();
   const { 
     workouts, 
     goal, 
@@ -123,6 +126,7 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
   const [workoutRegistered, setWorkoutRegistered] = useState(false);
   const [editingWorkout, setEditingWorkout] = useState<string | null>(null);
   const [sessionWorkouts, setSessionWorkouts] = useState<{ type: WorkoutType; duration: number }[]>([]);
+  const [showWorkoutLimitModal, setShowWorkoutLimitModal] = useState(false);
   // Add workout form state
   const [workoutForm, setWorkoutForm] = useState({
     type: 'strength' as WorkoutType,
@@ -383,7 +387,19 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Button className="w-full h-12 text-base font-semibold" onClick={() => resetForm()}>
+            <Button
+              className="w-full h-12 text-base font-semibold"
+              onClick={(e) => {
+                const today = formatLocalDate();
+                const workoutsToday = workouts.filter(w => w.workout_date === today).length;
+                if (!isPremium && workoutsToday >= 1) {
+                  e.preventDefault();
+                  setShowWorkoutLimitModal(true);
+                  return;
+                }
+                resetForm();
+              }}
+            >
               <Plus className="w-5 h-5 mr-2" />
               {language === 'es' ? 'Registrar entrenamiento' : 'Log workout'}
             </Button>
@@ -731,6 +747,13 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
           </Card>
         </motion.div>
       )}
+
+      {/* Workout daily limit modal */}
+      <DailyLimitModal
+        open={showWorkoutLimitModal}
+        onOpenChange={setShowWorkoutLimitModal}
+        type="workout"
+      />
     </div>
   );
 }
