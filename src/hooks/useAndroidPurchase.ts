@@ -90,13 +90,6 @@ export function useAndroidPurchase() {
               ? "🎉 ¡Premium activado! Disfrutá de todas las funciones."
               : "🎉 ¡Premium restaurado! Disfrutá de todas las funciones.";
             toast.success(msg, { duration: 6000 });
-          } else if (data.trial_active) {
-            // Trial activated/confirmed
-            await refetch();
-            const trialEnd = data.expiration_date
-              ? new Date(data.expiration_date).toLocaleDateString("es-AR", { day: "numeric", month: "long" })
-              : "";
-            toast.success(`✨ Prueba activa hasta el ${trialEnd}`, { duration: 5000 });
           } else if (!silent) {
             toast.info("No se encontró una suscripción activa para esta cuenta.");
           }

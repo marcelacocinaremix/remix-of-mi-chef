@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Youtube, Instagram, Users, LogOut, User, Globe, Settings, Crown, Clock, Palette } from "lucide-react";
+import { Youtube, Instagram, Users, LogOut, User, Globe, Settings, Crown, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,7 +23,7 @@ import logo from "@/assets/logo.png";
 export function AppHeader() {
   const { user, signOut } = useAuth();
   const { t, language } = useLanguage();
-  const { isPremium, isTrialActive, trialDaysRemaining } = usePremium();
+  const { isPremium } = usePremium();
   const { theme } = useAppTheme();
   const navigate = useNavigate();
 
@@ -88,29 +88,22 @@ export function AppHeader() {
         ) : (
           <div className="flex items-center gap-1.5">
             {/* Plan badge — opens subscription modal directly */}
-            {(isPremium || isTrialActive || (!isPremium && !isTrialActive)) && (
-              <button
-                onClick={() => setShowSubscription(true)}
-                className="outline-none"
-                aria-label="Mi plan"
-              >
-                {isPremium ? (
-                  <Badge className="bg-amber-500 text-primary-foreground gap-1 text-[10px] px-1.5 py-0.5 cursor-pointer hover:bg-amber-600 transition-colors">
-                    <Crown className="w-2.5 h-2.5" />
-                    Premium
-                  </Badge>
-                ) : isTrialActive ? (
-                  <Badge className="bg-emerald-500 text-primary-foreground gap-1 text-[10px] px-1.5 py-0.5 cursor-pointer hover:bg-emerald-600 transition-colors">
-                    <Clock className="w-2.5 h-2.5" />
-                    {trialDaysRemaining}d
-                  </Badge>
-                ) : (
-                  <Badge className="bg-muted text-muted-foreground gap-1 text-[10px] px-1.5 py-0.5 cursor-pointer hover:bg-muted/80 transition-colors border border-border">
-                    Gratis
-                  </Badge>
-                )}
-              </button>
-            )}
+            <button
+              onClick={() => setShowSubscription(true)}
+              className="outline-none"
+              aria-label="Mi plan"
+            >
+              {isPremium ? (
+                <Badge className="bg-amber-500 text-primary-foreground gap-1 text-[10px] px-1.5 py-0.5 cursor-pointer hover:bg-amber-600 transition-colors">
+                  <Crown className="w-2.5 h-2.5" />
+                  Premium
+                </Badge>
+              ) : (
+                <Badge className="bg-muted text-muted-foreground gap-1 text-[10px] px-1.5 py-0.5 cursor-pointer hover:bg-muted/80 transition-colors border border-border">
+                  Gratis
+                </Badge>
+              )}
+            </button>
 
             {/* User avatar — opens dropdown */}
             <DropdownMenu>

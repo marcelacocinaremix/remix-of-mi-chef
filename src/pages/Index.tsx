@@ -12,7 +12,6 @@ import { FloatingTimerButton } from "@/components/FloatingTimerButton";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { MasSection } from "@/components/MasSection";
 import MySummary from "@/components/MySummary";
-import { TrialNoticeModal } from "@/components/TrialNoticeModal";
 import { UserProfileModal } from "@/components/UserProfileModal";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { NutritionalBalance } from "@/components/NutritionalBalance";
@@ -47,7 +46,7 @@ type MasSubTab = "aprender" | "jugar" | "marcela" | "perfil" | "balance" | "guia
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
   const { user } = useAuth();
-  const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium, hasAnyAccess, isTrialExpired, canUseFeature } = usePremium();
+  const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium, hasAnyAccess, canUseFeature } = usePremium();
   const { showInterstitial } = useAdMob();
   const isMobile = useIsMobile();
   const { theme } = useAppTheme();
@@ -555,7 +554,6 @@ export default function Index() {
       {/* Food Guide paywall */}
       <PaywallModal open={showFoodGuidePaywall} onOpenChange={setShowFoodGuidePaywall} />
 
-      <TrialNoticeModal />
     </div>
   );
 }

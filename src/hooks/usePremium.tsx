@@ -23,11 +23,11 @@ interface PremiumContextType {
   isTrialExpired: boolean;
   trialDaysRemaining: number;
   canUseFeature: (feature: 'balance_add' | 'planificador_modify' | 'learn' | 'food_guide' | 'general') => boolean;
-  hasAnyAccess: boolean; // premium OR trial active
+  hasAnyAccess: boolean;
   showPaywall: boolean;
   setShowPaywall: (show: boolean) => void;
   isCancelled: boolean;
-  isCancelledActive: boolean; // cancelled but still within paid period
+  isCancelledActive: boolean;
 }
 
 const PremiumContext = createContext<PremiumContextType | undefined>(undefined);
@@ -47,80 +47,51 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   const [planType, setPlanType] = useState<string | null>(null);
   const [subscriptionStatus, setSubscriptionStatus] = useState('inactive');
   const [subscriptionEnd, setSubscriptionEnd] = useState<Date | null>(null);
-  const [trialEndDate, setTrialEndDate] = useState<Date | null>(null);
-  const [trialUsedDb, setTrialUsedDb] = useState(false);
 
   // ── DERIVED STATE ──────────────────────────────────────────────────────────
 
-  // Paid period is active: is_premium=true AND subscription hasn't expired
-  // This includes BOTH 'active' and 'cancelled' statuses while within the paid window
   const paidPeriodActive = useMemo(() => {
     if (!dbIsPremium) return false;
-    if (!subscriptionEnd) return true; // no end date = indefinite/lifetime
+    if (!subscriptionEnd) return true;
     return new Date() < subscriptionEnd;
   }, [dbIsPremium, subscriptionEnd]);
 
-  // Cancelled but still within the paid period (grace period)
   const isCancelledActive = useMemo(() => {
     return subscriptionStatus === 'cancelled' && paidPeriodActive;
   }, [subscriptionStatus, paidPeriodActive]);
 
-  // Legacy alias
   const isCancelled = isCancelledActive;
 
-  // Trial active: trial_used=true AND not expired AND no paid plan running
-  const isTrialActive = useMemo(() => {
-    if (!isInitialized) return false;
-    if (paidPeriodActive) return false;      // paid overrides trial display
-    if (!trialUsedDb) return false;
-    if (!trialEndDate) return false;
-    return new Date() < trialEndDate;
-  }, [isInitialized, paidPeriodActive, trialUsedDb, trialEndDate]);
+  // Trial fields kept as stubs (always false/0) — trial system removed
+  const isTrialActive = false;
+  const isTrialExpired = false;
+  const trialDaysRemaining = 0;
 
-  // Trial expired and no active paid plan
-  const isTrialExpired = useMemo(() => {
-    if (paidPeriodActive) return false;
-    if (!trialEndDate) return false;
-    return trialUsedDb && new Date() >= trialEndDate;
-  }, [paidPeriodActive, trialUsedDb, trialEndDate]);
-
-  const trialDaysRemaining = useMemo(() => {
-    if (!isTrialActive || !trialEndDate) return 0;
-    const diff = trialEndDate.getTime() - Date.now();
-    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-  }, [isTrialActive, trialEndDate]);
-
-  // isPremium = only paid period (used for "Premium" badge)
   const isPremium = paidPeriodActive;
 
-  // hasAnyAccess = paid OR trial (gates premium features)
-  const hasAccess = paidPeriodActive || isTrialActive;
-
-  const effectiveLimit = paidPeriodActive ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
+  // hasAnyAccess = only paid (trial removed)
+  const hasAccess = paidPeriodActive;
 
   const canUseFeature = useCallback((
     feature: 'balance_add' | 'planificador_modify' | 'learn' | 'food_guide' | 'general'
   ) => {
     if (paidPeriodActive) return true;
-    if (isTrialActive) return true;
     const premiumOnly: typeof feature[] = ['balance_add', 'planificador_modify', 'learn', 'food_guide'];
     if (premiumOnly.includes(feature)) return false;
     return true;
-  }, [paidPeriodActive, isTrialActive]);
+  }, [paidPeriodActive]);
 
   const daysRemaining = useMemo(() => {
     if (paidPeriodActive && subscriptionEnd) {
       const diff = subscriptionEnd.getTime() - Date.now();
       return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
     }
-    if (isTrialActive) return trialDaysRemaining;
     return null;
-  }, [paidPeriodActive, subscriptionEnd, isTrialActive, trialDaysRemaining]);
+  }, [paidPeriodActive, subscriptionEnd]);
 
   // ── localStorage cache key ────────────────────────────────────────────────
   const premiumCacheKey = user ? `premium_state_${user.id}` : null;
 
-  // Hydrate from localStorage on mount to avoid white flash before DB responds
   useEffect(() => {
     if (!premiumCacheKey) return;
     try {
@@ -128,14 +99,11 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       if (cached) {
         const parsed = JSON.parse(cached);
         const cacheAge = Date.now() - (parsed.__ts ?? 0);
-        // Use cache only if < 10 minutes old — prevents stale state after expiry
         if (cacheAge < 10 * 60 * 1000) {
           setDbIsPremium(parsed.is_premium ?? false);
           setPlanType(parsed.plan_type ?? 'free');
           setSubscriptionStatus(parsed.subscription_status ?? 'inactive');
           setSubscriptionEnd(parsed.subscription_end ? new Date(parsed.subscription_end) : null);
-          setTrialEndDate(parsed.trial_end_date ? new Date(parsed.trial_end_date) : null);
-          setTrialUsedDb(parsed.trial_used ?? false);
           console.log('[usePremium] Hydrated from localStorage cache');
         }
       }
@@ -151,8 +119,6 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       setPlanType('free');
       setSubscriptionStatus('inactive');
       setSubscriptionEnd(null);
-      setTrialEndDate(null);
-      setTrialUsedDb(false);
       setDailyUsage(null);
       setIsInitialized(true);
       setIsLoading(false);
@@ -162,7 +128,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
 
     setIsLoading(true);
     try {
-      let { data, error } = await supabase
+      const { data, error } = await supabase
         .from('user_subscriptions')
         .select('*')
         .eq('user_id', user.id)
@@ -173,38 +139,40 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // Safety net: no subscription record → create it
-      if (!data) {
-        console.log('No subscription found, initializing trial...');
-        await supabase.functions.invoke('start-trial');
-        const refetch = await supabase
+      // Safety net: no subscription record → create it (free plan, no trial)
+      let subData = data;
+      if (!subData) {
+        console.log('No subscription found, creating free plan record...');
+        const { data: inserted } = await supabase
           .from('user_subscriptions')
-          .select('*')
-          .eq('user_id', user.id)
+          .upsert({
+            user_id: user.id,
+            is_premium: false,
+            plan_type: 'free',
+            subscription_status: 'inactive',
+          }, { onConflict: 'user_id' })
+          .select()
           .maybeSingle();
-        data = refetch.data;
+        subData = inserted;
       }
 
-      if (data) {
-        const rawEnd = data.subscription_end ? new Date(data.subscription_end) : null;
+      if (subData) {
+        const rawEnd = subData.subscription_end ? new Date(subData.subscription_end) : null;
         const now = new Date();
 
-        // Grace period: cancelled but still within paid window
-        let effectivePremium = data.is_premium || false;
-        if (data.subscription_status === 'cancelled' && rawEnd && rawEnd > now) {
+        let effectivePremium = subData.is_premium || false;
+        if (subData.subscription_status === 'cancelled' && rawEnd && rawEnd > now) {
           effectivePremium = true;
         }
 
         setDbIsPremium(effectivePremium);
-        setPlanType(data.plan_type || 'free');
-        setSubscriptionStatus(data.subscription_status || 'inactive');
+        setPlanType(subData.plan_type || 'free');
+        setSubscriptionStatus(subData.subscription_status || 'inactive');
         setSubscriptionEnd(rawEnd);
-        setTrialUsedDb(data.trial_used === true);
-        if (data.trial_end_date) setTrialEndDate(new Date(data.trial_end_date));
 
         // Daily usage
         const today = now.toISOString().split('T')[0];
-        const usesToday = (data.last_use_date === today) ? (data.daily_uses || 0) : 0;
+        const usesToday = (subData.last_use_date === today) ? (subData.daily_uses || 0) : 0;
         const strictPaid = effectivePremium && (!rawEnd || rawEnd > now);
         const userLimit = strictPaid ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
         setDailyUsage({
@@ -213,16 +181,13 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
           limit: userLimit
         });
 
-        // ── Persist to localStorage so the next app launch doesn't flash ───
         if (premiumCacheKey) {
           try {
             localStorage.setItem(premiumCacheKey, JSON.stringify({
               is_premium: effectivePremium,
-              plan_type: data.plan_type || 'free',
-              subscription_status: data.subscription_status || 'inactive',
+              plan_type: subData.plan_type || 'free',
+              subscription_status: subData.subscription_status || 'inactive',
               subscription_end: rawEnd?.toISOString() ?? null,
-              trial_end_date: data.trial_end_date ?? null,
-              trial_used: data.trial_used ?? false,
               __ts: Date.now(),
             }));
           } catch {
@@ -247,7 +212,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       const { data: subData, error } = await supabase
         .from('user_subscriptions')
-        .select('daily_uses, last_use_date, is_premium, subscription_end, subscription_status, trial_used, trial_end_date')
+        .select('daily_uses, last_use_date, is_premium, subscription_end, subscription_status')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -260,7 +225,6 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       const today = now.toISOString().split('T')[0];
       const usesToday = (subData?.last_use_date === today) ? (subData?.daily_uses || 0) : 0;
 
-      // Grace period: cancelled but end date still in future
       const rawEnd = subData?.subscription_end ? new Date(subData.subscription_end) : null;
       const inGracePeriod = subData?.subscription_status === 'cancelled' && rawEnd && rawEnd > now;
       const strictPaid = (subData?.is_premium === true || inGracePeriod) &&
@@ -271,11 +235,9 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       setDailyUsage({ usesToday, remaining, limit: currentLimit });
 
       if (usesToday >= currentLimit) {
-        const isPaidOrTrial = strictPaid ||
-          (subData?.trial_used && subData?.trial_end_date && new Date(subData.trial_end_date) > now);
         return {
           allowed: false,
-          message: isPaidOrTrial
+          message: strictPaid
             ? `¡Alcanzaste el límite de ${currentLimit} recetas de hoy! Volvé mañana 🍳`
             : `Hoy ya usaste tus ${DAILY_LIMIT_FREE} recetas gratuitas. ¡Suscribite para generar más! 🌟`
         };
@@ -290,20 +252,14 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
-  // Initial fetch
   useEffect(() => {
     fetchSubscription();
   }, [fetchSubscription]);
 
-  // ── AUTO-SYNC: refetch when app regains visibility ────────────────────────
-  // Skips the sync if a purchase flow is actively running (avoids race condition
-  // where visibilitychange fires right after the PaywallModal closes mid-purchase).
   useEffect(() => {
     if (!user) return;
-
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        // Guard: if a purchase is in flight, let useAndroidPurchase own the refetch
         if ((window as any).__purchaseInProgress) {
           console.log('[usePremium] Skipping visibility sync — purchase in progress');
           return;
@@ -312,12 +268,10 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         fetchSubscription();
       }
     };
-
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [user, fetchSubscription]);
 
-  // ── AUTH CHANGE: reset state on logout + clear localStorage cache ─────────
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') {
@@ -325,16 +279,12 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         setPlanType('free');
         setSubscriptionStatus('inactive');
         setSubscriptionEnd(null);
-        setTrialEndDate(null);
-        setTrialUsedDb(false);
         setDailyUsage(null);
         setIsInitialized(false);
-        // Clear any cached premium state so it doesn't bleed into the next session
         try {
           if (session?.user?.id) {
             localStorage.removeItem(`premium_state_${session.user.id}`);
           } else {
-            // Fallback: clear all premium_state_* keys
             Object.keys(localStorage)
               .filter((k) => k.startsWith('premium_state_'))
               .forEach((k) => localStorage.removeItem(k));
@@ -352,7 +302,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       subscriptionStatus,
       subscriptionEnd,
       planType,
-      trialUsed: trialUsedDb,
+      trialUsed: false,
       daysRemaining,
       refetch: fetchSubscription,
       dailyUsage,

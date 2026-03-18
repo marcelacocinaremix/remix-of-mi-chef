@@ -40,7 +40,7 @@ export const PlanificarSection = ({
 }: PlanificarSectionProps) => {
   const [activeSubTab, setActiveSubTab] = useState<SubTab>("calendario");
   const { t } = useLanguage();
-  const { isTrialActive, trialDaysRemaining, isPremium, hasAnyAccess } = usePremium();
+  const { isPremium, hasAnyAccess } = usePremium();
   const [showPaywall, setShowPaywall] = useState(false);
 
   const currentTabBlocked = !hasAnyAccess && (activeSubTab === "despensa" || activeSubTab === "super");
@@ -149,14 +149,6 @@ export const PlanificarSection = ({
           <div className="absolute inset-0 z-10 cursor-pointer" onClick={() => setShowPaywall(true)} />
         )}
       </div>
-
-      {!isPremium && isTrialActive && (
-        <div className="text-center py-2">
-          <span className="text-xs text-muted-foreground">
-            🎁 Prueba gratuita: {trialDaysRemaining} días restantes
-          </span>
-        </div>
-      )}
 
       <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
     </div>

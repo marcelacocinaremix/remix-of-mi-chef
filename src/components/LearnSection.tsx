@@ -1620,7 +1620,7 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
   const { user } = useAuth();
   const { toast } = useToast();
   const { play } = useSound();
-  const { canUseFeature, isTrialActive, trialDaysRemaining, isPremium } = usePremium();
+  const { canUseFeature, isPremium } = usePremium();
   const [showPaywall, setShowPaywall] = useState(false);
   const learnBlocked = !canUseFeature('learn');
   const foodGuideBlocked = !canUseFeature('food_guide');
@@ -2178,15 +2178,6 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
       )}
 
 
-
-      {/* Trial info */}
-      {!isPremium && isTrialActive && (
-        <div className="text-center py-2">
-          <span className="text-xs text-muted-foreground">
-            {t("learnTrialActive")} {trialDaysRemaining} {t("learnTrialDays")}
-          </span>
-        </div>
-      )}
 
       <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
     </div>

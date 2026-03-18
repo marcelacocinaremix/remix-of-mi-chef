@@ -50,7 +50,7 @@ interface NutritionalBalanceProps {
 
 export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, onSubTabChange }: NutritionalBalanceProps) {
   const { meals, getTotalsForPeriod, getMealsForPeriod, deleteMeal, refetch: refetchMeals } = useMealLogs();
-  const { canUseFeature, isTrialExpired, trialDaysRemaining, isTrialActive, isPremium } = usePremium();
+  const { canUseFeature, isPremium } = usePremium();
   const [showPaywall, setShowPaywall] = useState(false);
   const balanceBlocked = !canUseFeature('balance_add');
   const {
@@ -645,15 +645,6 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
           </div>
         )}
       </div>
-
-      {/* Trial info badge */}
-      {!isPremium && isTrialActive && (
-        <div className="text-center py-2">
-          <span className="text-xs text-muted-foreground">
-            🎁 {t("activityTitle")}: {trialDaysRemaining} {t("activityDays")}
-          </span>
-        </div>
-      )}
 
       <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
     </div>
