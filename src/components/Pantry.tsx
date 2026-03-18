@@ -935,20 +935,6 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
   return (
     <div className="space-y-4">
-      {/* Blocked banner — shown when trial expired / free plan */}
-      {pantryBlocked && (
-        <div
-          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 cursor-pointer"
-          onClick={() => setShowPantryPaywall(true)}
-        >
-          <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-amber-700 dark:text-amber-300">Solo lectura — Prueba finalizada</p>
-            <p className="text-xs text-amber-600/80 dark:text-amber-400/80">Activá Premium para agregar y editar productos</p>
-          </div>
-          <Crown className="w-4 h-4 text-amber-500 shrink-0" />
-        </div>
-      )}
       <PaywallModal open={showPantryPaywall} onOpenChange={setShowPantryPaywall} />
       {/* Help banner */}
       {showHelp && <PantryHelpBanner onDismiss={() => { localStorage.setItem(PANTRY_HELP_KEY, "1"); setShowHelp(false); }} />}
