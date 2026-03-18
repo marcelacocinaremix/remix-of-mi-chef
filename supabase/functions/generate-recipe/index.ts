@@ -71,7 +71,7 @@ async function checkUserLimits(req: Request): Promise<{
   const lastUseDate = subData?.last_use_date;
   const currentUses = (!lastUseDate || lastUseDate < today) ? 0 : (subData?.daily_uses || 0);
 
-  if (currentUses > userLimit) {
+  if (currentUses >= userLimit) {
     const message = isPremium
       ? `¡Alcanzaste el límite de ${userLimit} recetas de hoy! Volvé mañana 🍳`
       : `Hoy ya usaste tus ${DAILY_LIMIT_FREE} recetas gratuitas. ¡Suscribite para generar más! 🌟`;
@@ -81,8 +81,8 @@ async function checkUserLimits(req: Request): Promise<{
       userId: user.id,
       usesToday: currentUses,
       remaining: 0,
-    isPremium,
-    message
+      isPremium,
+      message
     };
   }
 
