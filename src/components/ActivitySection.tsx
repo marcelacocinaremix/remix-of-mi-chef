@@ -14,6 +14,8 @@ import { useActivityTracking, FitnessGoal, WorkoutType } from "@/hooks/useActivi
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSound } from "@/hooks/useSound";
+import { usePremium } from "@/hooks/usePremium";
+import { DailyLimitModal } from "@/components/DailyLimitModal";
 import { toast } from "sonner";
 
 import { MetricCard } from "@/components/activity/MetricCard";
