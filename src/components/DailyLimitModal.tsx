@@ -11,17 +11,23 @@ interface DailyLimitModalProps {
 }
 
 const CONFIG = {
-  recipe:  { emoji: "🍳", noun: "recetas",       limit: "3",  icon: ChefHat,          free: true },
-  tips:    { emoji: "💡", noun: "trucos",         limit: "3",  icon: Sparkles,         free: true },
-  meals:   { emoji: "🥗", noun: "comidas",        limit: "4",  icon: UtensilsCrossed,  free: true },
-  workout: { emoji: "💪", noun: "entrenamientos", limit: "1",  icon: Dumbbell,         free: true },
+  recipe:  { emoji: "🍳", noun: "recetas",       limit: "3", MainIcon: ChefHat },
+  tips:    { emoji: "💡", noun: "trucos",         limit: "3", MainIcon: Sparkles },
+  meals:   { emoji: "🥗", noun: "comidas",        limit: "4", MainIcon: UtensilsCrossed },
+  workout: { emoji: "💪", noun: "entrenamientos", limit: "1", MainIcon: Dumbbell },
 };
 
 export function DailyLimitModal({ open, onOpenChange, type = "recipe" }: DailyLimitModalProps) {
   const [showSubscription, setShowSubscription] = useState(false);
 
-  const cfg = CONFIG[type];
-  const { emoji, noun, limit } = cfg;
+  const { emoji, noun, limit, MainIcon } = CONFIG[type];
+
+  const benefits = [
+    { Icon: MainIcon,   text: `${noun.charAt(0).toUpperCase() + noun.slice(1)} ilimitados` },
+    { Icon: UtensilsCrossed, text: "Comidas ilimitadas" },
+    { Icon: Crown,      text: "Sin publicidad" },
+    { Icon: ChefHat,    text: "Todo sin límites" },
+  ];
 
   return (
     <>
@@ -44,7 +50,8 @@ export function DailyLimitModal({ open, onOpenChange, type = "recipe" }: DailyLi
             {/* Info */}
             <div className="text-center space-y-1">
               <p className="text-sm text-muted-foreground leading-snug">
-                Usaste tus <span className="font-bold text-foreground">3 {noun} gratuitos</span> del día.
+                Llegaste al límite de{" "}
+                <span className="font-bold text-foreground">{limit} {noun}</span> por día del plan gratuito.
               </p>
               <p className="text-xs text-muted-foreground">
                 Volvé mañana o actualizá para tener acceso ilimitado.
@@ -57,12 +64,7 @@ export function DailyLimitModal({ open, onOpenChange, type = "recipe" }: DailyLi
                 <Crown className="w-3.5 h-3.5" /> Con Premium tenés:
               </p>
               <div className="grid grid-cols-2 gap-1.5">
-                {[
-                  { icon: isRecipe ? ChefHat : Sparkles, text: `${isRecipe ? "Recetas" : "Trucos"} ilimitados` },
-                  { icon: Sparkles, text: "Sin publicidad" },
-                  { icon: Crown, text: "Balance nutricional" },
-                  { icon: ChefHat, text: "Todo sin límites" },
-                ].map(({ icon: Icon, text }) => (
+                {benefits.map(({ Icon, text }) => (
                   <div key={text} className="flex items-center gap-1.5">
                     <Icon className="w-3 h-3 text-amber-500 flex-shrink-0" />
                     <span className="text-xs text-foreground/80">{text}</span>
