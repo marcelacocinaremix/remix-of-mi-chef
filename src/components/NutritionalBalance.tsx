@@ -194,7 +194,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
       </Card>
 
       {/* Health Profile Setup */}
-      <div className={cn(balanceBlocked && "opacity-60 pointer-events-none")}>
+      <div>
         <HealthProfileSetup
           currentProfile={currentHealthProfile}
           onSave={handleSaveHealthProfile}
