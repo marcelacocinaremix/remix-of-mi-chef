@@ -202,7 +202,10 @@ export default function Index() {
       });
 
       if (error) {
-        // The context body may be empty; read the raw response body string
+        // FunctionsHttpError exposes .status directly
+        const httpStatus = (error as any).status as number | undefined;
+
+        // Also try to parse body from context
         let errorBody: any = {};
         try {
           const raw = (error as any)?.context?.responseBody ?? (error as any)?.context?.body;
@@ -210,12 +213,7 @@ export default function Index() {
           else if (raw && typeof raw === 'object') errorBody = raw;
         } catch { /* ignore */ }
 
-        const errorStr = JSON.stringify(error);
-        const is429 =
-          (error as any).status === 429 ||
-          (error as any).message?.includes('non-2xx') ||
-          errorStr.includes('"429"') ||
-          errorBody?.dailyLimitReached === true;
+        const is429 = httpStatus === 429 || errorBody?.dailyLimitReached === true;
 
         if (is429) {
           setShowRecipeLimitModal(true);
