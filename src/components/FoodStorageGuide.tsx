@@ -271,22 +271,15 @@ export function FoodStorageGuide() {
       return;
     }
 
-    // For free users: check & increment server-side BEFORE calling AI
+    // For free users: check & increment tips counter (independent from recipe uses)
     if (!isPremium && user) {
-      const { data: limitData, error: limitError } = await supabase.rpc('check_and_increment_daily_uses', {
-        p_user_id: user.id,
-        p_daily_limit: DAILY_LIMIT,
-      });
-      if (limitError) {
-        toast({ title: "Error", description: "No se pudo verificar el límite diario.", variant: "destructive" });
-        return;
-      }
-      const limit = limitData as { allowed: boolean; uses_today: number; remaining: number } | null;
-      if (!limit?.allowed) {
+      const usedToday = getTipsUsedToday();
+      if (usedToday >= DAILY_LIMIT) {
         setShowLimitModal(true);
         return;
       }
-      setDailyUsed(limit.uses_today ?? dailyUsed + 1);
+      const next = incrementTipsUsed();
+      setDailyUsed(next);
     }
 
     setIsLoading(true);
