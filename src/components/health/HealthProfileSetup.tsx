@@ -268,21 +268,12 @@ export function HealthProfileSetup({ currentProfile, onSave, isSaving, isComplet
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900">
-          {/* Animated background grid pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute inset-0" style={{
-              backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                               linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
-              backgroundSize: '20px 20px'
-            }} />
-          </div>
-          
+        <Card className="relative overflow-hidden border shadow-lg bg-card">
           {/* Glowing accent */}
           <motion.div 
             className="absolute -top-20 -right-20 w-40 h-40 rounded-full blur-3xl"
             style={{ background: `linear-gradient(135deg, hsl(var(--primary)) 0%, transparent 70%)` }}
-            animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
+            animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.35, 0.2] }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           />
           
@@ -316,10 +307,10 @@ export function HealthProfileSetup({ currentProfile, onSave, isSaving, isComplet
                 
                 {/* Goal details */}
                 <div className="flex-1">
-                  <p className="text-xs font-medium text-zinc-400 uppercase tracking-wider mb-0.5">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">
                     {language === 'es' ? 'Tu objetivo' : 'Your goal'}
                   </p>
-                  <h3 className="font-bold text-lg text-white">
+                  <h3 className="font-bold text-lg text-foreground">
                     {isComplete 
                       ? (language === 'es' ? goalOption?.labelEs : goalOption?.labelEn)
                       : (language === 'es' ? 'Sin configurar' : 'Not configured')}
@@ -350,35 +341,35 @@ export function HealthProfileSetup({ currentProfile, onSave, isSaving, isComplet
               >
                 {/* Current weight */}
                 {weight && (
-                  <div className="bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10">
-                    <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
+                  <div className="bg-muted/50 rounded-xl p-3 border border-border">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
                       {language === 'es' ? 'Actual' : 'Current'}
                     </p>
-                    <p className="text-xl font-bold text-white">
-                      {weight}<span className="text-xs font-normal text-zinc-400 ml-0.5">kg</span>
+                    <p className="text-xl font-bold text-foreground">
+                      {weight}<span className="text-xs font-normal text-muted-foreground ml-0.5">kg</span>
                     </p>
                   </div>
                 )}
                 
                 {/* Target weight */}
                 {targetWeight && selectedGoal !== 'stay_active' && (
-                  <div className="bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10">
-                    <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
+                  <div className="bg-muted/50 rounded-xl p-3 border border-border">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
                       {language === 'es' ? 'Meta' : 'Target'}
                     </p>
                     <p className="text-xl font-bold text-primary">
-                      {targetWeight}<span className="text-xs font-normal text-zinc-400 ml-0.5">kg</span>
+                      {targetWeight}<span className="text-xs font-normal text-muted-foreground ml-0.5">kg</span>
                     </p>
                   </div>
                 )}
                 
                 {/* Weekly target */}
-                <div className="bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10">
-                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">
+                <div className="bg-muted/50 rounded-xl p-3 border border-border">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
                     {language === 'es' ? 'Frecuencia' : 'Frequency'}
                   </p>
-                  <p className="text-xl font-bold text-white">
-                    {weeklyTarget}<span className="text-xs font-normal text-zinc-400 ml-0.5">x/{language === 'es' ? 'sem' : 'wk'}</span>
+                  <p className="text-xl font-bold text-foreground">
+                    {weeklyTarget}<span className="text-xs font-normal text-muted-foreground ml-0.5">x/{language === 'es' ? 'sem' : 'wk'}</span>
                   </p>
                 </div>
               </motion.div>
@@ -399,7 +390,7 @@ export function HealthProfileSetup({ currentProfile, onSave, isSaving, isComplet
                     : (language === 'es' ? 'Recetas personalizadas' : 'Custom recipes')}
                 </span>
               </div>
-              <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-400 rounded-full px-3 py-1.5 text-xs font-medium border border-emerald-500/20">
+              <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full px-3 py-1.5 text-xs font-medium border border-emerald-500/20">
                 <Dumbbell className="w-3.5 h-3.5" />
                 <span>
                   {isComplete
