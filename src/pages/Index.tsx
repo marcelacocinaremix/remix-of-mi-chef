@@ -46,8 +46,8 @@ type MasSubTab = "aprender" | "jugar" | "marcela" | "perfil" | "balance" | "guia
 
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
-  const { user } = useAuth();
-  const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium, hasAnyAccess, canUseFeature } = usePremium();
+  const { user, isLoading: authLoading } = useAuth();
+  const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium, hasAnyAccess, canUseFeature, isLoading: premiumLoading } = usePremium();
   const { showInterstitial } = useAdMob();
   const isMobile = useIsMobile();
   const { theme } = useAppTheme();
@@ -108,7 +108,12 @@ export default function Index() {
     }
   }, [user]);
 
-  // Show onboarding if first visit OR if user is not logged in
+  // Wait for auth to resolve before deciding — prevents white flash / infinite loop
+  if (authLoading) {
+    return null;
+  }
+
+  // Show onboarding only after auth is confirmed: first visit OR no user
   if (isFirstVisit || !user) {
     return <OnboardingFlow onComplete={setFirstVisitComplete} />;
   }

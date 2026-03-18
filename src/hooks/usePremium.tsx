@@ -130,6 +130,19 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     }
 
     setIsLoading(true);
+
+    // Safety timeout: if DB never responds, default to free plan after 5s
+    const safetyTimer = setTimeout(() => {
+      console.warn('[usePremium] Subscription fetch timed out — defaulting to free plan');
+      setDbIsPremium(false);
+      setPlanType('free');
+      setSubscriptionStatus('inactive');
+      setSubscriptionEnd(null);
+      setDailyUsage({ usesToday: 0, remaining: DAILY_LIMIT_FREE, limit: DAILY_LIMIT_FREE });
+      setIsInitialized(true);
+      setIsLoading(false);
+    }, 5000);
+
     try {
       const { data, error } = await supabase
         .from('user_subscriptions')
@@ -137,8 +150,15 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         .eq('user_id', user.id)
         .maybeSingle();
 
+      clearTimeout(safetyTimer);
+
       if (error) {
         console.error('Error fetching subscription:', error);
+        // Default to free plan on error — don't block the UI
+        setDbIsPremium(false);
+        setPlanType('free');
+        setSubscriptionStatus('inactive');
+        setDailyUsage({ usesToday: 0, remaining: DAILY_LIMIT_FREE, limit: DAILY_LIMIT_FREE });
         return;
       }
 
@@ -200,6 +220,11 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       }
     } catch (err) {
       console.error('Error in fetchSubscription:', err);
+      // Default to free plan on any uncaught error
+      setDbIsPremium(false);
+      setPlanType('free');
+      setSubscriptionStatus('inactive');
+      setDailyUsage({ usesToday: 0, remaining: DAILY_LIMIT_FREE, limit: DAILY_LIMIT_FREE });
     } finally {
       setIsInitialized(true);
       setIsLoading(false);
