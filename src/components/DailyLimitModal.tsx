@@ -1,4 +1,4 @@
-import { Crown, Flame, ChefHat, Sparkles } from "lucide-react";
+import { Crown, Flame, ChefHat, Sparkles, UtensilsCrossed, Dumbbell } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SubscriptionManager } from "@/components/SubscriptionManager";
@@ -7,16 +7,21 @@ import { useState } from "react";
 interface DailyLimitModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  type?: "recipe" | "tips";
+  type?: "recipe" | "tips" | "meals" | "workout";
 }
+
+const CONFIG = {
+  recipe:  { emoji: "🍳", noun: "recetas",       limit: "3",  icon: ChefHat,          free: true },
+  tips:    { emoji: "💡", noun: "trucos",         limit: "3",  icon: Sparkles,         free: true },
+  meals:   { emoji: "🥗", noun: "comidas",        limit: "4",  icon: UtensilsCrossed,  free: true },
+  workout: { emoji: "💪", noun: "entrenamientos", limit: "1",  icon: Dumbbell,         free: true },
+};
 
 export function DailyLimitModal({ open, onOpenChange, type = "recipe" }: DailyLimitModalProps) {
   const [showSubscription, setShowSubscription] = useState(false);
 
-  const isRecipe = type === "recipe";
-
-  const emoji = isRecipe ? "🍳" : "💡";
-  const noun = isRecipe ? "recetas" : "trucos";
+  const cfg = CONFIG[type];
+  const { emoji, noun, limit } = cfg;
 
   return (
     <>
