@@ -48,16 +48,16 @@ const features = [
   },
   {
     label: "Despensa",
-    free: "Solo lectura",
+    free: "✓",
     premium: "✓",
-    freeOk: false,
+    freeOk: true,
     premiumOk: true,
   },
   {
     label: "Lista de súper",
-    free: "Solo lectura",
+    free: "✓",
     premium: "✓",
-    freeOk: false,
+    freeOk: true,
     premiumOk: true,
   },
   {

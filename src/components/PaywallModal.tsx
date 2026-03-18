@@ -13,14 +13,13 @@ interface PaywallModalProps {
 
 const benefits = [
   { label: "10 recetas por día con IA", premium: true },
-  { label: "Despensa completa (agregar/editar)", premium: true },
-  { label: "Lista de súper completa", premium: true },
   { label: "Balance nutricional completo", premium: true },
   { label: "Trucos del Chef ilimitados", premium: true },
   { label: "Sin publicidad", premium: true },
   { label: "Calendario semanal/mensual", premium: true },
   { label: "Juego Chef Arena", premium: true },
   { label: "3 recetas por día (gratis)", premium: false },
+  { label: "Despensa y lista de super", premium: false },
   { label: "Funciones en modo lectura", premium: false },
 ];
 
