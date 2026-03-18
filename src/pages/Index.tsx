@@ -23,6 +23,7 @@ import { MarcelaSection } from "@/components/MarcelaSection";
 import { LearnSection } from "@/components/LearnSection";
 import { FoodStorageGuide } from "@/components/FoodStorageGuide";
 import { PaywallModal } from "@/components/PaywallModal";
+import { DailyLimitModal } from "@/components/DailyLimitModal";
 import { GameSection } from "@/components/game/GameSection";
 import { useToast } from "@/hooks/use-toast";
 import { useSound } from "@/hooks/useSound";
