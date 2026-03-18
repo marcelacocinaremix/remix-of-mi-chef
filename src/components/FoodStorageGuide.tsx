@@ -410,18 +410,30 @@ export function FoodStorageGuide() {
 
   return (
     <div className="space-y-5 animate-fade-in">
-      {/* Blocked banner */}
-      {onBlockedAction && (
-        <div
-          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 cursor-pointer"
-          onClick={onBlockedAction}
-        >
-          <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-amber-700 dark:text-amber-300">Prueba finalizada</p>
-            <p className="text-xs text-amber-600/80 dark:text-amber-400/80">Suscribite a Premium para seguir usando Trucos del Chef</p>
+      {/* Daily usage indicator — only for free users */}
+      {!isPremium && (
+        <div className={cn(
+          "flex items-center justify-between px-3 py-2 rounded-xl text-sm font-semibold border",
+          dailyUsed >= DAILY_LIMIT
+            ? "bg-destructive/10 text-destructive border-destructive/20"
+            : dailyUsed >= DAILY_LIMIT - 1
+              ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+              : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+        )}>
+          <div className="flex items-center gap-2">
+            <ChefHat className="h-4 w-4" />
+            <span className="text-xs font-medium opacity-70">plan gratis</span>
+            <span className="font-bold">{dailyUsed}/{DAILY_LIMIT}</span>
+            <span className="text-xs font-normal opacity-75">
+              {dailyUsed >= DAILY_LIMIT ? "agotadas" : "por día"}
+            </span>
           </div>
-          <Crown className="w-4 h-4 text-amber-500 shrink-0" />
+          <button
+            onClick={() => setShowLimitModal(true)}
+            className="text-xs font-semibold underline opacity-70 hover:opacity-100"
+          >
+            Ver Premium
+          </button>
         </div>
       )}
       {/* Step 1: Search Input */}
