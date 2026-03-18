@@ -33,7 +33,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
-import { SubscriptionManager } from "@/components/SubscriptionManager";
+import { DailyLimitModal } from "@/components/DailyLimitModal";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface CategoryOption {
@@ -807,7 +807,7 @@ export function FoodStorageGuide() {
           </CardContent>
         </Card>
       )}
-      <SubscriptionManager open={showLimitModal} onOpenChange={setShowLimitModal} />
+      <DailyLimitModal open={showLimitModal} onOpenChange={setShowLimitModal} type="tips" />
     </div>
   );
 }

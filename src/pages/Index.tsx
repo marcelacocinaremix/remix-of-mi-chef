@@ -23,6 +23,7 @@ import { MarcelaSection } from "@/components/MarcelaSection";
 import { LearnSection } from "@/components/LearnSection";
 import { FoodStorageGuide } from "@/components/FoodStorageGuide";
 import { PaywallModal } from "@/components/PaywallModal";
+import { DailyLimitModal } from "@/components/DailyLimitModal";
 import { GameSection } from "@/components/game/GameSection";
 import { useToast } from "@/hooks/use-toast";
 import { useSound } from "@/hooks/useSound";
@@ -96,6 +97,7 @@ export default function Index() {
   const [calendarOpened, setCalendarOpened] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showFoodGuidePaywall, setShowFoodGuidePaywall] = useState(false);
+  const [showRecipeLimitModal, setShowRecipeLimitModal] = useState(false);
 
   const marcelaActiveTab = activeSubTab || activeTab;
 
@@ -248,7 +250,7 @@ export default function Index() {
     if (user) {
       const usageResult = await checkDailyUsage();
       if (!usageResult.allowed) {
-        toast({ title: "🍳 ¡Se acabaron tus recetas de hoy!", description: usageResult.message || `Ya usaste tus ${isPremium ? '10' : '3'} recetas del día. ¡Volvé mañana para seguir cocinando!`, variant: "destructive" });
+        setShowRecipeLimitModal(true);
         return;
       }
     }
@@ -551,6 +553,9 @@ export default function Index() {
 
       {/* Food Guide paywall */}
       <PaywallModal open={showFoodGuidePaywall} onOpenChange={setShowFoodGuidePaywall} />
+
+      {/* Daily recipe limit modal */}
+      <DailyLimitModal open={showRecipeLimitModal} onOpenChange={setShowRecipeLimitModal} type="recipe" />
 
     </div>
   );
