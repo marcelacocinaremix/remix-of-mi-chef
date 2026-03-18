@@ -26,13 +26,14 @@ import {
   Shuffle,
   Leaf,
   ChefHat,
-  Lock,
   Crown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { usePremium } from "@/hooks/usePremium";
+import { SubscriptionManager } from "@/components/SubscriptionManager";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface CategoryOption {
@@ -184,7 +185,7 @@ interface SearchHistoryItem {
 const HISTORY_KEY = "food_tips_history";
 const MAX_HISTORY = 10;
 
-export function FoodStorageGuide({ onBlockedAction }: { onBlockedAction?: () => void }) {
+export function FoodStorageGuide() {
   const [foodName, setFoodName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("conservacion");
   const [isLoading, setIsLoading] = useState(false);
@@ -194,8 +195,21 @@ export function FoodStorageGuide({ onBlockedAction }: { onBlockedAction?: () => 
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [savedFavId, setSavedFavId] = useState<string | null>(null);
+  const [dailyUsed, setDailyUsed] = useState(0);
+  const [showLimitModal, setShowLimitModal] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { isPremium } = usePremium();
+
+  const DAILY_LIMIT = 3;
+
+  // Load daily usage count from localStorage (keyed by user+date)
+  useEffect(() => {
+    if (!user) return;
+    const today = new Date().toISOString().split("T")[0];
+    const key = `food_guide_uses_${user.id}_${today}`;
+    setDailyUsed(Number(localStorage.getItem(key) || "0"));
+  }, [user]);
 
   // Load history from localStorage
   useEffect(() => {
@@ -226,10 +240,12 @@ export function FoodStorageGuide({ onBlockedAction }: { onBlockedAction?: () => 
   };
 
   const handleSearch = async (foodOverride?: string, categoryOverride?: string) => {
-    // If blocked, trigger paywall instead
-    if (onBlockedAction) {
-      onBlockedAction();
-      return;
+    // Check daily limit for free users
+    if (!isPremium) {
+      if (dailyUsed >= DAILY_LIMIT) {
+        setShowLimitModal(true);
+        return;
+      }
     }
 
     const foodToUse = (foodOverride || foodName).trim();
@@ -267,6 +283,15 @@ export function FoodStorageGuide({ onBlockedAction }: { onBlockedAction?: () => 
       } else if (data) {
         setFoodInfo(data);
         saveToHistory(foodToUse, categoryToUse);
+
+        // Increment daily counter for free users
+        if (!isPremium && user) {
+          const today = new Date().toISOString().split("T")[0];
+          const key = `food_guide_uses_${user.id}_${today}`;
+          const newCount = dailyUsed + 1;
+          setDailyUsed(newCount);
+          localStorage.setItem(key, String(newCount));
+        }
         
         // Check if already saved in favorites
         if (user) {
@@ -385,18 +410,30 @@ export function FoodStorageGuide({ onBlockedAction }: { onBlockedAction?: () => 
 
   return (
     <div className="space-y-5 animate-fade-in">
-      {/* Blocked banner */}
-      {onBlockedAction && (
-        <div
-          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 cursor-pointer"
-          onClick={onBlockedAction}
-        >
-          <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-amber-700 dark:text-amber-300">Prueba finalizada</p>
-            <p className="text-xs text-amber-600/80 dark:text-amber-400/80">Suscribite a Premium para seguir usando Trucos del Chef</p>
+      {/* Daily usage indicator — only for free users */}
+      {!isPremium && (
+        <div className={cn(
+          "flex items-center justify-between px-3 py-2 rounded-xl text-sm font-semibold border",
+          dailyUsed >= DAILY_LIMIT
+            ? "bg-destructive/10 text-destructive border-destructive/20"
+            : dailyUsed >= DAILY_LIMIT - 1
+              ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+              : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+        )}>
+          <div className="flex items-center gap-2">
+            <ChefHat className="h-4 w-4" />
+            <span className="text-xs font-medium opacity-70">plan gratis</span>
+            <span className="font-bold">{dailyUsed}/{DAILY_LIMIT}</span>
+            <span className="text-xs font-normal opacity-75">
+              {dailyUsed >= DAILY_LIMIT ? "agotadas" : "por día"}
+            </span>
           </div>
-          <Crown className="w-4 h-4 text-amber-500 shrink-0" />
+          <button
+            onClick={() => setShowLimitModal(true)}
+            className="text-xs font-semibold underline opacity-70 hover:opacity-100"
+          >
+            Ver Premium
+          </button>
         </div>
       )}
       {/* Step 1: Search Input */}
@@ -770,6 +807,9 @@ export function FoodStorageGuide({ onBlockedAction }: { onBlockedAction?: () => 
           </CardContent>
         </Card>
       )}
+      <SubscriptionManager open={showLimitModal} onOpenChange={setShowLimitModal} />
     </div>
   );
 }
+
+

@@ -69,9 +69,9 @@ const features = [
   },
   {
     label: "Trucos del Chef",
-    free: "Solo lectura",
-    premium: "✓",
-    freeOk: false,
+    free: "3/día",
+    premium: "Ilimitado",
+    freeOk: true,
     premiumOk: true,
   },
   {

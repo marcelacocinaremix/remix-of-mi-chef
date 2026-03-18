@@ -215,7 +215,7 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
                   { label: "Despensa", free: true },
                   { label: "Lista del supermercado", free: true },
                   { label: "Balance y salud", free: false },
-                  { label: "Trucos del Chef", free: false },
+                  { label: "Trucos del Chef", free: true },
                 ].map((f) => {
                   const hasAccess = isPremium || f.free;
                   return (

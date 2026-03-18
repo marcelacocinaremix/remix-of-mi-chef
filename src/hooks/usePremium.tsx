@@ -78,7 +78,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     if (paidPeriodActive) return true;
     // despensa/super (planificador_modify) now free for everyone
     if (feature === 'planificador_modify') return true;
-    const premiumOnly: typeof feature[] = ['balance_add', 'learn', 'food_guide'];
+    const premiumOnly: typeof feature[] = ['balance_add', 'learn'];
     if (premiumOnly.includes(feature)) return false;
     return true;
   }, [paidPeriodActive]);

@@ -479,9 +479,7 @@ export default function Index() {
                       />
                     )}
                     {masSubTab === "guia" && (
-                      <FoodStorageGuide
-                        onBlockedAction={!canUseFeature('food_guide') ? () => setShowFoodGuidePaywall(true) : undefined}
-                      />
+                      <FoodStorageGuide />
                     )}
                     {masSubTab === "jugar" && (
                       <div className="max-w-lg mx-auto">
