@@ -237,7 +237,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
 
       setDailyUsage({ usesToday, remaining, limit: currentLimit });
 
-      if (usesToday >= currentLimit) {
+      if (usesToday > currentLimit) {
         return {
           allowed: false,
           message: strictPaid
