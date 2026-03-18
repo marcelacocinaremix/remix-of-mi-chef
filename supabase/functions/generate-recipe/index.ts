@@ -81,8 +81,8 @@ async function checkUserLimits(req: Request): Promise<{
       userId: user.id,
       usesToday: currentUses,
       remaining: 0,
-      isPremium,
-      message
+    isPremium,
+    message
     };
   }
 
