@@ -8,7 +8,6 @@ import { SubscriptionManager } from "@/components/SubscriptionManager";
 export function DailyUsageIndicator() {
   const { user } = useAuth();
   const { dailyUsage, isPremium, refetch } = usePremium();
-  const planLabel = isPremium ? "plan premium" : "plan gratis";
   const [showManager, setShowManager] = useState(false);
 
   useEffect(() => {
@@ -23,7 +22,7 @@ export function DailyUsageIndicator() {
   const isAtLimit = remaining === 0;
   const isLow = remaining <= 1 && remaining > 0;
 
-  const planLabel = isPremium ? "plan premium" : isTrialActive ? "plan prueba" : "plan gratis";
+  const planLabel = isPremium ? "plan premium" : "plan gratis";
   const StatusIcon = isPremium ? Sparkles : ChefHat;
 
   return (

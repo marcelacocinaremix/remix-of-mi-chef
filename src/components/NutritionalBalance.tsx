@@ -646,15 +646,6 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
         )}
       </div>
 
-      {/* Trial info badge */}
-      {!isPremium && isTrialActive && (
-        <div className="text-center py-2">
-          <span className="text-xs text-muted-foreground">
-            🎁 {t("activityTitle")}: {trialDaysRemaining} {t("activityDays")}
-          </span>
-        </div>
-      )}
-
       <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
     </div>
   );

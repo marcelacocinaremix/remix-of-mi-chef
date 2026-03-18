@@ -2179,15 +2179,6 @@ export const LearnSection = ({ onNavigateToCooking, onNavigateToGame, onSubTabCh
 
 
 
-      {/* Trial info */}
-      {!isPremium && isTrialActive && (
-        <div className="text-center py-2">
-          <span className="text-xs text-muted-foreground">
-            {t("learnTrialActive")} {trialDaysRemaining} {t("learnTrialDays")}
-          </span>
-        </div>
-      )}
-
       <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
     </div>
   );
