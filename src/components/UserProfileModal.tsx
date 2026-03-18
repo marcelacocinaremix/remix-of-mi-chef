@@ -212,8 +212,8 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
                   { label: "Calendario de comidas", free: true },
                   { label: "Juego Chef Arena", free: true },
                   { label: "Mi Cocina (favoritos e historial)", free: true },
-                  { label: "Despensa", free: false },
-                  { label: "Lista del supermercado", free: false },
+                  { label: "Despensa", free: true },
+                  { label: "Lista del supermercado", free: true },
                   { label: "Balance y salud", free: false },
                   { label: "Trucos del Chef", free: false },
                 ].map((f) => {
