@@ -203,13 +203,20 @@ export function FoodStorageGuide() {
 
   const DAILY_LIMIT = 2;
 
-  // Load daily usage count from localStorage (keyed by user+date)
+  // Load daily usage count from server (keyed by user+date)
   useEffect(() => {
-    if (!user) return;
-    const today = new Date().toISOString().split("T")[0];
-    const key = `food_guide_uses_${user.id}_${today}`;
-    setDailyUsed(Number(localStorage.getItem(key) || "0"));
-  }, [user]);
+    if (!user || isPremium) return;
+    supabase
+      .from('user_subscriptions')
+      .select('daily_uses, last_use_date')
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        const today = new Date().toISOString().split("T")[0];
+        const uses = (data?.last_use_date === today) ? (data?.daily_uses || 0) : 0;
+        setDailyUsed(uses);
+      });
+  }, [user, isPremium]);
 
   // Load history from localStorage
   useEffect(() => {
