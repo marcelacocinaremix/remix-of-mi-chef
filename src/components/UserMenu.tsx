@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LogOut, User, Globe, Settings, Crown, Clock, Sparkles, Palette } from "lucide-react";
+import { LogOut, User, Globe, Settings, Crown, Sparkles, Palette } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
@@ -22,7 +22,7 @@ import {
 export function UserMenu() {
   const { user, signOut } = useAuth();
   const { t, language } = useLanguage();
-  const { isPremium, isTrialActive, trialDaysRemaining } = usePremium();
+  const { isPremium } = usePremium();
   const { theme } = useAppTheme();
   const navigate = useNavigate();
   const [showLanguageModal, setShowLanguageModal] = useState(false);
@@ -77,11 +77,6 @@ export function UserMenu() {
             <Badge className="bg-amber-500 hover:bg-amber-600 text-white gap-1 text-[10px] px-2 py-0.5">
               <Crown className="w-3 h-3" />
               Premium
-            </Badge>
-          ) : isTrialActive ? (
-            <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white gap-1 text-[10px] px-2 py-0.5">
-              <Clock className="w-3 h-3" />
-              Prueba – {trialDaysRemaining}d
             </Badge>
           ) : (
             <Badge className="bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 text-white gap-1 text-xs px-3 py-1 shadow-sm">

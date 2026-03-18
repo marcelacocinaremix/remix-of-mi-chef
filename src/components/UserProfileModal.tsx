@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Camera, User, Save, X, Loader2, Globe, Crown, Clock, Sparkles } from "lucide-react";
+import { Camera, User, Save, X, Loader2, Globe, Crown, Sparkles } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -33,7 +33,7 @@ interface UserProfileModalProps {
 export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) {
   const { user } = useAuth();
   const { t } = useLanguage();
-  const { isPremium, isTrialActive, trialDaysRemaining } = usePremium();
+  const { isPremium } = usePremium();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(false);
@@ -184,13 +184,10 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
 
             {/* Plan actual */}
             <div className="rounded-xl border border-border/50 bg-muted/30 overflow-hidden">
-              {/* Header */}
               <div className="flex items-center justify-between px-4 py-3">
                 <div className="flex items-center gap-2 text-sm font-medium text-foreground">
                   {isPremium ? (
                     <Crown className="w-4 h-4 text-amber-500" />
-                  ) : isTrialActive ? (
-                    <Clock className="w-4 h-4 text-emerald-500" />
                   ) : (
                     <Sparkles className="w-4 h-4 text-primary" />
                   )}
@@ -201,11 +198,6 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
                     <Crown className="w-3 h-3" />
                     Premium
                   </Badge>
-                ) : isTrialActive ? (
-                  <Badge className="bg-emerald-500 text-primary-foreground gap-1 text-xs px-2 py-0.5">
-                    <Clock className="w-3 h-3" />
-                    Prueba · {trialDaysRemaining}d restantes
-                  </Badge>
                 ) : (
                   <Badge variant="outline" className="text-xs px-2 py-0.5">
                     Plan Gratuito
@@ -213,7 +205,6 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
                 )}
               </div>
 
-              {/* Included features */}
               <div className="border-t border-border/40 px-4 py-3 space-y-1.5">
                 {[
                   { label: "Generador de recetas con IA", free: true },
@@ -226,7 +217,7 @@ export function UserProfileModal({ open, onOpenChange }: UserProfileModalProps) 
                   { label: "Balance y salud", free: false },
                   { label: "Trucos del Chef", free: false },
                 ].map((f) => {
-                  const hasAccess = isPremium || isTrialActive || f.free;
+                  const hasAccess = isPremium || f.free;
                   return (
                     <div key={f.label} className="flex items-center gap-2">
                       {hasAccess ? (

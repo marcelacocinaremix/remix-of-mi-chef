@@ -1,4 +1,4 @@
-import { Crown, Sparkles, Clock, AlertCircle, XCircle, Check, X, RotateCcw } from "lucide-react";
+import { Crown, Sparkles, AlertCircle, XCircle, Check, X, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import {
@@ -21,82 +21,64 @@ const features = [
   {
     label: "Generar recetas con IA",
     free: "3/día",
-    trial: "3/día",
     premium: "10/día",
     freeOk: true,
-    trialOk: true,
     premiumOk: true,
   },
   {
     label: "Calendario semanal/mensual",
     free: "✓",
-    trial: "✓",
     premium: "✓",
     freeOk: true,
-    trialOk: true,
     premiumOk: true,
   },
   {
     label: "Juego Chef Arena",
     free: "✓",
-    trial: "✓",
     premium: "✓",
     freeOk: true,
-    trialOk: true,
     premiumOk: true,
   },
   {
     label: "Asistente Marcela",
     free: "✓",
-    trial: "✓",
     premium: "✓",
     freeOk: true,
-    trialOk: true,
     premiumOk: true,
   },
   {
     label: "Despensa",
     free: "Solo lectura",
-    trial: "✓",
     premium: "✓",
     freeOk: false,
-    trialOk: true,
     premiumOk: true,
   },
   {
     label: "Lista de súper",
     free: "Solo lectura",
-    trial: "✓",
     premium: "✓",
     freeOk: false,
-    trialOk: true,
     premiumOk: true,
   },
   {
     label: "Balance nutricional",
     free: "Solo lectura",
-    trial: "✓",
     premium: "✓",
     freeOk: false,
-    trialOk: true,
     premiumOk: true,
   },
   {
     label: "Trucos del Chef",
     free: "Solo lectura",
-    trial: "✓",
     premium: "✓",
     freeOk: false,
-    trialOk: true,
     premiumOk: true,
   },
   {
     label: "Sin publicidad",
     free: "✗",
-    trial: "✗",
     premium: "✓",
     freeOk: false,
-    trialOk: false,
     premiumOk: true,
   },
 ];
@@ -111,7 +93,6 @@ function CellIcon({ ok, value }: { ok: boolean; value: string }) {
   if (value === "Solo lectura") {
     return <span className="text-[10px] text-muted-foreground text-center block leading-tight">Solo<br/>lectura</span>;
   }
-  // Numeric/text values (e.g. "3/día", "10/día")
   return (
     <span className={`text-xs font-semibold text-center block ${ok ? "text-emerald-600" : "text-muted-foreground"}`}>
       {value}
@@ -121,9 +102,8 @@ function CellIcon({ ok, value }: { ok: boolean; value: string }) {
 
 export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerProps) {
   const {
-    isPremium, isTrialActive, isTrialExpired,
-    trialDaysRemaining, isCancelled, daysRemaining,
-    subscriptionEnd, trialUsed, refetch,
+    isPremium, isCancelled, daysRemaining,
+    subscriptionEnd, refetch,
   } = usePremium();
 
   const [isRestoring, setIsRestoring] = useState(false);
@@ -132,66 +112,39 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
 
   const stateLabel = isPremium
     ? isCancelledButActive ? "Premium (cancelado)" : "Premium Activo"
-    : isTrialActive ? "Prueba gratuita (15 días)"
-    : isTrialExpired ? "Prueba finalizada"
     : "Plan gratuito";
 
   const badgeColor = isPremium
     ? "bg-amber-500 text-white"
-    : isTrialActive ? "bg-emerald-500 text-white"
     : "bg-muted text-muted-foreground";
 
   const badgeText = isPremium
     ? isCancelledButActive ? `${daysRemaining}d restantes` : "✨ Activo"
-    : isTrialActive ? `${trialDaysRemaining} día${trialDaysRemaining !== 1 ? "s" : ""} restantes`
-    : isTrialExpired ? "Expirada" : "Gratis";
+    : "Gratis";
 
   const cardGradient = isPremium
     ? "from-amber-50 to-orange-50 border-amber-200 dark:from-amber-950/30 dark:to-orange-950/30 dark:border-amber-800"
-    : isTrialActive
-      ? "from-emerald-50 to-teal-50 border-emerald-200 dark:from-emerald-950/30 dark:to-teal-950/30 dark:border-emerald-800"
-      : "from-muted/50 to-muted/30 border-border";
+    : "from-muted/50 to-muted/30 border-border";
 
-  const StatusIcon = isPremium ? Crown : isTrialActive ? Clock : isTrialExpired ? XCircle : Sparkles;
-  const iconColor = isPremium ? "text-amber-500" : isTrialActive ? "text-emerald-500" : "text-muted-foreground";
+  const StatusIcon = isPremium ? Crown : Sparkles;
+  const iconColor = isPremium ? "text-amber-500" : "text-muted-foreground";
 
   const endDateFormatted = subscriptionEnd
     ? new Date(subscriptionEnd).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })
     : null;
 
-  // Trial end date display
-  const { trialEndDate } = (() => {
-    // Access trial end via hook — derive from daysRemaining + isTrialActive
-    const approxEnd = isTrialActive && trialDaysRemaining > 0
-      ? new Date(Date.now() + trialDaysRemaining * 24 * 60 * 60 * 1000)
-      : null;
-    return {
-      trialEndDate: approxEnd
-        ? approxEnd.toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })
-        : null,
-    };
-  })();
-
   const handleSubscribe = () => {
-    // Try multiple possible bridge names registered by the WebView
     const androidBridge =
       (window as any).AndroidInterface ||
       (window as any).Android ||
       (window as any).MiChefBridge ||
       (window as any).JSBridge;
 
-    console.log("[Purchase] AndroidInterface:", !!(window as any).AndroidInterface);
-    console.log("[Purchase] Android:", !!(window as any).Android);
-    console.log("[Purchase] MiChefBridge:", !!(window as any).MiChefBridge);
-    console.log("[Purchase] bridge found:", !!androidBridge);
-    console.log("[Purchase] userAgent:", navigator.userAgent);
-
     if (androidBridge) {
       try {
         if (typeof androidBridge.iniciarCompra === "function") {
           androidBridge.iniciarCompra("premium_mensual");
         } else {
-          // Bridge found but method missing — list available methods for debugging
           const methods = Object.getOwnPropertyNames(androidBridge).join(", ");
           console.error("[Purchase] iniciarCompra not found. Available:", methods);
           toast.error(`Método de pago no encontrado. Métodos disponibles: ${methods || "ninguno"}`);
@@ -201,7 +154,6 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
         toast.error("Error al iniciar la compra. Intentá de nuevo.");
       }
     } else {
-      // Running outside the native app — show helpful message
       const isAndroid = /android/i.test(navigator.userAgent);
       if (isAndroid) {
         toast.error("No se encontró el puente nativo. Verificá que AndroidInterface esté registrado en el WebView.", {
@@ -216,8 +168,7 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
     onOpenChange(false);
   };
 
-  // Highlight active column
-  const activeCol = isPremium ? "premium" : isTrialActive ? "trial" : "free";
+  const activeCol = isPremium ? "premium" : "free";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -247,13 +198,7 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
                 ? isCancelledButActive
                   ? `Cancelaste la renovación. Seguís con Premium hasta el ${endDateFormatted}.`
                   : "¡Disfrutás todas las funciones sin límites ni publicidad!"
-                : isTrialActive
-                  ? trialEndDate
-                    ? `Tu prueba finaliza el ${trialEndDate}.`
-                    : `Te quedan ${trialDaysRemaining} día${trialDaysRemaining !== 1 ? "s" : ""} de prueba.`
-                  : isTrialExpired
-                    ? "Tu prueba de 15 días terminó. Activá Premium para seguir usando todo."
-                    : "Usás el plan gratuito con funciones básicas."}
+                : "Usás el plan gratuito con funciones básicas."}
             </p>
 
             {isCancelledButActive && endDateFormatted && (
@@ -266,19 +211,15 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
             )}
           </div>
 
-          {/* Plan comparison table */}
+          {/* Plan comparison table — 3 cols: Función / Gratis / Premium */}
           <div>
             <h4 className="font-semibold text-sm mb-3">Comparativa de planes</h4>
             <div className="rounded-xl border overflow-hidden text-sm">
               {/* Header */}
-              <div className="grid grid-cols-4 bg-muted/50">
+              <div className="grid grid-cols-3 bg-muted/50">
                 <div className="p-2 text-xs text-muted-foreground font-medium">Función</div>
                 <div className={`p-2 text-center text-xs font-semibold ${activeCol === "free" ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}>
                   Gratis
-                </div>
-                <div className={`p-2 text-center text-xs font-semibold ${activeCol === "trial" ? "bg-emerald-500/10 text-emerald-600" : "text-muted-foreground"}`}>
-                  Prueba
-                  <div className="text-[10px] font-normal opacity-70">15 días</div>
                 </div>
                 <div className={`p-2 text-center text-xs font-semibold ${activeCol === "premium" ? "bg-amber-500/10 text-amber-600" : "text-muted-foreground"}`}>
                   Premium
@@ -290,14 +231,11 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
               {features.map((f, i) => (
                 <div
                   key={f.label}
-                  className={`grid grid-cols-4 border-t ${i % 2 === 0 ? "" : "bg-muted/20"}`}
+                  className={`grid grid-cols-3 border-t ${i % 2 === 0 ? "" : "bg-muted/20"}`}
                 >
                   <div className="p-2 text-xs text-foreground leading-tight flex items-center">{f.label}</div>
                   <div className={`p-2 flex items-center justify-center ${activeCol === "free" ? "bg-primary/5" : ""}`}>
                     <CellIcon ok={f.freeOk} value={f.free} />
-                  </div>
-                  <div className={`p-2 flex items-center justify-center ${activeCol === "trial" ? "bg-emerald-500/5" : ""}`}>
-                    <CellIcon ok={f.trialOk} value={f.trial} />
                   </div>
                   <div className={`p-2 flex items-center justify-center ${activeCol === "premium" ? "bg-amber-500/5" : ""}`}>
                     <CellIcon ok={f.premiumOk} value={f.premium} />
@@ -314,7 +252,7 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
               className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold py-5"
             >
               <Crown className="mr-2 h-4 w-4" />
-              {isTrialActive ? "Activar Premium ahora" : "Actualizar a Premium"}
+              Actualizar a Premium
             </Button>
           )}
 
@@ -329,7 +267,7 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
             </Button>
           )}
 
-          {/* Restore purchase — shown when not premium (covers ITEM_ALREADY_OWNED case) */}
+          {/* Restore purchase */}
           {!isPremium && (
             <Button
               variant="ghost"
@@ -356,17 +294,12 @@ export function SubscriptionManager({ open, onOpenChange }: SubscriptionManagerP
                     await refetch();
                     if (data.is_premium) {
                       toast.success("🎉 ¡Suscripción Premium restaurada!", { duration: 5000 });
-                    } else if (data.trial_active && data.expiration_date) {
-                      const trialEnd = new Date(data.expiration_date).toLocaleDateString("es-AR", {
-                        day: "numeric", month: "long",
-                      });
-                      toast.success(`✨ Prueba activa. Finaliza el ${trialEnd}`, { duration: 5000 });
                     } else {
                       toast.info("No se encontró una suscripción activa. Si acabás de comprar, esperá un momento e intentá de nuevo.", {
                         duration: 6000,
                       });
                     }
-                    if (data.is_premium || data.trial_active) onOpenChange(false);
+                    if (data.is_premium) onOpenChange(false);
                   } else {
                     toast.info("No se encontró una suscripción activa. Si acabás de comprar, esperá un momento e intentá de nuevo.", {
                       duration: 6000,
