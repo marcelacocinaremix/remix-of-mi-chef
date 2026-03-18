@@ -9,9 +9,12 @@ import { cn } from "@/lib/utils";
 import { MealType, useMealLogs } from "@/hooks/useMealLogs";
 import { MealSlot } from "./MealSlot";
 import { AddMealDialog } from "./AddMealDialog";
+import { DailyLimitModal } from "@/components/DailyLimitModal";
+import { usePremium } from "@/hooks/usePremium";
 import { toast } from "sonner";
 
 const MEAL_TYPES: MealType[] = ["desayuno", "almuerzo", "merienda", "cena", "entre_comidas"];
+const DAILY_MEAL_LIMIT = 4;
 
 // Daily targets based on fitness goal
 function getDailyTargets(goal?: string) {
