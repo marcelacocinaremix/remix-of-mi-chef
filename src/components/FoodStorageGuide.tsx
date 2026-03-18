@@ -247,14 +247,6 @@ export function FoodStorageGuide() {
   };
 
   const handleSearch = async (foodOverride?: string, categoryOverride?: string) => {
-    // Check daily limit for free users
-    if (!isPremium) {
-      if (dailyUsed >= DAILY_LIMIT) {
-        setShowLimitModal(true);
-        return;
-      }
-    }
-
     const foodToUse = (foodOverride || foodName).trim();
     const categoryToUse = categoryOverride || selectedCategory;
     
@@ -265,6 +257,23 @@ export function FoodStorageGuide() {
         variant: "destructive",
       });
       return;
+    }
+
+    // For free users: check & increment server-side BEFORE calling AI
+    if (!isPremium && user) {
+      const { data: limitData, error: limitError } = await supabase.rpc('check_and_increment_daily_uses', {
+        p_user_id: user.id,
+        p_daily_limit: DAILY_LIMIT,
+      });
+      if (limitError) {
+        toast({ title: "Error", description: "No se pudo verificar el límite diario.", variant: "destructive" });
+        return;
+      }
+      if (!limitData?.allowed) {
+        setShowLimitModal(true);
+        return;
+      }
+      setDailyUsed(limitData.uses_today ?? dailyUsed + 1);
     }
 
     setIsLoading(true);
@@ -290,15 +299,6 @@ export function FoodStorageGuide() {
       } else if (data) {
         setFoodInfo(data);
         saveToHistory(foodToUse, categoryToUse);
-
-        // Increment daily counter for free users
-        if (!isPremium && user) {
-          const today = new Date().toISOString().split("T")[0];
-          const key = `food_guide_uses_${user.id}_${today}`;
-          const newCount = dailyUsed + 1;
-          setDailyUsed(newCount);
-          localStorage.setItem(key, String(newCount));
-        }
         
         // Check if already saved in favorites
         if (user) {
