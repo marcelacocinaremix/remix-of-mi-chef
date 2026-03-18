@@ -554,7 +554,6 @@ export default function Index() {
       {/* Food Guide paywall */}
       <PaywallModal open={showFoodGuidePaywall} onOpenChange={setShowFoodGuidePaywall} />
 
-      <TrialNoticeModal />
     </div>
   );
 }

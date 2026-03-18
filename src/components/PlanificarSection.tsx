@@ -150,14 +150,6 @@ export const PlanificarSection = ({
         )}
       </div>
 
-      {!isPremium && isTrialActive && (
-        <div className="text-center py-2">
-          <span className="text-xs text-muted-foreground">
-            🎁 Prueba gratuita: {trialDaysRemaining} días restantes
-          </span>
-        </div>
-      )}
-
       <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
     </div>
   );
