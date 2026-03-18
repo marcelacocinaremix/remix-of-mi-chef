@@ -117,6 +117,34 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     return null;
   }, [paidPeriodActive, subscriptionEnd, isTrialActive, trialDaysRemaining]);
 
+  // ── localStorage cache key ────────────────────────────────────────────────
+  const premiumCacheKey = user ? `premium_state_${user.id}` : null;
+
+  // Hydrate from localStorage on mount to avoid white flash before DB responds
+  useEffect(() => {
+    if (!premiumCacheKey) return;
+    try {
+      const cached = localStorage.getItem(premiumCacheKey);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        const cacheAge = Date.now() - (parsed.__ts ?? 0);
+        // Use cache only if < 10 minutes old — prevents stale state after expiry
+        if (cacheAge < 10 * 60 * 1000) {
+          setDbIsPremium(parsed.is_premium ?? false);
+          setPlanType(parsed.plan_type ?? 'free');
+          setSubscriptionStatus(parsed.subscription_status ?? 'inactive');
+          setSubscriptionEnd(parsed.subscription_end ? new Date(parsed.subscription_end) : null);
+          setTrialEndDate(parsed.trial_end_date ? new Date(parsed.trial_end_date) : null);
+          setTrialUsedDb(parsed.trial_used ?? false);
+          console.log('[usePremium] Hydrated from localStorage cache');
+        }
+      }
+    } catch {
+      // ignore malformed cache
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [premiumCacheKey]);
+
   const fetchSubscription = useCallback(async () => {
     if (!user) {
       setDbIsPremium(false);
@@ -128,6 +156,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       setDailyUsage(null);
       setIsInitialized(true);
       setIsLoading(false);
+      if (premiumCacheKey) localStorage.removeItem(premiumCacheKey);
       return;
     }
 
@@ -157,17 +186,13 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       }
 
       if (data) {
-        // ── CRITICAL: subscription_end beats everything ──────────────────────
-        // If subscription_end is in the future, is_premium is authoritative.
-        // The trigger handles expiry server-side, but we double-check client-side
-        // for cancelled-but-active (grace period) case.
         const rawEnd = data.subscription_end ? new Date(data.subscription_end) : null;
         const now = new Date();
 
-        // A cancelled subscription with future end date = still premium
+        // Grace period: cancelled but still within paid window
         let effectivePremium = data.is_premium || false;
         if (data.subscription_status === 'cancelled' && rawEnd && rawEnd > now) {
-          effectivePremium = true; // grace period — client override
+          effectivePremium = true;
         }
 
         setDbIsPremium(effectivePremium);
@@ -187,6 +212,23 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
           remaining: Math.max(0, userLimit - usesToday),
           limit: userLimit
         });
+
+        // ── Persist to localStorage so the next app launch doesn't flash ───
+        if (premiumCacheKey) {
+          try {
+            localStorage.setItem(premiumCacheKey, JSON.stringify({
+              is_premium: effectivePremium,
+              plan_type: data.plan_type || 'free',
+              subscription_status: data.subscription_status || 'inactive',
+              subscription_end: rawEnd?.toISOString() ?? null,
+              trial_end_date: data.trial_end_date ?? null,
+              trial_used: data.trial_used ?? false,
+              __ts: Date.now(),
+            }));
+          } catch {
+            // localStorage quota — non-fatal
+          }
+        }
       }
     } catch (err) {
       console.error('Error in fetchSubscription:', err);
@@ -194,7 +236,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       setIsInitialized(true);
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, premiumCacheKey]);
 
   const checkDailyUsage = useCallback(async (): Promise<{ allowed: boolean; message?: string }> => {
     if (!user) {
@@ -275,9 +317,9 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [user, fetchSubscription]);
 
-  // ── AUTH CHANGE: reset state on logout immediately ────────────────────────
+  // ── AUTH CHANGE: reset state on logout + clear localStorage cache ─────────
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') {
         setDbIsPremium(false);
         setPlanType('free');
@@ -287,6 +329,17 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         setTrialUsedDb(false);
         setDailyUsage(null);
         setIsInitialized(false);
+        // Clear any cached premium state so it doesn't bleed into the next session
+        try {
+          if (session?.user?.id) {
+            localStorage.removeItem(`premium_state_${session.user.id}`);
+          } else {
+            // Fallback: clear all premium_state_* keys
+            Object.keys(localStorage)
+              .filter((k) => k.startsWith('premium_state_'))
+              .forEach((k) => localStorage.removeItem(k));
+          }
+        } catch { /* non-fatal */ }
       }
     });
     return () => subscription.unsubscribe();
