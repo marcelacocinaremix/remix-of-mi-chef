@@ -375,24 +375,41 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
       </div>
 
       {/* Add Workout Button */}
-      <Dialog open={showAddWorkout} onOpenChange={(open) => {
-        setShowAddWorkout(open);
-        if (!open) resetForm();
-      }}>
-        <DialogTrigger asChild>
-          <motion.div 
-            whileHover={{ scale: 1.02 }} 
-            whileTap={{ scale: 0.98 }}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Button className="w-full h-12 text-base font-semibold" onClick={() => resetForm()}>
-              <Plus className="w-5 h-5 mr-2" />
-              {language === 'es' ? 'Registrar entrenamiento' : 'Log workout'}
-            </Button>
-          </motion.div>
-        </DialogTrigger>
+      {(() => {
+        const today = formatLocalDate();
+        const workoutsToday = workouts.filter(w => w.workout_date === today).length;
+        const atWorkoutLimit = !isPremium && workoutsToday >= 1;
+
+        return (
+          <>
+            <Dialog open={showAddWorkout} onOpenChange={(open) => {
+              setShowAddWorkout(open);
+              if (!open) resetForm();
+            }}>
+              <DialogTrigger asChild>
+                <motion.div 
+                  whileHover={{ scale: 1.02 }} 
+                  whileTap={{ scale: 0.98 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <Button
+                    className="w-full h-12 text-base font-semibold"
+                    onClick={(e) => {
+                      if (atWorkoutLimit) {
+                        e.preventDefault();
+                        setShowWorkoutLimitModal(true);
+                        return;
+                      }
+                      resetForm();
+                    }}
+                  >
+                    <Plus className="w-5 h-5 mr-2" />
+                    {language === 'es' ? 'Registrar entrenamiento' : 'Log workout'}
+                  </Button>
+                </motion.div>
+              </DialogTrigger>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
