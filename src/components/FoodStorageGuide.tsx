@@ -807,7 +807,7 @@ export function FoodStorageGuide() {
           </CardContent>
         </Card>
       )}
-      <SubscriptionManager open={showLimitModal} onOpenChange={setShowLimitModal} />
+      <DailyLimitModal open={showLimitModal} onOpenChange={setShowLimitModal} type="tips" />
     </div>
   );
 }
