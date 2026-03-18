@@ -171,19 +171,11 @@ Deno.serve(async (req) => {
       const subscriptionEnd = new Date(expiryMs).toISOString();
       const isActive = expiryMs > Date.now();
       const isCancelled = gpData.cancelReason !== undefined;
-      const isTrialPurchase = gpData.paymentState === 0; // 0 = free trial in Google Play
 
       const newStatus = isCancelled ? "cancelled" : isActive ? "active" : "expired";
       const newIsPremium = isActive;
 
-      console.log(`[sync-sub] GP response: expiryMs=${expiryMs} isActive=${isActive} isCancelled=${isCancelled} isTrialPurchase=${isTrialPurchase} paymentState=${gpData.paymentState}`);
-
-      // Preserve existing trial metadata
-      const { data: existingSub } = await adminClient
-        .from("user_subscriptions")
-        .select("trial_used, trial_start_date, trial_end_date, subscription_start")
-        .eq("user_id", user.id)
-        .maybeSingle();
+      console.log(`[sync-sub] GP response: expiryMs=${expiryMs} isActive=${isActive} isCancelled=${isCancelled} paymentState=${gpData.paymentState}`);
 
       // ── Upsert user_subscriptions (with retry) ────────────────────────────
       const { error: upsertError } = await withRetry(
@@ -193,12 +185,8 @@ Deno.serve(async (req) => {
           plan_type: newIsPremium ? "premium" : "free",
           subscription_status: newStatus,
           subscription_end: subscriptionEnd,
-          subscription_start: existingSub?.subscription_start ?? new Date().toISOString(),
+          subscription_start: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-          // Preserve trial fields so they're never lost
-          ...(existingSub?.trial_used !== undefined && { trial_used: existingSub.trial_used }),
-          ...(existingSub?.trial_start_date && { trial_start_date: existingSub.trial_start_date }),
-          ...(existingSub?.trial_end_date && { trial_end_date: existingSub.trial_end_date }),
         }, { onConflict: "user_id" }),
         3,
         "upsert-subscription"
