@@ -250,7 +250,7 @@ export default function Index() {
     if (user) {
       const usageResult = await checkDailyUsage();
       if (!usageResult.allowed) {
-        toast({ title: "🍳 ¡Se acabaron tus recetas de hoy!", description: usageResult.message || `Ya usaste tus ${isPremium ? '10' : '3'} recetas del día. ¡Volvé mañana para seguir cocinando!`, variant: "destructive" });
+        setShowRecipeLimitModal(true);
         return;
       }
     }
