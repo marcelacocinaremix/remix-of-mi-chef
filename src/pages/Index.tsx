@@ -194,8 +194,21 @@ export default function Index() {
       });
 
       if (error) {
-        const errorStr = JSON.stringify(error).toLowerCase();
-        const is429 = error.message?.includes('429') || error.status === 429 || errorStr.includes('429') || errorStr.includes('dailylimitreached') || errorStr.includes('límite');
+        // The context body may be empty; read the raw response body string
+        let errorBody: any = {};
+        try {
+          const raw = (error as any)?.context?.responseBody ?? (error as any)?.context?.body;
+          if (typeof raw === 'string') errorBody = JSON.parse(raw);
+          else if (raw && typeof raw === 'object') errorBody = raw;
+        } catch { /* ignore */ }
+
+        const errorStr = JSON.stringify(error);
+        const is429 =
+          (error as any).status === 429 ||
+          (error as any).message?.includes('non-2xx') ||
+          errorStr.includes('"429"') ||
+          errorBody?.dailyLimitReached === true;
+
         if (is429) {
           setShowRecipeLimitModal(true);
           refetchPremium();
