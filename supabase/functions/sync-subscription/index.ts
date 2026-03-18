@@ -5,15 +5,38 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// ── Unified response shape consumed by the frontend ───────────────────────────
 interface SyncResult {
   success: boolean;
   is_premium: boolean;
   trial_active: boolean;
-  expiration_date: string | null; // ISO string — covers both paid end & trial end
+  expiration_date: string | null;
   subscription_status: string;
   plan_type: string | null;
   cancelled_active?: boolean;
+}
+
+// ── Retry helper: retries an async fn up to `maxAttempts` with exponential backoff ──
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  maxAttempts = 3,
+  label = "op"
+): Promise<T> {
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      const isLast = attempt === maxAttempts;
+      console.warn(
+        `[sync-sub] ${label} attempt ${attempt}/${maxAttempts} failed:`,
+        err instanceof Error ? err.message : String(err),
+        isLast ? "(giving up)" : `(retrying in ${attempt * 300}ms)`
+      );
+      if (!isLast) await new Promise((r) => setTimeout(r, attempt * 300));
+    }
+  }
+  throw lastErr;
 }
 
 async function getGoogleAccessToken(serviceAccountKey: string): Promise<string | null> {
@@ -62,13 +85,19 @@ async function getGoogleAccessToken(serviceAccountKey: string): Promise<string |
     const sig = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", cryptoKey, encoder.encode(signInput));
     const sigB64 = btoa(String.fromCharCode(...new Uint8Array(sig)))
       .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+
     const jwt = `${signInput}.${sigB64}`;
 
-    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
-    });
+    const tokenRes = await withRetry(
+      () => fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
+      }),
+      3,
+      "oauth-token"
+    );
+
     if (!tokenRes.ok) {
       console.error(`[sync-sub] OAuth token failed (${tokenRes.status}):`, await tokenRes.text());
       return null;
@@ -123,7 +152,12 @@ Deno.serve(async (req) => {
       }
 
       const gpUrl = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${googlePackageName}/purchases/subscriptions/${googleSubscriptionId}/tokens/${purchaseToken.trim()}`;
-      const gpRes = await fetch(gpUrl, { headers: { Authorization: `Bearer ${accessToken}` } });
+
+      const gpRes = await withRetry(
+        () => fetch(gpUrl, { headers: { Authorization: `Bearer ${accessToken}` } }),
+        3,
+        "google-play-validate"
+      );
 
       if (!gpRes.ok) {
         const errText = await gpRes.text();
@@ -138,31 +172,38 @@ Deno.serve(async (req) => {
       const subscriptionEnd = new Date(expiryMs).toISOString();
       const isActive = expiryMs > Date.now();
       const isCancelled = gpData.cancelReason !== undefined;
+      const isTrialPurchase = gpData.paymentState === 0; // 0 = free trial in Google Play
 
-      // Cancelled-but-within-period = still premium (grace period)
       const newStatus = isCancelled ? "cancelled" : isActive ? "active" : "expired";
-      const newIsPremium = isActive; // true while within paid window, even if cancelled
+      const newIsPremium = isActive;
 
-      // Preserve trial data
+      console.log(`[sync-sub] GP response: expiryMs=${expiryMs} isActive=${isActive} isCancelled=${isCancelled} isTrialPurchase=${isTrialPurchase} paymentState=${gpData.paymentState}`);
+
+      // Preserve existing trial metadata
       const { data: existingSub } = await adminClient
         .from("user_subscriptions")
-        .select("trial_used, trial_start_date, trial_end_date")
+        .select("trial_used, trial_start_date, trial_end_date, subscription_start")
         .eq("user_id", user.id)
         .maybeSingle();
 
-      const { error: upsertError } = await adminClient
-        .from("user_subscriptions")
-        .upsert({
+      // ── Upsert user_subscriptions (with retry) ────────────────────────────
+      const { error: upsertError } = await withRetry(
+        () => adminClient.from("user_subscriptions").upsert({
           user_id: user.id,
           is_premium: newIsPremium,
           plan_type: newIsPremium ? "premium" : "free",
           subscription_status: newStatus,
           subscription_end: subscriptionEnd,
+          subscription_start: existingSub?.subscription_start ?? new Date().toISOString(),
           updated_at: new Date().toISOString(),
+          // Preserve trial fields so they're never lost
           ...(existingSub?.trial_used !== undefined && { trial_used: existingSub.trial_used }),
           ...(existingSub?.trial_start_date && { trial_start_date: existingSub.trial_start_date }),
           ...(existingSub?.trial_end_date && { trial_end_date: existingSub.trial_end_date }),
-        }, { onConflict: "user_id" });
+        }, { onConflict: "user_id" }),
+        3,
+        "upsert-subscription"
+      );
 
       if (upsertError) {
         console.error("[sync-sub] DB upsert error:", upsertError);
@@ -171,12 +212,51 @@ Deno.serve(async (req) => {
         });
       }
 
+      // ── Insert into payments table (idempotent via purchaseToken) ─────────
+      // Only record when payment is confirmed (paymentState === 1) or unknown (undefined)
+      // paymentState 0 = free trial, 1 = paid, 2 = deferred
+      const paymentConfirmed = gpData.paymentState === 1 || gpData.paymentState === undefined;
+      if (paymentConfirmed && newIsPremium) {
+        // Check if this purchaseToken was already recorded to avoid duplicate rows
+        const { data: existingPayment } = await adminClient
+          .from("payments")
+          .select("id")
+          .eq("payment_id", purchaseToken.substring(0, 255))
+          .maybeSingle();
+
+        if (!existingPayment) {
+          const { error: paymentError } = await withRetry(
+            () => adminClient.from("payments").insert({
+              user_id: user.id,
+              amount: 0,  // Amount not available from subscription API; updated via webhook
+              status: "approved",
+              description: `Google Play subscription - ${googleSubscriptionId}`,
+              preference_id: `gplay_${googleSubscriptionId}`,
+              payment_id: purchaseToken.substring(0, 255), // used as idempotency key
+              external_reference: `${googlePackageName}/${googleSubscriptionId}`,
+              paid_at: new Date().toISOString(),
+            }),
+            3,
+            "insert-payment"
+          );
+
+          if (paymentError) {
+            // Non-fatal: log but don't fail the whole sync
+            console.warn("[sync-sub] Payment insert warning (non-fatal):", paymentError.message);
+          } else {
+            console.log(`✅ [sync-sub] Payment recorded for user=${user.id}`);
+          }
+        } else {
+          console.log(`[sync-sub] Payment already recorded (token duplicate), skipping insert`);
+        }
+      }
+
       console.log(`✅ [sync-sub] Synced user=${user.id} status=${newStatus} expires=${subscriptionEnd}`);
 
       const result: SyncResult = {
         success: true,
         is_premium: newIsPremium,
-        trial_active: false,
+        trial_active: isTrialPurchase,
         expiration_date: subscriptionEnd,
         subscription_status: newStatus,
         plan_type: newIsPremium ? "premium" : "free",
@@ -218,14 +298,9 @@ Deno.serve(async (req) => {
     const rawEnd = sub.subscription_end ? new Date(sub.subscription_end) : null;
     const rawTrialEnd = sub.trial_end_date ? new Date(sub.trial_end_date) : null;
 
-    // Grace period: cancelled + future end = still premium
     const gracePeriodActive = sub.subscription_status === "cancelled" && !!rawEnd && rawEnd > now;
     const effectivePremium = sub.is_premium || gracePeriodActive;
-
-    // Trial active: no paid plan, but trial hasn't expired
     const trialActive = !effectivePremium && sub.trial_used === true && !!rawTrialEnd && rawTrialEnd > now;
-
-    // expiration_date = most relevant date for the frontend (paid end > trial end)
     const expirationDate = rawEnd?.toISOString() ?? rawTrialEnd?.toISOString() ?? null;
 
     const result: SyncResult = {
