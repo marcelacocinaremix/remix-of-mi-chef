@@ -269,11 +269,12 @@ export function FoodStorageGuide() {
         toast({ title: "Error", description: "No se pudo verificar el límite diario.", variant: "destructive" });
         return;
       }
-      if (!limitData?.allowed) {
+      const limit = limitData as { allowed: boolean; uses_today: number; remaining: number } | null;
+      if (!limit?.allowed) {
         setShowLimitModal(true);
         return;
       }
-      setDailyUsed(limitData.uses_today ?? dailyUsed + 1);
+      setDailyUsed(limit.uses_today ?? dailyUsed + 1);
     }
 
     setIsLoading(true);
