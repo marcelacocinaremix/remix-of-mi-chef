@@ -317,9 +317,9 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [user, fetchSubscription]);
 
-  // ── AUTH CHANGE: reset state on logout immediately ────────────────────────
+  // ── AUTH CHANGE: reset state on logout + clear localStorage cache ─────────
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') {
         setDbIsPremium(false);
         setPlanType('free');
@@ -329,6 +329,17 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         setTrialUsedDb(false);
         setDailyUsage(null);
         setIsInitialized(false);
+        // Clear any cached premium state so it doesn't bleed into the next session
+        try {
+          if (session?.user?.id) {
+            localStorage.removeItem(`premium_state_${session.user.id}`);
+          } else {
+            // Fallback: clear all premium_state_* keys
+            Object.keys(localStorage)
+              .filter((k) => k.startsWith('premium_state_'))
+              .forEach((k) => localStorage.removeItem(k));
+          }
+        } catch { /* non-fatal */ }
       }
     });
     return () => subscription.unsubscribe();
