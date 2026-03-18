@@ -184,7 +184,7 @@ interface SearchHistoryItem {
 const HISTORY_KEY = "food_tips_history";
 const MAX_HISTORY = 10;
 
-export function FoodStorageGuide({ onBlockedAction }: { onBlockedAction?: () => void }) {
+export function FoodStorageGuide() {
   const [foodName, setFoodName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("conservacion");
   const [isLoading, setIsLoading] = useState(false);
@@ -194,8 +194,21 @@ export function FoodStorageGuide({ onBlockedAction }: { onBlockedAction?: () => 
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [savedFavId, setSavedFavId] = useState<string | null>(null);
+  const [dailyUsed, setDailyUsed] = useState(0);
+  const [showLimitModal, setShowLimitModal] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { isPremium } = usePremium();
+
+  const DAILY_LIMIT = 3;
+
+  // Load daily usage count from localStorage (keyed by user+date)
+  useEffect(() => {
+    if (!user) return;
+    const today = new Date().toISOString().split("T")[0];
+    const key = `food_guide_uses_${user.id}_${today}`;
+    setDailyUsed(Number(localStorage.getItem(key) || "0"));
+  }, [user]);
 
   // Load history from localStorage
   useEffect(() => {
