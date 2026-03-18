@@ -46,8 +46,8 @@ type MasSubTab = "aprender" | "jugar" | "marcela" | "perfil" | "balance" | "guia
 
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
-  const { user } = useAuth();
-  const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium, hasAnyAccess, canUseFeature } = usePremium();
+  const { user, isLoading: authLoading } = useAuth();
+  const { dailyUsage, checkDailyUsage, refetch: refetchPremium, isPremium, hasAnyAccess, canUseFeature, isLoading: premiumLoading } = usePremium();
   const { showInterstitial } = useAdMob();
   const isMobile = useIsMobile();
   const { theme } = useAppTheme();
