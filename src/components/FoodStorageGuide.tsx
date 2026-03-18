@@ -240,10 +240,12 @@ export function FoodStorageGuide() {
   };
 
   const handleSearch = async (foodOverride?: string, categoryOverride?: string) => {
-    // If blocked, trigger paywall instead
-    if (onBlockedAction) {
-      onBlockedAction();
-      return;
+    // Check daily limit for free users
+    if (!isPremium) {
+      if (dailyUsed >= DAILY_LIMIT) {
+        setShowLimitModal(true);
+        return;
+      }
     }
 
     const foodToUse = (foodOverride || foodName).trim();
