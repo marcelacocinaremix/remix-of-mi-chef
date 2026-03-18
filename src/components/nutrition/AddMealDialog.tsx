@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, PenLine, ChefHat, ArrowLeft } from "lucide-react";
+import { Search, PenLine, ChefHat, ArrowLeft, Sparkles, Lock } from "lucide-react";
 import { MealType, MealLogInsert } from "@/hooks/useMealLogs";
 import { MEAL_CONFIG } from "./MealSlot";
 import { CommonFoodSearch } from "./CommonFoodSearch";
 import { ManualMealEntry } from "./ManualMealEntry";
 import { RecipeMealPicker } from "./RecipeMealPicker";
+import { AIFoodEstimator } from "./AIFoodEstimator";
+import { usePremium } from "@/hooks/usePremium";
 
 interface AddMealDialogProps {
   open: boolean;
@@ -19,7 +20,7 @@ interface AddMealDialogProps {
   onAddMeal: (meal: MealLogInsert) => Promise<boolean>;
 }
 
-type Step = "choose" | "search" | "manual" | "recipe";
+type Step = "choose" | "search" | "manual" | "recipe" | "ai";
 
 export function AddMealDialog({
   open,
@@ -29,6 +30,7 @@ export function AddMealDialog({
   onAddMeal,
 }: AddMealDialogProps) {
   const [step, setStep] = useState<Step>("choose");
+  const { isPremium } = usePremium();
   const config = MEAL_CONFIG[mealType];
 
   const handleAdd = async (meal: Omit<MealLogInsert, "meal_type" | "meal_date">) => {
@@ -69,6 +71,43 @@ export function AddMealDialog({
             <p className="text-sm text-muted-foreground">
               ¿Cómo querés agregar tu comida?
             </p>
+
+            {/* AI option — Premium only */}
+            {isPremium ? (
+              <Card
+                className="cursor-pointer hover:border-primary/50 transition-colors border-primary/20 bg-primary/5"
+                onClick={() => setStep("ai")}
+              >
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-sm">Calcular con IA</p>
+                      <Badge variant="default" className="text-[10px] py-0 px-1.5">Premium</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">La IA estima las calorías y macros de cualquier alimento</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="opacity-60 cursor-not-allowed border-dashed">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                    <Lock className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-sm text-muted-foreground">Calcular con IA</p>
+                      <Badge variant="secondary" className="text-[10px] py-0 px-1.5">🔒 Premium</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Estimación automática de calorías y macros</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             <Card
               className="cursor-pointer hover:border-primary/50 transition-colors"
               onClick={() => setStep("search")}
@@ -116,6 +155,7 @@ export function AddMealDialog({
           </div>
         )}
 
+        {step === "ai" && <AIFoodEstimator onAdd={handleAdd} />}
         {step === "search" && <CommonFoodSearch onAdd={handleAdd} />}
         {step === "manual" && <ManualMealEntry onAdd={handleAdd} />}
         {step === "recipe" && <RecipeMealPicker onAdd={handleAdd} />}
