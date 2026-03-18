@@ -146,33 +146,23 @@ export default function Index() {
   const handleGenerateRecipeInvokeError = (err: any) => {
     const { status, code, message } = parseEdgeFunctionError(err);
 
-    // Parse body — may be a raw string or already an object
-    let parsedBody: any = {};
-    try {
-      const raw = err?.context?.body;
-      parsedBody = typeof raw === 'string' ? JSON.parse(raw) : (raw || {});
-    } catch { /* ignore */ }
+    // FunctionsHttpError also exposes .status directly
+    const httpStatus = (err?.status ?? status) as number | undefined;
 
-    if (status === 401 || code === 'AUTH_REQUIRED') {
+    if (httpStatus === 401 || code === 'AUTH_REQUIRED') {
       toast({ title: 'Iniciá sesión', description: 'Necesitás iniciar sesión para generar recetas.', variant: 'destructive' });
       window.location.href = '/auth?redirect=/';
       return true;
     }
-    if (code === 'FREE_LIMIT_EXCEEDED' || code === 'PAYWALL_REQUIRED' || status === 402 || status === 403) {
+    if (code === 'FREE_LIMIT_EXCEEDED' || code === 'PAYWALL_REQUIRED' || httpStatus === 402 || httpStatus === 403) {
       setShowRecipeLimitModal(true);
       refetchPremium();
       return true;
     }
-    // 429 = daily limit OR rate limit
-    if (status === 429 || code === 'RATE_LIMITED') {
-      const isDailyLimit = parsedBody?.dailyLimitReached === true ||
-        (typeof parsedBody?.error === 'string' && parsedBody.error.includes('recetas'));
-      if (isDailyLimit) {
-        setShowRecipeLimitModal(true);
-        refetchPremium();
-      } else {
-        toast({ title: 'Estamos con mucha demanda', description: 'Probá de nuevo en un ratito.', variant: 'destructive' });
-      }
+    // 429 = daily limit → always show paywall modal
+    if (httpStatus === 429 || code === 'RATE_LIMITED') {
+      setShowRecipeLimitModal(true);
+      refetchPremium();
       return true;
     }
     if (message && message !== 'Edge Function returned a non-2xx status code') {
