@@ -220,6 +220,11 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       }
     } catch (err) {
       console.error('Error in fetchSubscription:', err);
+      // Default to free plan on any uncaught error
+      setDbIsPremium(false);
+      setPlanType('free');
+      setSubscriptionStatus('inactive');
+      setDailyUsage({ usesToday: 0, remaining: DAILY_LIMIT_FREE, limit: DAILY_LIMIT_FREE });
     } finally {
       setIsInitialized(true);
       setIsLoading(false);
