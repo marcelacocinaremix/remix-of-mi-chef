@@ -68,6 +68,13 @@ const features = [
     premiumOk: true,
   },
   {
+    label: "Aprender a cocinar",
+    free: "✓",
+    premium: "✓",
+    freeOk: true,
+    premiumOk: true,
+  },
+  {
     label: "Juego Chef Arena",
     free: "✓",
     premium: "✓",
