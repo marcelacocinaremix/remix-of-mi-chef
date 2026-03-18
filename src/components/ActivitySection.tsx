@@ -747,6 +747,13 @@ export function ActivitySection({ onNavigateToBalance, onWorkoutsChanged }: Acti
           </Card>
         </motion.div>
       )}
+
+      {/* Workout daily limit modal */}
+      <DailyLimitModal
+        open={showWorkoutLimitModal}
+        onOpenChange={setShowWorkoutLimitModal}
+        type="workout"
+      />
     </div>
   );
 }
