@@ -51,45 +51,20 @@ async function checkUserLimits(req: Request): Promise<{
   // Fetch subscription data
   const { data: subData } = await supabaseAdmin
     .from('user_subscriptions')
-    .select('is_premium, daily_uses, last_use_date, subscription_end, trial_end_date, subscription_status, trial_used')
+    .select('is_premium, daily_uses, last_use_date, subscription_end, subscription_status')
     .eq('user_id', user.id)
     .maybeSingle();
 
   const now = new Date();
 
-  // ── STRICT PREMIUM CHECK ──────────────────────────────────────────────────
-  // Premium is active ONLY if is_premium=true AND subscription hasn't expired
-  const paidActive = subData?.is_premium === true &&
+  // ── PREMIUM CHECK ─────────────────────────────────────────────────────────
+  // Premium is active ONLY if is_premium=true AND subscription hasn't expired.
+  // Cancelled subscriptions in grace period (end date in future) also count.
+  const isPremium = subData?.is_premium === true &&
     (!subData?.subscription_end || new Date(subData.subscription_end) > now);
 
-  // ── STRICT TRIAL CHECK ────────────────────────────────────────────────────
-  // Trial is active ONLY if:
-  //   1. trial_used = true (trial was actually started)
-  //   2. trial_end_date exists
-  //   3. trial_end_date is in the future (not expired)
-  //   4. NOT currently in a paid period
-  const trialActive = !paidActive &&
-    subData?.trial_used === true &&
-    subData?.trial_end_date != null &&
-    new Date(subData.trial_end_date) > now;
-
-  // ── ACCESS GATE ───────────────────────────────────────────────────────────
-  // Users must have EITHER an active paid subscription OR an active trial
-  // to generate recipes. Free users (trial expired or never started) are
-  // blocked from generating recipes beyond their daily free limit.
-  const isPremium = paidActive;
-  const hasAnyAccess = paidActive || trialActive;
-
-  // Daily limit: premium users get 10/day, everyone else gets 3/day
-  const userLimit = paidActive ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
-
-  // ── SUBSCRIPTION STATUS BLOCK ─────────────────────────────────────────────
-  // If user had a trial that has now expired, block them explicitly
-  if (subData?.trial_used && subData?.trial_end_date && !trialActive && !paidActive) {
-    const trialExpiredAt = new Date(subData.trial_end_date);
-    console.log(`⛔ Trial expired for user ${user.id} at ${trialExpiredAt.toISOString()}`);
-    // Still allow DAILY_LIMIT_FREE uses per day (don't fully block)
-  }
+  // Daily limit: premium → 10/day, free → 3/day
+  const userLimit = isPremium ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
 
   // ── DAILY USAGE CHECK ─────────────────────────────────────────────────────
   const today = new Date().toISOString().split('T')[0];
@@ -97,8 +72,7 @@ async function checkUserLimits(req: Request): Promise<{
   const currentUses = (!lastUseDate || lastUseDate < today) ? 0 : (subData?.daily_uses || 0);
 
   if (currentUses >= userLimit) {
-    const isPaidOrTrial = paidActive || trialActive;
-    const message = isPaidOrTrial
+    const message = isPremium
       ? `¡Alcanzaste el límite de ${userLimit} recetas de hoy! Volvé mañana 🍳`
       : `Hoy ya usaste tus ${DAILY_LIMIT_FREE} recetas gratuitas. ¡Suscribite para generar más! 🌟`;
 
