@@ -8,7 +8,6 @@ const corsHeaders = {
 interface SyncResult {
   success: boolean;
   is_premium: boolean;
-  trial_active: boolean;
   expiration_date: string | null;
   subscription_status: string;
   plan_type: string | null;
