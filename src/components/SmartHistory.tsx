@@ -122,8 +122,9 @@ const SmartHistory = ({ onHistoryDeleted, onSelectRecipe, onSelectSuggestion }: 
         const data = recipe.recipe_data as any;
         
         // Count ingredients
-        if (data?.ingredients) {
-          data.ingredients.forEach((ing: string) => {
+        if (data?.ingredients && Array.isArray(data.ingredients)) {
+          data.ingredients.forEach((ing: unknown) => {
+            if (typeof ing !== "string") return;
             const cleanIng = ing.toLowerCase().split(" ").slice(-1)[0];
             ingredientCounts[cleanIng] = (ingredientCounts[cleanIng] || 0) + 1;
           });
