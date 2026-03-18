@@ -46,11 +46,17 @@ export function DailyMealLog({ onMealsChanged, fitnessGoal, onBlockedAction }: D
     addMeal,
     deleteMeal,
   } = useMealLogs();
+  const { isPremium } = usePremium();
 
   const [addMealType, setAddMealType] = useState<MealType | null>(null);
+  const [showMealLimitModal, setShowMealLimitModal] = useState(false);
 
   const today = new Date().toISOString().split("T")[0];
   const isToday = selectedDate === today;
+
+  // Count meals for selected date
+  const mealsToday = dailyMeals.length;
+  const atMealLimit = !isPremium && isToday && mealsToday >= DAILY_MEAL_LIMIT;
 
   const navigateDate = (direction: -1 | 1) => {
     const d = new Date(selectedDate + "T12:00:00");
