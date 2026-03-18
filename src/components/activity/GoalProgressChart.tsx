@@ -109,7 +109,7 @@ export function GoalProgressChart({ goal, weeklyWorkouts, totalWorkouts }: GoalP
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
-      <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-zinc-950 via-neutral-900 to-zinc-900">
+      <Card className="overflow-hidden border shadow-xl bg-card">
         <CardContent className="pt-5 pb-6 px-5">
           {/* Header with animated text */}
           <motion.div 
@@ -118,7 +118,7 @@ export function GoalProgressChart({ goal, weeklyWorkouts, totalWorkouts }: GoalP
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
           >
-            <p className="text-zinc-300 text-base font-medium leading-relaxed">
+            <p className="text-foreground/80 text-base font-medium leading-relaxed">
               {language === 'es' ? 'Tu plan para' : 'Your plan to'}{' '}
               <motion.span 
                 className="text-primary font-bold"
@@ -355,7 +355,7 @@ export function GoalProgressChart({ goal, weeklyWorkouts, totalWorkouts }: GoalP
           {/* Timeline labels */}
           <div className="flex justify-between items-center mt-1 text-sm">
             <motion.span 
-              className="text-zinc-300 font-medium"
+              className="text-foreground/70 font-medium"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
@@ -374,7 +374,7 @@ export function GoalProgressChart({ goal, weeklyWorkouts, totalWorkouts }: GoalP
 
           {/* Stats row with animated counters */}
             <motion.div 
-            className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-zinc-700/50"
+            className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-border"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1 }}
@@ -386,14 +386,14 @@ export function GoalProgressChart({ goal, weeklyWorkouts, totalWorkouts }: GoalP
               transition={{ delay: 1.1 }}
             >
               <motion.p 
-                className="text-3xl font-bold text-white"
+                className="text-3xl font-bold text-foreground"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.2 }}
               >
                 {goal.target_weeks || progressData.weeksRemaining}
               </motion.p>
-              <p className="text-xs text-zinc-400 mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {language === 'es' ? 'semanas' : 'weeks'}
               </p>
             </motion.div>
@@ -411,7 +411,7 @@ export function GoalProgressChart({ goal, weeklyWorkouts, totalWorkouts }: GoalP
               >
                 {Math.round(progressData.timeProgress)}%
               </motion.p>
-              <p className="text-xs text-zinc-400 mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {language === 'es' ? 'transcurrido' : 'elapsed'}
               </p>
             </motion.div>
@@ -422,14 +422,14 @@ export function GoalProgressChart({ goal, weeklyWorkouts, totalWorkouts }: GoalP
               transition={{ delay: 1.3 }}
             >
               <motion.p 
-                className="text-3xl font-bold text-white"
+                className="text-3xl font-bold text-foreground"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.4 }}
               >
                 {totalWorkouts}
               </motion.p>
-              <p className="text-xs text-zinc-400 mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {language === 'es' ? 'entrenos' : 'workouts'}
               </p>
             </motion.div>
