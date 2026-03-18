@@ -120,13 +120,21 @@ export default function Index() {
 
   // ──────────────── Error parsing helpers ────────────────
   const parseEdgeFunctionError = (err: any) => {
-    const status = err?.context?.status as number | undefined;
-    const rawBody = err?.context?.body;
+    // FunctionsHttpError exposes status directly; context may be empty
+    const status = (err?.status ?? err?.context?.status) as number | undefined;
+    const rawBody = err?.context?.responseBody ?? err?.context?.body;
     let body: any = undefined;
     if (typeof rawBody === 'string') {
       try { body = JSON.parse(rawBody); } catch { body = undefined; }
     } else if (rawBody && typeof rawBody === 'object') {
       body = rawBody;
+    }
+    // Also try parsing from err.message if it contains JSON
+    if (!body) {
+      try {
+        const msgMatch = err?.message?.match(/\{.*\}/s);
+        if (msgMatch) body = JSON.parse(msgMatch[0]);
+      } catch { /* ignore */ }
     }
     return {
       status,
