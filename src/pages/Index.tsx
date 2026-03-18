@@ -554,6 +554,9 @@ export default function Index() {
       {/* Food Guide paywall */}
       <PaywallModal open={showFoodGuidePaywall} onOpenChange={setShowFoodGuidePaywall} />
 
+      {/* Daily recipe limit modal */}
+      <DailyLimitModal open={showRecipeLimitModal} onOpenChange={setShowRecipeLimitModal} type="recipe" />
+
     </div>
   );
 }
