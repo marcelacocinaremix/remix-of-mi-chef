@@ -120,13 +120,21 @@ export default function Index() {
 
   // ──────────────── Error parsing helpers ────────────────
   const parseEdgeFunctionError = (err: any) => {
-    const status = err?.context?.status as number | undefined;
-    const rawBody = err?.context?.body;
+    // FunctionsHttpError exposes status directly; context may be empty
+    const status = (err?.status ?? err?.context?.status) as number | undefined;
+    const rawBody = err?.context?.responseBody ?? err?.context?.body;
     let body: any = undefined;
     if (typeof rawBody === 'string') {
       try { body = JSON.parse(rawBody); } catch { body = undefined; }
     } else if (rawBody && typeof rawBody === 'object') {
       body = rawBody;
+    }
+    // Also try parsing from err.message if it contains JSON
+    if (!body) {
+      try {
+        const msgMatch = err?.message?.match(/\{.*\}/s);
+        if (msgMatch) body = JSON.parse(msgMatch[0]);
+      } catch { /* ignore */ }
     }
     return {
       status,
@@ -138,33 +146,23 @@ export default function Index() {
   const handleGenerateRecipeInvokeError = (err: any) => {
     const { status, code, message } = parseEdgeFunctionError(err);
 
-    // Parse body — may be a raw string or already an object
-    let parsedBody: any = {};
-    try {
-      const raw = err?.context?.body;
-      parsedBody = typeof raw === 'string' ? JSON.parse(raw) : (raw || {});
-    } catch { /* ignore */ }
+    // FunctionsHttpError also exposes .status directly
+    const httpStatus = (err?.status ?? status) as number | undefined;
 
-    if (status === 401 || code === 'AUTH_REQUIRED') {
+    if (httpStatus === 401 || code === 'AUTH_REQUIRED') {
       toast({ title: 'Iniciá sesión', description: 'Necesitás iniciar sesión para generar recetas.', variant: 'destructive' });
       window.location.href = '/auth?redirect=/';
       return true;
     }
-    if (code === 'FREE_LIMIT_EXCEEDED' || code === 'PAYWALL_REQUIRED' || status === 402 || status === 403) {
+    if (code === 'FREE_LIMIT_EXCEEDED' || code === 'PAYWALL_REQUIRED' || httpStatus === 402 || httpStatus === 403) {
       setShowRecipeLimitModal(true);
       refetchPremium();
       return true;
     }
-    // 429 = daily limit OR rate limit
-    if (status === 429 || code === 'RATE_LIMITED') {
-      const isDailyLimit = parsedBody?.dailyLimitReached === true ||
-        (typeof parsedBody?.error === 'string' && parsedBody.error.includes('recetas'));
-      if (isDailyLimit) {
-        setShowRecipeLimitModal(true);
-        refetchPremium();
-      } else {
-        toast({ title: 'Estamos con mucha demanda', description: 'Probá de nuevo en un ratito.', variant: 'destructive' });
-      }
+    // 429 = daily limit → always show paywall modal
+    if (httpStatus === 429 || code === 'RATE_LIMITED') {
+      setShowRecipeLimitModal(true);
+      refetchPremium();
       return true;
     }
     if (message && message !== 'Edge Function returned a non-2xx status code') {
@@ -194,8 +192,19 @@ export default function Index() {
       });
 
       if (error) {
-        const errorStr = JSON.stringify(error).toLowerCase();
-        const is429 = error.message?.includes('429') || error.status === 429 || errorStr.includes('429') || errorStr.includes('dailylimitreached') || errorStr.includes('límite');
+        // FunctionsHttpError exposes .status directly
+        const httpStatus = (error as any).status as number | undefined;
+
+        // Also try to parse body from context
+        let errorBody: any = {};
+        try {
+          const raw = (error as any)?.context?.responseBody ?? (error as any)?.context?.body;
+          if (typeof raw === 'string') errorBody = JSON.parse(raw);
+          else if (raw && typeof raw === 'object') errorBody = raw;
+        } catch { /* ignore */ }
+
+        const is429 = httpStatus === 429 || errorBody?.dailyLimitReached === true;
+
         if (is429) {
           setShowRecipeLimitModal(true);
           refetchPremium();
