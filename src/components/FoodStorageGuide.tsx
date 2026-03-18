@@ -203,19 +203,31 @@ export function FoodStorageGuide() {
 
   const DAILY_LIMIT = 2;
 
-  // Load daily usage count from server (keyed by user+date)
+  // Tips use their own localStorage counter (independent from recipe daily_uses)
+  const getTipsKey = () => {
+    const today = new Date().toISOString().split("T")[0];
+    return user ? `tips_uses_${user.id}_${today}` : null;
+  };
+
+  const getTipsUsedToday = (): number => {
+    const key = getTipsKey();
+    if (!key) return 0;
+    try { return parseInt(localStorage.getItem(key) || "0", 10); } catch { return 0; }
+  };
+
+  const incrementTipsUsed = (): number => {
+    const key = getTipsKey();
+    if (!key) return 0;
+    const next = getTipsUsedToday() + 1;
+    try { localStorage.setItem(key, String(next)); } catch { /* non-fatal */ }
+    return next;
+  };
+
+  // Load daily usage on mount
   useEffect(() => {
     if (!user || isPremium) return;
-    supabase
-      .from('user_subscriptions')
-      .select('daily_uses, last_use_date')
-      .eq('user_id', user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        const today = new Date().toISOString().split("T")[0];
-        const uses = (data?.last_use_date === today) ? (data?.daily_uses || 0) : 0;
-        setDailyUsed(uses);
-      });
+    setDailyUsed(getTipsUsedToday());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isPremium]);
 
   // Load history from localStorage
