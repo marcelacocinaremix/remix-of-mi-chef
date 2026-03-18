@@ -359,7 +359,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
             {/* Registro - Daily meal log (main view) */}
             {balanceSubTab === "registro" && (
               <div className="space-y-6">
-                <DailyMealLog onMealsChanged={refetchMeals} fitnessGoal={goal?.goal} onBlockedAction={balanceBlocked ? () => setShowPaywall(true) : undefined} />
+                <DailyMealLog onMealsChanged={refetchMeals} fitnessGoal={goal?.goal} />
 
                 {/* Recommendations based on today's meals */}
                 <NutritionRecommendations
