@@ -243,7 +243,7 @@ export function NutritionalBalance({ onRecommendRecipes, onAddIngredientToCook, 
       {/* Content */}
       <div className="animate-fade-in">
         {activeTab === "resumen" && (
-          <div className={cn(balanceBlocked && "opacity-60 pointer-events-none")}>
+          <div className="">
           <HealthSummary
             goal={goal}
             stats={activityStats}
