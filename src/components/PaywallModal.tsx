@@ -109,7 +109,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
             </DialogTitle>
           </DialogHeader>
           <p className="mt-2 text-white/90 text-sm">
-            Tu prueba gratuita terminó. ¡Activá Premium para seguir disfrutando sin límites!
+            Desbloqueá todas las funciones y generá hasta 10 recetas por día.
           </p>
         </div>
 
