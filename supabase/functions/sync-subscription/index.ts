@@ -253,7 +253,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ── Case 2: No token → return current DB state ────────────────────────────
+    // ── Case 2: No token → check DB state, auto-resync if expired ────────────
     const { data: sub, error: fetchError } = await adminClient
       .from("user_subscriptions")
       .select("is_premium, subscription_status, subscription_end, plan_type")
@@ -281,7 +281,87 @@ Deno.serve(async (req) => {
 
     const now = new Date();
     const rawEnd = sub.subscription_end ? new Date(sub.subscription_end) : null;
+    const isExpiredInDb = sub.is_premium && rawEnd && rawEnd <= now;
 
+    // ── CRITICAL: If DB says premium but subscription_end already passed,
+    // try to re-validate using the last known Google Play token from payments table.
+    // This handles subscription renewals where Google Play updated expiryTimeMillis
+    // but the DB wasn't notified via webhook yet.
+    if (isExpiredInDb && googleServiceAccountKey && googlePackageName && googleSubscriptionId) {
+      console.log(`[sync-sub] DB is_premium=true but expired (${rawEnd?.toISOString()}) — attempting auto-resync via last payment token`);
+
+      // Fetch the most recent Google Play purchaseToken from payments table
+      const { data: lastPayment } = await adminClient
+        .from("payments")
+        .select("payment_id")
+        .eq("user_id", user.id)
+        .ilike("external_reference", `${googlePackageName}%`)
+        .not("payment_id", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const lastToken = lastPayment?.payment_id;
+
+      if (lastToken) {
+        console.log(`[sync-sub] Found last token (${lastToken.substring(0, 20)}...) — validating with Google Play`);
+        const accessToken = await getGoogleAccessToken(googleServiceAccountKey);
+
+        if (accessToken) {
+          const gpUrl = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${googlePackageName}/purchases/subscriptions/${googleSubscriptionId}/tokens/${lastToken.trim()}`;
+
+          const gpRes = await withRetry(
+            () => fetch(gpUrl, { headers: { Authorization: `Bearer ${accessToken}` } }),
+            3,
+            "google-play-auto-resync"
+          ).catch(() => null);
+
+          if (gpRes && gpRes.ok) {
+            const gpData = await gpRes.json();
+            const expiryMs = parseInt(gpData.expiryTimeMillis, 10);
+            const isActive = expiryMs > Date.now();
+            const isCancelledGP = gpData.cancelReason !== undefined;
+            const newStatus = isCancelledGP ? "cancelled" : isActive ? "active" : "expired";
+            const newSubscriptionEnd = new Date(expiryMs).toISOString();
+            const newIsPremium = isActive;
+
+            console.log(`[sync-sub] Auto-resync result: expiryMs=${expiryMs} isActive=${isActive} status=${newStatus}`);
+
+            // Update DB with fresh data
+            await withRetry(
+              () => adminClient.from("user_subscriptions").upsert({
+                user_id: user.id,
+                is_premium: newIsPremium,
+                plan_type: newIsPremium ? "premium" : "free",
+                subscription_status: newStatus,
+                subscription_end: newSubscriptionEnd,
+                updated_at: new Date().toISOString(),
+              }, { onConflict: "user_id" }),
+              2,
+              "auto-resync-upsert"
+            ).catch(e => console.warn("[sync-sub] Auto-resync DB update failed (non-fatal):", e));
+
+            const result: SyncResult = {
+              success: true,
+              is_premium: newIsPremium,
+              expiration_date: newSubscriptionEnd,
+              subscription_status: newStatus,
+              plan_type: newIsPremium ? "premium" : "free",
+              cancelled_active: isCancelledGP && isActive,
+            };
+            return new Response(JSON.stringify(result), {
+              status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          } else {
+            console.warn(`[sync-sub] Google Play auto-resync failed (${gpRes?.status}) — returning expired state`);
+          }
+        }
+      } else {
+        console.log("[sync-sub] No previous token found in payments table — cannot auto-resync");
+      }
+    }
+
+    // Fallback: return current DB state as-is
     const gracePeriodActive = sub.subscription_status === "cancelled" && !!rawEnd && rawEnd > now;
     const effectivePremium = sub.is_premium || gracePeriodActive;
 
