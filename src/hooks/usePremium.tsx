@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext, ReactNode, useCallback, useMemo } from "react";
+import { useState, useEffect, createContext, useContext, ReactNode, useCallback, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -34,6 +34,8 @@ const PremiumContext = createContext<PremiumContextType | undefined>(undefined);
 
 const DAILY_LIMIT_FREE = 3;
 const DAILY_LIMIT_PREMIUM = 10;
+// How long to keep showing premium optimistically while re-syncing (ms)
+const OPTIMISTIC_GRACE_MS = 60 * 1000; // 1 minute
 
 export function PremiumProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
@@ -42,19 +44,26 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   const [dailyUsage, setDailyUsage] = useState<DailyUsageInfo | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
 
-  // Raw DB state
+  // Raw state — only updated after a confirmed sync result
   const [dbIsPremium, setDbIsPremium] = useState(false);
   const [planType, setPlanType] = useState<string | null>(null);
   const [subscriptionStatus, setSubscriptionStatus] = useState('inactive');
   const [subscriptionEnd, setSubscriptionEnd] = useState<Date | null>(null);
 
+  // Tracks whether a resync is currently in-flight — during that time we keep
+  // showing premium so the user never sees a flash of "free" mode.
+  const [isSyncing, setIsSyncing] = useState(false);
+  const syncAttemptRef = useRef(0); // prevents stale async races
+
   // ── DERIVED STATE ──────────────────────────────────────────────────────────
 
   const paidPeriodActive = useMemo(() => {
+    // While a re-sync is running, stay optimistically premium if DB says so
+    if (isSyncing && dbIsPremium) return true;
     if (!dbIsPremium) return false;
     if (!subscriptionEnd) return true;
     return new Date() < subscriptionEnd;
-  }, [dbIsPremium, subscriptionEnd]);
+  }, [dbIsPremium, subscriptionEnd, isSyncing]);
 
   const isCancelledActive = useMemo(() => {
     return subscriptionStatus === 'cancelled' && paidPeriodActive;
@@ -68,15 +77,12 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   const trialDaysRemaining = 0;
 
   const isPremium = paidPeriodActive;
-
-  // hasAnyAccess = only paid (trial removed)
   const hasAccess = paidPeriodActive;
 
   const canUseFeature = useCallback((
     feature: 'balance_add' | 'planificador_modify' | 'learn' | 'food_guide' | 'general'
   ) => {
     if (paidPeriodActive) return true;
-    // These features are free for everyone
     if (feature === 'planificador_modify') return true;
     if (feature === 'balance_add') return true;
     const premiumOnly: typeof feature[] = ['learn'];
@@ -92,7 +98,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     return null;
   }, [paidPeriodActive, subscriptionEnd]);
 
-  // ── localStorage cache key ────────────────────────────────────────────────
+  // ── localStorage cache ────────────────────────────────────────────────────
   const premiumCacheKey = user ? `premium_state_${user.id}` : null;
 
   useEffect(() => {
@@ -116,37 +122,77 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [premiumCacheKey]);
 
-  // Re-sync with Google Play when subscription appears expired but DB says premium
-  const resyncIfNeeded = useCallback(async (subData: {
+  // ── Core resync with Google Play (with exponential backoff retries) ────────
+  /**
+   * Calls sync-subscription (no token → DB-state + Google Play check).
+   * Returns the synced data on success, or null if all attempts fail.
+   * NEVER throws — callers decide what to do on null.
+   */
+  const callSyncSubscription = useCallback(async (maxAttempts = 3): Promise<{
     is_premium: boolean;
-    subscription_end: string | null;
-    subscription_status: string | null;
+    expiration_date: string | null;
+    subscription_status: string;
     plan_type: string | null;
-  }): Promise<{ is_premium: boolean; subscription_end: string | null; subscription_status: string | null; plan_type: string | null }> => {
-    const rawEnd = subData.subscription_end ? new Date(subData.subscription_end) : null;
-    const now = new Date();
-    const isExpiredInDb = subData.is_premium && rawEnd && rawEnd <= now;
-
-    if (!isExpiredInDb) return subData;
-
-    console.log('[usePremium] subscription_end passed but is_premium=true — resyncing with Google Play...');
-    try {
-      const { data: syncResult, error } = await supabase.functions.invoke('sync-subscription', {});
-      if (!error && syncResult) {
-        console.log('[usePremium] Resync result:', syncResult);
-        return {
-          is_premium: syncResult.is_premium ?? false,
-          subscription_end: syncResult.expiration_date ?? null,
-          subscription_status: syncResult.subscription_status ?? 'expired',
-          plan_type: syncResult.plan_type ?? 'free',
-        };
+  } | null> => {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        console.log(`[usePremium] sync-subscription attempt ${attempt}/${maxAttempts}...`);
+        const { data, error } = await supabase.functions.invoke('sync-subscription', {});
+        if (!error && data) {
+          console.log('[usePremium] sync-subscription result:', data);
+          return data;
+        }
+        if (error) console.warn(`[usePremium] sync-subscription error (attempt ${attempt}):`, error.message);
+      } catch (e) {
+        console.warn(`[usePremium] sync-subscription exception (attempt ${attempt}):`, e);
       }
-    } catch (e) {
-      console.warn('[usePremium] Resync failed (non-fatal):', e);
+      // Exponential backoff: 500ms, 1000ms, 2000ms …
+      if (attempt < maxAttempts) {
+        await new Promise(r => setTimeout(r, 500 * Math.pow(2, attempt - 1)));
+      }
     }
-    return subData;
+    console.error('[usePremium] All sync-subscription attempts failed');
+    return null;
   }, []);
 
+  // ── Apply synced data to state ────────────────────────────────────────────
+  const applySyncedData = useCallback((
+    synced: { is_premium: boolean; expiration_date: string | null; subscription_status: string; plan_type: string | null },
+    dailyUsesData: { daily_uses: number; last_use_date: string | null }
+  ) => {
+    const rawEnd = synced.expiration_date ? new Date(synced.expiration_date) : null;
+    const now = new Date();
+
+    let effectivePremium = synced.is_premium || false;
+    if (synced.subscription_status === 'cancelled' && rawEnd && rawEnd > now) {
+      effectivePremium = true;
+    }
+
+    setDbIsPremium(effectivePremium);
+    setPlanType(synced.plan_type || 'free');
+    setSubscriptionStatus(synced.subscription_status || 'inactive');
+    setSubscriptionEnd(rawEnd);
+
+    const today = now.toISOString().split('T')[0];
+    const usesToday = (dailyUsesData.last_use_date === today) ? (dailyUsesData.daily_uses || 0) : 0;
+    const strictPaid = effectivePremium && (!rawEnd || rawEnd > now);
+    const userLimit = strictPaid ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
+    setDailyUsage({ usesToday, remaining: Math.max(0, userLimit - usesToday), limit: userLimit });
+
+    if (premiumCacheKey) {
+      try {
+        localStorage.setItem(premiumCacheKey, JSON.stringify({
+          is_premium: effectivePremium,
+          plan_type: synced.plan_type || 'free',
+          subscription_status: synced.subscription_status || 'inactive',
+          subscription_end: rawEnd?.toISOString() ?? null,
+          __ts: Date.now(),
+        }));
+      } catch { /* localStorage quota — non-fatal */ }
+    }
+  }, [premiumCacheKey]);
+
+  // ── Main fetch ────────────────────────────────────────────────────────────
   const fetchSubscription = useCallback(async () => {
     if (!user) {
       setDbIsPremium(false);
@@ -160,19 +206,17 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    const currentAttempt = ++syncAttemptRef.current;
     setIsLoading(true);
 
-    // Safety timeout: if DB never responds, default to free plan after 5s
+    // Safety timeout extended to 12s to allow for resync round-trip
     const safetyTimer = setTimeout(() => {
-      console.warn('[usePremium] Subscription fetch timed out — defaulting to free plan');
-      setDbIsPremium(false);
-      setPlanType('free');
-      setSubscriptionStatus('inactive');
-      setSubscriptionEnd(null);
-      setDailyUsage({ usesToday: 0, remaining: DAILY_LIMIT_FREE, limit: DAILY_LIMIT_FREE });
+      if (syncAttemptRef.current !== currentAttempt) return;
+      console.warn('[usePremium] Fetch timed out — keeping current state, setting initialized');
       setIsInitialized(true);
       setIsLoading(false);
-    }, 5000);
+      setIsSyncing(false);
+    }, 12000);
 
     try {
       const { data, error } = await supabase
@@ -181,97 +225,128 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         .eq('user_id', user.id)
         .maybeSingle();
 
+      if (syncAttemptRef.current !== currentAttempt) return; // stale
       clearTimeout(safetyTimer);
 
       if (error) {
-        console.error('Error fetching subscription:', error);
-        setDbIsPremium(false);
-        setPlanType('free');
-        setSubscriptionStatus('inactive');
-        setDailyUsage({ usesToday: 0, remaining: DAILY_LIMIT_FREE, limit: DAILY_LIMIT_FREE });
+        console.error('[usePremium] Error fetching subscription:', error);
+        // On DB error, keep whatever state we have — don't downgrade
+        setIsInitialized(true);
+        setIsLoading(false);
         return;
       }
 
-      // Safety net: no subscription record → create it (free plan, no trial)
+      // Safety net: no subscription record → create it (free plan)
       let subData = data;
       if (!subData) {
-        console.log('No subscription found, creating free plan record...');
+        console.log('[usePremium] No subscription found, creating free plan record...');
         const { data: inserted } = await supabase
           .from('user_subscriptions')
-          .upsert({
-            user_id: user.id,
-            is_premium: false,
-            plan_type: 'free',
-            subscription_status: 'inactive',
-          }, { onConflict: 'user_id' })
-          .select()
-          .maybeSingle();
+          .upsert({ user_id: user.id, is_premium: false, plan_type: 'free', subscription_status: 'inactive' }, { onConflict: 'user_id' })
+          .select().maybeSingle();
         subData = inserted;
       }
 
-      if (subData) {
-        // If DB says premium but end date already passed, re-sync with Google Play
-        // to get the real current expiration (handles subscription renewals)
-        const synced = await resyncIfNeeded({
-          is_premium: subData.is_premium || false,
-          subscription_end: subData.subscription_end,
-          subscription_status: subData.subscription_status,
-          plan_type: subData.plan_type,
-        });
+      if (!subData) {
+        setIsInitialized(true);
+        setIsLoading(false);
+        return;
+      }
 
-        const rawEnd = synced.subscription_end ? new Date(synced.subscription_end) : null;
-        const now = new Date();
+      const rawEnd = subData.subscription_end ? new Date(subData.subscription_end) : null;
+      const now = new Date();
+      const isExpired = rawEnd && rawEnd <= now;
 
-        let effectivePremium = synced.is_premium || false;
-        if (synced.subscription_status === 'cancelled' && rawEnd && rawEnd > now) {
-          effectivePremium = true;
+      // ── CRITICAL: If DB says premium but date expired, ALWAYS resync first ──
+      if (subData.is_premium && isExpired) {
+        console.log(`[usePremium] is_premium=true but subscription_end=${rawEnd?.toISOString()} is in the past — MUST resync before downgrading`);
+
+        // Keep premium optimistically while we wait for Google Play response
+        setIsSyncing(true);
+
+        const syncResult = await callSyncSubscription(3);
+
+        if (syncAttemptRef.current !== currentAttempt) return; // stale
+        setIsSyncing(false);
+
+        if (syncResult) {
+          // Google Play responded — use its authoritative data
+          applySyncedData(syncResult, { daily_uses: subData.daily_uses, last_use_date: subData.last_use_date });
+        } else {
+          // Resync failed completely — apply OPTIMISTIC GRACE:
+          // Keep premium for OPTIMISTIC_GRACE_MS beyond the expired date
+          // to avoid false negatives during transient network issues
+          const gracePeriodEnd = new Date((rawEnd?.getTime() ?? now.getTime()) + OPTIMISTIC_GRACE_MS);
+          const stillInGrace = now < gracePeriodEnd;
+
+          console.warn(`[usePremium] Resync failed — ${stillInGrace ? 'applying grace period' : 'downgrading to free'}`);
+
+          if (stillInGrace) {
+            // Keep current state (premium), just update the end to grace period
+            setSubscriptionEnd(gracePeriodEnd);
+          } else {
+            // Grace period also expired — downgrade to free
+            setDbIsPremium(false);
+            setPlanType('free');
+            setSubscriptionStatus('expired');
+            setSubscriptionEnd(rawEnd);
+            const usesToday = (subData.last_use_date === now.toISOString().split('T')[0]) ? (subData.daily_uses || 0) : 0;
+            setDailyUsage({ usesToday, remaining: Math.max(0, DAILY_LIMIT_FREE - usesToday), limit: DAILY_LIMIT_FREE });
+            if (premiumCacheKey) {
+              try {
+                localStorage.setItem(premiumCacheKey, JSON.stringify({
+                  is_premium: false, plan_type: 'free', subscription_status: 'expired',
+                  subscription_end: rawEnd?.toISOString() ?? null, __ts: Date.now(),
+                }));
+              } catch { /* non-fatal */ }
+            }
+          }
         }
-        // Also keep premium if end date is still in the future (renewed subscription)
-        if (synced.is_premium && rawEnd && rawEnd > now) {
+
+      } else {
+        // Not expired (or never was premium) — apply DB data directly
+        let effectivePremium = subData.is_premium || false;
+        if (subData.subscription_status === 'cancelled' && rawEnd && rawEnd > now) {
           effectivePremium = true;
         }
 
         setDbIsPremium(effectivePremium);
-        setPlanType(synced.plan_type || 'free');
-        setSubscriptionStatus(synced.subscription_status || 'inactive');
+        setPlanType(subData.plan_type || 'free');
+        setSubscriptionStatus(subData.subscription_status || 'inactive');
         setSubscriptionEnd(rawEnd);
 
-        // Daily usage
         const today = now.toISOString().split('T')[0];
         const usesToday = (subData.last_use_date === today) ? (subData.daily_uses || 0) : 0;
         const strictPaid = effectivePremium && (!rawEnd || rawEnd > now);
         const userLimit = strictPaid ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
-        setDailyUsage({
-          usesToday,
-          remaining: Math.max(0, userLimit - usesToday),
-          limit: userLimit
-        });
+        setDailyUsage({ usesToday, remaining: Math.max(0, userLimit - usesToday), limit: userLimit });
 
         if (premiumCacheKey) {
           try {
             localStorage.setItem(premiumCacheKey, JSON.stringify({
               is_premium: effectivePremium,
-              plan_type: synced.plan_type || 'free',
-              subscription_status: synced.subscription_status || 'inactive',
+              plan_type: subData.plan_type || 'free',
+              subscription_status: subData.subscription_status || 'inactive',
               subscription_end: rawEnd?.toISOString() ?? null,
               __ts: Date.now(),
             }));
-          } catch {
-            // localStorage quota — non-fatal
-          }
+          } catch { /* non-fatal */ }
         }
       }
+
     } catch (err) {
-      console.error('Error in fetchSubscription:', err);
-      setDbIsPremium(false);
-      setPlanType('free');
-      setSubscriptionStatus('inactive');
-      setDailyUsage({ usesToday: 0, remaining: DAILY_LIMIT_FREE, limit: DAILY_LIMIT_FREE });
+      if (syncAttemptRef.current !== currentAttempt) return;
+      clearTimeout(safetyTimer);
+      console.error('[usePremium] Error in fetchSubscription:', err);
+      // On unexpected error — keep current state, don't downgrade
     } finally {
-      setIsInitialized(true);
-      setIsLoading(false);
+      if (syncAttemptRef.current === currentAttempt) {
+        setIsInitialized(true);
+        setIsLoading(false);
+        setIsSyncing(false);
+      }
     }
-  }, [user, premiumCacheKey, resyncIfNeeded]);
+  }, [user, premiumCacheKey, callSyncSubscription, applySyncedData]);
 
   const checkDailyUsage = useCallback(async (): Promise<{ allowed: boolean; message?: string }> => {
     if (!user) {
@@ -297,8 +372,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
 
       const rawEnd = subData?.subscription_end ? new Date(subData.subscription_end) : null;
       const inGracePeriod = subData?.subscription_status === 'cancelled' && rawEnd && rawEnd > now;
-      const strictPaid = (subData?.is_premium === true || inGracePeriod) &&
-        (!rawEnd || rawEnd > now);
+      const strictPaid = (subData?.is_premium === true || inGracePeriod) && (!rawEnd || rawEnd > now);
       const currentLimit = strictPaid ? DAILY_LIMIT_PREMIUM : DAILY_LIMIT_FREE;
       const remaining = Math.max(0, currentLimit - usesToday);
 
@@ -351,6 +425,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         setSubscriptionEnd(null);
         setDailyUsage(null);
         setIsInitialized(false);
+        setIsSyncing(false);
         try {
           if (session?.user?.id) {
             localStorage.removeItem(`premium_state_${session.user.id}`);
