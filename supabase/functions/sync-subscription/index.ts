@@ -169,13 +169,33 @@ Deno.serve(async (req) => {
       const gpData = await gpRes.json();
       const expiryMs = parseInt(gpData.expiryTimeMillis, 10);
       const subscriptionEnd = new Date(expiryMs).toISOString();
-      const isActive = expiryMs > Date.now();
+      const now = Date.now();
+
+      // ── Core logic: use autoRenewing + acknowledged + paymentState ──────────
+      const autoRenewing: boolean = gpData.autoRenewing === true;
+      const acknowledged: boolean = gpData.acknowledgementState === 1 || gpData.acknowledgementState === true;
+      const paymentState: number = typeof gpData.paymentState === "number" ? gpData.paymentState : 1;
+      const expiryInFuture: boolean = expiryMs > now;
       const isCancelled = gpData.cancelReason !== undefined;
 
-      const newStatus = isCancelled ? "cancelled" : isActive ? "active" : "expired";
-      const newIsPremium = isActive;
+      // Premium if: payment confirmed AND (autoRenewing OR still within expiry window)
+      // This ensures test subscriptions (short expiryTimeMillis + autoRenewing=true) stay premium
+      let newIsPremium = false;
+      if (acknowledged && paymentState === 1) {
+        if (autoRenewing) {
+          newIsPremium = true; // Actively renewing → always premium
+        } else if (expiryInFuture) {
+          newIsPremium = true; // Cancelled but still within paid period
+        } else {
+          newIsPremium = false; // Cancelled and expired
+        }
+      }
 
-      console.log(`[sync-sub] GP response: expiryMs=${expiryMs} isActive=${isActive} isCancelled=${isCancelled} paymentState=${gpData.paymentState}`);
+      const newStatus = isCancelled
+        ? (expiryInFuture ? "cancelled" : "expired")
+        : newIsPremium ? "active" : "expired";
+
+      console.log(`[sync-sub] GP response: expiryMs=${expiryMs} expiryInFuture=${expiryInFuture} autoRenewing=${autoRenewing} acknowledged=${acknowledged} paymentState=${paymentState} isCancelled=${isCancelled} → newIsPremium=${newIsPremium}`);
 
       // ── Upsert user_subscriptions (with retry) ────────────────────────────
       const { error: upsertError } = await withRetry(
