@@ -339,13 +339,31 @@ Deno.serve(async (req) => {
           if (gpRes && gpRes.ok) {
             const gpData = await gpRes.json();
             const expiryMs = parseInt(gpData.expiryTimeMillis, 10);
-            const isActive = expiryMs > Date.now();
-            const isCancelledGP = gpData.cancelReason !== undefined;
-            const newStatus = isCancelledGP ? "cancelled" : isActive ? "active" : "expired";
-            const newSubscriptionEnd = new Date(expiryMs).toISOString();
-            const newIsPremium = isActive;
+            const nowMs = Date.now();
 
-            console.log(`[sync-sub] Auto-resync result: expiryMs=${expiryMs} isActive=${isActive} status=${newStatus}`);
+            const autoRenewing: boolean = gpData.autoRenewing === true;
+            const acknowledged: boolean = gpData.acknowledgementState === 1 || gpData.acknowledgementState === true;
+            const paymentState: number = typeof gpData.paymentState === "number" ? gpData.paymentState : 1;
+            const expiryInFuture: boolean = expiryMs > nowMs;
+            const isCancelledGP = gpData.cancelReason !== undefined;
+
+            let newIsPremium = false;
+            if (acknowledged && paymentState === 1) {
+              if (autoRenewing) {
+                newIsPremium = true;
+              } else if (expiryInFuture) {
+                newIsPremium = true;
+              } else {
+                newIsPremium = false;
+              }
+            }
+
+            const newStatus = isCancelledGP
+              ? (expiryInFuture ? "cancelled" : "expired")
+              : newIsPremium ? "active" : "expired";
+            const newSubscriptionEnd = new Date(expiryMs).toISOString();
+
+            console.log(`[sync-sub] Auto-resync: expiryMs=${expiryMs} autoRenewing=${autoRenewing} acknowledged=${acknowledged} paymentState=${paymentState} → newIsPremium=${newIsPremium} status=${newStatus}`);
 
             // Update DB with fresh data
             await withRetry(
