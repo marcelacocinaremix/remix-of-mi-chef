@@ -400,20 +400,53 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     fetchSubscription();
   }, [fetchSubscription]);
 
+  // Silent background re-sync when the app becomes visible again.
+  // Does NOT set isLoading=true so it never causes a UI flicker.
   useEffect(() => {
     if (!user) return;
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        if ((window as any).__purchaseInProgress) {
-          console.log('[usePremium] Skipping visibility sync — purchase in progress');
-          return;
-        }
-        console.log('[usePremium] App visible — syncing subscription state');
-        fetchSubscription();
+      if (document.visibilityState !== 'visible') return;
+      if ((window as any).__purchaseInProgress) {
+        console.log('[usePremium] Skipping visibility sync — purchase in progress');
+        return;
       }
+      // Debounce: avoid multiple rapid syncs when the OS triggers several events
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(async () => {
+        console.log('[usePremium] App visible — silent background sync');
+        // Silent sync: call DB directly without touching isLoading
+        try {
+          const { data } = await supabase
+            .from('user_subscriptions')
+            .select('is_premium, subscription_end, subscription_status, plan_type, daily_uses, last_use_date')
+            .eq('user_id', user.id)
+            .maybeSingle();
+          if (!data) return;
+          const rawEnd = data.subscription_end ? new Date(data.subscription_end) : null;
+          const now = new Date();
+          let effectivePremium = data.is_premium || false;
+          if (data.subscription_status === 'cancelled' && rawEnd && rawEnd > now) effectivePremium = true;
+          // Only trigger resync with Google Play if needed (expired but DB says premium)
+          if (data.is_premium && rawEnd && rawEnd <= now) {
+            fetchSubscription(); // Full sync needed — let it run normally
+            return;
+          }
+          // Safe to apply silently
+          setDbIsPremium(effectivePremium);
+          setPlanType(data.plan_type || 'free');
+          setSubscriptionStatus(data.subscription_status || 'inactive');
+          setSubscriptionEnd(rawEnd);
+        } catch { /* non-fatal — keep current state */ }
+      }, 1500);
     };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (debounceTimer) clearTimeout(debounceTimer);
+    };
   }, [user, fetchSubscription]);
 
   useEffect(() => {
