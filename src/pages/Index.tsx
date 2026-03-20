@@ -377,6 +377,23 @@ export default function Index() {
   // Timer FAB visibility: always show if running/finished; otherwise only in "cocinar"
   const showTimerButton = activeTab === "cocinar" || timerIsRunning || timerIsFinished;
 
+  // Loading state — stable skeleton prevents white flash
+  if (showLoader) {
+    return (
+      <div className="h-[100dvh] gradient-hero relative w-screen max-w-[100vw] flex flex-col items-center justify-center">
+        <FuturisticBackground />
+        <div className="relative z-10 flex flex-col items-center gap-3">
+          <div className="w-10 h-10 rounded-full border-2 border-primary/40 border-t-primary animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  // Onboarding — stable, won't flash
+  if (showOnboarding) {
+    return <OnboardingFlow onComplete={setFirstVisitComplete} />;
+  }
+
   return (
     <div className="h-[100dvh] gradient-hero relative w-screen max-w-[100vw] flex flex-col" style={{ overflow: "visible" }}>
       <FuturisticBackground />
