@@ -108,15 +108,10 @@ export default function Index() {
     }
   }, [user]);
 
-  // Wait for auth to resolve before deciding — prevents white flash / infinite loop
-  if (authLoading) {
-    return null;
-  }
-
-  // Show onboarding only after auth is confirmed: first visit OR no user
-  if (isFirstVisit || !user) {
-    return <OnboardingFlow onComplete={setFirstVisitComplete} />;
-  }
+  // Compute what to show — no early returns (they cause unmount/remount flashes)
+  const showLoader = authLoading;
+  const showOnboarding = !authLoading && (isFirstVisit || !user);
+  const showApp = !authLoading && !isFirstVisit && !!user;
 
   // ──────────────── Error parsing helpers ────────────────
   const parseEdgeFunctionError = (err: any) => {
