@@ -231,6 +231,8 @@ Deno.serve(async (req) => {
       console.log(`[sync-sub] GP response: expiryMs=${expiryMs} expiryInFuture=${expiryInFuture} autoRenewing=${autoRenewing} acknowledged=${acknowledged} paymentState=${paymentState} isCancelled=${isCancelled} → newIsPremium=${newIsPremium}`);
 
       // ── Upsert user_subscriptions (with retry) ────────────────────────────
+      // CRITICAL: save auto_renew=true when Google Play says autoRenewing=true
+      // This prevents the DB trigger from expiring the subscription prematurely
       const { error: upsertError } = await withRetry(
         () => adminClient.from("user_subscriptions").upsert({
           user_id: user.id,
@@ -239,6 +241,7 @@ Deno.serve(async (req) => {
           subscription_status: newStatus,
           subscription_end: subscriptionEnd,
           subscription_start: new Date().toISOString(),
+          auto_renew: autoRenewing, // KEY: prevents trigger from expiring active subscriptions
           updated_at: new Date().toISOString(),
         }, { onConflict: "user_id" }),
         3,
@@ -423,7 +426,7 @@ Deno.serve(async (req) => {
 
             console.log("AUTO_RESYNC_FINAL_DECISION:", { newIsPremium, newStatus, newSubscriptionEnd });
 
-            // Update DB with fresh data
+            // Update DB with fresh data — also save auto_renew to prevent trigger from expiring
             await withRetry(
               () => adminClient.from("user_subscriptions").upsert({
                 user_id: user.id,
@@ -431,6 +434,7 @@ Deno.serve(async (req) => {
                 plan_type: newIsPremium ? "premium" : "free",
                 subscription_status: newStatus,
                 subscription_end: newSubscriptionEnd,
+                auto_renew: autoRenewing, // KEY: prevents trigger from expiring if still renewing
                 updated_at: new Date().toISOString(),
               }, { onConflict: "user_id" }),
               2,
