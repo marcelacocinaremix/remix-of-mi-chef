@@ -426,7 +426,7 @@ Deno.serve(async (req) => {
 
             console.log("AUTO_RESYNC_FINAL_DECISION:", { newIsPremium, newStatus, newSubscriptionEnd });
 
-            // Update DB with fresh data
+            // Update DB with fresh data — also save auto_renew to prevent trigger from expiring
             await withRetry(
               () => adminClient.from("user_subscriptions").upsert({
                 user_id: user.id,
@@ -434,6 +434,7 @@ Deno.serve(async (req) => {
                 plan_type: newIsPremium ? "premium" : "free",
                 subscription_status: newStatus,
                 subscription_end: newSubscriptionEnd,
+                auto_renew: autoRenewing, // KEY: prevents trigger from expiring if still renewing
                 updated_at: new Date().toISOString(),
               }, { onConflict: "user_id" }),
               2,
