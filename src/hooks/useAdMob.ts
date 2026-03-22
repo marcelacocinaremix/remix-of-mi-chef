@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { waitForAdMobReady } from '@/components/AdBanner';
+import { usePremium } from '@/hooks/usePremium';
 
-// AdMob IDs
-const INTERSTITIAL_AD_UNIT_ID = 'ca-app-pub-2070193214456761/7133653740'; // PRODUCTION ID (from main.tsx comment)
+// Publisher: ca-app-pub-2070193214456761
+// App ID:    ca-app-pub-2070193214456761~5626242502
+const INTERSTITIAL_AD_UNIT_ID = 'ca-app-pub-2070193214456761/7133653740';
 
 let admobModule: any = null;
-// Track whether an interstitial is currently loaded and ready to show
 let interstitialReady = false;
+let isPreloading = false;
 
 async function getAdMob() {
   if (admobModule) return admobModule;
@@ -15,36 +17,52 @@ async function getAdMob() {
     const mod = await import('@capacitor-community/admob');
     admobModule = mod.AdMob;
     return admobModule;
-  } catch {
+  } catch (e) {
+    console.warn('[AdMob] Failed to import AdMob module:', e);
     return null;
   }
 }
 
-/**
- * Pre-loads an interstitial so it's ready when the user taps "Dame Recetas".
- * Called once at app startup via useAdMob().
- */
 async function prepareInterstitialAd() {
   if (!Capacitor.isNativePlatform()) return;
+  if (isPreloading) return;
+  isPreloading = true;
 
   try {
     await waitForAdMobReady();
     const AdMob = await getAdMob();
-    if (!AdMob) return;
+    if (!AdMob) {
+      isPreloading = false;
+      return;
+    }
 
-    // Listen for ready / fail events
+    console.log('[AdMob] Preloading interstitial adId:', INTERSTITIAL_AD_UNIT_ID);
+
     AdMob.addListener('onInterstitialAdLoaded', () => {
       console.log('[AdMob] ✅ Interstitial loaded and ready');
       interstitialReady = true;
+      isPreloading = false;
     });
+
     AdMob.addListener('onInterstitialAdFailedToLoad', (err: any) => {
       console.warn('[AdMob] ❌ Interstitial failed to load:', JSON.stringify(err));
       interstitialReady = false;
+      isPreloading = false;
+      // Retry after 30s
+      setTimeout(() => prepareInterstitialAd(), 30000);
     });
+
     AdMob.addListener('onInterstitialAdDismissed', () => {
-      console.log('[AdMob] Interstitial dismissed — pre-loading next one');
+      console.log('[AdMob] Interstitial dismissed — preloading next');
       interstitialReady = false;
-      // Pre-load next ad for the following request
+      isPreloading = false;
+      prepareInterstitialAd();
+    });
+
+    AdMob.addListener('onInterstitialAdFailedToShow', (err: any) => {
+      console.warn('[AdMob] Interstitial failed to show:', JSON.stringify(err));
+      interstitialReady = false;
+      isPreloading = false;
       prepareInterstitialAd();
     });
 
@@ -52,76 +70,85 @@ async function prepareInterstitialAd() {
       adId: INTERSTITIAL_AD_UNIT_ID,
       isTesting: false,
     });
+
     console.log('[AdMob] prepareInterstitial() called — waiting for onInterstitialAdLoaded');
-  } catch (e) {
-    console.warn('[AdMob] prepareInterstitial error:', e);
+  } catch (e: any) {
+    console.warn('[AdMob] prepareInterstitial error:', e?.message || e);
+    isPreloading = false;
   }
 }
 
 export function useAdMob() {
+  const { isPremium } = usePremium();
   const loadingRef = useRef(false);
 
-  // Pre-load the interstitial as soon as AdMob is ready
   useEffect(() => {
-    prepareInterstitialAd();
-  }, []);
+    // Only preload for free users on native
+    if (!isPremium && Capacitor.isNativePlatform()) {
+      prepareInterstitialAd();
+    }
+  }, [isPremium]);
 
   const showInterstitial = useCallback(async (): Promise<boolean> => {
-    if (!Capacitor.isNativePlatform()) return true;
+    // Always unblock for premium users or non-native
+    if (!Capacitor.isNativePlatform() || isPremium) return true;
     if (loadingRef.current) return true;
     loadingRef.current = true;
 
     try {
       const AdMob = await getAdMob();
-      if (!AdMob) { loadingRef.current = false; return true; }
-
-      if (!interstitialReady) {
-        console.warn('[AdMob] Interstitial not ready — skipping');
+      if (!AdMob) {
         loadingRef.current = false;
         return true;
       }
 
-      // Promise.race: 2500ms hard timeout wins if ad stalls (Error 3 / No Fill)
+      if (!interstitialReady) {
+        console.warn('[AdMob] Interstitial not ready — skipping ad, unblocking UX');
+        loadingRef.current = false;
+        return true;
+      }
+
+      console.log('[AdMob] Showing interstitial...');
+
       const adPromise = new Promise<boolean>((resolve) => {
         let resolved = false;
-        const done = (reason?: string) => {
+        const done = (reason: string) => {
           if (resolved) return;
           resolved = true;
           loadingRef.current = false;
-          if (reason) console.warn(`[AdMob] Interstitial resolved: ${reason}`);
+          console.log(`[AdMob] Interstitial resolved: ${reason}`);
           resolve(true);
         };
 
-        const failListener = AdMob.addListener('onInterstitialAdFailedToShow', (err: any) => {
-          console.warn('[AdMob] Interstitial failed to show:', err);
-          failListener?.remove?.();
+        AdMob.addListener('onInterstitialAdFailedToShow', (err: any) => {
+          console.warn('[AdMob] Failed to show:', JSON.stringify(err));
           done('failedToShow');
         });
 
         AdMob.showInterstitial()
-          .then(() => { failListener?.remove?.(); done('shown'); })
+          .then(() => done('shown'))
           .catch((err: any) => {
-            console.warn('[AdMob] showInterstitial error:', err);
-            failListener?.remove?.();
+            console.warn('[AdMob] showInterstitial() error:', err?.message || err);
             done('showError');
           });
       });
 
+      // Hard timeout: never block UX more than 3s
       const timeoutPromise = new Promise<boolean>((resolve) =>
         setTimeout(() => {
-          console.warn('[AdMob] Interstitial 2500ms timeout — unblocking recipe generation');
+          console.warn('[AdMob] 3s timeout — unblocking UX');
           loadingRef.current = false;
           resolve(true);
-        }, 2500)
+        }, 3000)
       );
 
       return Promise.race([adPromise, timeoutPromise]);
-    } catch (e) {
-      console.warn('[AdMob] Interstitial error:', e);
+    } catch (e: any) {
+      console.warn('[AdMob] Interstitial error:', e?.message || e);
       loadingRef.current = false;
       return true;
     }
-  }, []);
+  }, [isPremium]);
 
   return { showInterstitial };
 }
