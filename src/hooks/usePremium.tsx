@@ -395,6 +395,9 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
         setIsSyncing(false);
         isSyncingRef.current = false;
         initialLoadDoneRef.current = false;
+        // Allow isLoading to show spinner for the NEXT user's login
+        hasEverLoadedRef.current = false;
+        setIsLoadingInternal(true);
         try {
           if (session?.user?.id) {
             localStorage.removeItem(`premium_state_${session.user.id}`);
