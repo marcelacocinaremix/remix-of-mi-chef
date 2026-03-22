@@ -38,8 +38,9 @@ const DAILY_LIMIT_PREMIUM = 10;
 export function PremiumProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
 
-  // isLoading is ONLY true during the very first fetch — never during background resyncs
-  const [isLoading, setIsLoading] = useState(true);
+  // isLoading is ONLY true during the very first fetch — NEVER set back to true after initial load
+  const [isLoading, setIsLoadingInternal] = useState(true);
+  const hasEverLoadedRef = useRef(false); // once true, isLoading can NEVER go back to true
   const [isInitialized, setIsInitialized] = useState(false);
   const [dailyUsage, setDailyUsage] = useState<DailyUsageInfo | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
@@ -54,6 +55,13 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   const [isSyncing, setIsSyncing] = useState(false);
   const syncAttemptRef = useRef(0);
   const initialLoadDoneRef = useRef(false);
+
+  // Safe setter: once the app has loaded once, isLoading can NEVER be set to true again
+  const setIsLoading = useCallback((val: boolean) => {
+    if (val === true && hasEverLoadedRef.current) return; // block — prevents white screen on refetch
+    setIsLoadingInternal(val);
+    if (val === false) hasEverLoadedRef.current = true;
+  }, []);
 
   // ── DERIVED STATE ──────────────────────────────────────────────────────────
   const paidPeriodActive = useMemo(() => {
