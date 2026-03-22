@@ -3,7 +3,7 @@ import { Capacitor } from '@capacitor/core';
 import { waitForAdMobReady } from '@/components/AdBanner';
 
 // AdMob IDs
-const INTERSTITIAL_AD_UNIT_ID = 'ca-app-pub-2070193214456761/7336537140'; // PRODUCTION ID
+const INTERSTITIAL_AD_UNIT_ID = 'ca-app-pub-2070193214456761/7133653740'; // PRODUCTION ID (from main.tsx comment)
 
 let admobModule: any = null;
 // Track whether an interstitial is currently loaded and ready to show
