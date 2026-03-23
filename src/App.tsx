@@ -12,6 +12,8 @@ import { KitchenTimerProvider } from "@/hooks/useKitchenTimer";
 import { useAndroidPurchase } from "@/hooks/useAndroidPurchase";
 import { AdBanner } from "@/components/AdBanner";
 import { StreakProvider } from "@/contexts/StreakContext";
+import { useForceUpdate } from "@/hooks/useForceUpdate";
+import { ForceUpdateScreen } from "@/components/ForceUpdateScreen";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -36,45 +38,53 @@ function AndroidPurchaseHandler({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Main App component with all providers
+function ForceUpdateGuard({ children }: { children: React.ReactNode }) {
+  const { updateRequired, storeUrl, checking } = useForceUpdate();
+  if (checking) return null; // wait silently — no flash
+  if (updateRequired) return <ForceUpdateScreen storeUrl={storeUrl} />;
+  return <>{children}</>;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AppThemeProvider>
       <BrowserRouter>
-        <AuthProvider>
-          <DeepLinkHandler>
-            <PremiumProvider>
-              <AndroidPurchaseHandler>
-                <LanguageProvider>
-                  <KitchenTimerProvider>
-                    <StreakProvider>
-                      <TooltipProvider>
-                        <Toaster />
-                        <Sonner />
-                        <AdBanner />
-                        <Routes>
-                          <Route path="/" element={<Index />} />
-                          <Route path="/auth" element={<Auth />} />
-                          <Route path="/reset-password" element={<ResetPassword />} />
-                          <Route path="/open-reset-password" element={<OpenResetPassword />} />
-                          <Route path="/privacy" element={<PrivacyPolicy />} />
-                          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                          <Route path="/terms" element={<TermsOfService />} />
-                          <Route path="/terms-of-service" element={<TermsOfService />} />
-                          <Route path="/r/:shareCode" element={<SharedRecipe />} />
-                          <Route path="/payment-processing" element={<PaymentProcessing />} />
-                          <Route path="/payment-failed" element={<PaymentFailed />} />
-                          <Route path="/auth/callback" element={<AuthCallback />} />
-                          <Route path="*" element={<NotFound />} />
-                        </Routes>
-                      </TooltipProvider>
-                    </StreakProvider>
-                  </KitchenTimerProvider>
-                </LanguageProvider>
-              </AndroidPurchaseHandler>
-            </PremiumProvider>
-          </DeepLinkHandler>
-        </AuthProvider>
+        <ForceUpdateGuard>
+          <AuthProvider>
+            <DeepLinkHandler>
+              <PremiumProvider>
+                <AndroidPurchaseHandler>
+                  <LanguageProvider>
+                    <KitchenTimerProvider>
+                      <StreakProvider>
+                        <TooltipProvider>
+                          <Toaster />
+                          <Sonner />
+                          <AdBanner />
+                          <Routes>
+                            <Route path="/" element={<Index />} />
+                            <Route path="/auth" element={<Auth />} />
+                            <Route path="/reset-password" element={<ResetPassword />} />
+                            <Route path="/open-reset-password" element={<OpenResetPassword />} />
+                            <Route path="/privacy" element={<PrivacyPolicy />} />
+                            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                            <Route path="/terms" element={<TermsOfService />} />
+                            <Route path="/terms-of-service" element={<TermsOfService />} />
+                            <Route path="/r/:shareCode" element={<SharedRecipe />} />
+                            <Route path="/payment-processing" element={<PaymentProcessing />} />
+                            <Route path="/payment-failed" element={<PaymentFailed />} />
+                            <Route path="/auth/callback" element={<AuthCallback />} />
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </TooltipProvider>
+                      </StreakProvider>
+                    </KitchenTimerProvider>
+                  </LanguageProvider>
+                </AndroidPurchaseHandler>
+              </PremiumProvider>
+            </DeepLinkHandler>
+          </AuthProvider>
+        </ForceUpdateGuard>
       </BrowserRouter>
     </AppThemeProvider>
   </QueryClientProvider>
