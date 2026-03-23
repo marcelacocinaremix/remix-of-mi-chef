@@ -65,8 +65,8 @@ export function AdBanner() {
       try {
         await waitForAdMobReady();
 
-        // Wait for WebView to be fully rendered
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Wait for WebView to be fully rendered (500ms is enough in production)
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         const AdMob = await getAdMob();
         if (!AdMob) {
