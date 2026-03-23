@@ -12,6 +12,8 @@ import { KitchenTimerProvider } from "@/hooks/useKitchenTimer";
 import { useAndroidPurchase } from "@/hooks/useAndroidPurchase";
 import { AdBanner } from "@/components/AdBanner";
 import { StreakProvider } from "@/contexts/StreakContext";
+import { useForceUpdate } from "@/hooks/useForceUpdate";
+import { ForceUpdateScreen } from "@/components/ForceUpdateScreen";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
