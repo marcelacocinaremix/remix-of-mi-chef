@@ -38,6 +38,13 @@ function AndroidPurchaseHandler({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function ForceUpdateGuard({ children }: { children: React.ReactNode }) {
+  const { updateRequired, storeUrl, checking } = useForceUpdate();
+  if (checking) return null; // wait silently — no flash
+  if (updateRequired) return <ForceUpdateScreen storeUrl={storeUrl} />;
+  return <>{children}</>;
+}
+
 // Main App component with all providers
 const App = () => (
   <QueryClientProvider client={queryClient}>
