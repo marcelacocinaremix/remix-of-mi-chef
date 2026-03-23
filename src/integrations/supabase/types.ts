@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_config: {
+        Row: {
+          created_at: string
+          id: number
+          min_version: string
+          store_url: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: number
+          min_version?: string
+          store_url?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          min_version?: string
+          store_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cached_descriptions: {
         Row: {
           created_at: string
