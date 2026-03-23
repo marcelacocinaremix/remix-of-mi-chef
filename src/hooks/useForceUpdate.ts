@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-// Current app version — bump this on every release
-export const APP_VERSION = "1.0.0";
+// Current app version — bump this on every release to match Play Store versionName
+export const APP_VERSION = "1.4.4";
 
 function parseVersion(v: string): number[] {
   return v.split(".").map((n) => parseInt(n, 10) || 0);
