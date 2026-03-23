@@ -240,27 +240,6 @@ const MySummary = ({
       {/* Streak Display */}
       <StreakDisplay />
 
-      {/* Welcome Card */}
-      <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-primary/20">
-        <CardContent className="pt-6">
-          <div className="flex items-start gap-3">
-            <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-              <ChefHat className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-foreground">
-                {t("welcomeToMiChef")} 👋
-              </h2>
-              <p className="text-muted-foreground text-sm mt-1">
-                {t("summaryDescription")}
-              </p>
-              <p className="text-primary text-sm font-medium mt-2">
-                {t("summaryStartHint")}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Next Meal Card */}
       {nextMeal && (
