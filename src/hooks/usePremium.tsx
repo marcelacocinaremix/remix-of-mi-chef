@@ -36,7 +36,7 @@ const DAILY_LIMIT_FREE = 3;
 const DAILY_LIMIT_PREMIUM = 10;
 
 export function PremiumProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user, isLoading: authIsLoading } = useAuth();
 
   // isLoading is ONLY true during the very first fetch — NEVER set back to true after initial load
   const [isLoading, setIsLoadingInternal] = useState(true);
@@ -184,6 +184,9 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   // ── Main fetch ────────────────────────────────────────────────────────────
   const fetchSubscription = useCallback(async () => {
     if (!user) {
+      // No authenticated user — reset to free state and release loading.
+      // NOTE: this branch only runs AFTER authIsLoading=false (see useEffect guard),
+      // so we're safe to release isLoading here without causing a premature flash.
       setDbIsPremium(false);
       setPlanType('free');
       setSubscriptionStatus('inactive');
@@ -333,10 +336,24 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
-  // ── Initial load ──────────────────────────────────────────────────────────
+  // ── If auth is still loading, keep isLoading=true so UI doesn't flash ─────
+  // This prevents showing "free" state briefly before the real session loads.
   useEffect(() => {
+    if (authIsLoading && !hasEverLoadedRef.current) {
+      setIsLoadingInternal(true);
+    }
+  }, [authIsLoading]);
+
+  // ── Initial load — wait for Auth to finish restoring session ─────────────
+  // CRITICAL: if authIsLoading=true, user is still null (not yet resolved).
+  // Running fetchSubscription before auth is ready causes a race condition:
+  //   1. fetchSubscription sees user=null → resets to free
+  //   2. Auth resolves → user is set → fetchSubscription runs again
+  //   3. This double-fire causes the white screen / UI loop after purchase.
+  useEffect(() => {
+    if (authIsLoading) return; // wait until Supabase session is restored
     fetchSubscription();
-  }, [fetchSubscription]);
+  }, [authIsLoading, fetchSubscription]);
 
   // ── Silent visibility resync (no isLoading changes ever) ─────────────────
   useEffect(() => {
