@@ -333,6 +333,14 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
+  // ── If auth is still loading, keep isLoading=true so UI doesn't flash ─────
+  // This prevents showing "free" state briefly before the real session loads.
+  useEffect(() => {
+    if (authIsLoading && !hasEverLoadedRef.current) {
+      setIsLoadingInternal(true);
+    }
+  }, [authIsLoading]);
+
   // ── Initial load — wait for Auth to finish restoring session ─────────────
   // CRITICAL: if authIsLoading=true, user is still null (not yet resolved).
   // Running fetchSubscription before auth is ready causes a race condition:
