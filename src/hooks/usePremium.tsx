@@ -333,10 +333,16 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
-  // ── Initial load ──────────────────────────────────────────────────────────
+  // ── Initial load — wait for Auth to finish restoring session ─────────────
+  // CRITICAL: if authIsLoading=true, user is still null (not yet resolved).
+  // Running fetchSubscription before auth is ready causes a race condition:
+  //   1. fetchSubscription sees user=null → resets to free
+  //   2. Auth resolves → user is set → fetchSubscription runs again
+  //   3. This double-fire causes the white screen / UI loop after purchase.
   useEffect(() => {
+    if (authIsLoading) return; // wait until Supabase session is restored
     fetchSubscription();
-  }, [fetchSubscription]);
+  }, [authIsLoading, fetchSubscription]);
 
   // ── Silent visibility resync (no isLoading changes ever) ─────────────────
   useEffect(() => {
