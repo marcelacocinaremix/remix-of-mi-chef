@@ -14,7 +14,7 @@ interface SyncResult {
   cancelled_active?: boolean;
 }
 
-// ── Retry helper: retries an async fn up to `maxAttempts` with exponential backoff ──
+// ── Retry helper ─────────────────────────────────────────────────────────────
 async function withRetry<T>(
   fn: () => Promise<T>,
   maxAttempts = 3,
@@ -108,6 +108,67 @@ async function getGoogleAccessToken(serviceAccountKey: string): Promise<string |
   }
 }
 
+// ── Shared helper: interpret Google Play subscription response ────────────────
+function interpretGooglePlayData(gpData: any, purchaseTokenSnippet = "") {
+  const expiryMs = parseInt(gpData.expiryTimeMillis, 10);
+  const nowMs = Date.now();
+  const subscriptionEnd = new Date(expiryMs).toISOString();
+
+  const autoRenewing: boolean = gpData.autoRenewing === true;
+  const acknowledged: boolean = gpData.acknowledgementState === 1 || gpData.acknowledgementState === true;
+  const paymentState: number = typeof gpData.paymentState === "number" ? gpData.paymentState : 1;
+  const expiryInFuture: boolean = expiryMs > nowMs;
+  const isCancelled: boolean = gpData.cancelReason !== undefined;
+
+  console.log("PARSED:", {
+    expiryTimeMillis: gpData.expiryTimeMillis,
+    expiryMs,
+    expiryInFuture,
+    nowMs,
+    diffMinutes: ((expiryMs - nowMs) / 1000 / 60).toFixed(2),
+    autoRenewing,
+    acknowledged,
+    acknowledgementState_raw: gpData.acknowledgementState,
+    paymentState,
+    paymentState_raw: gpData.paymentState,
+    cancelReason: gpData.cancelReason,
+    isCancelled,
+    tokenSnippet: purchaseTokenSnippet,
+  });
+
+  // ── Core premium decision ─────────────────────────────────────────────────
+  // Priority: autoRenewing > expiryInFuture > expired
+  // Test subscriptions have very short expiryTimeMillis but autoRenewing stays true.
+  let newIsPremium = false;
+  if (acknowledged && paymentState === 1) {
+    if (autoRenewing) {
+      newIsPremium = true;
+      console.log("DECISION: autoRenewing=true + acknowledged=true → FORCING is_premium=true (test-safe)");
+    } else if (expiryInFuture) {
+      newIsPremium = true;
+      console.log("DECISION: autoRenewing=false but expiryInFuture=true → is_premium=true (grace period)");
+    } else {
+      newIsPremium = false;
+      console.log("DECISION: autoRenewing=false AND expiryInFuture=false → is_premium=false (expired)");
+    }
+  } else {
+    console.log(`DECISION: acknowledged=${acknowledged} paymentState=${paymentState} → is_premium=false (not confirmed)`);
+  }
+
+  // ── Status string ─────────────────────────────────────────────────────────
+  // A cancelled subscription that is still within its paid period stays "cancelled" (grace period)
+  const newStatus = isCancelled
+    ? (expiryInFuture ? "cancelled" : "expired")
+    : newIsPremium ? "active" : "expired";
+
+  // cancelledActive = cancelled but still within paid period
+  const cancelledActive = isCancelled && expiryInFuture;
+
+  console.log("FINAL_DECISION:", { newIsPremium, newStatus, subscriptionEnd, cancelledActive });
+
+  return { newIsPremium, newStatus, subscriptionEnd, autoRenewing, cancelledActive };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
@@ -167,72 +228,14 @@ Deno.serve(async (req) => {
       }
 
       const gpData = await gpRes.json();
-
-      // ── DEBUG: Full raw Google Play response ─────────────────────────────────
       console.log("GOOGLE_PLAY_RAW:", JSON.stringify(gpData, null, 2));
 
-      const expiryMs = parseInt(gpData.expiryTimeMillis, 10);
-      const subscriptionEnd = new Date(expiryMs).toISOString();
-      const now = Date.now();
+      const { newIsPremium, newStatus, subscriptionEnd, autoRenewing, cancelledActive } =
+        interpretGooglePlayData(gpData, purchaseToken.substring(0, 30) + "...");
 
-      // ── Core logic: use autoRenewing + acknowledged + paymentState ──────────
-      const autoRenewing: boolean = gpData.autoRenewing === true;
-      const acknowledged: boolean = gpData.acknowledgementState === 1 || gpData.acknowledgementState === true;
-      const paymentState: number = typeof gpData.paymentState === "number" ? gpData.paymentState : 1;
-      const expiryInFuture: boolean = expiryMs > now;
-      const isCancelled = gpData.cancelReason !== undefined;
-
-      // ── DEBUG: Parsed values ─────────────────────────────────────────────────
-      console.log("PARSED:", {
-        expiryTimeMillis: gpData.expiryTimeMillis,
-        expiryMs,
-        expiryInFuture,
-        nowMs: now,
-        diffMinutes: ((expiryMs - now) / 1000 / 60).toFixed(2),
-        autoRenewing,
-        acknowledged,
-        acknowledgementState_raw: gpData.acknowledgementState,
-        paymentState,
-        paymentState_raw: gpData.paymentState,
-        cancelReason: gpData.cancelReason,
-        isCancelled,
-        purchaseTokenPrefix: purchaseToken?.substring(0, 30) + "...",
-      });
-
-      // ── PROTECTION: if autoRenewing=true AND acknowledged=true → FORCE premium
-      // (Test subscriptions have very short expiryTimeMillis but autoRenewing stays true)
-      let newIsPremium = false;
-      if (acknowledged && paymentState === 1) {
-        if (autoRenewing) {
-          newIsPremium = true; // FORCE: actively renewing → always premium regardless of expiry
-          console.log("DECISION: autoRenewing=true + acknowledged=true → FORCING is_premium=true (test-safe)");
-        } else if (expiryInFuture) {
-          newIsPremium = true; // Cancelled but still within paid period
-          console.log("DECISION: autoRenewing=false but expiryInFuture=true → is_premium=true (grace period)");
-        } else {
-          newIsPremium = false; // Cancelled and expired
-          console.log("DECISION: autoRenewing=false AND expiryInFuture=false → is_premium=false (expired)");
-        }
-      } else {
-        console.log(`DECISION: acknowledged=${acknowledged} paymentState=${paymentState} → is_premium=false (not confirmed)`);
-      }
-
-      const newStatus = isCancelled
-        ? (expiryInFuture ? "cancelled" : "expired")
-        : newIsPremium ? "active" : "expired";
-
-      console.log("FINAL_DECISION:", {
-        newIsPremium,
-        newStatus,
-        subscriptionEnd,
-        userId: user.id,
-      });
-
-      console.log(`[sync-sub] GP response: expiryMs=${expiryMs} expiryInFuture=${expiryInFuture} autoRenewing=${autoRenewing} acknowledged=${acknowledged} paymentState=${paymentState} isCancelled=${isCancelled} → newIsPremium=${newIsPremium}`);
-
-      // ── Upsert user_subscriptions (with retry) ────────────────────────────
+      // ── Upsert user_subscriptions ─────────────────────────────────────────
       // CRITICAL: save auto_renew=true when Google Play says autoRenewing=true
-      // This prevents the DB trigger from expiring the subscription prematurely
+      // This prevents the DB trigger from expiring the subscription prematurely.
       const { error: upsertError } = await withRetry(
         () => adminClient.from("user_subscriptions").upsert({
           user_id: user.id,
@@ -241,7 +244,7 @@ Deno.serve(async (req) => {
           subscription_status: newStatus,
           subscription_end: subscriptionEnd,
           subscription_start: new Date().toISOString(),
-          auto_renew: autoRenewing, // KEY: prevents trigger from expiring active subscriptions
+          auto_renew: autoRenewing,
           updated_at: new Date().toISOString(),
         }, { onConflict: "user_id" }),
         3,
@@ -255,12 +258,9 @@ Deno.serve(async (req) => {
         });
       }
 
-      // ── Insert into payments table (idempotent via purchaseToken) ─────────
-      // Only record when payment is confirmed (paymentState === 1) or unknown (undefined)
-      // paymentState 0 = free trial, 1 = paid, 2 = deferred
+      // ── Record payment (idempotent via purchaseToken) ─────────────────────
       const paymentConfirmed = gpData.paymentState === 1 || gpData.paymentState === undefined;
       if (paymentConfirmed && newIsPremium) {
-        // Check if this purchaseToken was already recorded to avoid duplicate rows
         const { data: existingPayment } = await adminClient
           .from("payments")
           .select("id")
@@ -271,20 +271,18 @@ Deno.serve(async (req) => {
           const { error: paymentError } = await withRetry(
             () => adminClient.from("payments").insert({
               user_id: user.id,
-              amount: 0,  // Amount not available from subscription API; updated via webhook
+              amount: 0,
               status: "approved",
               description: `Google Play subscription - ${googleSubscriptionId}`,
               preference_id: `gplay_${googleSubscriptionId}`,
-              payment_id: purchaseToken.substring(0, 255), // used as idempotency key
+              payment_id: purchaseToken.substring(0, 255),
               external_reference: `${googlePackageName}/${googleSubscriptionId}`,
               paid_at: new Date().toISOString(),
             }),
             3,
             "insert-payment"
           );
-
           if (paymentError) {
-            // Non-fatal: log but don't fail the whole sync
             console.warn("[sync-sub] Payment insert warning (non-fatal):", paymentError.message);
           } else {
             console.log(`✅ [sync-sub] Payment recorded for user=${user.id}`);
@@ -302,7 +300,7 @@ Deno.serve(async (req) => {
         expiration_date: subscriptionEnd,
         subscription_status: newStatus,
         plan_type: newIsPremium ? "premium" : "free",
-        cancelled_active: isCancelled && isActive,
+        cancelled_active: cancelledActive,
       };
       return new Response(JSON.stringify(result), {
         status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -312,7 +310,7 @@ Deno.serve(async (req) => {
     // ── Case 2: No token → check DB state, auto-resync if expired ────────────
     const { data: sub, error: fetchError } = await adminClient
       .from("user_subscriptions")
-      .select("is_premium, subscription_status, subscription_end, plan_type")
+      .select("is_premium, subscription_status, subscription_end, plan_type, auto_renew")
       .eq("user_id", user.id)
       .maybeSingle();
 
@@ -341,12 +339,9 @@ Deno.serve(async (req) => {
 
     // ── CRITICAL: If DB says premium but subscription_end already passed,
     // try to re-validate using the last known Google Play token from payments table.
-    // This handles subscription renewals where Google Play updated expiryTimeMillis
-    // but the DB wasn't notified via webhook yet.
     if (isExpiredInDb && googleServiceAccountKey && googlePackageName && googleSubscriptionId) {
       console.log(`[sync-sub] DB is_premium=true but expired (${rawEnd?.toISOString()}) — attempting auto-resync via last payment token`);
 
-      // Fetch the most recent Google Play purchaseToken from payments table
       const { data: lastPayment } = await adminClient
         .from("payments")
         .select("payment_id")
@@ -374,67 +369,20 @@ Deno.serve(async (req) => {
 
           if (gpRes && gpRes.ok) {
             const gpData = await gpRes.json();
-
-            // ── DEBUG: Full raw response from auto-resync path ─────────────────
             console.log("AUTO_RESYNC_GOOGLE_PLAY_RAW:", JSON.stringify(gpData, null, 2));
 
-            const expiryMs = parseInt(gpData.expiryTimeMillis, 10);
-            const nowMs = Date.now();
+            const { newIsPremium, newStatus, subscriptionEnd, autoRenewing, cancelledActive } =
+              interpretGooglePlayData(gpData, lastToken.substring(0, 30) + "...");
 
-            const autoRenewing: boolean = gpData.autoRenewing === true;
-            const acknowledged: boolean = gpData.acknowledgementState === 1 || gpData.acknowledgementState === true;
-            const paymentState: number = typeof gpData.paymentState === "number" ? gpData.paymentState : 1;
-            const expiryInFuture: boolean = expiryMs > nowMs;
-            const isCancelledGP = gpData.cancelReason !== undefined;
-
-            console.log("AUTO_RESYNC_PARSED:", {
-              expiryTimeMillis: gpData.expiryTimeMillis,
-              expiryMs,
-              expiryInFuture,
-              nowMs,
-              diffMinutes: ((expiryMs - nowMs) / 1000 / 60).toFixed(2),
-              autoRenewing,
-              acknowledged,
-              acknowledgementState_raw: gpData.acknowledgementState,
-              paymentState,
-              paymentState_raw: gpData.paymentState,
-              cancelReason: gpData.cancelReason,
-              isCancelledGP,
-              lastTokenPrefix: lastToken.substring(0, 30) + "...",
-            });
-
-            let newIsPremium = false;
-            if (acknowledged && paymentState === 1) {
-              if (autoRenewing) {
-                newIsPremium = true;
-                console.log("AUTO_RESYNC_DECISION: autoRenewing=true + acknowledged=true → FORCING is_premium=true");
-              } else if (expiryInFuture) {
-                newIsPremium = true;
-                console.log("AUTO_RESYNC_DECISION: autoRenewing=false but expiryInFuture=true → is_premium=true (grace)");
-              } else {
-                newIsPremium = false;
-                console.log("AUTO_RESYNC_DECISION: autoRenewing=false AND expiryInFuture=false → is_premium=false");
-              }
-            } else {
-              console.log(`AUTO_RESYNC_DECISION: acknowledged=${acknowledged} paymentState=${paymentState} → is_premium=false`);
-            }
-
-            const newStatus = isCancelledGP
-              ? (expiryInFuture ? "cancelled" : "expired")
-              : newIsPremium ? "active" : "expired";
-            const newSubscriptionEnd = new Date(expiryMs).toISOString();
-
-            console.log("AUTO_RESYNC_FINAL_DECISION:", { newIsPremium, newStatus, newSubscriptionEnd });
-
-            // Update DB with fresh data — also save auto_renew to prevent trigger from expiring
+            // Update DB with fresh data
             await withRetry(
               () => adminClient.from("user_subscriptions").upsert({
                 user_id: user.id,
                 is_premium: newIsPremium,
                 plan_type: newIsPremium ? "premium" : "free",
                 subscription_status: newStatus,
-                subscription_end: newSubscriptionEnd,
-                auto_renew: autoRenewing, // KEY: prevents trigger from expiring if still renewing
+                subscription_end: subscriptionEnd,
+                auto_renew: autoRenewing,
                 updated_at: new Date().toISOString(),
               }, { onConflict: "user_id" }),
               2,
@@ -444,10 +392,10 @@ Deno.serve(async (req) => {
             const result: SyncResult = {
               success: true,
               is_premium: newIsPremium,
-              expiration_date: newSubscriptionEnd,
+              expiration_date: subscriptionEnd,
               subscription_status: newStatus,
               plan_type: newIsPremium ? "premium" : "free",
-              cancelled_active: isCancelledGP && isActive,
+              cancelled_active: cancelledActive,
             };
             return new Response(JSON.stringify(result), {
               status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
