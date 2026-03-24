@@ -36,7 +36,7 @@ const DAILY_LIMIT_FREE = 3;
 const DAILY_LIMIT_PREMIUM = 10;
 
 export function PremiumProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user, isLoading: authIsLoading } = useAuth();
 
   // isLoading is ONLY true during the very first fetch — NEVER set back to true after initial load
   const [isLoading, setIsLoadingInternal] = useState(true);
