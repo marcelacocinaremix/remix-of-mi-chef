@@ -343,42 +343,49 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
+    const doSilentRefresh = async () => {
+      if ((window as any).__purchaseInProgress) return;
+      try {
+        const { data } = await supabase
+          .from('user_subscriptions')
+          .select('is_premium, subscription_end, subscription_status, plan_type, daily_uses, last_use_date, auto_renew')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        if (!data) return;
+        const rawEnd = data.subscription_end ? new Date(data.subscription_end) : null;
+        const isExpired = rawEnd && rawEnd <= new Date();
+        // If expired but auto_renew=true, trigger background Google Play revalidation
+        if (data.is_premium && isExpired && !isSyncingRef.current) {
+          isSyncingRef.current = true;
+          setIsSyncing(true);
+          const syncResult = await callSyncSubscriptionSilent();
+          isSyncingRef.current = false;
+          setIsSyncing(false);
+          if (syncResult) {
+            applySubData(syncResult, { daily_uses: data.daily_uses, last_use_date: data.last_use_date });
+          }
+        } else {
+          applySubData(data, { daily_uses: data.daily_uses, last_use_date: data.last_use_date });
+        }
+      } catch { /* non-fatal */ }
+    };
+
     const handleVisibilityChange = () => {
       if (document.visibilityState !== 'visible') return;
-      if ((window as any).__purchaseInProgress) return;
       if (debounceTimer) clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(async () => {
-        try {
-          const { data } = await supabase
-            .from('user_subscriptions')
-            .select('is_premium, subscription_end, subscription_status, plan_type, daily_uses, last_use_date, auto_renew')
-            .eq('user_id', user.id)
-            .maybeSingle();
-          if (!data) return;
-          const rawEnd = data.subscription_end ? new Date(data.subscription_end) : null;
-          const isExpired = rawEnd && rawEnd <= new Date();
-          // If expired but auto_renew=true, trigger background Google Play check
-          if (data.is_premium && isExpired && !isSyncingRef.current) {
-            isSyncingRef.current = true;
-            setIsSyncing(true);
-            const syncResult = await callSyncSubscriptionSilent();
-            isSyncingRef.current = false;
-            setIsSyncing(false);
-            if (syncResult) {
-              applySubData(syncResult, { daily_uses: data.daily_uses, last_use_date: data.last_use_date });
-            }
-          } else {
-            // Safe to apply directly
-            applySubData(data, { daily_uses: data.daily_uses, last_use_date: data.last_use_date });
-          }
-        } catch { /* non-fatal */ }
-      }, 1500);
+      debounceTimer = setTimeout(doSilentRefresh, 1500);
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // ── Periodic revalidation every 30 minutes ──────────────────────────────
+    // Ensures premium doesn't silently fall to free between app uses.
+    const periodicInterval = setInterval(doSilentRefresh, 30 * 60 * 1000);
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (debounceTimer) clearTimeout(debounceTimer);
+      clearInterval(periodicInterval);
     };
   }, [user, callSyncSubscriptionSilent, applySubData]);
 
