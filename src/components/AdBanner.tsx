@@ -2,17 +2,20 @@ import { useEffect, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { usePremium } from '@/hooks/usePremium';
 
-// Publisher: ca-app-pub-2070193214456761
-// App ID:    ca-app-pub-2070193214456761~5626242502  (must match AndroidManifest)
+// ── Ad Unit IDs (Production — Publisher: ca-app-pub-2070193214456761) ────────
+// App ID in AndroidManifest: ca-app-pub-2070193214456761~5626242502
 const BANNER_AD_UNIT_ID = 'ca-app-pub-2070193214456761/7836431130';
 
 let admobModule: any = null;
 let bannerShowing = false;
 let sdkReady = false;
+let sdkInitialized = false; // tracks if AdMob.initialize() was already called
 let sdkReadyCallbacks: Array<() => void> = [];
 
+// Called by native bridge (Java) after MobileAds.initialize() completes
 export function markAdMobReady() {
   sdkReady = true;
+  console.log('[AdBanner] ✅ AdMob SDK marked ready — notifying', sdkReadyCallbacks.length, 'listeners');
   sdkReadyCallbacks.forEach(cb => cb());
   sdkReadyCallbacks = [];
 }
@@ -21,6 +24,7 @@ export function waitForAdMobReady(): Promise<void> {
   if (sdkReady) return Promise.resolve();
   return new Promise(resolve => {
     sdkReadyCallbacks.push(resolve);
+    // Fallback: if native bridge never calls markAdMobReady, unblock after 5s
     setTimeout(() => resolve(), 5000);
   });
 }
@@ -37,15 +41,45 @@ async function getAdMob() {
   }
 }
 
+// ── AdMob.initialize() — must be called once before any ad ───────────────────
+async function ensureAdMobInitialized() {
+  if (sdkInitialized) return;
+  const AdMob = await getAdMob();
+  if (!AdMob) return;
+  try {
+    await AdMob.initialize({
+      requestTrackingAuthorization: false, // iOS only; not needed on Android
+      testingDevices: [], // empty = production ads
+      initializeForTesting: false,
+    });
+    sdkInitialized = true;
+    console.log('[AdBanner] ✅ AdMob.initialize() called successfully');
+    // Mark SDK ready immediately after initialize() resolves
+    markAdMobReady();
+  } catch (e: any) {
+    // initialize() may throw if already called — that's fine
+    console.warn('[AdBanner] AdMob.initialize() warning (may already be initialized):', e?.message || e);
+    sdkInitialized = true;
+    markAdMobReady();
+  }
+}
+
 export function AdBanner() {
   const { isPremium, isLoading } = usePremium();
   const shownRef = useRef(false);
   const retryRef = useRef(0);
 
+  // Kick off SDK initialization as early as possible on native
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      ensureAdMobInitialized();
+    }
+  }, []);
+
   useEffect(() => {
     if (isLoading) return;
 
-    // Hide banner for premium users
+    // Remove banner for premium users
     if (!Capacitor.isNativePlatform() || isPremium) {
       if (bannerShowing) {
         getAdMob().then(AdMob => {
@@ -53,6 +87,7 @@ export function AdBanner() {
             AdMob.hideBanner().catch(() => {});
             AdMob.removeBanner().catch(() => {});
             bannerShowing = false;
+            console.log('[AdBanner] Banner removed for premium user');
           }
         });
       }
@@ -63,20 +98,22 @@ export function AdBanner() {
 
     async function showBanner() {
       try {
+        // Make sure SDK is initialized before showing any ad
+        await ensureAdMobInitialized();
         await waitForAdMobReady();
 
-        // Wait for WebView to be fully rendered (500ms is enough in production)
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Give WebView time to finish rendering (avoids layout issues)
+        await new Promise(resolve => setTimeout(resolve, 800));
 
         const AdMob = await getAdMob();
         if (!AdMob) {
-          console.warn('[AdBanner] AdMob module not available');
+          console.warn('[AdBanner] AdMob module not available — cannot show banner');
           return;
         }
 
-        console.log('[AdBanner] Attempting to show banner with adId:', BANNER_AD_UNIT_ID);
+        console.log('[AdBanner] Attempting to show banner | adId:', BANNER_AD_UNIT_ID, '| isPremium:', isPremium);
 
-        // Remove stale listeners before adding new ones
+        // Remove stale listeners
         AdMob.removeAllListeners().catch(() => {});
 
         AdMob.addListener('onBannerAdLoaded', () => {
@@ -87,21 +124,27 @@ export function AdBanner() {
         });
 
         AdMob.addListener('onBannerAdFailedToLoad', (err: any) => {
-          const errStr = JSON.stringify(err);
-          console.warn('[AdBanner] ❌ Banner failed to load:', errStr);
+          console.warn('[AdBanner] ❌ Banner failed to load:', JSON.stringify(err));
+          console.warn('[AdBanner] Error code:', err?.code, '| message:', err?.message);
           bannerShowing = false;
           // Retry up to 3 times with exponential backoff
           if (retryRef.current < 3) {
             const delay = Math.pow(2, retryRef.current) * 3000;
             retryRef.current += 1;
-            console.log(`[AdBanner] Retrying in ${delay}ms (attempt ${retryRef.current}/3)`);
+            console.log(`[AdBanner] Retrying banner in ${delay}ms (attempt ${retryRef.current}/3)`);
             shownRef.current = false;
             setTimeout(showBanner, delay);
+          } else {
+            console.warn('[AdBanner] Max retries reached — giving up on banner');
           }
         });
 
         AdMob.addListener('onBannerAdOpened', () => {
-          console.log('[AdBanner] Banner ad opened');
+          console.log('[AdBanner] Banner ad opened by user');
+        });
+
+        AdMob.addListener('onBannerAdClosed', () => {
+          console.log('[AdBanner] Banner ad closed');
         });
 
         await AdMob.showBanner({
@@ -124,6 +167,6 @@ export function AdBanner() {
 
   if (!Capacitor.isNativePlatform() || isPremium) return null;
 
-  // Reserve bottom space: nav bar (~56px) + banner (~60px)
-  return <div style={{ height: 60 }} aria-hidden="true" />;
+  // Reserve space: nav bar (~56px) + banner (~60px)
+  return <div style={{ height: 60, minHeight: 50, minWidth: 320 }} aria-hidden="true" />;
 }
