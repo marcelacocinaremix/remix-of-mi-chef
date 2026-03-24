@@ -184,6 +184,9 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
   // ── Main fetch ────────────────────────────────────────────────────────────
   const fetchSubscription = useCallback(async () => {
     if (!user) {
+      // No authenticated user — reset to free state and release loading.
+      // NOTE: this branch only runs AFTER authIsLoading=false (see useEffect guard),
+      // so we're safe to release isLoading here without causing a premature flash.
       setDbIsPremium(false);
       setPlanType('free');
       setSubscriptionStatus('inactive');
