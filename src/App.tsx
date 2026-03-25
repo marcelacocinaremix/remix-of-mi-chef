@@ -60,7 +60,6 @@ const App = () => (
                         <TooltipProvider>
                           <Toaster />
                           <Sonner />
-                          <AdBanner />
                           <Routes>
                             <Route path="/" element={<Index />} />
                             <Route path="/auth" element={<Auth />} />

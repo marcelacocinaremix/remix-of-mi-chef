@@ -165,8 +165,9 @@ export function AdBanner() {
     showBanner();
   }, [isPremium, isLoading]);
 
+  // Only render spacer on native (not web preview)
   if (!Capacitor.isNativePlatform() || isPremium) return null;
 
-  // Reserve space: nav bar (~56px) + banner (~60px)
-  return <div style={{ height: 60, minHeight: 50, minWidth: 320 }} aria-hidden="true" />;
+  // Reserve space for the banner above the bottom nav bar
+  return <div style={{ height: 60, minHeight: 50, minWidth: 320, flexShrink: 0 }} aria-hidden="true" />;
 }
