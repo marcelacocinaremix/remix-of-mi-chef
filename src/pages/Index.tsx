@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { AppHeader } from "@/components/AppHeader";
+import { AdBanner } from "@/components/AdBanner";
 import { BottomNavBar, MainTab } from "@/components/BottomNavBar";
 import { FuturisticBackground } from "@/components/FuturisticBackground";
 import { FiltersState } from "@/components/AdvancedFilters";
