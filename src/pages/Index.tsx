@@ -279,13 +279,19 @@ export default function Index() {
       }
     }
 
-    // Ad is fire-and-forget: race against 3s timeout so it NEVER blocks recipe generation
+    // Ad is fire-and-forget: show interstitial every 3 generations to avoid fatiguing the user
     if (!isPremium) {
-      const adRace = Promise.race([
-        showInterstitial().catch(() => {}),
-        new Promise<void>(resolve => setTimeout(resolve, 3000)),
-      ]);
-      adRace.finally(() => {}); // detach — we don't await this
+      const AD_FREQUENCY = 3;
+      const key = 'recipe_gen_count';
+      const count = (parseInt(localStorage.getItem(key) || '0', 10) + 1);
+      localStorage.setItem(key, String(count));
+      if (count % AD_FREQUENCY === 0) {
+        const adRace = Promise.race([
+          showInterstitial().catch(() => {}),
+          new Promise<void>(resolve => setTimeout(resolve, 3000)),
+        ]);
+        adRace.finally(() => {}); // detach — we don't await this
+      }
     }
 
     // Recipe generation is immediate and independent of the ad result
