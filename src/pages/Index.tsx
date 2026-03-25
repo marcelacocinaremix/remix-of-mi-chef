@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { AppHeader } from "@/components/AppHeader";
+import { AdBanner } from "@/components/AdBanner";
 import { BottomNavBar, MainTab } from "@/components/BottomNavBar";
 import { FuturisticBackground } from "@/components/FuturisticBackground";
 import { FiltersState } from "@/components/AdvancedFilters";
@@ -580,6 +581,9 @@ export default function Index() {
           </div>
         )}
       </div>
+
+      {/* ─── AdMob Banner (native only, free users) — sits above the nav bar ─── */}
+      <AdBanner />
 
       {/* ─── Fixed Bottom Navigation ─── */}
       <BottomNavBar
