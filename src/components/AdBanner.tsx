@@ -9,10 +9,9 @@ const BANNER_AD_UNIT_ID = 'ca-app-pub-2070193214456761/7836431130';
 let admobModule: any = null;
 let bannerShowing = false;
 let sdkReady = false;
-let sdkInitialized = false; // tracks if AdMob.initialize() was already called
 let sdkReadyCallbacks: Array<() => void> = [];
 
-// Called by native bridge (Java) after MobileAds.initialize() completes
+// Called by main.tsx after AdMob.initialize() completes
 export function markAdMobReady() {
   sdkReady = true;
   console.log('[AdBanner] ✅ AdMob SDK marked ready — notifying', sdkReadyCallbacks.length, 'listeners');
@@ -41,40 +40,10 @@ async function getAdMob() {
   }
 }
 
-// ── AdMob.initialize() — must be called once before any ad ───────────────────
-async function ensureAdMobInitialized() {
-  if (sdkInitialized) return;
-  const AdMob = await getAdMob();
-  if (!AdMob) return;
-  try {
-    await AdMob.initialize({
-      requestTrackingAuthorization: false, // iOS only; not needed on Android
-      testingDevices: [], // empty = production ads
-      initializeForTesting: false,
-    });
-    sdkInitialized = true;
-    console.log('[AdBanner] ✅ AdMob.initialize() called successfully');
-    // Mark SDK ready immediately after initialize() resolves
-    markAdMobReady();
-  } catch (e: any) {
-    // initialize() may throw if already called — that's fine
-    console.warn('[AdBanner] AdMob.initialize() warning (may already be initialized):', e?.message || e);
-    sdkInitialized = true;
-    markAdMobReady();
-  }
-}
-
 export function AdBanner() {
   const { isPremium, isLoading } = usePremium();
   const shownRef = useRef(false);
   const retryRef = useRef(0);
-
-  // Kick off SDK initialization as early as possible on native
-  useEffect(() => {
-    if (Capacitor.isNativePlatform()) {
-      ensureAdMobInitialized();
-    }
-  }, []);
 
   useEffect(() => {
     if (isLoading) return;
@@ -98,8 +67,7 @@ export function AdBanner() {
 
     async function showBanner() {
       try {
-        // Make sure SDK is initialized before showing any ad
-        await ensureAdMobInitialized();
+        // Wait for SDK to be ready (initialized by main.tsx before React mounts)
         await waitForAdMobReady();
 
         // Give WebView time to finish rendering (avoids layout issues)
@@ -111,11 +79,10 @@ export function AdBanner() {
           return;
         }
 
-        console.log('[AdBanner] Attempting to show banner | adId:', BANNER_AD_UNIT_ID, '| isPremium:', isPremium);
+        console.log('[AdBanner] Attempting to show banner | adId:', BANNER_AD_UNIT_ID);
 
-        // Remove stale listeners
-        AdMob.removeAllListeners().catch(() => {});
-
+        // ⚠️ DO NOT call removeAllListeners() here — it would kill interstitial listeners!
+        // Add only banner-specific listeners
         AdMob.addListener('onBannerAdLoaded', () => {
           console.log('[AdBanner] ✅ Banner loaded successfully');
           bannerShowing = true;
@@ -124,8 +91,7 @@ export function AdBanner() {
         });
 
         AdMob.addListener('onBannerAdFailedToLoad', (err: any) => {
-          console.warn('[AdBanner] ❌ Banner failed to load:', JSON.stringify(err));
-          console.warn('[AdBanner] Error code:', err?.code, '| message:', err?.message);
+          console.warn('[AdBanner] ❌ Banner failed to load — code:', err?.code, '| message:', err?.message);
           bannerShowing = false;
           // Retry up to 3 times with exponential backoff
           if (retryRef.current < 3) {
