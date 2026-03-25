@@ -581,6 +581,9 @@ export default function Index() {
         )}
       </div>
 
+      {/* ─── AdMob Banner (native only, free users) — sits above the nav bar ─── */}
+      <AdBanner />
+
       {/* ─── Fixed Bottom Navigation ─── */}
       <BottomNavBar
         activeTab={activeTab}
