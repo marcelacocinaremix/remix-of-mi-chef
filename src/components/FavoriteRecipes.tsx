@@ -832,15 +832,6 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
             </div>
           )}
 
-          {/* Botón para volver a ver ayuda */}
-          {!showTipsHelp && (
-            <button
-              onClick={() => setShowTipsHelp(true)}
-              className="animate-neon-pulse flex items-center justify-center w-8 h-8 rounded-full border border-sky-400/40 bg-sky-500/5 text-sky-500 transition-colors duration-300 hover:bg-sky-500/15 hover:border-sky-400/70"
-            >
-              <Info className="w-4 h-4" />
-            </button>
-          )}
 
           {/* PASO 1 — Carpetas de tips */}
           <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
