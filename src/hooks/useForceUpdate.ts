@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Capacitor } from "@capacitor/core";
+import { App } from "@capacitor/app";
 
-// Current app version — bump this on every release to match Play Store versionName
-export const APP_VERSION = "1.4.4";
+// Fallback only used when Capacitor is not available (web preview)
+const FALLBACK_VERSION = "99.99.99";
 
 function parseVersion(v: string): number[] {
   return v.split(".").map((n) => parseInt(n, 10) || 0);
@@ -21,6 +23,18 @@ function isVersionLessThan(current: string, minimum: string): boolean {
   return false;
 }
 
+async function getAppVersion(): Promise<string> {
+  try {
+    if (Capacitor.isNativePlatform()) {
+      const info = await App.getInfo();
+      return info.version; // versionName from AndroidManifest / Info.plist
+    }
+  } catch {
+    // Capacitor not available — fail safe
+  }
+  return FALLBACK_VERSION;
+}
+
 export function useForceUpdate() {
   const [updateRequired, setUpdateRequired] = useState(false);
   const [storeUrl, setStoreUrl] = useState(
@@ -33,6 +47,8 @@ export function useForceUpdate() {
 
     async function check() {
       try {
+        const currentVersion = await getAppVersion();
+
         const { data, error } = await supabase
           .from("app_config")
           .select("min_version, store_url")
@@ -42,20 +58,18 @@ export function useForceUpdate() {
         if (cancelled) return;
 
         if (error || !data) {
-          // If fetch fails, allow access (fail open)
           setUpdateRequired(false);
           return;
         }
 
         if (data.store_url) setStoreUrl(data.store_url);
 
-        if (isVersionLessThan(APP_VERSION, data.min_version)) {
+        if (isVersionLessThan(currentVersion, data.min_version)) {
           setUpdateRequired(true);
         } else {
           setUpdateRequired(false);
         }
       } catch {
-        // Network error → fail open
         if (!cancelled) setUpdateRequired(false);
       } finally {
         if (!cancelled) setChecking(false);
