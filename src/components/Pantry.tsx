@@ -938,14 +938,6 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
       <PaywallModal open={showPantryPaywall} onOpenChange={setShowPantryPaywall} />
       {/* Help banner */}
       {showHelp && <PantryHelpBanner onDismiss={() => { localStorage.setItem(PANTRY_HELP_KEY, "1"); setShowHelp(false); }} />}
-      {!showHelp && (
-        <button
-          onClick={() => setShowHelp(true)}
-          className="animate-neon-pulse flex items-center justify-center w-8 h-8 rounded-full border border-sky-400/40 bg-sky-500/5 text-sky-500 transition-colors duration-300 hover:bg-sky-500/15 hover:border-sky-400/70"
-        >
-          <Info className="w-4 h-4" />
-        </button>
-      )}
       {/* Dialog always rendered */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="sm:max-w-md">
