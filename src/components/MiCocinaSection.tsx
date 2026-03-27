@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { FavoriteRecipes } from "./FavoriteRecipes";
 import SmartHistory from "./SmartHistory";
-import { AchievementsSection } from "./AchievementsSection";
-import { Heart, History, Trophy } from "lucide-react";
+import { Heart, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Recipe } from "./RecipeList";
 import { useLanguage } from "@/contexts/LanguageContext";
