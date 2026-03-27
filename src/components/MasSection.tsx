@@ -1,4 +1,4 @@
-import { GraduationCap, Gamepad2, Youtube, User, Activity, Lightbulb, Palette } from "lucide-react";
+import { GraduationCap, Gamepad2, Youtube, User, Activity, Lightbulb, Palette, Trophy } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAppTheme } from "@/contexts/ThemeContext";
 import { useState } from "react";
@@ -15,12 +15,13 @@ export function MasSection({ onNavigate }: MasSectionProps) {
   const [showThemes, setShowThemes] = useState(false);
 
   const items = [
-    { id: "aprender", label: t("menuLearn"),   icon: GraduationCap },
-    { id: "jugar",    label: t("menuPlay"),     icon: Gamepad2      },
-    { id: "guia",     label: t("learnTabGuia"), icon: Lightbulb     },
-    { id: "balance",  label: t("subTabHealth"), icon: Activity      },
-    { id: "marcela",  label: t("menuRecipes"),  icon: Youtube       },
-    { id: "perfil",   label: t("myProfile"),    icon: User          },
+    { id: "aprender", label: t("menuLearn"),          icon: GraduationCap },
+    { id: "jugar",    label: t("menuPlay"),            icon: Gamepad2      },
+    { id: "guia",     label: t("learnTabGuia"),        icon: Lightbulb     },
+    { id: "balance",  label: t("subTabHealth"),        icon: Activity      },
+    { id: "logros",   label: t("subTabAchievements"), icon: Trophy        },
+    { id: "marcela",  label: t("menuRecipes"),         icon: Youtube       },
+    { id: "perfil",   label: t("myProfile"),           icon: User          },
   ];
 
   const renderButton = (item: typeof items[0]) => {

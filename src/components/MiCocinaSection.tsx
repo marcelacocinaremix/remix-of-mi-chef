@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { FavoriteRecipes } from "./FavoriteRecipes";
 import SmartHistory from "./SmartHistory";
-import { AchievementsSection } from "./AchievementsSection";
-import { Heart, History, Trophy } from "lucide-react";
+import { Heart, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Recipe } from "./RecipeList";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -15,7 +14,7 @@ interface MiCocinaSectionProps {
   onSubTabChange?: (subTab: string) => void;
 }
 
-type SubTab = "favoritos" | "historial" | "logros";
+type SubTab = "favoritos" | "historial";
 
 export const MiCocinaSection = ({
   onSelectRecipe,
@@ -29,7 +28,6 @@ export const MiCocinaSection = ({
   const subTabs = [
     { id: "favoritos" as SubTab, label: t("subTabFavorites"), icon: Heart },
     { id: "historial" as SubTab, label: t("subTabHistory"),   icon: History },
-    { id: "logros"    as SubTab, label: t("subTabAchievements"), icon: Trophy },
   ];
 
   const handleTabChange = (id: SubTab) => {
@@ -91,11 +89,6 @@ export const MiCocinaSection = ({
             onSelectRecipe={onSelectRecipe}
             onSelectSuggestion={onSelectSuggestion}
           />
-        )}
-        {activeSubTab === "logros" && (
-          <div className="max-w-xl mx-auto">
-            <AchievementsSection />
-          </div>
         )}
       </div>
     </div>
