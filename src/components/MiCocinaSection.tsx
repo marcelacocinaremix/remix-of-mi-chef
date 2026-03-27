@@ -28,7 +28,6 @@ export const MiCocinaSection = ({
   const subTabs = [
     { id: "favoritos" as SubTab, label: t("subTabFavorites"), icon: Heart },
     { id: "historial" as SubTab, label: t("subTabHistory"),   icon: History },
-    { id: "logros"    as SubTab, label: t("subTabAchievements"), icon: Trophy },
   ];
 
   const handleTabChange = (id: SubTab) => {
