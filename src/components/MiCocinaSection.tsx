@@ -14,7 +14,7 @@ interface MiCocinaSectionProps {
   onSubTabChange?: (subTab: string) => void;
 }
 
-type SubTab = "favoritos" | "historial" | "logros";
+type SubTab = "favoritos" | "historial";
 
 export const MiCocinaSection = ({
   onSelectRecipe,
