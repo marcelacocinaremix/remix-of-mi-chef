@@ -1075,134 +1075,101 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Step Indicators */}
-      <div className="bg-card rounded-2xl p-4 shadow-elevated border border-border/50">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-lg font-bold text-foreground flex items-center gap-2">
-            <Package className="w-5 h-5 text-amber-500" />
-            Mi Despensa
-          </h2>
-          <Badge variant="secondary" className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
-            {items.length} productos
+      {/* Step Indicators - Compact */}
+      <div className="bg-card rounded-xl p-2.5 shadow-sm border border-border/50">
+        <div className="flex items-center gap-2">
+          <Package className="w-4 h-4 text-amber-500 shrink-0" />
+          <span className="text-sm font-semibold text-foreground">Despensa</span>
+          <Badge variant="secondary" className="ml-auto h-5 text-[10px] px-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
+            {items.length}
           </Badge>
         </div>
-        
-        <div className="grid grid-cols-3 gap-2">
-          {PANTRY_STEPS.map((step) => {
+        <div className="flex items-center gap-1 mt-2">
+          {PANTRY_STEPS.map((step, idx) => {
             const StepIcon = step.icon;
             const isActive = currentStep === step.id;
             const isCompleted = step.id < currentStep;
-            
             return (
               <button
                 key={step.id}
                 onClick={() => setCurrentStep(step.id)}
                 className={cn(
-                  "flex flex-col items-center p-3 rounded-xl transition-all duration-300",
-                  "border-2",
-                  isActive 
-                    ? "border-amber-500 bg-amber-50 dark:bg-amber-950/30 shadow-lg scale-[1.02]" 
+                  "flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all text-[11px] font-medium",
+                  isActive
+                    ? "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300"
                     : isCompleted
-                      ? "border-green-500/30 bg-green-50 dark:bg-green-950/20"
-                      : "border-border/50 hover:border-amber-500/30 hover:bg-accent/30"
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-muted-foreground hover:bg-accent/50"
                 )}
               >
                 <div className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center mb-2 transition-all",
-                  isActive 
-                    ? "bg-gradient-to-br from-amber-500 to-orange-500 text-white" 
+                  "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0",
+                  isActive
+                    ? "bg-amber-500 text-white"
                     : isCompleted
                       ? "bg-green-500 text-white"
                       : "bg-muted text-muted-foreground"
                 )}>
-                  {isCompleted ? (
-                    <Check className="w-4 h-4" />
-                  ) : (
-                    <span className="text-sm font-bold">{step.id}</span>
-                  )}
+                  {isCompleted ? <Check className="w-3 h-3" /> : step.id}
                 </div>
-                <span className={cn(
-                  "text-xs font-medium text-center",
-                  isActive ? "text-amber-700 dark:text-amber-300" : "text-muted-foreground"
-                )}>
-                  {step.label}
-                </span>
+                {step.label}
               </button>
             );
           })}
-        </div>
-        
-        {/* Step Description */}
-        <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200/50 dark:border-amber-800/50">
-          <p className="text-sm text-amber-800 dark:text-amber-200 text-center">
-            {PANTRY_STEPS[currentStep - 1]?.description}
-          </p>
         </div>
       </div>
 
       {/* STEP 1: Add Products */}
       {currentStep === 1 && (
-        <div className="bg-card rounded-2xl p-4 md:p-6 shadow-elevated border border-border/50">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-              <Plus className="w-5 h-5 text-white" />
-            </div>
+        <div className="bg-card rounded-xl p-3 shadow-sm border border-border/50">
+          <div className="space-y-3">
             <div>
-              <h3 className="font-semibold text-foreground">Agregar Productos</h3>
-              <p className="text-xs text-muted-foreground">Sumá ingredientes a tu despensa</p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Ingrediente</label>
+              <label className="text-xs font-medium mb-1 block">Ingrediente</label>
               <Input
                 placeholder="Ej: Tomates, Arroz, Leche..."
                 value={newIngredient}
                 onChange={(e) => setNewIngredient(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddIngredient()}
-                className="text-lg"
               />
             </div>
             
             <div>
-              <label className="text-sm font-medium mb-2 block">Estante (Categoría)</label>
-              <div className="grid grid-cols-3 gap-2">
+              <label className="text-xs font-medium mb-1 block">Categoría</label>
+              <div className="grid grid-cols-5 gap-1.5">
                 {CATEGORIES.map((cat) => (
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
                     className={cn(
-                      "p-3 rounded-lg border text-xs transition-all duration-200",
-                      "hover:scale-105",
+                      "p-1.5 rounded-lg border text-[10px] transition-all",
                       selectedCategory === cat.id
-                        ? `${cat.bgColor} border-primary ${cat.textColor} shadow-md`
+                        ? `${cat.bgColor} border-primary ${cat.textColor} shadow-sm`
                         : "border-border hover:border-primary/50"
                     )}
                   >
-                    <span className="text-2xl block mb-1">{cat.emoji}</span>
+                    <span className="text-base block">{cat.emoji}</span>
                     {cat.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-sm font-medium mb-2 block">Cantidad</label>
-                <div className="flex gap-2">
+                <label className="text-xs font-medium mb-1 block">Cantidad</label>
+                <div className="flex gap-1.5">
                   <Input
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/g, ''))}
-                    className="w-20"
+                    className="w-16 h-9"
                   />
                   <select
                     value={unit}
                     onChange={(e) => setUnit(e.target.value)}
-                    className="flex-1 px-3 py-2 rounded-lg border border-input bg-background text-sm"
+                    className="flex-1 px-2 py-1.5 rounded-lg border border-input bg-background text-xs"
                   >
                     {UNITS.map((u) => (
                       <option key={u} value={u}>{u}</option>
@@ -1211,11 +1178,12 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Vencimiento</label>
+                <label className="text-xs font-medium mb-1 block">Vencimiento</label>
                 <Input
                   type="date"
                   value={expirationDate}
                   onChange={(e) => setExpirationDate(e.target.value)}
+                  className="h-9"
                 />
               </div>
             </div>
@@ -1225,9 +1193,9 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                 const success = await handleAddIngredient();
                 if (success) setCurrentStep(2);
               }} 
-              className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg py-6"
+              className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 h-9 text-sm"
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="w-4 h-4" />
               Agregar a la Despensa
             </Button>
           </div>
@@ -1258,105 +1226,70 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
             {/* Header */}
             <div className={cn(
-              "sticky top-0 z-30 p-4",
+              "sticky top-0 z-30 px-3 pt-2 pb-1",
               "bg-gradient-to-b from-amber-50/95 via-amber-50/90 to-transparent",
               "dark:from-gray-900/95 dark:via-gray-900/90 dark:to-transparent",
               "backdrop-blur-sm"
             )}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className={cn(
-                    "p-2.5 rounded-xl transition-all duration-500",
-                    "bg-gradient-to-br from-amber-500 to-orange-600",
-                    "shadow-lg shadow-amber-500/30"
-                  )}>
-                    <DoorOpen className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-display text-xl font-bold bg-gradient-to-r from-amber-700 to-orange-600 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">
-                      Mi Despensa
-                    </h3>
-                    <p className="text-xs text-muted-foreground">{items.length} productos en {groupedItems.length} estantes</p>
-                  </div>
-                </div>
+              <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  {currentAchievement && (
-                    <Badge variant="secondary" className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
-                      {currentAchievement.icon} {currentAchievement.name}
-                    </Badge>
-                  )}
+                  <DoorOpen className="w-5 h-5 text-amber-500" />
+                  <h3 className="font-semibold text-sm text-foreground">Mi Despensa</h3>
+                  <span className="text-[10px] text-muted-foreground">{items.length} productos</span>
                 </div>
+                {currentAchievement && (
+                  <Badge variant="secondary" className="h-5 text-[10px] px-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
+                    {currentAchievement.icon} {currentAchievement.name}
+                  </Badge>
+                )}
               </div>
 
               {/* Progress bar */}
               {nextAchievement && (
-                <div className="space-y-1 mb-3">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">Próximo: {nextAchievement.icon} {nextAchievement.name}</span>
-                    <span className="text-amber-600 dark:text-amber-400 font-medium">{items.length}/{nextAchievement.requirement}</span>
-                  </div>
-                  <div className="h-2 bg-amber-200/50 dark:bg-amber-900/30 rounded-full overflow-hidden">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-[10px] text-muted-foreground truncate">{nextAchievement.icon} {nextAchievement.name}</span>
+                  <div className="flex-1 h-1.5 bg-amber-200/50 dark:bg-amber-900/30 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500"
                       style={{ width: `${progressToNext}%` }}
                     />
                   </div>
+                  <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">{items.length}/{nextAchievement.requirement}</span>
                 </div>
               )}
 
-              {/* Quick Actions */}
-              <div className="flex gap-2 flex-wrap">
-                <Button 
-                  onClick={() => setCurrentStep(1)}
-                  className="gap-2 flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg"
-                >
-                  <Plus className="w-4 h-4" />
-                  Agregar Producto
-                </Button>
-
-                <Button
-                  variant="outline" 
-                  className="gap-2 border-amber-300 dark:border-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/30"
-                  onClick={() => setCurrentStep(3)}
-                  disabled={items.length === 0}
-                >
-                  <ChefHat className="w-4 h-4" />
-                  Usar para Cocinar
-                </Button>
-              </div>
-
               {/* Search */}
-              <div className="flex gap-2 mt-3">
+              <div className="flex gap-1.5 mt-2">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                   <Input
-                    placeholder="Buscar en estantes..."
+                    placeholder="Buscar..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9 bg-white/80 dark:bg-gray-800/80"
+                    className="pl-8 h-8 text-xs bg-white/80 dark:bg-gray-800/80"
                   />
                 </div>
                 <Button
                   variant={showFavoritesOnly ? "default" : "outline"}
                   size="icon"
                   onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-                  className={showFavoritesOnly ? "bg-yellow-500 hover:bg-yellow-600" : ""}
+                  className={cn("h-8 w-8", showFavoritesOnly ? "bg-yellow-500 hover:bg-yellow-600" : "")}
                 >
-                  <Star className={cn("w-4 h-4", showFavoritesOnly && "fill-current")} />
+                  <Star className={cn("w-3.5 h-3.5", showFavoritesOnly && "fill-current")} />
                 </Button>
               </div>
 
               {/* Category filter */}
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mt-3">
+              <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide mt-2">
                 <Badge
                   variant={filterCategory === null ? "default" : "outline"}
                   className={cn(
-                    "cursor-pointer whitespace-nowrap transition-all",
+                    "cursor-pointer whitespace-nowrap transition-all text-[10px] h-5 px-1.5",
                     filterCategory === null && "bg-amber-500 hover:bg-amber-600"
                   )}
                   onClick={() => setFilterCategory(null)}
                 >
-                  Todos los estantes
+                  Todos
                 </Badge>
                 {CATEGORIES.map((cat) => {
                   const count = items.filter(i => i.category === cat.id).length;
@@ -1366,7 +1299,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                       key={cat.id}
                       variant={filterCategory === cat.id ? "default" : "outline"}
                       className={cn(
-                        "cursor-pointer whitespace-nowrap gap-1 transition-all",
+                        "cursor-pointer whitespace-nowrap gap-0.5 transition-all text-[10px] h-5 px-1.5",
                         filterCategory === cat.id && cat.bgColor
                       )}
                       onClick={() => setFilterCategory(filterCategory === cat.id ? null : cat.id)}
@@ -1378,15 +1311,15 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               </div>
             </div>
 
-            {/* Marcela's Tips */}
-            <div className="px-4 mb-4">
+            {/* Marcela's Tips - compact */}
+            <div className="px-3 mb-2">
               <div className={cn(
-                "flex items-center gap-3 p-3 rounded-xl",
-                "bg-gradient-to-r from-amber-100/80 to-orange-100/80 dark:from-amber-900/30 dark:to-orange-900/30",
-                "border border-amber-200/50 dark:border-amber-700/50"
+                "flex items-center gap-2 p-2 rounded-lg",
+                "bg-amber-100/60 dark:bg-amber-900/20",
+                "border border-amber-200/40 dark:border-amber-700/40"
               )}>
-                <div className="text-2xl animate-bounce" style={{ animationDuration: '2s' }}>💡</div>
-                <p className="text-sm text-amber-800 dark:text-amber-200 flex-1 animate-fade-in">
+                <span className="text-sm">💡</span>
+                <p className="text-[11px] text-amber-800 dark:text-amber-200 flex-1">
                   {MARCELA_TIPS[currentTip]}
                 </p>
               </div>
@@ -1394,30 +1327,22 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
             {/* Expired Alert */}
             {expiredItems.length > 0 && (
-              <div className="px-4 mb-4">
+              <div className="px-3 mb-2">
                 <div className={cn(
-                  "flex items-center gap-3 p-3 rounded-xl",
-                  "bg-gradient-to-r from-red-200/80 to-red-100/80 dark:from-red-900/50 dark:to-red-800/30",
+                  "flex items-center gap-2 p-2 rounded-lg",
+                  "bg-red-100/80 dark:bg-red-900/30",
                   "border border-red-300/50 dark:border-red-600/50"
                 )}>
-                  <div className="p-2 rounded-full bg-red-600/30 animate-pulse">
-                    <AlertTriangle className="w-4 h-4 text-red-700 dark:text-red-300" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-bold text-red-800 dark:text-red-200">
-                      🚨 {expiredItems.length} producto{expiredItems.length > 1 ? 's' : ''} vencido{expiredItems.length > 1 ? 's' : ''}
+                  <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-red-800 dark:text-red-200">
+                      🚨 {expiredItems.length} vencido{expiredItems.length > 1 ? 's' : ''}
                     </p>
-                    <p className="text-xs text-red-600 dark:text-red-400">
+                    <p className="text-[10px] text-red-600 dark:text-red-400 truncate">
                       {expiredItems.map(i => i.ingredient_name).join(', ')}
                     </p>
                   </div>
-                  <Button 
-                    size="sm" 
-                    variant="destructive"
-                    onClick={() => {
-                      handleRemoveExpiredBatch(expiredItems.map(i => i.id));
-                    }}
-                  >
+                  <Button size="sm" variant="destructive" className="h-7 text-xs px-2" onClick={() => handleRemoveExpiredBatch(expiredItems.map(i => i.id))}>
                     Descartar
                   </Button>
                 </div>
@@ -1426,40 +1351,30 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
             {/* Expiring Soon Alert */}
             {expiringItems.length > 0 && (
-              <div className="px-4 mb-4">
+              <div className="px-3 mb-2">
                 <div className={cn(
-                  "flex items-center gap-3 p-3 rounded-xl",
-                  "bg-gradient-to-r from-orange-100/80 to-yellow-100/80 dark:from-orange-900/30 dark:to-yellow-900/30",
+                  "flex items-center gap-2 p-2 rounded-lg",
+                  "bg-orange-100/80 dark:bg-orange-900/20",
                   "border border-orange-200/50 dark:border-orange-700/50"
                 )}>
-                  <div className="p-2 rounded-full bg-orange-500/20">
-                    <Calendar className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-orange-800 dark:text-orange-200">
-                      ⏰ {expiringItems.length} producto{expiringItems.length > 1 ? 's' : ''} por vencer (próximos 3 días)
+                  <Calendar className="w-4 h-4 text-orange-600 dark:text-orange-400 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-orange-800 dark:text-orange-200">
+                      ⏰ {expiringItems.length} por vencer
                     </p>
-                    <p className="text-xs text-orange-600 dark:text-orange-400">
-                      {expiringItems.map(i => {
-                        const days = getDaysUntilExpiration(i.expiration_date);
-                        return `${i.ingredient_name} (${days === 0 ? 'hoy' : days === 1 ? 'mañana' : `${days} días`})`;
-                      }).join(', ')}
+                    <p className="text-[10px] text-orange-600 dark:text-orange-400 truncate">
+                      {expiringItems.map(i => i.ingredient_name).join(', ')}
                     </p>
                   </div>
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    className="text-orange-600 hover:bg-orange-100"
-                    onClick={() => onSelectIngredients(expiringItems.map(i => i.ingredient_name))}
-                  >
-                    Usar ahora
+                  <Button size="sm" variant="ghost" className="h-7 text-xs px-2 text-orange-600" onClick={() => onSelectIngredients(expiringItems.map(i => i.ingredient_name))}>
+                    Usar
                   </Button>
                 </div>
               </div>
             )}
 
             {/* Shelves */}
-            <div className="px-4 pb-4 space-y-6">
+            <div className="px-3 pb-3 space-y-4">
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-12">
                   <div className="relative">
@@ -1542,10 +1457,23 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
         </div>
 
         {/* Cabinet handles */}
-        <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 flex gap-8">
-          <div className="w-8 h-2 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full shadow-lg" />
-          <div className="w-8 h-2 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full shadow-lg" />
+        <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 flex gap-6">
+          <div className="w-6 h-1.5 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full shadow" />
+          <div className="w-6 h-1.5 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full shadow" />
         </div>
+
+        {/* FAB - Add Product */}
+        <button
+          onClick={() => setCurrentStep(1)}
+          className={cn(
+            "fixed z-40 bottom-24 right-5 w-12 h-12 rounded-full",
+            "bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg shadow-amber-500/30",
+            "flex items-center justify-center",
+            "hover:scale-105 active:scale-95 transition-transform"
+          )}
+        >
+          <Plus className="w-6 h-6 text-white" />
+        </button>
       </div>
       )}
 
