@@ -1075,68 +1075,47 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Step Indicators */}
-      <div className="bg-card rounded-2xl p-4 shadow-elevated border border-border/50">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-lg font-bold text-foreground flex items-center gap-2">
-            <Package className="w-5 h-5 text-amber-500" />
-            Mi Despensa
-          </h2>
-          <Badge variant="secondary" className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
-            {items.length} productos
+      {/* Step Indicators - Compact */}
+      <div className="bg-card rounded-xl p-2.5 shadow-sm border border-border/50">
+        <div className="flex items-center gap-2">
+          <Package className="w-4 h-4 text-amber-500 shrink-0" />
+          <span className="text-sm font-semibold text-foreground">Despensa</span>
+          <Badge variant="secondary" className="ml-auto h-5 text-[10px] px-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
+            {items.length}
           </Badge>
         </div>
-        
-        <div className="grid grid-cols-3 gap-2">
-          {PANTRY_STEPS.map((step) => {
+        <div className="flex items-center gap-1 mt-2">
+          {PANTRY_STEPS.map((step, idx) => {
             const StepIcon = step.icon;
             const isActive = currentStep === step.id;
             const isCompleted = step.id < currentStep;
-            
             return (
               <button
                 key={step.id}
                 onClick={() => setCurrentStep(step.id)}
                 className={cn(
-                  "flex flex-col items-center p-3 rounded-xl transition-all duration-300",
-                  "border-2",
-                  isActive 
-                    ? "border-amber-500 bg-amber-50 dark:bg-amber-950/30 shadow-lg scale-[1.02]" 
+                  "flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all text-[11px] font-medium",
+                  isActive
+                    ? "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300"
                     : isCompleted
-                      ? "border-green-500/30 bg-green-50 dark:bg-green-950/20"
-                      : "border-border/50 hover:border-amber-500/30 hover:bg-accent/30"
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-muted-foreground hover:bg-accent/50"
                 )}
               >
                 <div className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center mb-2 transition-all",
-                  isActive 
-                    ? "bg-gradient-to-br from-amber-500 to-orange-500 text-white" 
+                  "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0",
+                  isActive
+                    ? "bg-amber-500 text-white"
                     : isCompleted
                       ? "bg-green-500 text-white"
                       : "bg-muted text-muted-foreground"
                 )}>
-                  {isCompleted ? (
-                    <Check className="w-4 h-4" />
-                  ) : (
-                    <span className="text-sm font-bold">{step.id}</span>
-                  )}
+                  {isCompleted ? <Check className="w-3 h-3" /> : step.id}
                 </div>
-                <span className={cn(
-                  "text-xs font-medium text-center",
-                  isActive ? "text-amber-700 dark:text-amber-300" : "text-muted-foreground"
-                )}>
-                  {step.label}
-                </span>
+                {step.label}
               </button>
             );
           })}
-        </div>
-        
-        {/* Step Description */}
-        <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200/50 dark:border-amber-800/50">
-          <p className="text-sm text-amber-800 dark:text-amber-200 text-center">
-            {PANTRY_STEPS[currentStep - 1]?.description}
-          </p>
         </div>
       </div>
 
