@@ -1121,67 +1121,55 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
       {/* STEP 1: Add Products */}
       {currentStep === 1 && (
-        <div className="bg-card rounded-2xl p-4 md:p-6 shadow-elevated border border-border/50">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-              <Plus className="w-5 h-5 text-white" />
-            </div>
+        <div className="bg-card rounded-xl p-3 shadow-sm border border-border/50">
+          <div className="space-y-3">
             <div>
-              <h3 className="font-semibold text-foreground">Agregar Productos</h3>
-              <p className="text-xs text-muted-foreground">Sumá ingredientes a tu despensa</p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Ingrediente</label>
+              <label className="text-xs font-medium mb-1 block">Ingrediente</label>
               <Input
                 placeholder="Ej: Tomates, Arroz, Leche..."
                 value={newIngredient}
                 onChange={(e) => setNewIngredient(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddIngredient()}
-                className="text-lg"
               />
             </div>
             
             <div>
-              <label className="text-sm font-medium mb-2 block">Estante (Categoría)</label>
-              <div className="grid grid-cols-3 gap-2">
+              <label className="text-xs font-medium mb-1 block">Categoría</label>
+              <div className="grid grid-cols-5 gap-1.5">
                 {CATEGORIES.map((cat) => (
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
                     className={cn(
-                      "p-3 rounded-lg border text-xs transition-all duration-200",
-                      "hover:scale-105",
+                      "p-1.5 rounded-lg border text-[10px] transition-all",
                       selectedCategory === cat.id
-                        ? `${cat.bgColor} border-primary ${cat.textColor} shadow-md`
+                        ? `${cat.bgColor} border-primary ${cat.textColor} shadow-sm`
                         : "border-border hover:border-primary/50"
                     )}
                   >
-                    <span className="text-2xl block mb-1">{cat.emoji}</span>
+                    <span className="text-base block">{cat.emoji}</span>
                     {cat.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-sm font-medium mb-2 block">Cantidad</label>
-                <div className="flex gap-2">
+                <label className="text-xs font-medium mb-1 block">Cantidad</label>
+                <div className="flex gap-1.5">
                   <Input
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/g, ''))}
-                    className="w-20"
+                    className="w-16 h-9"
                   />
                   <select
                     value={unit}
                     onChange={(e) => setUnit(e.target.value)}
-                    className="flex-1 px-3 py-2 rounded-lg border border-input bg-background text-sm"
+                    className="flex-1 px-2 py-1.5 rounded-lg border border-input bg-background text-xs"
                   >
                     {UNITS.map((u) => (
                       <option key={u} value={u}>{u}</option>
@@ -1190,11 +1178,12 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Vencimiento</label>
+                <label className="text-xs font-medium mb-1 block">Vencimiento</label>
                 <Input
                   type="date"
                   value={expirationDate}
                   onChange={(e) => setExpirationDate(e.target.value)}
+                  className="h-9"
                 />
               </div>
             </div>
