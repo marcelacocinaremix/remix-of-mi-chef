@@ -1259,37 +1259,37 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               )}
 
               {/* Search */}
-              <div className="flex gap-2 mt-3">
+              <div className="flex gap-1.5 mt-2">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                   <Input
-                    placeholder="Buscar en estantes..."
+                    placeholder="Buscar..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9 bg-white/80 dark:bg-gray-800/80"
+                    className="pl-8 h-8 text-xs bg-white/80 dark:bg-gray-800/80"
                   />
                 </div>
                 <Button
                   variant={showFavoritesOnly ? "default" : "outline"}
                   size="icon"
                   onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-                  className={showFavoritesOnly ? "bg-yellow-500 hover:bg-yellow-600" : ""}
+                  className={cn("h-8 w-8", showFavoritesOnly ? "bg-yellow-500 hover:bg-yellow-600" : "")}
                 >
-                  <Star className={cn("w-4 h-4", showFavoritesOnly && "fill-current")} />
+                  <Star className={cn("w-3.5 h-3.5", showFavoritesOnly && "fill-current")} />
                 </Button>
               </div>
 
               {/* Category filter */}
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mt-3">
+              <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide mt-2">
                 <Badge
                   variant={filterCategory === null ? "default" : "outline"}
                   className={cn(
-                    "cursor-pointer whitespace-nowrap transition-all",
+                    "cursor-pointer whitespace-nowrap transition-all text-[10px] h-5 px-1.5",
                     filterCategory === null && "bg-amber-500 hover:bg-amber-600"
                   )}
                   onClick={() => setFilterCategory(null)}
                 >
-                  Todos los estantes
+                  Todos
                 </Badge>
                 {CATEGORIES.map((cat) => {
                   const count = items.filter(i => i.category === cat.id).length;
@@ -1299,7 +1299,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                       key={cat.id}
                       variant={filterCategory === cat.id ? "default" : "outline"}
                       className={cn(
-                        "cursor-pointer whitespace-nowrap gap-1 transition-all",
+                        "cursor-pointer whitespace-nowrap gap-0.5 transition-all text-[10px] h-5 px-1.5",
                         filterCategory === cat.id && cat.bgColor
                       )}
                       onClick={() => setFilterCategory(filterCategory === cat.id ? null : cat.id)}
@@ -1311,15 +1311,15 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               </div>
             </div>
 
-            {/* Marcela's Tips */}
-            <div className="px-4 mb-4">
+            {/* Marcela's Tips - compact */}
+            <div className="px-3 mb-2">
               <div className={cn(
-                "flex items-center gap-3 p-3 rounded-xl",
-                "bg-gradient-to-r from-amber-100/80 to-orange-100/80 dark:from-amber-900/30 dark:to-orange-900/30",
-                "border border-amber-200/50 dark:border-amber-700/50"
+                "flex items-center gap-2 p-2 rounded-lg",
+                "bg-amber-100/60 dark:bg-amber-900/20",
+                "border border-amber-200/40 dark:border-amber-700/40"
               )}>
-                <div className="text-2xl animate-bounce" style={{ animationDuration: '2s' }}>💡</div>
-                <p className="text-sm text-amber-800 dark:text-amber-200 flex-1 animate-fade-in">
+                <span className="text-sm">💡</span>
+                <p className="text-[11px] text-amber-800 dark:text-amber-200 flex-1">
                   {MARCELA_TIPS[currentTip]}
                 </p>
               </div>
