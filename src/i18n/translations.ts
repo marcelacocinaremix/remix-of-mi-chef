@@ -5674,7 +5674,7 @@ export const translations = {
     listComplete: "Liste vollständig!",
     readyToCook: "Du hast alles, um etwas Leckeres zu kochen",
     itemsTotal: "Artikel insgesamt",
-    giveRecipes: "Gib mir Rezepte!",
+    giveRecipes: "Generieren",
     thinking: "Denke nach...",
     decideForMe: "Entscheide für mich",
     weeklyMenu: "Wöchentliches Menü erstellen",
