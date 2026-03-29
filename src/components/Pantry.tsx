@@ -1226,72 +1226,37 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
             {/* Header */}
             <div className={cn(
-              "sticky top-0 z-30 p-4",
+              "sticky top-0 z-30 px-3 pt-2 pb-1",
               "bg-gradient-to-b from-amber-50/95 via-amber-50/90 to-transparent",
               "dark:from-gray-900/95 dark:via-gray-900/90 dark:to-transparent",
               "backdrop-blur-sm"
             )}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className={cn(
-                    "p-2.5 rounded-xl transition-all duration-500",
-                    "bg-gradient-to-br from-amber-500 to-orange-600",
-                    "shadow-lg shadow-amber-500/30"
-                  )}>
-                    <DoorOpen className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-display text-xl font-bold bg-gradient-to-r from-amber-700 to-orange-600 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">
-                      Mi Despensa
-                    </h3>
-                    <p className="text-xs text-muted-foreground">{items.length} productos en {groupedItems.length} estantes</p>
-                  </div>
-                </div>
+              <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  {currentAchievement && (
-                    <Badge variant="secondary" className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
-                      {currentAchievement.icon} {currentAchievement.name}
-                    </Badge>
-                  )}
+                  <DoorOpen className="w-5 h-5 text-amber-500" />
+                  <h3 className="font-semibold text-sm text-foreground">Mi Despensa</h3>
+                  <span className="text-[10px] text-muted-foreground">{items.length} productos</span>
                 </div>
+                {currentAchievement && (
+                  <Badge variant="secondary" className="h-5 text-[10px] px-1.5 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
+                    {currentAchievement.icon} {currentAchievement.name}
+                  </Badge>
+                )}
               </div>
 
               {/* Progress bar */}
               {nextAchievement && (
-                <div className="space-y-1 mb-3">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">Próximo: {nextAchievement.icon} {nextAchievement.name}</span>
-                    <span className="text-amber-600 dark:text-amber-400 font-medium">{items.length}/{nextAchievement.requirement}</span>
-                  </div>
-                  <div className="h-2 bg-amber-200/50 dark:bg-amber-900/30 rounded-full overflow-hidden">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-[10px] text-muted-foreground truncate">{nextAchievement.icon} {nextAchievement.name}</span>
+                  <div className="flex-1 h-1.5 bg-amber-200/50 dark:bg-amber-900/30 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500"
                       style={{ width: `${progressToNext}%` }}
                     />
                   </div>
+                  <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">{items.length}/{nextAchievement.requirement}</span>
                 </div>
               )}
-
-              {/* Quick Actions */}
-              <div className="flex gap-2 flex-wrap">
-                <Button 
-                  onClick={() => setCurrentStep(1)}
-                  className="gap-2 flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg"
-                >
-                  <Plus className="w-4 h-4" />
-                  Agregar Producto
-                </Button>
-
-                <Button
-                  variant="outline" 
-                  className="gap-2 border-amber-300 dark:border-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/30"
-                  onClick={() => setCurrentStep(3)}
-                  disabled={items.length === 0}
-                >
-                  <ChefHat className="w-4 h-4" />
-                  Usar para Cocinar
-                </Button>
-              </div>
 
               {/* Search */}
               <div className="flex gap-2 mt-3">
