@@ -1193,9 +1193,9 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                 const success = await handleAddIngredient();
                 if (success) setCurrentStep(2);
               }} 
-              className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg py-6"
+              className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 h-9 text-sm"
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="w-4 h-4" />
               Agregar a la Despensa
             </Button>
           </div>
