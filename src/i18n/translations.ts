@@ -6959,7 +6959,7 @@ export const translations = {
     listComplete: "Liste complète !",
     readyToCook: "Vous avez tout pour cuisiner quelque chose de délicieux",
     itemsTotal: "articles au total",
-    giveRecipes: "Donnez-moi des recettes !",
+    giveRecipes: "Générer",
     thinking: "Je réfléchis...",
     decideForMe: "Décidez pour moi",
     weeklyMenu: "Créer un menu hebdomadaire",
