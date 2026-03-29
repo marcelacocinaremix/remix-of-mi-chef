@@ -110,7 +110,7 @@ export const translations = {
     itemsTotal: "items en total",
     
     // Buttons
-    giveRecipes: "¡Dame recetas!",
+    giveRecipes: "Generar",
     thinking: "Pensando...",
     decideForMe: "Decidí por mí",
     weeklyMenu: "Armar menú semanal",
