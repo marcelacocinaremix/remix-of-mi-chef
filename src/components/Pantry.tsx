@@ -1457,10 +1457,23 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
         </div>
 
         {/* Cabinet handles */}
-        <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 flex gap-8">
-          <div className="w-8 h-2 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full shadow-lg" />
-          <div className="w-8 h-2 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full shadow-lg" />
+        <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 flex gap-6">
+          <div className="w-6 h-1.5 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full shadow" />
+          <div className="w-6 h-1.5 bg-gradient-to-b from-amber-400 to-amber-600 rounded-full shadow" />
         </div>
+
+        {/* FAB - Add Product */}
+        <button
+          onClick={() => setCurrentStep(1)}
+          className={cn(
+            "fixed z-40 bottom-24 right-5 w-12 h-12 rounded-full",
+            "bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg shadow-amber-500/30",
+            "flex items-center justify-center",
+            "hover:scale-105 active:scale-95 transition-transform"
+          )}
+        >
+          <Plus className="w-6 h-6 text-white" />
+        </button>
       </div>
       )}
 
