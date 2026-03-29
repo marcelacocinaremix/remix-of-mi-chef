@@ -222,18 +222,18 @@ export function CookingSection({
                   key={opt.id}
                   onClick={() => toggleFlavor(opt.id)}
                   className={cn(
-                    "flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-200",
+                    "flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all duration-200",
                     isActive
                       ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/30"
                       : "border-border bg-muted/30 text-muted-foreground hover:border-primary/40 hover:text-foreground",
                     "hover:scale-[1.03] active:scale-[0.97]"
                   )}
                 >
-                  <Icon className="w-6 h-6" strokeWidth={1.8} />
-                  <span className="font-semibold text-sm leading-tight text-center">{opt.label}</span>
-                  <span className="text-[11px] text-center opacity-70 leading-tight">{opt.desc}</span>
+                  <Icon className="w-5 h-5" strokeWidth={1.8} />
+                  <span className="font-semibold text-xs leading-tight text-center">{opt.label}</span>
+                  <span className="text-[10px] text-center opacity-70 leading-tight">{opt.desc}</span>
                   {isActive && (
-                    <span className="w-2 h-2 rounded-full bg-current mt-0.5" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-current mt-0.5" />
                   )}
                 </button>
               );
