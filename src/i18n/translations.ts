@@ -110,7 +110,7 @@ export const translations = {
     itemsTotal: "items en total",
     
     // Buttons
-    giveRecipes: "¡Dame recetas!",
+    giveRecipes: "Generar",
     thinking: "Pensando...",
     decideForMe: "Decidí por mí",
     weeklyMenu: "Armar menú semanal",
@@ -1547,7 +1547,7 @@ export const translations = {
     itemsTotal: "items total",
     
     // Buttons
-    giveRecipes: "Give me recipes!",
+    giveRecipes: "Generate",
     thinking: "Thinking...",
     decideForMe: "Decide for me",
     weeklyMenu: "Create weekly menu",
@@ -2981,7 +2981,7 @@ export const translations = {
     itemsTotal: "items no total",
     
     // Buttons
-    giveRecipes: "Me dê receitas!",
+    giveRecipes: "Gerar",
     thinking: "Pensando...",
     decideForMe: "Decida por mim",
     weeklyMenu: "Criar menu semanal",
@@ -4389,7 +4389,7 @@ export const translations = {
     listComplete: "Lista completa!",
     readyToCook: "Hai tutto per cucinare qualcosa di delizioso",
     itemsTotal: "articoli in totale",
-    giveRecipes: "Dammi le ricette!",
+    giveRecipes: "Genera",
     thinking: "Pensando...",
     decideForMe: "Decidi per me",
     weeklyMenu: "Crea menu settimanale",
@@ -5674,7 +5674,7 @@ export const translations = {
     listComplete: "Liste vollständig!",
     readyToCook: "Du hast alles, um etwas Leckeres zu kochen",
     itemsTotal: "Artikel insgesamt",
-    giveRecipes: "Gib mir Rezepte!",
+    giveRecipes: "Generieren",
     thinking: "Denke nach...",
     decideForMe: "Entscheide für mich",
     weeklyMenu: "Wöchentliches Menü erstellen",
@@ -6959,7 +6959,7 @@ export const translations = {
     listComplete: "Liste complète !",
     readyToCook: "Vous avez tout pour cuisiner quelque chose de délicieux",
     itemsTotal: "articles au total",
-    giveRecipes: "Donnez-moi des recettes !",
+    giveRecipes: "Générer",
     thinking: "Je réfléchis...",
     decideForMe: "Décidez pour moi",
     weeklyMenu: "Créer un menu hebdomadaire",
