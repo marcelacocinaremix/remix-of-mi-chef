@@ -1327,30 +1327,22 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
             {/* Expired Alert */}
             {expiredItems.length > 0 && (
-              <div className="px-4 mb-4">
+              <div className="px-3 mb-2">
                 <div className={cn(
-                  "flex items-center gap-3 p-3 rounded-xl",
-                  "bg-gradient-to-r from-red-200/80 to-red-100/80 dark:from-red-900/50 dark:to-red-800/30",
+                  "flex items-center gap-2 p-2 rounded-lg",
+                  "bg-red-100/80 dark:bg-red-900/30",
                   "border border-red-300/50 dark:border-red-600/50"
                 )}>
-                  <div className="p-2 rounded-full bg-red-600/30 animate-pulse">
-                    <AlertTriangle className="w-4 h-4 text-red-700 dark:text-red-300" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-bold text-red-800 dark:text-red-200">
-                      🚨 {expiredItems.length} producto{expiredItems.length > 1 ? 's' : ''} vencido{expiredItems.length > 1 ? 's' : ''}
+                  <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-red-800 dark:text-red-200">
+                      🚨 {expiredItems.length} vencido{expiredItems.length > 1 ? 's' : ''}
                     </p>
-                    <p className="text-xs text-red-600 dark:text-red-400">
+                    <p className="text-[10px] text-red-600 dark:text-red-400 truncate">
                       {expiredItems.map(i => i.ingredient_name).join(', ')}
                     </p>
                   </div>
-                  <Button 
-                    size="sm" 
-                    variant="destructive"
-                    onClick={() => {
-                      handleRemoveExpiredBatch(expiredItems.map(i => i.id));
-                    }}
-                  >
+                  <Button size="sm" variant="destructive" className="h-7 text-xs px-2" onClick={() => handleRemoveExpiredBatch(expiredItems.map(i => i.id))}>
                     Descartar
                   </Button>
                 </div>
@@ -1359,40 +1351,30 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
             {/* Expiring Soon Alert */}
             {expiringItems.length > 0 && (
-              <div className="px-4 mb-4">
+              <div className="px-3 mb-2">
                 <div className={cn(
-                  "flex items-center gap-3 p-3 rounded-xl",
-                  "bg-gradient-to-r from-orange-100/80 to-yellow-100/80 dark:from-orange-900/30 dark:to-yellow-900/30",
+                  "flex items-center gap-2 p-2 rounded-lg",
+                  "bg-orange-100/80 dark:bg-orange-900/20",
                   "border border-orange-200/50 dark:border-orange-700/50"
                 )}>
-                  <div className="p-2 rounded-full bg-orange-500/20">
-                    <Calendar className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-orange-800 dark:text-orange-200">
-                      ⏰ {expiringItems.length} producto{expiringItems.length > 1 ? 's' : ''} por vencer (próximos 3 días)
+                  <Calendar className="w-4 h-4 text-orange-600 dark:text-orange-400 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-orange-800 dark:text-orange-200">
+                      ⏰ {expiringItems.length} por vencer
                     </p>
-                    <p className="text-xs text-orange-600 dark:text-orange-400">
-                      {expiringItems.map(i => {
-                        const days = getDaysUntilExpiration(i.expiration_date);
-                        return `${i.ingredient_name} (${days === 0 ? 'hoy' : days === 1 ? 'mañana' : `${days} días`})`;
-                      }).join(', ')}
+                    <p className="text-[10px] text-orange-600 dark:text-orange-400 truncate">
+                      {expiringItems.map(i => i.ingredient_name).join(', ')}
                     </p>
                   </div>
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    className="text-orange-600 hover:bg-orange-100"
-                    onClick={() => onSelectIngredients(expiringItems.map(i => i.ingredient_name))}
-                  >
-                    Usar ahora
+                  <Button size="sm" variant="ghost" className="h-7 text-xs px-2 text-orange-600" onClick={() => onSelectIngredients(expiringItems.map(i => i.ingredient_name))}>
+                    Usar
                   </Button>
                 </div>
               </div>
             )}
 
             {/* Shelves */}
-            <div className="px-4 pb-4 space-y-6">
+            <div className="px-3 pb-3 space-y-4">
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-12">
                   <div className="relative">
