@@ -1547,7 +1547,7 @@ export const translations = {
     itemsTotal: "items total",
     
     // Buttons
-    giveRecipes: "Give me recipes!",
+    giveRecipes: "Generate",
     thinking: "Thinking...",
     decideForMe: "Decide for me",
     weeklyMenu: "Create weekly menu",
