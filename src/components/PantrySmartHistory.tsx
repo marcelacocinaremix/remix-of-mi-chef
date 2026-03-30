@@ -53,6 +53,7 @@ function getDaysUntilExpiration(expirationDate: string | null | undefined): numb
 }
 
 export default function PantrySmartHistory({ items, onAddToShoppingList }: PantrySmartHistoryProps) {
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
   const stats = useMemo(() => {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
