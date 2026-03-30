@@ -453,14 +453,13 @@ export function ShoppingListDirect() {
       </Card>
 
       {/* Step Navigation */}
-      <div className="bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5 rounded-2xl p-3 border border-border/50">
-        <div className="grid grid-cols-3 gap-2">
+      <div className="bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5 rounded-xl p-2 border border-border/50">
+        <div className="grid grid-cols-3 gap-1.5">
           {STEPS_CONFIG.map((step, index) => {
             const Icon = step.icon;
             const isActive = currentStep === step.id;
             const stepNumber = index + 1;
             
-            // Badge para cada paso
             let badge = null;
             if (step.id === "lista" && pendingCount > 0) {
               badge = pendingCount;
@@ -473,15 +472,14 @@ export function ShoppingListDirect() {
                 key={step.id}
                 onClick={() => setCurrentStep(step.id)}
                 className={cn(
-                  "relative flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl font-medium text-xs transition-all duration-300",
+                  "relative flex flex-col items-center gap-1 py-2 px-1.5 rounded-lg font-medium text-[10px] transition-all duration-200",
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : "bg-background/60 hover:bg-background text-foreground"
                 )}
               >
-                {/* Step Number */}
                 <div className={cn(
-                  "absolute -top-1.5 -left-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold border-2",
+                  "absolute -top-1 -left-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold border",
                   isActive 
                     ? "bg-accent text-accent-foreground border-primary" 
                     : "bg-muted text-muted-foreground border-background"
@@ -489,13 +487,12 @@ export function ShoppingListDirect() {
                   {stepNumber}
                 </div>
                 
-                <Icon className={cn("w-5 h-5", isActive && "animate-pulse")} />
+                <Icon className={cn("w-4 h-4", isActive && "animate-pulse")} />
                 <span className="truncate">{step.label}</span>
                 
-                {/* Badge */}
                 {badge !== null && (
                   <span className={cn(
-                    "absolute -top-1 -right-1 w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center",
+                    "absolute -top-1 -right-0.5 w-4 h-4 rounded-full text-[8px] font-bold flex items-center justify-center",
                     isActive ? "bg-accent text-accent-foreground" : "bg-primary text-primary-foreground"
                   )}>
                     {badge}
@@ -505,11 +502,6 @@ export function ShoppingListDirect() {
             );
           })}
         </div>
-        
-        {/* Step Description */}
-        <p className="text-xs text-center text-muted-foreground mt-2">
-          {STEPS_CONFIG.find(s => s.id === currentStep)?.description}
-        </p>
       </div>
 
       {/* PASO 1: Agregar */}
