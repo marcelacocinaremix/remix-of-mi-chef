@@ -1076,20 +1076,19 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
       </Dialog>
 
       {/* Step Indicators */}
-      <div className="bg-card rounded-2xl p-4 shadow-elevated border border-border/50">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-lg font-bold text-foreground flex items-center gap-2">
-            <Package className="w-5 h-5 text-amber-500" />
+      <div className="bg-card rounded-2xl p-3 shadow-elevated border border-border/50">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="font-display text-sm font-bold text-foreground flex items-center gap-1.5">
+            <Package className="w-4 h-4 text-amber-500" />
             Mi Despensa
           </h2>
-          <Badge variant="secondary" className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
+          <Badge variant="secondary" className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 text-[10px] px-2 py-0.5">
             {items.length} productos
           </Badge>
         </div>
         
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-1.5">
           {PANTRY_STEPS.map((step) => {
-            const StepIcon = step.icon;
             const isActive = currentStep === step.id;
             const isCompleted = step.id < currentStep;
             
@@ -1098,17 +1097,17 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                 key={step.id}
                 onClick={() => setCurrentStep(step.id)}
                 className={cn(
-                  "flex flex-col items-center p-3 rounded-xl transition-all duration-300",
-                  "border-2",
+                  "flex flex-col items-center p-2 rounded-lg transition-all duration-200",
+                  "border",
                   isActive 
-                    ? "border-amber-500 bg-amber-50 dark:bg-amber-950/30 shadow-lg scale-[1.02]" 
+                    ? "border-amber-500 bg-amber-50 dark:bg-amber-950/30 shadow-sm" 
                     : isCompleted
                       ? "border-green-500/30 bg-green-50 dark:bg-green-950/20"
-                      : "border-border/50 hover:border-amber-500/30 hover:bg-accent/30"
+                      : "border-border/50 hover:border-amber-500/30"
                 )}
               >
                 <div className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center mb-2 transition-all",
+                  "w-6 h-6 rounded-full flex items-center justify-center mb-1 transition-all",
                   isActive 
                     ? "bg-gradient-to-br from-amber-500 to-orange-500 text-white" 
                     : isCompleted
@@ -1116,13 +1115,13 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                       : "bg-muted text-muted-foreground"
                 )}>
                   {isCompleted ? (
-                    <Check className="w-4 h-4" />
+                    <Check className="w-3 h-3" />
                   ) : (
-                    <span className="text-sm font-bold">{step.id}</span>
+                    <span className="text-[10px] font-bold">{step.id}</span>
                   )}
                 </div>
                 <span className={cn(
-                  "text-xs font-medium text-center",
+                  "text-[10px] font-medium text-center leading-tight",
                   isActive ? "text-amber-700 dark:text-amber-300" : "text-muted-foreground"
                 )}>
                   {step.label}
@@ -1130,13 +1129,6 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               </button>
             );
           })}
-        </div>
-        
-        {/* Step Description */}
-        <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200/50 dark:border-amber-800/50">
-          <p className="text-sm text-amber-800 dark:text-amber-200 text-center">
-            {PANTRY_STEPS[currentStep - 1]?.description}
-          </p>
         </div>
       </div>
 
