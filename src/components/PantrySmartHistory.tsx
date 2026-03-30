@@ -235,30 +235,38 @@ export default function PantrySmartHistory({ items, onAddToShoppingList }: Pantr
         </div>
       )}
 
-      {/* Categories - tight padding */}
+      {/* Categories - collapsible */}
       <div className="px-1 pt-0.5 pb-1">
-        <p className="text-[11px] font-semibold flex items-center gap-1 mb-1.5">
-          <Leaf className="w-3 h-3 text-green-500" />
-          Por categoría
-        </p>
-        <div className="space-y-1">
-          {stats.categoryCount.slice(0, 5).map(({ category, count }) => {
-            const cat = CATEGORY_LABELS[category] || CATEGORY_LABELS.otros;
-            const percentage = Math.round((count / stats.total) * 100);
-            return (
-              <div key={category} className="flex items-center gap-1.5">
-                <span className="text-xs w-4">{cat.emoji}</span>
-                <span className={cn("text-[10px] font-medium w-16 truncate", cat.color)}>
-                  {cat.label}
-                </span>
-                <div className="flex-1">
-                  <Progress value={percentage} className="h-1" />
+        <button
+          onClick={() => setCategoriesOpen(!categoriesOpen)}
+          className="w-full flex items-center justify-between mb-1.5"
+        >
+          <p className="text-[11px] font-semibold flex items-center gap-1">
+            <Leaf className="w-3 h-3 text-green-500" />
+            Por categoría
+          </p>
+          <ChevronDown className={cn("w-3.5 h-3.5 text-muted-foreground transition-transform", categoriesOpen && "rotate-180")} />
+        </button>
+        {categoriesOpen && (
+          <div className="space-y-1 animate-fade-in">
+            {stats.categoryCount.slice(0, 5).map(({ category, count }) => {
+              const cat = CATEGORY_LABELS[category] || CATEGORY_LABELS.otros;
+              const percentage = Math.round((count / stats.total) * 100);
+              return (
+                <div key={category} className="flex items-center gap-1.5">
+                  <span className="text-xs w-4">{cat.emoji}</span>
+                  <span className={cn("text-[10px] font-medium w-16 truncate", cat.color)}>
+                    {cat.label}
+                  </span>
+                  <div className="flex-1">
+                    <Progress value={percentage} className="h-1" />
+                  </div>
+                  <span className="text-[10px] text-muted-foreground w-6 text-right">{count}</span>
                 </div>
-                <span className="text-[10px] text-muted-foreground w-6 text-right">{count}</span>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Compact bottom stats */}
