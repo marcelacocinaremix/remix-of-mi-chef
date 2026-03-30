@@ -53,25 +53,25 @@ export function IngredientCategorySelector({
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "w-full flex items-center justify-between p-4 rounded-xl",
+          "w-full flex items-center justify-between px-3 py-2 rounded-lg",
           "bg-secondary/50 hover:bg-secondary/80 transition-all duration-300",
-          "border-2",
+          "border",
           isOpen ? "border-primary/50" : "border-border"
         )}
       >
-        <div className="flex items-center gap-3">
-          <span className="text-xl">📋</span>
-          <span className="font-medium text-foreground">Elegir de la lista</span>
+        <div className="flex items-center gap-2">
+          <span className="text-sm">📋</span>
+          <span className="font-medium text-sm text-foreground">Elegir de la lista</span>
           {totalSelected > 0 && (
-            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary">
+            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-primary/20 text-primary">
               {totalSelected}/{MAX_INGREDIENTS}
             </span>
           )}
         </div>
         {isOpen ? (
-          <ChevronUp className="h-5 w-5 text-muted-foreground" />
+          <ChevronUp className="h-4 w-4 text-muted-foreground" />
         ) : (
-          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+          <ChevronDown className="h-4 w-4 text-muted-foreground" />
         )}
       </button>
 
