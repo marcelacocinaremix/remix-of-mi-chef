@@ -23,7 +23,6 @@ import { RecipeList, Recipe } from "@/components/RecipeList";
 import { LoadingRecipe } from "@/components/LoadingRecipe";
 import { RecentRecipesHistory } from "@/components/RecentRecipesHistory";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
