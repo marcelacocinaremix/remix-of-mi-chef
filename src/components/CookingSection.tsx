@@ -23,7 +23,6 @@ import { RecipeList, Recipe } from "@/components/RecipeList";
 import { LoadingRecipe } from "@/components/LoadingRecipe";
 import { RecentRecipesHistory } from "@/components/RecentRecipesHistory";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { usePremium } from "@/hooks/usePremium";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -92,7 +91,6 @@ export function CookingSection({
   onClearSuggestion,
 }: CookingSectionProps) {
   const { t } = useLanguage();
-  const { hasAnyAccess } = usePremium();
 
   const activeFlavor = quickFilters.find(f => f === "dulce" || f === "salado") ?? null;
 
@@ -295,7 +293,7 @@ export function CookingSection({
       <AdvancedFilters
         filters={filters}
         onChange={setFilters}
-        disabled={!hasAnyAccess}
+        disabled={!isPremium}
         onUpgradeClick={onShowPaywall}
       />
 
