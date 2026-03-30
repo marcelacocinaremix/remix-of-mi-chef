@@ -92,7 +92,6 @@ export function CookingSection({
   onClearSuggestion,
 }: CookingSectionProps) {
   const { t } = useLanguage();
-  const { hasAnyAccess } = usePremium();
 
   const activeFlavor = quickFilters.find(f => f === "dulce" || f === "salado") ?? null;
 
