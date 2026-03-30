@@ -411,46 +411,28 @@ export function ShoppingListDirect() {
       <PaywallModal open={showSuperPaywall} onOpenChange={setShowSuperPaywall} />
       {/* Header Card with Stats */}
       <Card className="overflow-hidden border-0 shadow-card bg-gradient-to-br from-primary/5 via-background to-accent/5">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-4">
+        <CardContent className="p-3">
+          <div className="flex items-center gap-3">
             <div className="relative shrink-0">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/25">
-                <ShoppingBag className="w-7 h-7 text-primary-foreground" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-md shadow-primary/25">
+                <ShoppingBag className="w-5 h-5 text-primary-foreground" />
               </div>
-              {pendingCount > 0 && (
-                <motion.div 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -top-1 -right-1 w-6 h-6 bg-accent text-accent-foreground text-xs font-bold rounded-full flex items-center justify-center border-2 border-background"
-                >
-                  {pendingCount}
-                </motion.div>
-              )}
             </div>
             
             <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <h2 className="text-xl font-display font-bold">{t("superListTitle")}</h2>
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="text-sm font-display font-bold">{t("superListTitle")}</h2>
+                {totalItems > 0 && (
+                  <div className="flex items-center gap-3 text-[11px]">
+                    <span className="text-muted-foreground">{pendingCount} pend.</span>
+                    <span className="text-emerald-600 dark:text-emerald-400">✓ {purchasedCount}</span>
+                  </div>
+                )}
               </div>
               
-              {/* Stats Row */}
               {totalItems > 0 && (
-                <div className="flex items-center gap-4 mb-3">
-                  <div className="flex items-center gap-1.5 text-sm">
-                    <Clock className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">{pendingCount} {t("superPending")}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-sm">
-                    <Check className="w-4 h-4 text-emerald-500" />
-                    <span className="text-emerald-600 dark:text-emerald-400">{purchasedCount} {t("superPurchased")}</span>
-                  </div>
-                </div>
-              )}
-              
-              {/* Progress Bar */}
-              {totalItems > 0 && (
-                <div className="space-y-1.5">
-                  <div className="relative h-3 bg-muted/60 rounded-full overflow-hidden">
+                <div className="mt-1.5">
+                  <div className="relative h-1.5 bg-muted/60 rounded-full overflow-hidden">
                     <motion.div 
                       initial={{ width: 0 }}
                       animate={{ width: `${progressPercentage}%` }}
@@ -463,9 +445,6 @@ export function ShoppingListDirect() {
                       )}
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground text-right">
-                    {Math.round(progressPercentage)}{t("superCompleted")}
-                  </p>
                 </div>
               )}
             </div>
