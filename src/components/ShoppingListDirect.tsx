@@ -200,6 +200,7 @@ export function ShoppingListDirect() {
   const [newQuantity, setNewQuantity] = useState(1);
   const [newUnit, setNewUnit] = useState("unidad");
   const [selectedCategory, setSelectedCategory] = useState("otros");
+  const [shopCategoryOpen, setShopCategoryOpen] = useState(false);
   
   // UI state
   const [searchTerm, setSearchTerm] = useState("");

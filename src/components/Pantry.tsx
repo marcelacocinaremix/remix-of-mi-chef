@@ -639,6 +639,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
   const [items, setItems] = useState<PantryItem[]>([]);
   const [newIngredient, setNewIngredient] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("otros");
+  const [categoryOpen, setCategoryOpen] = useState(false);
   const [quantity, setQuantity] = useState<string>("1");
   const [unit, setUnit] = useState("unidades");
   const [expirationDate, setExpirationDate] = useState("");
