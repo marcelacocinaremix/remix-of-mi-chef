@@ -588,7 +588,7 @@ export function ShoppingListDirect() {
                   onClick={() => setShopCategoryOpen?.(!shopCategoryOpen)}
                   className="w-full flex items-center justify-between text-sm font-medium text-muted-foreground mb-1.5"
                 >
-                  <span>Categoría: {CATEGORY_CONFIG[selectedCategory]?.emoji} {CATEGORY_CONFIG[selectedCategory]?.label}</span>
+                  <span>Elegir categoría: {CATEGORY_CONFIG[selectedCategory]?.emoji} {CATEGORY_CONFIG[selectedCategory]?.label}</span>
                   <ChevronDown className={cn("w-4 h-4 text-muted-foreground transition-transform", shopCategoryOpen && "rotate-180")} />
                 </button>
                 {shopCategoryOpen && (

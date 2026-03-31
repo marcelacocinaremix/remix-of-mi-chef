@@ -1163,7 +1163,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                 onClick={() => setCategoryOpen?.(!categoryOpen)}
                 className="w-full flex items-center justify-between text-sm font-medium mb-2"
               >
-                <span>Estante: {CATEGORIES.find(c => c.id === selectedCategory)?.emoji} {CATEGORIES.find(c => c.id === selectedCategory)?.label}</span>
+                <span>Elegir categoría: {CATEGORIES.find(c => c.id === selectedCategory)?.emoji} {CATEGORIES.find(c => c.id === selectedCategory)?.label}</span>
                 <ChevronDown className={cn("w-4 h-4 text-muted-foreground transition-transform", categoryOpen && "rotate-180")} />
               </button>
               {categoryOpen && (
