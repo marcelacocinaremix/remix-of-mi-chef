@@ -1087,7 +1087,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
           </Badge>
         </div>
         
-        <div className="grid grid-cols-3 gap-1.5">
+        <div className="grid grid-cols-2 gap-1.5">
           {PANTRY_STEPS.map((step) => {
             const isActive = currentStep === step.id;
             const isCompleted = step.id < currentStep;
