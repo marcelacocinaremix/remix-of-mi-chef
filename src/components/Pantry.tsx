@@ -627,7 +627,6 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
   const PANTRY_STEPS = [
     { id: 1, label: t("pantryStepAdd"), description: t("pantryStepAddDesc"), icon: Plus },
     { id: 2, label: t("pantryStepMyPantry"), description: t("pantryStepMyPantryDesc"), icon: Package },
-    { id: 3, label: t("pantryStepUse"), description: t("pantryStepUseDesc"), icon: ChefHat },
   ];
 
   const UNITS = [t("units"), t("kg"), t("g"), t("liters"), t("ml"), t("packages"), t("cans")];
