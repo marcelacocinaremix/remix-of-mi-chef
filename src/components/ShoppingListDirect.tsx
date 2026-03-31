@@ -200,6 +200,7 @@ export function ShoppingListDirect() {
   const [newQuantity, setNewQuantity] = useState(1);
   const [newUnit, setNewUnit] = useState("unidad");
   const [selectedCategory, setSelectedCategory] = useState("otros");
+  const [shopCategoryOpen, setShopCategoryOpen] = useState(false);
   
   // UI state
   const [searchTerm, setSearchTerm] = useState("");
@@ -583,26 +584,32 @@ export function ShoppingListDirect() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
-                  Categoría
-                </label>
-                <div className="grid grid-cols-4 gap-2">
-                  {Object.entries(CATEGORY_CONFIG).slice(0, 8).map(([key, config]) => (
-                    <button
-                      key={key}
-                      onClick={() => setSelectedCategory(key)}
-                      className={cn(
-                        "flex flex-col items-center gap-1 p-2 rounded-xl transition-all text-xs",
-                        selectedCategory === key
-                          ? "bg-primary/15 border-2 border-primary/50 scale-105"
-                          : "bg-muted/50 border-2 border-transparent hover:bg-muted"
-                      )}
-                    >
-                      <span className="text-lg">{config.emoji}</span>
-                      <span className="truncate w-full text-center">{config.label}</span>
-                    </button>
-                  ))}
-                </div>
+                <button
+                  onClick={() => setShopCategoryOpen?.(!shopCategoryOpen)}
+                  className="w-full flex items-center justify-between text-sm font-medium text-muted-foreground mb-1.5"
+                >
+                  <span>Categoría: {CATEGORY_CONFIG[selectedCategory]?.emoji} {CATEGORY_CONFIG[selectedCategory]?.label}</span>
+                  <ChevronDown className={cn("w-4 h-4 text-muted-foreground transition-transform", shopCategoryOpen && "rotate-180")} />
+                </button>
+                {shopCategoryOpen && (
+                  <div className="grid grid-cols-4 gap-2 animate-fade-in">
+                    {Object.entries(CATEGORY_CONFIG).slice(0, 8).map(([key, config]) => (
+                      <button
+                        key={key}
+                        onClick={() => { setSelectedCategory(key); setShopCategoryOpen(false); }}
+                        className={cn(
+                          "flex flex-col items-center gap-1 p-2 rounded-xl transition-all text-xs",
+                          selectedCategory === key
+                            ? "bg-primary/15 border-2 border-primary/50 scale-105"
+                            : "bg-muted/50 border-2 border-transparent hover:bg-muted"
+                        )}
+                      >
+                        <span className="text-lg">{config.emoji}</span>
+                        <span className="truncate w-full text-center">{config.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <Button 
