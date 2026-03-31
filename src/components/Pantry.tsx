@@ -1158,25 +1158,32 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
             </div>
             
             <div>
-              <label className="text-sm font-medium mb-2 block">Estante (Categoría)</label>
-              <div className="grid grid-cols-3 gap-2">
-                {CATEGORIES.map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setSelectedCategory(cat.id)}
-                    className={cn(
-                      "p-3 rounded-lg border text-xs transition-all duration-200",
-                      "hover:scale-105",
-                      selectedCategory === cat.id
-                        ? `${cat.bgColor} border-primary ${cat.textColor} shadow-md`
-                        : "border-border hover:border-primary/50"
-                    )}
-                  >
-                    <span className="text-2xl block mb-1">{cat.emoji}</span>
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
+              <button
+                onClick={() => setCategoryOpen?.(!categoryOpen)}
+                className="w-full flex items-center justify-between text-sm font-medium mb-2"
+              >
+                <span>Estante: {CATEGORIES.find(c => c.id === selectedCategory)?.emoji} {CATEGORIES.find(c => c.id === selectedCategory)?.label}</span>
+                <ChevronDown className={cn("w-4 h-4 text-muted-foreground transition-transform", categoryOpen && "rotate-180")} />
+              </button>
+              {categoryOpen && (
+                <div className="grid grid-cols-3 gap-2 animate-fade-in">
+                  {CATEGORIES.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => { setSelectedCategory(cat.id); setCategoryOpen(false); }}
+                      className={cn(
+                        "p-2 rounded-lg border text-xs transition-all duration-200",
+                        selectedCategory === cat.id
+                          ? `${cat.bgColor} border-primary ${cat.textColor} shadow-md`
+                          : "border-border hover:border-primary/50"
+                      )}
+                    >
+                      <span className="text-xl block mb-0.5">{cat.emoji}</span>
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
