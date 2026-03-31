@@ -1504,46 +1504,6 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
       </div>
       )}
 
-      {/* STEP 3: Use for Cooking */}
-      {currentStep === 3 && (
-        <div className="bg-card rounded-2xl p-4 md:p-6 shadow-elevated border border-border/50">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-              <ChefHat className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-foreground">Usar para Cocinar</h3>
-              <p className="text-xs text-muted-foreground">Seleccioná ingredientes y generá recetas</p>
-            </div>
-          </div>
-
-          {items.length > 0 ? (
-            <div className="space-y-4">
-              <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl border border-green-200/50">
-                <p className="text-sm text-green-800 dark:text-green-200">
-                  ✓ Tenés {items.length} productos en tu despensa
-                </p>
-              </div>
-
-              <Button 
-                className="w-full gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-                onClick={handleUseAllIngredients}
-              >
-                <ChefHat className="w-5 h-5" />
-                Cocinar con todos los ingredientes
-              </Button>
-            </div>
-          ) : (
-            <div className="text-center py-8 bg-accent/30 rounded-xl">
-              <Package className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">Tu despensa está vacía</p>
-              <Button variant="outline" className="mt-4" onClick={() => setCurrentStep(1)}>
-                Agregar productos
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Pantry Smart History Section */}
       <PantrySmartHistory 
