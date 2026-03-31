@@ -1347,19 +1347,6 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               </div>
             </div>
 
-            {/* Marcela's Tips */}
-            <div className="px-4 mb-4">
-              <div className={cn(
-                "flex items-center gap-3 p-3 rounded-xl",
-                "bg-gradient-to-r from-amber-100/80 to-orange-100/80 dark:from-amber-900/30 dark:to-orange-900/30",
-                "border border-amber-200/50 dark:border-amber-700/50"
-              )}>
-                <div className="text-2xl animate-bounce" style={{ animationDuration: '2s' }}>💡</div>
-                <p className="text-sm text-amber-800 dark:text-amber-200 flex-1 animate-fade-in">
-                  {MARCELA_TIPS[currentTip]}
-                </p>
-              </div>
-            </div>
 
             {/* Expired Alert */}
             {expiredItems.length > 0 && (
