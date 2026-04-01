@@ -757,10 +757,6 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
             </CardContent>
           </Card>
         </div>
-      )}
-
-      {/* ════════ TIPS ════════ */}
-      {activeTab === "tips" && (
         <div className="space-y-4">
 
           {/* Banner cómo funciona Trucos */}
