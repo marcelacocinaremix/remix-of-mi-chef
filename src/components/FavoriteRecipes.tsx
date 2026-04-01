@@ -203,16 +203,10 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const { toast } = useToast();
   const { t } = useLanguage();
   const [favorites, setFavorites] = useState<FavoriteRecipe[]>([]);
-  const [favoriteTips, setFavoriteTips] = useState<FavoriteFoodTip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<ActiveTab>("recetas");
-  const [selectedTip, setSelectedTip] = useState<FavoriteFoodTip | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
-  const [showTipsHelp, setShowTipsHelp] = useState(
-    localStorage.getItem("tips_help_dismissed") !== "1"
-  );
 
   // Carpetas recetas
   const [folders, setFolders] = useState<string[]>(getFolders());
