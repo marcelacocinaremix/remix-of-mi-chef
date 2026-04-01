@@ -20,6 +20,7 @@ import { CocinarGroupSection } from "@/components/CocinarGroupSection";
 import { PlanificarSection } from "@/components/PlanificarSection";
 import { AchievementsSection } from "@/components/AchievementsSection";
 import { MiCocinaSection } from "@/components/MiCocinaSection";
+import SmartHistory from "@/components/SmartHistory";
 import { MarcelaSection } from "@/components/MarcelaSection";
 import { LearnSection } from "@/components/LearnSection";
 import { FoodStorageGuide } from "@/components/FoodStorageGuide";
@@ -43,7 +44,7 @@ import { useKitchenTimer } from "@/hooks/useKitchenTimer";
 import { ArrowLeft } from "lucide-react";
 
 // Sub-tabs inside "Más" that render as full sections
-type MasSubTab = "aprender" | "jugar" | "marcela" | "perfil" | "balance" | "guia" | "logros" | null;
+type MasSubTab = "aprender" | "jugar" | "marcela" | "perfil" | "balance" | "guia" | "logros" | "historial" | null;
 
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
@@ -482,14 +483,6 @@ export default function Index() {
               <TabsContent value="micocina" className="space-y-6 animate-fade-in mt-0">
                 <MiCocinaSection
                   onSelectRecipe={handleSelectRecipe}
-                  onHistoryDeleted={() => setHistoryDeleted(true)}
-                  onSelectSuggestion={(suggestion) => {
-                    setPendingSuggestion(suggestion);
-                    setActiveTab("cocinar");
-                    scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-                    toast({ title: "Receta seleccionada", description: `"${suggestion.name}" - Hacé click en "Dame la receta" para generarla` });
-                  }}
-                  onSubTabChange={setActiveSubTab}
                 />
               </TabsContent>
 
@@ -540,6 +533,18 @@ export default function Index() {
                       <div className="max-w-xl mx-auto">
                         <AchievementsSection />
                       </div>
+                    )}
+                    {masSubTab === "historial" && (
+                      <SmartHistory
+                        onHistoryDeleted={() => setHistoryDeleted(true)}
+                        onSelectRecipe={handleSelectRecipe}
+                        onSelectSuggestion={(suggestion) => {
+                          setPendingSuggestion(suggestion);
+                          setActiveTab("cocinar");
+                          scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+                          toast({ title: "Receta seleccionada", description: `"${suggestion.name}" - Hacé click en "Dame la receta" para generarla` });
+                        }}
+                      />
                     )}
                     {masSubTab === "balance" && (
                       <div className="max-w-xl mx-auto">
