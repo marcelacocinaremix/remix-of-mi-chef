@@ -249,15 +249,6 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     finally { setIsLoading(false); }
   };
 
-  const fetchFavoriteTips = async () => {
-    if (!user) return;
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error } = await (supabase as any).from("favorite_food_tips").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
-      if (error) throw error;
-      setFavoriteTips(data || []);
-    } catch (e) { console.error(e); }
-  };
 
   const filteredRecipes = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
