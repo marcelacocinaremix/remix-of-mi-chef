@@ -20,6 +20,7 @@ export function MasSection({ onNavigate }: MasSectionProps) {
     { id: "guia",     label: t("learnTabGuia"),        icon: Lightbulb     },
     { id: "balance",  label: t("subTabHealth"),        icon: Activity      },
     { id: "logros",   label: t("subTabAchievements"), icon: Trophy        },
+    { id: "historial",label: "Historial de recetas",   icon: History       },
     { id: "marcela",  label: t("menuRecipes"),         icon: Youtube       },
     { id: "perfil",   label: t("myProfile"),           icon: User          },
   ];

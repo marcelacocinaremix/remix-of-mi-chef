@@ -533,6 +533,18 @@ export default function Index() {
                         <AchievementsSection />
                       </div>
                     )}
+                    {masSubTab === "historial" && (
+                      <SmartHistory
+                        onHistoryDeleted={() => setHistoryDeleted(true)}
+                        onSelectRecipe={handleSelectRecipe}
+                        onSelectSuggestion={(suggestion) => {
+                          setPendingSuggestion(suggestion);
+                          setActiveTab("cocinar");
+                          scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+                          toast({ title: "Receta seleccionada", description: `"${suggestion.name}" - Hacé click en "Dame la receta" para generarla` });
+                        }}
+                      />
+                    )}
                     {masSubTab === "balance" && (
                       <div className="max-w-xl mx-auto">
                         <NutritionalBalance
