@@ -100,7 +100,7 @@ const RECIPE_FOLDERS_KEY = "miChef_recipe_folder_assignments";
 const HELP_DISMISSED_KEY = "miChef_favorites_help_dismissed";
 
 // Tips folders
-const DEFAULT_TIP_FOLDERS = ["Sin carpeta", "Conservación", "Cocción", "Nutrición", "Ahorro"];
+const DEFAULT_TIP_FOLDERS = ["Sin carpeta", "Conservación", "Cocción"];
 const TIP_FOLDERS_KEY = "miChef_tip_folders";
 const TIP_FOLDER_ASSIGNMENTS_KEY = "miChef_tip_folder_assignments";
 
