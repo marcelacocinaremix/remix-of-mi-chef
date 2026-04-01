@@ -1,6 +1,5 @@
 import { FavoriteRecipes } from "./FavoriteRecipes";
 import { Recipe } from "./RecipeList";
-import { Recipe } from "./RecipeList";
 import { useLanguage } from "@/contexts/LanguageContext";
 import miCocinaBanner from "@/assets/mi-cocina-banner.jpg";
 
