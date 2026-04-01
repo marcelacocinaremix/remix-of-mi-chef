@@ -234,8 +234,8 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   };
 
   useEffect(() => {
-    if (user) { fetchFavorites(); fetchFavoriteTips(); }
-    else { setFavorites([]); setFavoriteTips([]); setIsLoading(false); }
+    if (user) { fetchFavorites(); }
+    else { setFavorites([]); setIsLoading(false); }
   }, [user]);
 
   const fetchFavorites = async () => {
