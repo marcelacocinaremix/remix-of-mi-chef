@@ -283,56 +283,6 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     } catch { toast({ title: "Error", variant: "destructive" }); }
   };
 
-  const handleDeleteTip = async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabase as any).from("favorite_food_tips").delete().eq("id", id);
-      if (error) throw error;
-      setFavoriteTips(prev => prev.filter(f => f.id !== id));
-      toast({ title: t("favTipDeleted") });
-    } catch { toast({ title: "Error", variant: "destructive" }); }
-  };
-
-  // ─── Tips folder logic ────────────────────────────────────────────────
-  const filteredTips = useMemo(() => {
-    const q = tipSearchQuery.toLowerCase().trim();
-    return favoriteTips.filter(tip => {
-      const inFolder = (tipFolderAssignments[tip.id] || "Sin carpeta") === activeTipFolder;
-      if (!inFolder) return false;
-      if (!q) return true;
-      return tip.food_name.toLowerCase().includes(q) ||
-        tip.tip_data.mainInfo?.toLowerCase().includes(q) ||
-        (categoryLabels[tip.category] || "").toLowerCase().includes(q);
-    });
-  }, [favoriteTips, tipSearchQuery, activeTipFolder, tipFolderAssignments]);
-
-  const tipFolderCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    tipFolders.forEach(f => { counts[f] = 0; });
-    favoriteTips.forEach(tip => {
-      const folder = tipFolderAssignments[tip.id] || "Sin carpeta";
-      counts[folder] = (counts[folder] || 0) + 1;
-    });
-    return counts;
-  }, [favoriteTips, tipFolderAssignments, tipFolders]);
-
-  const handleMoveTip = useCallback((tipId: string, folder: string) => {
-    saveTipFolderAssignment(tipId, folder);
-    setTipFolderAssignments(prev => ({ ...prev, [tipId]: folder }));
-    setMovingTipId(null);
-    toast({ title: t("favTipMoved"), description: `${t("favMovedTo").replace("{folder}", folder)}` });
-  }, [toast]);
-
-  const handleCreateTipFolder = () => {
-    const name = newTipFolderName.trim();
-    if (!name || tipFolders.includes(name)) return;
-    const updated = [...tipFolders, name];
-    setTipFolders(updated); saveTipFolders(updated);
-    setNewTipFolderName(""); setShowNewTipFolderInput(false);
-    setActiveTipFolder(name);
-    toast({ title: t("favFolderCreated"), description: `"${name}" ${t("favFolderTipCreatedDesc")}` });
-  };
 
   const handleCreateFolder = () => {
     const name = newFolderName.trim();
