@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { FavoriteRecipes } from "./FavoriteRecipes";
-import SmartHistory from "./SmartHistory";
+import { Heart } from "lucide-react";
 import { Heart } from "lucide-react";
 import { Recipe } from "./RecipeList";
 import { useLanguage } from "@/contexts/LanguageContext";
