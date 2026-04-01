@@ -482,14 +482,6 @@ export default function Index() {
               <TabsContent value="micocina" className="space-y-6 animate-fade-in mt-0">
                 <MiCocinaSection
                   onSelectRecipe={handleSelectRecipe}
-                  onHistoryDeleted={() => setHistoryDeleted(true)}
-                  onSelectSuggestion={(suggestion) => {
-                    setPendingSuggestion(suggestion);
-                    setActiveTab("cocinar");
-                    scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-                    toast({ title: "Receta seleccionada", description: `"${suggestion.name}" - Hacé click en "Dame la receta" para generarla` });
-                  }}
-                  onSubTabChange={setActiveSubTab}
                 />
               </TabsContent>
 
