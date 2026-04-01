@@ -219,15 +219,6 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const [movingRecipeId, setMovingRecipeId] = useState<string | null>(null);
   const [deletingFolder, setDeletingFolder] = useState<string | null>(null);
 
-  // Carpetas tips
-  const [tipFolders, setTipFolders] = useState<string[]>(getTipFolders());
-  const [activeTipFolder, setActiveTipFolder] = useState<string>("Sin carpeta");
-  const [tipFolderAssignments, setTipFolderAssignments] = useState<Record<string, string>>(getTipFolderAssignments());
-  const [newTipFolderName, setNewTipFolderName] = useState("");
-  const [showNewTipFolderInput, setShowNewTipFolderInput] = useState(false);
-  const [movingTipId, setMovingTipId] = useState<string | null>(null);
-  const [deletingTipFolder, setDeletingTipFolder] = useState<string | null>(null);
-  const [tipSearchQuery, setTipSearchQuery] = useState("");
 
   // Drag state
   const [draggingRecipeId, setDraggingRecipeId] = useState<string | null>(null);
