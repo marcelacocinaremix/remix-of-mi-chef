@@ -20,6 +20,7 @@ import { CocinarGroupSection } from "@/components/CocinarGroupSection";
 import { PlanificarSection } from "@/components/PlanificarSection";
 import { AchievementsSection } from "@/components/AchievementsSection";
 import { MiCocinaSection } from "@/components/MiCocinaSection";
+import SmartHistory from "@/components/SmartHistory";
 import { MarcelaSection } from "@/components/MarcelaSection";
 import { LearnSection } from "@/components/LearnSection";
 import { FoodStorageGuide } from "@/components/FoodStorageGuide";
