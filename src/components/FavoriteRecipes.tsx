@@ -44,7 +44,7 @@ interface FavoriteFoodTip {
 interface FavoriteRecipesProps {
   onSelectRecipe: (recipe: Recipe) => void;
 }
-type ActiveTab = "recetas" | "tips";
+
 
 // ─── Tip maps ────────────────────────────────────────────────────────
 const categoryLabels: Record<string, string> = {
