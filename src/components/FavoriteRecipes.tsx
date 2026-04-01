@@ -94,7 +94,7 @@ function getRecipeEmoji(recipe: Recipe) {
 }
 
 // ─── Folder persistence ────────────────────────────────────────────────
-const DEFAULT_FOLDERS = ["Sin carpeta", "Almuerzos", "Cenas", "Desayunos", "Postres", "Snacks"];
+const DEFAULT_FOLDERS = ["Sin carpeta", "Almuerzos", "Cenas"];
 const FOLDERS_KEY = "miChef_recipe_folders";
 const RECIPE_FOLDERS_KEY = "miChef_recipe_folder_assignments";
 const HELP_DISMISSED_KEY = "miChef_favorites_help_dismissed";
