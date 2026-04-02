@@ -503,7 +503,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                 </div>
               )}
 
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-3 pt-1 px-0.5" style={{ overflow: "visible" }}>
                 {folders.map(folder => {
                   const isActive = activeFolder === folder;
                   const isOver = dragOverFolder === folder;
