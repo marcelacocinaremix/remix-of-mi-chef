@@ -670,11 +670,14 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                           </div>
                           {/* Menu button */}
                           <button
-                            onPointerDown={e => e.stopPropagation()}
-                            onClick={e => { e.stopPropagation(); setMovingRecipeId(fav.id); }}
-                            className="absolute top-1.5 right-1.5 w-7 h-7 rounded-lg bg-black/25 hover:bg-black/40 flex items-center justify-center transition-colors"
+                            onPointerDown={e => { e.stopPropagation(); e.preventDefault(); }}
+                            onPointerUp={e => { e.stopPropagation(); e.preventDefault(); }}
+                            onTouchStart={e => e.stopPropagation()}
+                            onClick={e => { e.stopPropagation(); e.preventDefault(); setMovingRecipeId(fav.id); }}
+                            className="absolute top-1.5 right-1.5 w-9 h-9 rounded-lg bg-black/25 hover:bg-black/40 flex items-center justify-center transition-colors z-10"
+                            style={{ touchAction: "auto" }}
                           >
-                            <MoreVertical className="w-3.5 h-3.5 text-white" />
+                            <MoreVertical className="w-4 h-4 text-white" />
                           </button>
                         </div>
                         <div
