@@ -716,6 +716,53 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Move/Delete recipe sheet */}
+      <Sheet open={!!movingRecipeId} onOpenChange={() => setMovingRecipeId(null)}>
+        <SheetContent side="bottom" className="rounded-t-2xl max-h-[60vh]">
+          <SheetHeader>
+            <SheetTitle className="text-base">
+              {favorites.find(f => f.id === movingRecipeId)?.recipe_name}
+            </SheetTitle>
+          </SheetHeader>
+          <div className="space-y-2 mt-4">
+            <p className="text-xs text-muted-foreground font-medium mb-2">Mover a carpeta:</p>
+            {folders.map(folder => {
+              const currentFolder = movingRecipeId ? (folderAssignments[movingRecipeId] || "Sin carpeta") : "";
+              const isCurrent = folder === currentFolder;
+              return (
+                <button
+                  key={folder}
+                  disabled={isCurrent}
+                  onClick={() => movingRecipeId && handleMoveRecipe(movingRecipeId, folder)}
+                  className={cn(
+                    "w-full flex items-center gap-3 p-3 rounded-xl text-sm transition-colors text-left",
+                    isCurrent
+                      ? "bg-primary/10 text-primary border border-primary/30"
+                      : "bg-muted/50 hover:bg-muted text-foreground"
+                  )}
+                >
+                  {isCurrent ? <FolderOpen className="w-4 h-4" /> : <Folder className="w-4 h-4 text-muted-foreground" />}
+                  <span className="font-medium">{folder}</span>
+                  {isCurrent && <Check className="w-4 h-4 ml-auto" />}
+                </button>
+              );
+            })}
+            <div className="pt-2 border-t border-border mt-3">
+              <button
+                onClick={e => {
+                  if (movingRecipeId) handleDeleteRecipe(movingRecipeId, e as any);
+                  setMovingRecipeId(null);
+                }}
+                className="w-full flex items-center gap-3 p-3 rounded-xl text-sm text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span className="font-medium">Eliminar de favoritos</span>
+              </button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
