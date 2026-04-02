@@ -702,6 +702,20 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
             </CardContent>
           </Card>
         </div>
+
+      {/* Delete folder confirmation */}
+      <Dialog open={!!deletingFolder} onOpenChange={() => setDeletingFolder(null)}>
+        <DialogContent className="max-w-[320px] rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-base">¿Eliminar "{deletingFolder}"?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">Las recetas de esta carpeta se moverán a "Sin carpeta".</p>
+          <div className="flex gap-2 mt-2">
+            <Button variant="outline" className="flex-1" onClick={() => setDeletingFolder(null)}>Cancelar</Button>
+            <Button variant="destructive" className="flex-1" onClick={() => deletingFolder && handleDeleteFolder(deletingFolder)}>Eliminar</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
