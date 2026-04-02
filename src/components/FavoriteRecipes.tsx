@@ -483,7 +483,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                 </div>
               )}
 
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 {folders.map(folder => {
                   const isActive = activeFolder === folder;
                   const isOver = dragOverFolder === folder;
@@ -493,47 +493,46 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                     <div
                       key={folder}
                       ref={el => { folderRefs.current[folder] = el; }}
-                      className="flex items-center"
+                      className="relative"
                     >
+                      {isDeletable && (
+                        <button
+                          onClick={() => setDeletingFolder(folder)}
+                          className="absolute -top-1 -right-1 z-10 w-5 h-5 rounded-full bg-muted border border-border flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      )}
                       <button
                         onClick={() => !draggingRecipeId && setActiveFolder(folder)}
                         className={cn(
-                          "flex items-center gap-2 py-3 text-sm font-medium transition-all duration-150 border-2",
-                          isDeletable ? "pl-4 pr-3 rounded-l-2xl border-r-0" : "px-4 rounded-2xl",
+                          "w-full aspect-square rounded-xl border-2 flex flex-col items-center justify-center gap-1 p-1.5 transition-all duration-150",
                           isOver
-                            ? "bg-primary text-primary-foreground border-primary scale-110 shadow-xl"
+                            ? "bg-primary text-primary-foreground border-primary scale-105 shadow-xl"
                             : isActive
-                              ? "bg-primary text-primary-foreground border-primary shadow-md"
+                              ? "bg-primary/10 text-primary border-primary shadow-md"
                               : "bg-card text-foreground border-border hover:border-primary/40 hover:bg-primary/5"
                         )}
                       >
-                        {isOver
-                          ? <FolderOpen className="w-4 h-4 animate-bounce" />
-                          : isActive ? <FolderOpen className="w-4 h-4" /> : <Folder className="w-4 h-4 text-muted-foreground" />
-                        }
-                        <span className={cn(!isActive && !isOver && "text-foreground")}>{folder}</span>
+                        <div className={cn(
+                          "w-8 h-8 rounded-lg flex items-center justify-center",
+                          isOver || isActive ? "bg-primary/15" : "bg-muted"
+                        )}>
+                          {isOver
+                            ? <FolderOpen className="w-5 h-5 animate-bounce" />
+                            : isActive ? <FolderOpen className="w-5 h-5" /> : <Folder className="w-5 h-5 text-muted-foreground" />
+                          }
+                        </div>
+                        <span className="text-xs font-semibold truncate w-full text-center leading-tight">{folder}</span>
                         <span className={cn(
-                          "text-xs px-1.5 py-0.5 rounded-full font-bold min-w-[20px] text-center tabular-nums",
+                          "text-[10px] px-1.5 py-0.5 rounded-full font-bold min-w-[18px] text-center tabular-nums",
                           isActive || isOver
-                            ? "bg-primary-foreground/20 text-primary-foreground"
+                            ? "bg-primary/20 text-primary"
                             : "bg-muted text-muted-foreground"
                         )}>
                           {count}
                         </span>
                       </button>
-                      {isDeletable && (
-                        <button
-                          onClick={() => setDeletingFolder(folder)}
-                          className={cn(
-                            "flex items-center justify-center w-7 h-[46px] rounded-r-2xl border-2 border-l-0 transition-all",
-                            isOver || isActive
-                              ? "bg-primary border-primary text-primary-foreground/70 hover:text-primary-foreground"
-                              : "bg-card border-border text-muted-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
-                          )}
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      )}
                     </div>
                   );
                 })}
