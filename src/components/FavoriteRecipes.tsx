@@ -503,7 +503,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                 </div>
               )}
 
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-3 pt-1 px-0.5" style={{ overflow: "visible" }}>
                 {folders.map(folder => {
                   const isActive = activeFolder === folder;
                   const isOver = dragOverFolder === folder;
@@ -517,8 +517,8 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                     >
                       {isDeletable && (
                         <button
-                          onClick={() => setDeletingFolder(folder)}
-                          className="absolute -top-1 -right-1 z-10 w-5 h-5 rounded-full bg-muted border border-border flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                          onClick={e => { e.stopPropagation(); setDeletingFolder(folder); }}
+                          className="absolute top-0.5 right-0.5 z-10 w-5 h-5 rounded-full bg-muted/80 border border-border flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -670,11 +670,14 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                           </div>
                           {/* Menu button */}
                           <button
-                            onPointerDown={e => e.stopPropagation()}
-                            onClick={e => { e.stopPropagation(); setMovingRecipeId(fav.id); }}
-                            className="absolute top-1.5 right-1.5 w-7 h-7 rounded-lg bg-black/25 hover:bg-black/40 flex items-center justify-center transition-colors"
+                            onPointerDown={e => { e.stopPropagation(); e.preventDefault(); }}
+                            onPointerUp={e => { e.stopPropagation(); e.preventDefault(); }}
+                            onTouchStart={e => e.stopPropagation()}
+                            onClick={e => { e.stopPropagation(); e.preventDefault(); setMovingRecipeId(fav.id); }}
+                            className="absolute top-1.5 right-1.5 w-9 h-9 rounded-lg bg-black/25 hover:bg-black/40 flex items-center justify-center transition-colors z-10"
+                            style={{ touchAction: "auto" }}
                           >
-                            <MoreVertical className="w-3.5 h-3.5 text-white" />
+                            <MoreVertical className="w-4 h-4 text-white" />
                           </button>
                         </div>
                         <div
