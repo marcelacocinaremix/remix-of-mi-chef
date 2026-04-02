@@ -294,6 +294,26 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     toast({ title: t("favFolderCreated"), description: `"${name}" ${t("favFolderCreatedDesc")}` });
   };
 
+  const handleDeleteFolder = (folder: string) => {
+    // Move all recipes in this folder to "Sin carpeta"
+    const assignments = getFolderAssignments();
+    const updated = { ...assignments };
+    Object.keys(updated).forEach(id => {
+      if (updated[id] === folder) updated[id] = "Sin carpeta";
+    });
+    localStorage.setItem(RECIPE_FOLDERS_KEY, JSON.stringify(updated));
+    setFolderAssignments(updated);
+
+    // Remove folder
+    const newFolders = folders.filter(f => f !== folder);
+    setFolders(newFolders);
+    saveFolders(newFolders);
+
+    if (activeFolder === folder) setActiveFolder("Sin carpeta");
+    setDeletingFolder(null);
+    toast({ title: "Carpeta eliminada", description: `Las recetas se movieron a "Sin carpeta"` });
+  };
+
   const handleMoveRecipe = useCallback((recipeId: string, folder: string) => {
     saveFolderAssignment(recipeId, folder);
     setFolderAssignments(prev => ({ ...prev, [recipeId]: folder }));
@@ -682,6 +702,20 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
             </CardContent>
           </Card>
         </div>
+
+      {/* Delete folder confirmation */}
+      <Dialog open={!!deletingFolder} onOpenChange={() => setDeletingFolder(null)}>
+        <DialogContent className="max-w-[320px] rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-base">¿Eliminar "{deletingFolder}"?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">Las recetas de esta carpeta se moverán a "Sin carpeta".</p>
+          <div className="flex gap-2 mt-2">
+            <Button variant="outline" className="flex-1" onClick={() => setDeletingFolder(null)}>Cancelar</Button>
+            <Button variant="destructive" className="flex-1" onClick={() => deletingFolder && handleDeleteFolder(deletingFolder)}>Eliminar</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
