@@ -241,7 +241,7 @@ export function HealthProfileSetup({ currentProfile, onSave, isSaving, isComplet
 
     const success = await onSave(profile);
     if (success) {
-      writeStoredHealthProfile(profile);
+      writeStoredHealthProfile(profile, hUid);
       setIsExpanded(false);
     }
   };
