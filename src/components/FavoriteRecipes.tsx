@@ -203,10 +203,11 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
-  // Carpetas recetas
-  const [folders, setFolders] = useState<string[]>(getFolders());
+  // Carpetas recetas — reload when user changes
+  const uid = user?.id;
+  const [folders, setFolders] = useState<string[]>(getFolders(uid));
   const [activeFolder, setActiveFolder] = useState<string>("Sin carpeta");
-  const [folderAssignments, setFolderAssignments] = useState<Record<string, string>>(getFolderAssignments());
+  const [folderAssignments, setFolderAssignments] = useState<Record<string, string>>(getFolderAssignments(uid));
   const [newFolderName, setNewFolderName] = useState("");
   const [showNewFolderInput, setShowNewFolderInput] = useState(false);
   const [showSheetNewFolder, setShowSheetNewFolder] = useState(false);
