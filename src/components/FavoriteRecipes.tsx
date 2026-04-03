@@ -225,7 +225,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const longPressTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const dismissHelp = () => {
-    localStorage.setItem(HELP_DISMISSED_KEY, "1");
+    localStorage.setItem(uKey("miChef_favorites_help_dismissed", uid), "1");
     setShowHelp(false);
   };
 
