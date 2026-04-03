@@ -93,45 +93,40 @@ function getRecipeEmoji(recipe: Recipe) {
   return recipeEmojis[recipe.name.charCodeAt(0) % recipeEmojis.length];
 }
 
-// ─── Folder persistence ────────────────────────────────────────────────
+// ─── Folder persistence (user-scoped) ──────────────────────────────────
 const DEFAULT_FOLDERS = ["Sin carpeta", "Almuerzos", "Cenas"];
-const FOLDERS_KEY = "miChef_recipe_folders";
-const RECIPE_FOLDERS_KEY = "miChef_recipe_folder_assignments";
-const HELP_DISMISSED_KEY = "miChef_favorites_help_dismissed";
-
-// Tips folders
 const DEFAULT_TIP_FOLDERS = ["Sin carpeta", "Conservación", "Cocción"];
-const TIP_FOLDERS_KEY = "miChef_tip_folders";
-const TIP_FOLDER_ASSIGNMENTS_KEY = "miChef_tip_folder_assignments";
 
-function getTipFolders(): string[] {
-  try { const s = localStorage.getItem(TIP_FOLDERS_KEY); if (s) return JSON.parse(s); } catch {}
+function uKey(base: string, uid?: string) { return uid ? `${base}_${uid}` : base; }
+
+function getTipFolders(uid?: string): string[] {
+  try { const s = localStorage.getItem(uKey("miChef_tip_folders", uid)); if (s) return JSON.parse(s); } catch {}
   return DEFAULT_TIP_FOLDERS;
 }
-function saveTipFolders(f: string[]) { localStorage.setItem(TIP_FOLDERS_KEY, JSON.stringify(f)); }
-function getTipFolderAssignments(): Record<string, string> {
-  try { const s = localStorage.getItem(TIP_FOLDER_ASSIGNMENTS_KEY); if (s) return JSON.parse(s); } catch {}
+function saveTipFolders(f: string[], uid?: string) { localStorage.setItem(uKey("miChef_tip_folders", uid), JSON.stringify(f)); }
+function getTipFolderAssignments(uid?: string): Record<string, string> {
+  try { const s = localStorage.getItem(uKey("miChef_tip_folder_assignments", uid)); if (s) return JSON.parse(s); } catch {}
   return {};
 }
-function saveTipFolderAssignment(tipId: string, folder: string) {
-  const a = getTipFolderAssignments();
+function saveTipFolderAssignment(tipId: string, folder: string, uid?: string) {
+  const a = getTipFolderAssignments(uid);
   a[tipId] = folder;
-  localStorage.setItem(TIP_FOLDER_ASSIGNMENTS_KEY, JSON.stringify(a));
+  localStorage.setItem(uKey("miChef_tip_folder_assignments", uid), JSON.stringify(a));
 }
 
-function getFolders(): string[] {
-  try { const s = localStorage.getItem(FOLDERS_KEY); if (s) return JSON.parse(s); } catch {}
+function getFolders(uid?: string): string[] {
+  try { const s = localStorage.getItem(uKey("miChef_recipe_folders", uid)); if (s) return JSON.parse(s); } catch {}
   return DEFAULT_FOLDERS;
 }
-function saveFolders(f: string[]) { localStorage.setItem(FOLDERS_KEY, JSON.stringify(f)); }
-function getFolderAssignments(): Record<string, string> {
-  try { const s = localStorage.getItem(RECIPE_FOLDERS_KEY); if (s) return JSON.parse(s); } catch {}
+function saveFolders(f: string[], uid?: string) { localStorage.setItem(uKey("miChef_recipe_folders", uid), JSON.stringify(f)); }
+function getFolderAssignments(uid?: string): Record<string, string> {
+  try { const s = localStorage.getItem(uKey("miChef_recipe_folder_assignments", uid)); if (s) return JSON.parse(s); } catch {}
   return {};
 }
-function saveFolderAssignment(recipeId: string, folder: string) {
-  const a = getFolderAssignments();
+function saveFolderAssignment(recipeId: string, folder: string, uid?: string) {
+  const a = getFolderAssignments(uid);
   a[recipeId] = folder;
-  localStorage.setItem(RECIPE_FOLDERS_KEY, JSON.stringify(a));
+  localStorage.setItem(uKey("miChef_recipe_folder_assignments", uid), JSON.stringify(a));
 }
 
 // ─── How-it-works banner ──────────────────────────────────────────────
