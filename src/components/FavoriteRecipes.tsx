@@ -291,19 +291,17 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   };
 
   const handleDeleteFolder = (folder: string) => {
-    // Move all recipes in this folder to "Sin carpeta"
-    const assignments = getFolderAssignments();
+    const assignments = getFolderAssignments(uid);
     const updated = { ...assignments };
     Object.keys(updated).forEach(id => {
       if (updated[id] === folder) updated[id] = "Sin carpeta";
     });
-    localStorage.setItem(RECIPE_FOLDERS_KEY, JSON.stringify(updated));
+    localStorage.setItem(uKey("miChef_recipe_folder_assignments", uid), JSON.stringify(updated));
     setFolderAssignments(updated);
 
-    // Remove folder
     const newFolders = folders.filter(f => f !== folder);
     setFolders(newFolders);
-    saveFolders(newFolders);
+    saveFolders(newFolders, uid);
 
     if (activeFolder === folder) setActiveFolder("Sin carpeta");
     setDeletingFolder(null);
@@ -311,11 +309,11 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   };
 
   const handleMoveRecipe = useCallback((recipeId: string, folder: string) => {
-    saveFolderAssignment(recipeId, folder);
+    saveFolderAssignment(recipeId, folder, uid);
     setFolderAssignments(prev => ({ ...prev, [recipeId]: folder }));
     setMovingRecipeId(null);
     toast({ title: t("favRecipeMoved"), description: `${t("favMovedTo").replace("{folder}", folder)}` });
-  }, [toast]);
+  }, [toast, uid]);
 
   // ─── Pointer drag ────────────────────────────────────────────────────
   const getFolderAtPoint = useCallback((x: number, y: number): string | null => {
