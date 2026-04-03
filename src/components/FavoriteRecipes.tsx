@@ -330,7 +330,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     if (recipeId) {
       const targetFolder = getFolderAtPoint(x, y);
       if (targetFolder) {
-        const currentFolder = getFolderAssignments()[recipeId] || "Sin carpeta";
+        const currentFolder = getFolderAssignments(uid)[recipeId] || "Sin carpeta";
         if (currentFolder !== targetFolder) handleMoveRecipe(recipeId, targetFolder);
       }
     }
