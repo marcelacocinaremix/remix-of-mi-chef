@@ -229,6 +229,13 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     setShowHelp(false);
   };
 
+  // Reload user-scoped localStorage when user changes
+  useEffect(() => {
+    setFolders(getFolders(uid));
+    setFolderAssignments(getFolderAssignments(uid));
+    setActiveFolder("Sin carpeta");
+  }, [uid]);
+
   useEffect(() => {
     if (user) { fetchFavorites(); }
     else { setFavorites([]); setIsLoading(false); }
