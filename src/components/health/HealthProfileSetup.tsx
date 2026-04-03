@@ -40,17 +40,18 @@ export interface HealthProfile {
   weekly_workout_target: number;
 }
 
-const HEALTH_PROFILE_STORAGE_KEY = "health_profile_last_v1";
+function healthKey(uid?: string) {
+  return uid ? `health_profile_last_v1_${uid}` : "health_profile_last_v1";
+}
 
-function readStoredHealthProfile(): HealthProfile | null {
+function readStoredHealthProfile(uid?: string): HealthProfile | null {
   try {
     if (typeof window === "undefined") return null;
-    const raw = window.localStorage.getItem(HEALTH_PROFILE_STORAGE_KEY);
+    const raw = window.localStorage.getItem(healthKey(uid));
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== "object") return null;
 
-    // Minimal shape validation
     const goal: FitnessGoal = parsed.goal;
     if (!goal) return null;
 
@@ -67,10 +68,10 @@ function readStoredHealthProfile(): HealthProfile | null {
   }
 }
 
-function writeStoredHealthProfile(profile: HealthProfile) {
+function writeStoredHealthProfile(profile: HealthProfile, uid?: string) {
   try {
     if (typeof window === "undefined") return;
-    window.localStorage.setItem(HEALTH_PROFILE_STORAGE_KEY, JSON.stringify(profile));
+    window.localStorage.setItem(healthKey(uid), JSON.stringify(profile));
   } catch {
     // ignore
   }

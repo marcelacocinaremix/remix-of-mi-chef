@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const PANTRY_HELP_KEY = "miChef_pantry_help_dismissed";
+function pantryHelpKey(uid?: string) { return uid ? `miChef_pantry_help_dismissed_${uid}` : "miChef_pantry_help_dismissed"; }
 
 function PantryHelpBanner({ onDismiss }: { onDismiss: () => void }) {
   const { t } = useLanguage();
