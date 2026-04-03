@@ -1287,21 +1287,6 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                 </div>
               </div>
 
-              {/* Progress bar */}
-              {nextAchievement && (
-                <div className="space-y-1 mb-3">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">Próximo: {nextAchievement.icon} {nextAchievement.name}</span>
-                    <span className="text-amber-600 dark:text-amber-400 font-medium">{items.length}/{nextAchievement.requirement}</span>
-                  </div>
-                  <div className="h-2 bg-amber-200/50 dark:bg-amber-900/30 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500"
-                      style={{ width: `${progressToNext}%` }}
-                    />
-                  </div>
-                </div>
-              )}
 
               {/* Quick Actions */}
               <div className="flex gap-2 flex-wrap">
