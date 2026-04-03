@@ -162,7 +162,9 @@ const FREQUENCY_OPTIONS = [
 
 export function HealthProfileSetup({ currentProfile, onSave, isSaving, isComplete }: HealthProfileSetupProps) {
   const { language } = useLanguage();
-  const [storedProfile] = useState<HealthProfile | null>(() => readStoredHealthProfile());
+  const { user } = useAuth();
+  const hUid = user?.id;
+  const [storedProfile] = useState<HealthProfile | null>(() => readStoredHealthProfile(hUid));
   const [step, setStep] = useState(0);
   // Start collapsed to avoid accidental opens; user explicitly taps Configurar/Editar.
   const [isExpanded, setIsExpanded] = useState(false);
