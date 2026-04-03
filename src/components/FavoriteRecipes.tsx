@@ -284,7 +284,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     const name = newFolderName.trim();
     if (!name || folders.includes(name)) return;
     const updated = [...folders, name];
-    setFolders(updated); saveFolders(updated);
+    setFolders(updated); saveFolders(updated, uid);
     setNewFolderName(""); setShowNewFolderInput(false);
     setActiveFolder(name);
     toast({ title: t("favFolderCreated"), description: `"${name}" ${t("favFolderCreatedDesc")}` });
