@@ -226,7 +226,7 @@ export function HealthProfileSetup({ currentProfile, onSave, isSaving, isComplet
       goal: currentProfile.goal,
       target_weeks: currentProfile.target_weeks || 12,
       weekly_workout_target: currentProfile.weekly_workout_target || 3,
-    });
+    }, hUid);
   }, [currentProfile, syncedProfileId]);
 
   const handleSave = async () => {
