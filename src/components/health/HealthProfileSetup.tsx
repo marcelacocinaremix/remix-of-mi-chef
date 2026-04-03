@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   Target, 
   Scale, 
@@ -40,17 +41,18 @@ export interface HealthProfile {
   weekly_workout_target: number;
 }
 
-const HEALTH_PROFILE_STORAGE_KEY = "health_profile_last_v1";
+function healthKey(uid?: string) {
+  return uid ? `health_profile_last_v1_${uid}` : "health_profile_last_v1";
+}
 
-function readStoredHealthProfile(): HealthProfile | null {
+function readStoredHealthProfile(uid?: string): HealthProfile | null {
   try {
     if (typeof window === "undefined") return null;
-    const raw = window.localStorage.getItem(HEALTH_PROFILE_STORAGE_KEY);
+    const raw = window.localStorage.getItem(healthKey(uid));
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== "object") return null;
 
-    // Minimal shape validation
     const goal: FitnessGoal = parsed.goal;
     if (!goal) return null;
 
@@ -67,10 +69,10 @@ function readStoredHealthProfile(): HealthProfile | null {
   }
 }
 
-function writeStoredHealthProfile(profile: HealthProfile) {
+function writeStoredHealthProfile(profile: HealthProfile, uid?: string) {
   try {
     if (typeof window === "undefined") return;
-    window.localStorage.setItem(HEALTH_PROFILE_STORAGE_KEY, JSON.stringify(profile));
+    window.localStorage.setItem(healthKey(uid), JSON.stringify(profile));
   } catch {
     // ignore
   }
@@ -160,7 +162,9 @@ const FREQUENCY_OPTIONS = [
 
 export function HealthProfileSetup({ currentProfile, onSave, isSaving, isComplete }: HealthProfileSetupProps) {
   const { language } = useLanguage();
-  const [storedProfile] = useState<HealthProfile | null>(() => readStoredHealthProfile());
+  const { user } = useAuth();
+  const hUid = user?.id;
+  const [storedProfile] = useState<HealthProfile | null>(() => readStoredHealthProfile(hUid));
   const [step, setStep] = useState(0);
   // Start collapsed to avoid accidental opens; user explicitly taps Configurar/Editar.
   const [isExpanded, setIsExpanded] = useState(false);
@@ -222,7 +226,7 @@ export function HealthProfileSetup({ currentProfile, onSave, isSaving, isComplet
       goal: currentProfile.goal,
       target_weeks: currentProfile.target_weeks || 12,
       weekly_workout_target: currentProfile.weekly_workout_target || 3,
-    });
+    }, hUid);
   }, [currentProfile, syncedProfileId]);
 
   const handleSave = async () => {
@@ -237,7 +241,7 @@ export function HealthProfileSetup({ currentProfile, onSave, isSaving, isComplet
 
     const success = await onSave(profile);
     if (success) {
-      writeStoredHealthProfile(profile);
+      writeStoredHealthProfile(profile, hUid);
       setIsExpanded(false);
     }
   };

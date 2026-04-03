@@ -283,7 +283,7 @@ export default function Index() {
     // Ad is fire-and-forget: show interstitial every 3 generations to avoid fatiguing the user
     if (!isPremium) {
       const AD_FREQUENCY = 3;
-      const key = 'recipe_gen_count';
+      const key = user ? `recipe_gen_count_${user.id}` : 'recipe_gen_count';
       const count = (parseInt(localStorage.getItem(key) || '0', 10) + 1);
       localStorage.setItem(key, String(count));
       if (count % AD_FREQUENCY === 0) {

@@ -93,45 +93,40 @@ function getRecipeEmoji(recipe: Recipe) {
   return recipeEmojis[recipe.name.charCodeAt(0) % recipeEmojis.length];
 }
 
-// ─── Folder persistence ────────────────────────────────────────────────
+// ─── Folder persistence (user-scoped) ──────────────────────────────────
 const DEFAULT_FOLDERS = ["Sin carpeta", "Almuerzos", "Cenas"];
-const FOLDERS_KEY = "miChef_recipe_folders";
-const RECIPE_FOLDERS_KEY = "miChef_recipe_folder_assignments";
-const HELP_DISMISSED_KEY = "miChef_favorites_help_dismissed";
-
-// Tips folders
 const DEFAULT_TIP_FOLDERS = ["Sin carpeta", "Conservación", "Cocción"];
-const TIP_FOLDERS_KEY = "miChef_tip_folders";
-const TIP_FOLDER_ASSIGNMENTS_KEY = "miChef_tip_folder_assignments";
 
-function getTipFolders(): string[] {
-  try { const s = localStorage.getItem(TIP_FOLDERS_KEY); if (s) return JSON.parse(s); } catch {}
+function uKey(base: string, uid?: string) { return uid ? `${base}_${uid}` : base; }
+
+function getTipFolders(uid?: string): string[] {
+  try { const s = localStorage.getItem(uKey("miChef_tip_folders", uid)); if (s) return JSON.parse(s); } catch {}
   return DEFAULT_TIP_FOLDERS;
 }
-function saveTipFolders(f: string[]) { localStorage.setItem(TIP_FOLDERS_KEY, JSON.stringify(f)); }
-function getTipFolderAssignments(): Record<string, string> {
-  try { const s = localStorage.getItem(TIP_FOLDER_ASSIGNMENTS_KEY); if (s) return JSON.parse(s); } catch {}
+function saveTipFolders(f: string[], uid?: string) { localStorage.setItem(uKey("miChef_tip_folders", uid), JSON.stringify(f)); }
+function getTipFolderAssignments(uid?: string): Record<string, string> {
+  try { const s = localStorage.getItem(uKey("miChef_tip_folder_assignments", uid)); if (s) return JSON.parse(s); } catch {}
   return {};
 }
-function saveTipFolderAssignment(tipId: string, folder: string) {
-  const a = getTipFolderAssignments();
+function saveTipFolderAssignment(tipId: string, folder: string, uid?: string) {
+  const a = getTipFolderAssignments(uid);
   a[tipId] = folder;
-  localStorage.setItem(TIP_FOLDER_ASSIGNMENTS_KEY, JSON.stringify(a));
+  localStorage.setItem(uKey("miChef_tip_folder_assignments", uid), JSON.stringify(a));
 }
 
-function getFolders(): string[] {
-  try { const s = localStorage.getItem(FOLDERS_KEY); if (s) return JSON.parse(s); } catch {}
+function getFolders(uid?: string): string[] {
+  try { const s = localStorage.getItem(uKey("miChef_recipe_folders", uid)); if (s) return JSON.parse(s); } catch {}
   return DEFAULT_FOLDERS;
 }
-function saveFolders(f: string[]) { localStorage.setItem(FOLDERS_KEY, JSON.stringify(f)); }
-function getFolderAssignments(): Record<string, string> {
-  try { const s = localStorage.getItem(RECIPE_FOLDERS_KEY); if (s) return JSON.parse(s); } catch {}
+function saveFolders(f: string[], uid?: string) { localStorage.setItem(uKey("miChef_recipe_folders", uid), JSON.stringify(f)); }
+function getFolderAssignments(uid?: string): Record<string, string> {
+  try { const s = localStorage.getItem(uKey("miChef_recipe_folder_assignments", uid)); if (s) return JSON.parse(s); } catch {}
   return {};
 }
-function saveFolderAssignment(recipeId: string, folder: string) {
-  const a = getFolderAssignments();
+function saveFolderAssignment(recipeId: string, folder: string, uid?: string) {
+  const a = getFolderAssignments(uid);
   a[recipeId] = folder;
-  localStorage.setItem(RECIPE_FOLDERS_KEY, JSON.stringify(a));
+  localStorage.setItem(uKey("miChef_recipe_folder_assignments", uid), JSON.stringify(a));
 }
 
 // ─── How-it-works banner ──────────────────────────────────────────────
@@ -208,10 +203,11 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
-  // Carpetas recetas
-  const [folders, setFolders] = useState<string[]>(getFolders());
+  // Carpetas recetas — reload when user changes
+  const uid = user?.id;
+  const [folders, setFolders] = useState<string[]>(getFolders(uid));
   const [activeFolder, setActiveFolder] = useState<string>("Sin carpeta");
-  const [folderAssignments, setFolderAssignments] = useState<Record<string, string>>(getFolderAssignments());
+  const [folderAssignments, setFolderAssignments] = useState<Record<string, string>>(getFolderAssignments(uid));
   const [newFolderName, setNewFolderName] = useState("");
   const [showNewFolderInput, setShowNewFolderInput] = useState(false);
   const [showSheetNewFolder, setShowSheetNewFolder] = useState(false);
@@ -229,9 +225,16 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   const longPressTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const dismissHelp = () => {
-    localStorage.setItem(HELP_DISMISSED_KEY, "1");
+    localStorage.setItem(uKey("miChef_favorites_help_dismissed", uid), "1");
     setShowHelp(false);
   };
+
+  // Reload user-scoped localStorage when user changes
+  useEffect(() => {
+    setFolders(getFolders(uid));
+    setFolderAssignments(getFolderAssignments(uid));
+    setActiveFolder("Sin carpeta");
+  }, [uid]);
 
   useEffect(() => {
     if (user) { fetchFavorites(); }
@@ -288,26 +291,24 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     const name = newFolderName.trim();
     if (!name || folders.includes(name)) return;
     const updated = [...folders, name];
-    setFolders(updated); saveFolders(updated);
+    setFolders(updated); saveFolders(updated, uid);
     setNewFolderName(""); setShowNewFolderInput(false);
     setActiveFolder(name);
     toast({ title: t("favFolderCreated"), description: `"${name}" ${t("favFolderCreatedDesc")}` });
   };
 
   const handleDeleteFolder = (folder: string) => {
-    // Move all recipes in this folder to "Sin carpeta"
-    const assignments = getFolderAssignments();
+    const assignments = getFolderAssignments(uid);
     const updated = { ...assignments };
     Object.keys(updated).forEach(id => {
       if (updated[id] === folder) updated[id] = "Sin carpeta";
     });
-    localStorage.setItem(RECIPE_FOLDERS_KEY, JSON.stringify(updated));
+    localStorage.setItem(uKey("miChef_recipe_folder_assignments", uid), JSON.stringify(updated));
     setFolderAssignments(updated);
 
-    // Remove folder
     const newFolders = folders.filter(f => f !== folder);
     setFolders(newFolders);
-    saveFolders(newFolders);
+    saveFolders(newFolders, uid);
 
     if (activeFolder === folder) setActiveFolder("Sin carpeta");
     setDeletingFolder(null);
@@ -315,11 +316,11 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
   };
 
   const handleMoveRecipe = useCallback((recipeId: string, folder: string) => {
-    saveFolderAssignment(recipeId, folder);
+    saveFolderAssignment(recipeId, folder, uid);
     setFolderAssignments(prev => ({ ...prev, [recipeId]: folder }));
     setMovingRecipeId(null);
     toast({ title: t("favRecipeMoved"), description: `${t("favMovedTo").replace("{folder}", folder)}` });
-  }, [toast]);
+  }, [toast, uid]);
 
   // ─── Pointer drag ────────────────────────────────────────────────────
   const getFolderAtPoint = useCallback((x: number, y: number): string | null => {
@@ -336,7 +337,7 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
     if (recipeId) {
       const targetFolder = getFolderAtPoint(x, y);
       if (targetFolder) {
-        const currentFolder = getFolderAssignments()[recipeId] || "Sin carpeta";
+        const currentFolder = getFolderAssignments(uid)[recipeId] || "Sin carpeta";
         if (currentFolder !== targetFolder) handleMoveRecipe(recipeId, targetFolder);
       }
     }

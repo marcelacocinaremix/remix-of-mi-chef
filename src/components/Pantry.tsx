@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const PANTRY_HELP_KEY = "miChef_pantry_help_dismissed";
+function pantryHelpKey(uid?: string) { return uid ? `miChef_pantry_help_dismissed_${uid}` : "miChef_pantry_help_dismissed"; }
 
 function PantryHelpBanner({ onDismiss }: { onDismiss: () => void }) {
   const { t } = useLanguage();
@@ -937,7 +937,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
     <div className="space-y-4">
       <PaywallModal open={showPantryPaywall} onOpenChange={setShowPantryPaywall} />
       {/* Help banner */}
-      {showHelp && <PantryHelpBanner onDismiss={() => { localStorage.setItem(PANTRY_HELP_KEY, "1"); setShowHelp(false); }} />}
+      {showHelp && <PantryHelpBanner onDismiss={() => { localStorage.setItem(pantryHelpKey(user?.id), "1"); setShowHelp(false); }} />}
       {/* Dialog always rendered */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="sm:max-w-md">
