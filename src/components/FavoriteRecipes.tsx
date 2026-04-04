@@ -550,6 +550,18 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                     </div>
                   );
                 })}
+                {/* Botón + Nueva carpeta inline en la grilla */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowNewFolderInput(!showNewFolderInput)}
+                    className="w-full aspect-square rounded-xl border-2 border-dashed border-primary/30 flex flex-col items-center justify-center gap-1 p-1.5 transition-all duration-150 hover:border-primary hover:bg-primary/5 text-primary"
+                  >
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary/10">
+                      <FolderPlus className="w-5 h-5" />
+                    </div>
+                    <span className="text-xs font-semibold leading-tight">+ Nueva</span>
+                  </button>
+                </div>
               </div>
 
               {/* Drag hint — solo se muestra si hay recetas */}
