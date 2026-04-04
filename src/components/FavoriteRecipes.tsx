@@ -460,13 +460,6 @@ export function FavoriteRecipes({ onSelectRecipe }: FavoriteRecipesProps) {
                   >
                     {searchQuery ? <X className="w-3.5 h-3.5" /> : <Search className="w-3.5 h-3.5" />}
                   </button>
-                  <button
-                    onClick={() => setShowNewFolderInput(!showNewFolderInput)}
-                    className="flex items-center gap-1.5 text-xs bg-primary/10 hover:bg-primary/20 text-primary font-semibold px-3 py-1.5 rounded-xl transition-colors border border-primary/20"
-                  >
-                    <FolderPlus className="w-3.5 h-3.5" />
-                    + Nueva
-                  </button>
                 </div>
               </div>
 
