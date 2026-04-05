@@ -25,44 +25,32 @@ export function MasSection({ onNavigate }: MasSectionProps) {
     { id: "perfil",   label: t("myProfile"),           icon: User          },
   ];
 
-  const renderButton = (item: typeof items[0]) => {
-    const Icon = item.icon;
-    return (
-      <button
-        key={item.id}
-        onClick={() => onNavigate(item.id)}
-        className={`
-          flex flex-col items-center justify-center gap-3 p-5 rounded-xl border border-slate-100 dark:border-border/50
-          bg-card transition-all duration-200 active:scale-95
-          ${isFuture ? "hover:border-primary/50" : "hover:border-border hover:bg-accent/30"}
-        `}
-      >
-        <Icon size={32} strokeWidth={1.5} className="text-slate-800 dark:text-slate-200" />
-        <span className="text-sm font-medium text-foreground">{item.label}</span>
-      </button>
-    );
-  };
+  const allItems = [
+    ...items,
+    { id: "temas", label: "Temas", icon: Palette },
+  ];
 
   return (
-    <div className="space-y-4 px-1 py-2 animate-fade-in">
+    <div className="space-y-3 px-1 py-2 animate-fade-in">
       <h2 className="text-lg font-semibold text-foreground px-1">{t("menuMore")}</h2>
-      <div className="grid grid-cols-2 gap-3">
-        {items.slice(0, 4).map(renderButton)}
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        {items.slice(4).map(renderButton)}
-        {/* Temas */}
-        <button
-          onClick={() => setShowThemes(true)}
-          className={`
-            flex flex-col items-center justify-center gap-3 p-5 rounded-xl border border-slate-100 dark:border-border/50
-            bg-card transition-all duration-200 active:scale-95
-            ${isFuture ? "hover:border-primary/50" : "hover:border-border hover:bg-accent/30"}
-          `}
-        >
-          <Palette size={32} strokeWidth={1.5} className="text-slate-800 dark:text-slate-200" />
-          <span className="text-sm font-medium text-foreground">Temas</span>
-        </button>
+      <div className="grid grid-cols-3 gap-2">
+        {allItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <button
+              key={item.id}
+              onClick={() => item.id === "temas" ? setShowThemes(true) : onNavigate(item.id)}
+              className={`
+                flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border border-border/40
+                bg-card transition-all duration-200 active:scale-95
+                ${isFuture ? "hover:border-primary/50" : "hover:bg-accent/30"}
+              `}
+            >
+              <Icon size={24} strokeWidth={1.5} className="text-foreground/80" />
+              <span className="text-[11px] font-medium text-foreground/70 leading-tight text-center">{item.label}</span>
+            </button>
+          );
+        })}
       </div>
       <ThemePickerModal open={showThemes} onOpenChange={setShowThemes} />
     </div>
