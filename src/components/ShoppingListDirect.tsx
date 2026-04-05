@@ -404,7 +404,7 @@ export function ShoppingListDirect() {
                             {fmt(item) && <span className="text-[10px] text-muted-foreground">{fmt(item)}</span>}
                             <div className="flex items-center gap-0">
                               <button onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))} className="p-0.5 text-muted-foreground" disabled={item.quantity <= 1}><Minus className="w-3 h-3" /></button>
-                              <span className="w-4 text-center text-[11px] font-semibold">{item.quantity}</span>
+                              <span className="w-5 text-center text-xs font-semibold">{item.quantity}</span>
                               <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-0.5 text-muted-foreground"><Plus className="w-3 h-3" /></button>
                             </div>
                             <button onClick={() => removeItem(item.id)} className="p-0.5 text-muted-foreground hover:text-destructive"><Trash2 className="w-3.5 h-3.5" /></button>
