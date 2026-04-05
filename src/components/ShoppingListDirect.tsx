@@ -282,10 +282,7 @@ export function ShoppingListDirect() {
         <div className="flex gap-1.5 items-center">
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
             <SelectTrigger className="h-9 flex-1 text-sm">
-              <div className="flex items-center gap-1.5">
-                <span>{CATEGORY_KEYS[selectedCategory]?.emoji}</span>
-                <SelectValue placeholder="Elegir categoría" />
-              </div>
+              <SelectValue placeholder="Elegir categoría" />
             </SelectTrigger>
             <SelectContent>
               {Object.entries(CATEGORY_KEYS).map(([key, cfg]) => (
