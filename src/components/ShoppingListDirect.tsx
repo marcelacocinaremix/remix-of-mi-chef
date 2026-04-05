@@ -336,7 +336,7 @@ export function ShoppingListDirect() {
         <div className="flex gap-1.5">
           <div className="relative flex-1">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-            <Input placeholder="Buscar..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="h-8 pl-7 text-xs" />
+            <Input placeholder="Buscar..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="h-9 pl-7 text-sm" />
           </div>
           <Button variant="outline" size="icon" onClick={copyList} className="h-8 w-8"><Copy className="w-3.5 h-3.5" /></Button>
         </div>
