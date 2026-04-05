@@ -321,7 +321,7 @@ export function ShoppingListDirect() {
           <button
             key={p.name}
             onClick={() => handleQuickAdd(p)}
-            className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/40 hover:bg-primary/10 text-[11px] border border-transparent hover:border-primary/20 transition-all"
+            className="shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-muted/40 hover:bg-primary/10 text-sm border border-transparent hover:border-primary/20 transition-all"
           >
             <span>{p.emoji}</span><span>{p.name}</span>
           </button>
