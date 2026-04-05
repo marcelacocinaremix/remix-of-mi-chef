@@ -440,15 +440,26 @@ export function ShoppingListDirect() {
         </div>
       )}
 
-      {/* FAB - Finalizar y Enviar a Despensa */}
+      {/* Action buttons */}
       {purchasedItems.length > 0 && (
-        <div className="fixed bottom-20 left-0 right-0 px-4 z-30">
+        <div className="fixed bottom-20 left-0 right-0 px-4 z-30 flex gap-2">
+          <Button
+            onClick={() => {
+              clearPurchased();
+              toast({ title: "✅ Listo", description: `${purchasedItems.length} productos eliminados de la lista` });
+            }}
+            variant="outline"
+            className="flex-1 h-11 gap-2 rounded-xl text-sm border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-background shadow-lg"
+          >
+            <Check className="w-4 h-4" />
+            Compra realizada
+          </Button>
           <Button
             onClick={handleFinalize}
-            className="w-full h-11 gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg rounded-xl text-sm"
+            className="flex-1 h-11 gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg rounded-xl text-sm"
           >
             <PackageCheck className="w-4 h-4" />
-            Finalizar y Enviar a Despensa ({purchasedItems.length})
+            Enviar a Despensa
           </Button>
         </div>
       )}
