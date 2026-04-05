@@ -432,7 +432,7 @@ export function ShoppingListDirect() {
                     <button onClick={() => togglePurchased(item.id)} className="w-5 h-5 rounded bg-emerald-500 flex items-center justify-center shrink-0">
                       <Check className="w-3 h-3 text-white" />
                     </button>
-                    <span className="flex-1 text-xs line-through text-muted-foreground truncate">{item.ingredient_name}</span>
+                    <span className="flex-1 text-sm line-through text-muted-foreground truncate">{item.ingredient_name}</span>
                     <button onClick={() => removeItem(item.id)} className="p-0.5 text-muted-foreground hover:text-destructive"><Trash2 className="w-3 h-3" /></button>
                   </div>
                 ))}
