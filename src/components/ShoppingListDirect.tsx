@@ -273,7 +273,7 @@ export function ShoppingListDirect() {
           className="h-10 text-base flex-1"
         />
         <Select value={newUnit} onValueChange={setNewUnit}>
-          <SelectTrigger className="h-9 w-16 text-xs px-2">
+          <SelectTrigger className="h-10 w-18 text-sm px-2">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
