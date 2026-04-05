@@ -270,7 +270,7 @@ export function ShoppingListDirect() {
           value={newItemName}
           onChange={e => setNewItemName(e.target.value)}
           onKeyDown={e => e.key === "Enter" && handleAdd()}
-          className="h-9 text-sm flex-1"
+          className="h-10 text-base flex-1"
         />
         <Select value={newUnit} onValueChange={setNewUnit}>
           <SelectTrigger className="h-9 w-16 text-xs px-2">
