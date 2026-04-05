@@ -305,7 +305,7 @@ export function ShoppingListDirect() {
               key={key}
               onClick={() => { setSelectedCategory(key); setCatOpen(false); }}
               className={cn(
-                "text-[10px] px-2 py-1 rounded-md transition-all",
+                "text-xs px-2.5 py-1.5 rounded-md transition-all",
                 selectedCategory === key ? "bg-primary/15 border border-primary/40 font-semibold" : "bg-muted/40 border border-transparent"
               )}
             >
