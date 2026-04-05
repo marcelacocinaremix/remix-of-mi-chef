@@ -398,10 +398,10 @@ export function ShoppingListDirect() {
                             >
                               {item.is_purchased && <Check className="w-3 h-3 text-white" />}
                             </button>
-                            <span className={cn("flex-1 text-sm truncate", item.is_purchased && "line-through opacity-50")}>
+                            <span className={cn("flex-1 text-base truncate", item.is_purchased && "line-through opacity-50")}>
                               {item.ingredient_name}
                             </span>
-                            {fmt(item) && <span className="text-[10px] text-muted-foreground">{fmt(item)}</span>}
+                            {fmt(item) && <span className="text-xs text-muted-foreground">{fmt(item)}</span>}
                             <div className="flex items-center gap-0">
                               <button onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))} className="p-0.5 text-muted-foreground" disabled={item.quantity <= 1}><Minus className="w-3 h-3" /></button>
                               <span className="w-5 text-center text-xs font-semibold">{item.quantity}</span>
