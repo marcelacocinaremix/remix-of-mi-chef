@@ -270,22 +270,22 @@ export function ShoppingListDirect() {
           value={newItemName}
           onChange={e => setNewItemName(e.target.value)}
           onKeyDown={e => e.key === "Enter" && handleAdd()}
-          className="h-9 text-sm flex-1"
+          className="h-10 text-base flex-1"
         />
         <Select value={newUnit} onValueChange={setNewUnit}>
-          <SelectTrigger className="h-9 w-16 text-xs px-2">
+          <SelectTrigger className="h-10 w-18 text-sm px-2">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {UNIT_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
           </SelectContent>
         </Select>
-        <div className="flex items-center bg-muted/50 rounded-md h-9">
-          <button onClick={() => setNewQuantity(Math.max(1, newQuantity - 1))} className="px-1.5 text-muted-foreground"><Minus className="w-3 h-3" /></button>
-          <span className="text-sm font-semibold w-5 text-center">{newQuantity}</span>
-          <button onClick={() => setNewQuantity(newQuantity + 1)} className="px-1.5 text-muted-foreground"><Plus className="w-3 h-3" /></button>
+        <div className="flex items-center bg-muted/50 rounded-md h-10">
+          <button onClick={() => setNewQuantity(Math.max(1, newQuantity - 1))} className="px-2 text-muted-foreground"><Minus className="w-3.5 h-3.5" /></button>
+          <span className="text-base font-semibold w-6 text-center">{newQuantity}</span>
+          <button onClick={() => setNewQuantity(newQuantity + 1)} className="px-2 text-muted-foreground"><Plus className="w-3.5 h-3.5" /></button>
         </div>
-        <Button onClick={handleAdd} disabled={!newItemName.trim()} size="icon" className="h-9 w-9 shrink-0">
+        <Button onClick={handleAdd} disabled={!newItemName.trim()} size="icon" className="h-10 w-10 shrink-0">
           <Plus className="w-4 h-4" />
         </Button>
       </div>
@@ -293,7 +293,7 @@ export function ShoppingListDirect() {
       {/* Category selector - compact */}
       <button
         onClick={() => setCatOpen(!catOpen)}
-        className="flex items-center gap-1 text-[11px] text-muted-foreground"
+        className="flex items-center gap-1.5 text-xs text-muted-foreground"
       >
         <span>{CATEGORY_KEYS[selectedCategory]?.emoji} {CATEGORY_KEYS[selectedCategory]?.label}</span>
         <ChevronDown className={cn("w-3 h-3 transition-transform", catOpen && "rotate-180")} />
@@ -305,7 +305,7 @@ export function ShoppingListDirect() {
               key={key}
               onClick={() => { setSelectedCategory(key); setCatOpen(false); }}
               className={cn(
-                "text-[10px] px-2 py-1 rounded-md transition-all",
+                "text-xs px-2.5 py-1.5 rounded-md transition-all",
                 selectedCategory === key ? "bg-primary/15 border border-primary/40 font-semibold" : "bg-muted/40 border border-transparent"
               )}
             >
@@ -321,7 +321,7 @@ export function ShoppingListDirect() {
           <button
             key={p.name}
             onClick={() => handleQuickAdd(p)}
-            className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/40 hover:bg-primary/10 text-[11px] border border-transparent hover:border-primary/20 transition-all"
+            className="shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-muted/40 hover:bg-primary/10 text-sm border border-transparent hover:border-primary/20 transition-all"
           >
             <span>{p.emoji}</span><span>{p.name}</span>
           </button>
@@ -336,7 +336,7 @@ export function ShoppingListDirect() {
         <div className="flex gap-1.5">
           <div className="relative flex-1">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-            <Input placeholder="Buscar..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="h-8 pl-7 text-xs" />
+            <Input placeholder="Buscar..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="h-9 pl-7 text-sm" />
           </div>
           <Button variant="outline" size="icon" onClick={copyList} className="h-8 w-8"><Copy className="w-3.5 h-3.5" /></Button>
         </div>
@@ -379,8 +379,8 @@ export function ShoppingListDirect() {
               <div key={cat} className="rounded-lg border border-border/50 overflow-hidden">
                 <button onClick={() => toggleCat(cat)} className="w-full flex items-center gap-2 px-2.5 py-2 hover:bg-muted/30 transition-colors">
                   <span className="text-base">{cfg.emoji}</span>
-                  <span className="text-xs font-semibold flex-1 text-left">{cfg.label}</span>
-                  <Badge variant="secondary" className="h-4 text-[9px] px-1.5">{catItems.length}</Badge>
+                  <span className="text-sm font-semibold flex-1 text-left">{cfg.label}</span>
+                  <Badge variant="secondary" className="h-5 text-[10px] px-1.5">{catItems.length}</Badge>
                   <ChevronDown className={cn("w-3.5 h-3.5 text-muted-foreground transition-transform", expanded && "rotate-180")} />
                 </button>
                 <AnimatePresence>
@@ -398,13 +398,13 @@ export function ShoppingListDirect() {
                             >
                               {item.is_purchased && <Check className="w-3 h-3 text-white" />}
                             </button>
-                            <span className={cn("flex-1 text-sm truncate", item.is_purchased && "line-through opacity-50")}>
+                            <span className={cn("flex-1 text-base truncate", item.is_purchased && "line-through opacity-50")}>
                               {item.ingredient_name}
                             </span>
-                            {fmt(item) && <span className="text-[10px] text-muted-foreground">{fmt(item)}</span>}
+                            {fmt(item) && <span className="text-xs text-muted-foreground">{fmt(item)}</span>}
                             <div className="flex items-center gap-0">
                               <button onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))} className="p-0.5 text-muted-foreground" disabled={item.quantity <= 1}><Minus className="w-3 h-3" /></button>
-                              <span className="w-4 text-center text-[11px] font-semibold">{item.quantity}</span>
+                              <span className="w-5 text-center text-xs font-semibold">{item.quantity}</span>
                               <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-0.5 text-muted-foreground"><Plus className="w-3 h-3" /></button>
                             </div>
                             <button onClick={() => removeItem(item.id)} className="p-0.5 text-muted-foreground hover:text-destructive"><Trash2 className="w-3.5 h-3.5" /></button>
@@ -423,8 +423,8 @@ export function ShoppingListDirect() {
             <div className="rounded-lg border border-emerald-500/20 overflow-hidden">
               <div className="flex items-center gap-2 px-2.5 py-2 bg-emerald-500/5">
                 <Check className="w-3.5 h-3.5 text-emerald-500" />
-                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex-1">Comprados</span>
-                <Badge className="h-4 text-[9px] px-1.5 bg-emerald-500/20 text-emerald-600 border-0">{purchasedItems.length}</Badge>
+                <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 flex-1">Comprados</span>
+                <Badge className="h-5 text-[10px] px-1.5 bg-emerald-500/20 text-emerald-600 border-0">{purchasedItems.length}</Badge>
               </div>
               <div className="px-2 pb-1.5 space-y-0.5">
                 {purchasedItems.map(item => (
@@ -432,7 +432,7 @@ export function ShoppingListDirect() {
                     <button onClick={() => togglePurchased(item.id)} className="w-5 h-5 rounded bg-emerald-500 flex items-center justify-center shrink-0">
                       <Check className="w-3 h-3 text-white" />
                     </button>
-                    <span className="flex-1 text-xs line-through text-muted-foreground truncate">{item.ingredient_name}</span>
+                    <span className="flex-1 text-sm line-through text-muted-foreground truncate">{item.ingredient_name}</span>
                     <button onClick={() => removeItem(item.id)} className="p-0.5 text-muted-foreground hover:text-destructive"><Trash2 className="w-3 h-3" /></button>
                   </div>
                 ))}
