@@ -423,8 +423,8 @@ export function ShoppingListDirect() {
             <div className="rounded-lg border border-emerald-500/20 overflow-hidden">
               <div className="flex items-center gap-2 px-2.5 py-2 bg-emerald-500/5">
                 <Check className="w-3.5 h-3.5 text-emerald-500" />
-                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex-1">Comprados</span>
-                <Badge className="h-4 text-[9px] px-1.5 bg-emerald-500/20 text-emerald-600 border-0">{purchasedItems.length}</Badge>
+                <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 flex-1">Comprados</span>
+                <Badge className="h-5 text-[10px] px-1.5 bg-emerald-500/20 text-emerald-600 border-0">{purchasedItems.length}</Badge>
               </div>
               <div className="px-2 pb-1.5 space-y-0.5">
                 {purchasedItems.map(item => (
