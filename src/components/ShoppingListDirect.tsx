@@ -379,8 +379,8 @@ export function ShoppingListDirect() {
               <div key={cat} className="rounded-lg border border-border/50 overflow-hidden">
                 <button onClick={() => toggleCat(cat)} className="w-full flex items-center gap-2 px-2.5 py-2 hover:bg-muted/30 transition-colors">
                   <span className="text-base">{cfg.emoji}</span>
-                  <span className="text-xs font-semibold flex-1 text-left">{cfg.label}</span>
-                  <Badge variant="secondary" className="h-4 text-[9px] px-1.5">{catItems.length}</Badge>
+                  <span className="text-sm font-semibold flex-1 text-left">{cfg.label}</span>
+                  <Badge variant="secondary" className="h-5 text-[10px] px-1.5">{catItems.length}</Badge>
                   <ChevronDown className={cn("w-3.5 h-3.5 text-muted-foreground transition-transform", expanded && "rotate-180")} />
                 </button>
                 <AnimatePresence>
