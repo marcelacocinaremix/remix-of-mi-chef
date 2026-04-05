@@ -293,7 +293,7 @@ export function ShoppingListDirect() {
       {/* Category selector - compact */}
       <button
         onClick={() => setCatOpen(!catOpen)}
-        className="flex items-center gap-1 text-[11px] text-muted-foreground"
+        className="flex items-center gap-1.5 text-xs text-muted-foreground"
       >
         <span>{CATEGORY_KEYS[selectedCategory]?.emoji} {CATEGORY_KEYS[selectedCategory]?.label}</span>
         <ChevronDown className={cn("w-3 h-3 transition-transform", catOpen && "rotate-180")} />
