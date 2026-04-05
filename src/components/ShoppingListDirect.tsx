@@ -280,10 +280,10 @@ export function ShoppingListDirect() {
             {UNIT_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
           </SelectContent>
         </Select>
-        <div className="flex items-center bg-muted/50 rounded-md h-9">
-          <button onClick={() => setNewQuantity(Math.max(1, newQuantity - 1))} className="px-1.5 text-muted-foreground"><Minus className="w-3 h-3" /></button>
-          <span className="text-sm font-semibold w-5 text-center">{newQuantity}</span>
-          <button onClick={() => setNewQuantity(newQuantity + 1)} className="px-1.5 text-muted-foreground"><Plus className="w-3 h-3" /></button>
+        <div className="flex items-center bg-muted/50 rounded-md h-10">
+          <button onClick={() => setNewQuantity(Math.max(1, newQuantity - 1))} className="px-2 text-muted-foreground"><Minus className="w-3.5 h-3.5" /></button>
+          <span className="text-base font-semibold w-6 text-center">{newQuantity}</span>
+          <button onClick={() => setNewQuantity(newQuantity + 1)} className="px-2 text-muted-foreground"><Plus className="w-3.5 h-3.5" /></button>
         </div>
         <Button onClick={handleAdd} disabled={!newItemName.trim()} size="icon" className="h-9 w-9 shrink-0">
           <Plus className="w-4 h-4" />
