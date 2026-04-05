@@ -127,7 +127,7 @@ export function ShoppingListDirect() {
   const [newQuantity, setNewQuantity] = useState(1);
   const [newUnit, setNewUnit] = useState("unidad");
   const [selectedCategory, setSelectedCategory] = useState("otros");
-  const [catOpen, setCatOpen] = useState(false);
+  const [_catOpen, setCatOpen] = useState(false); // kept for compatibility
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [recentlyPurchased, setRecentlyPurchased] = useState<string[]>([]);
