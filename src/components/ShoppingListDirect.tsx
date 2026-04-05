@@ -127,7 +127,7 @@ export function ShoppingListDirect() {
   const [newQuantity, setNewQuantity] = useState(1);
   const [newUnit, setNewUnit] = useState("unidad");
   const [selectedCategory, setSelectedCategory] = useState("otros");
-  const [catOpen, setCatOpen] = useState(false);
+  const [_catOpen, setCatOpen] = useState(false); // kept for compatibility
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [recentlyPurchased, setRecentlyPurchased] = useState<string[]>([]);
@@ -263,57 +263,58 @@ export function ShoppingListDirect() {
 
   return (
     <div className="space-y-2 pb-20">
-      {/* Compact Add Form */}
-      <div className="flex gap-1.5 items-center">
-        <Input
-          placeholder="Agregar producto..."
-          value={newItemName}
-          onChange={e => setNewItemName(e.target.value)}
-          onKeyDown={e => e.key === "Enter" && handleAdd()}
-          className="h-10 text-base flex-1"
-        />
-        <Select value={newUnit} onValueChange={setNewUnit}>
-          <SelectTrigger className="h-10 w-18 text-sm px-2">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {UNIT_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <div className="flex items-center bg-muted/50 rounded-md h-10">
-          <button onClick={() => setNewQuantity(Math.max(1, newQuantity - 1))} className="px-2 text-muted-foreground"><Minus className="w-3.5 h-3.5" /></button>
-          <span className="text-base font-semibold w-6 text-center">{newQuantity}</span>
-          <button onClick={() => setNewQuantity(newQuantity + 1)} className="px-2 text-muted-foreground"><Plus className="w-3.5 h-3.5" /></button>
+      {/* Product name + Category selector */}
+      <div className="space-y-1.5">
+        <div className="flex gap-1.5 items-center">
+          <Input
+            placeholder="Nombre del producto..."
+            value={newItemName}
+            onChange={e => setNewItemName(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && handleAdd()}
+            className="h-10 text-base flex-1"
+          />
+          <Button onClick={handleAdd} disabled={!newItemName.trim()} size="icon" className="h-10 w-10 shrink-0">
+            <Plus className="w-4 h-4" />
+          </Button>
         </div>
-        <Button onClick={handleAdd} disabled={!newItemName.trim()} size="icon" className="h-10 w-10 shrink-0">
-          <Plus className="w-4 h-4" />
-        </Button>
-      </div>
 
-      {/* Category selector - compact */}
-      <button
-        onClick={() => setCatOpen(!catOpen)}
-        className="flex items-center gap-1.5 text-xs text-muted-foreground"
-      >
-        <span>{CATEGORY_KEYS[selectedCategory]?.emoji} {CATEGORY_KEYS[selectedCategory]?.label}</span>
-        <ChevronDown className={cn("w-3 h-3 transition-transform", catOpen && "rotate-180")} />
-      </button>
-      {catOpen && (
-        <div className="flex gap-1.5 flex-wrap animate-fade-in">
-          {Object.entries(CATEGORY_KEYS).map(([key, cfg]) => (
-            <button
-              key={key}
-              onClick={() => { setSelectedCategory(key); setCatOpen(false); }}
-              className={cn(
-                "text-xs px-2.5 py-1.5 rounded-md transition-all",
-                selectedCategory === key ? "bg-primary/15 border border-primary/40 font-semibold" : "bg-muted/40 border border-transparent"
-              )}
-            >
-              {cfg.emoji} {cfg.label}
-            </button>
-          ))}
+        {/* Category + Unit + Quantity row */}
+        <div className="flex gap-1.5 items-center">
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="h-9 flex-1 text-sm">
+              <div className="flex items-center gap-1.5">
+                <span>{CATEGORY_KEYS[selectedCategory]?.emoji}</span>
+                <SelectValue placeholder="Elegir categoría" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(CATEGORY_KEYS).map(([key, cfg]) => (
+                <SelectItem key={key} value={key}>
+                  <span className="flex items-center gap-1.5">
+                    <span>{cfg.emoji}</span>
+                    <span>{cfg.label}</span>
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={newUnit} onValueChange={setNewUnit}>
+            <SelectTrigger className="h-9 w-[72px] text-sm px-2">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {UNIT_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+            </SelectContent>
+          </Select>
+
+          <div className="flex items-center bg-muted/50 rounded-md h-9">
+            <button onClick={() => setNewQuantity(Math.max(1, newQuantity - 1))} className="px-2 text-muted-foreground"><Minus className="w-3.5 h-3.5" /></button>
+            <span className="text-sm font-semibold w-5 text-center">{newQuantity}</span>
+            <button onClick={() => setNewQuantity(newQuantity + 1)} className="px-2 text-muted-foreground"><Plus className="w-3.5 h-3.5" /></button>
+          </div>
         </div>
-      )}
+      </div>
 
       {/* Quick add chips - horizontal scroll */}
       <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
