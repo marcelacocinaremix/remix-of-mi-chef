@@ -1,7 +1,9 @@
+import { useState, useEffect } from "react";
 import { FavoriteRecipes } from "./FavoriteRecipes";
 import { Recipe } from "./RecipeList";
 import { useLanguage } from "@/contexts/LanguageContext";
 import miCocinaBanner from "@/assets/mi-cocina-banner.jpg";
+import { MiCocinaSkeleton } from "@/components/skeletons/TabSkeletons";
 
 interface MiCocinaSectionProps {
   onSelectRecipe: (recipe: Recipe) => void;
@@ -11,6 +13,14 @@ export const MiCocinaSection = ({
   onSelectRecipe,
 }: MiCocinaSectionProps) => {
   const { t } = useLanguage();
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setReady(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  if (!ready) return <MiCocinaSkeleton />;
 
   return (
     <div className="space-y-4">

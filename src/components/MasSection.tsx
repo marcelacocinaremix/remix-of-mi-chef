@@ -1,8 +1,9 @@
 import { GraduationCap, Gamepad2, Youtube, User, Activity, Lightbulb, Palette, Trophy, History } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAppTheme } from "@/contexts/ThemeContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ThemePickerModal } from "@/components/ThemePickerModal";
+import { MasSkeleton } from "@/components/skeletons/TabSkeletons";
 
 interface MasSectionProps {
   onNavigate: (tab: string) => void;
@@ -13,6 +14,14 @@ export function MasSection({ onNavigate }: MasSectionProps) {
   const { theme } = useAppTheme();
   const isFuture = theme === "future";
   const [showThemes, setShowThemes] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setReady(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  if (!ready) return <MasSkeleton />;
 
   const items = [
     { id: "aprender", label: t("menuLearn"),          icon: GraduationCap },
