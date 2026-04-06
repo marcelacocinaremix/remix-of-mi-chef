@@ -52,6 +52,14 @@ export const CocinarGroupSection = ({
 }: CocinarSectionProps) => {
   const { toast } = useToast();
   const { t } = useLanguage();
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setReady(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  if (!ready) return <GenerarSkeleton />;
 
   return (
     <div className="space-y-6">
