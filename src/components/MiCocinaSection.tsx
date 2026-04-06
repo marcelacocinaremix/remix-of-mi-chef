@@ -1,7 +1,9 @@
+import { useState, useEffect } from "react";
 import { FavoriteRecipes } from "./FavoriteRecipes";
 import { Recipe } from "./RecipeList";
 import { useLanguage } from "@/contexts/LanguageContext";
 import miCocinaBanner from "@/assets/mi-cocina-banner.jpg";
+import { MiCocinaSkeleton } from "@/components/skeletons/TabSkeletons";
 
 interface MiCocinaSectionProps {
   onSelectRecipe: (recipe: Recipe) => void;
