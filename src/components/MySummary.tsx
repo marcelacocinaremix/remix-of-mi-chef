@@ -223,7 +223,8 @@ const MySummary = ({
     return format(date, "d MMMM", { locale: getLocale() });
   };
 
-  if (authLoading || !user || !session) return null;
+  if (authLoading) return <InicioSkeleton />;
+  if (!user || !session) return null;
 
   return (
     <div className="space-y-4 mb-6">

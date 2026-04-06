@@ -13,6 +13,14 @@ export const MiCocinaSection = ({
   onSelectRecipe,
 }: MiCocinaSectionProps) => {
   const { t } = useLanguage();
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setReady(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  if (!ready) return <MiCocinaSkeleton />;
 
   return (
     <div className="space-y-4">
