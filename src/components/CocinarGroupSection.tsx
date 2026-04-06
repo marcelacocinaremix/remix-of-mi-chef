@@ -1,8 +1,10 @@
+import { useState, useEffect } from "react";
 import { CookingSection } from "./CookingSection";
 import { FiltersState } from "./AdvancedFilters";
 import { Recipe } from "./RecipeList";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { GenerarSkeleton } from "@/components/skeletons/TabSkeletons";
 import cookingBanner from "@/assets/cooking-banner.jpg";
 
 interface CocinarSectionProps {
