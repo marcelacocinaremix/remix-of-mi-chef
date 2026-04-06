@@ -39,6 +39,14 @@ export const PlanificarSection = ({
   const [activeSubTab, setActiveSubTab] = useState<SubTab>("calendario");
   const { t } = useLanguage();
   const [showPaywall, setShowPaywall] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setReady(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  if (!ready) return <PlanificarSkeleton />;
 
   const subTabs = [
     { id: "calendario" as SubTab, label: t("subTabCalendar"), icon: CalendarDays },
