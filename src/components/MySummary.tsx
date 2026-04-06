@@ -18,6 +18,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { startOfWeek, format } from "date-fns";
 import { es, enUS, ptBR } from "date-fns/locale";
 import { StreakDisplay } from "@/components/StreakDisplay";
+import { InicioSkeleton } from "@/components/skeletons/TabSkeletons";
 
 interface MySummaryProps {
   onOpenRecipe: (recipe: any) => void;
