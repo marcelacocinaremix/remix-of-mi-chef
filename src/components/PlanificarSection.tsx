@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MonthlyCalendar } from "./MonthlyCalendar";
 import { Pantry } from "./Pantry";
 import { ShoppingListDirect } from "./ShoppingListDirect";
@@ -6,6 +6,7 @@ import { CalendarDays, Package, ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PaywallModal } from "@/components/PaywallModal";
+import { PlanificarSkeleton } from "@/components/skeletons/TabSkeletons";
 import calendarBanner from "@/assets/calendar-banner.jpg";
 import pantryBanner from "@/assets/pantry-banner-fixed.jpg";
 import superBanner from "@/assets/super-banner.jpg";
