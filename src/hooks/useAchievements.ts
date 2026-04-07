@@ -51,7 +51,7 @@ export function useAchievements() {
   const [isLoading, setIsLoading] = useState(true);
   const [marcelaMessage, setMarcelaMessage] = useState("");
 
-  const tRef = { current: t };
+  const tRef = useRef(t);
   tRef.current = t;
 
   const updateMarcelaMessage = useCallback((totalRecipes: number, streak: number) => {
