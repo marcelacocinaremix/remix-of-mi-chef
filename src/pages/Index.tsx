@@ -58,7 +58,7 @@ export default function Index() {
   const { isRunning: timerIsRunning, isFinished: timerIsFinished } = useKitchenTimer();
 
   const [ingredients, setIngredients] = useState<string[]>([]);
-  const [time, setTime] = useState<number>(30);
+  const [time, setTime] = useState<number | null>(null);
   const [mealType, setMealType] = useState<string | null>(null);
   const [filters, setFilters] = useState<FiltersState>({
     difficulty: null,

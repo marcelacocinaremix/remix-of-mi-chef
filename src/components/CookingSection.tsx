@@ -29,8 +29,8 @@ import { cn } from "@/lib/utils";
 interface CookingSectionProps {
   ingredients: string[];
   setIngredients: (ingredients: string[]) => void;
-  time: number;
-  setTime: (time: number) => void;
+  time: number | null;
+  setTime: (time: number | null) => void;
   mealType: string | null;
   setMealType: (mealType: string | null) => void;
   filters: FiltersState;
