@@ -557,6 +557,9 @@ export default function Index() {
                         />
                       </div>
                     )}
+                    {masSubTab === "calendario" && (
+                      <MonthlyCalendar onNavigateToCooking={() => setActiveTab("cocinar")} />
+                    )}
                   </div>
                 )}
               </TabsContent>
