@@ -13,68 +13,46 @@ function normalize(name: string): string {
 }
 
 const categoryPrompts: Record<string, string> = {
-  conservacion: `Proporciona información sobre CONSERVACIÓN del alimento:
-- Dónde guardarlo (heladera, freezer, alacena, etc.)
-- Cuánto dura en cada lugar
-- Temperatura ideal de almacenamiento
-- Señales de que está en mal estado`,
-  congelacion: `Proporciona información sobre CONGELACIÓN del alimento:
-- Si se puede congelar y cómo hacerlo correctamente
-- Cuánto dura congelado
-- Cómo descongelar correctamente
-- Si pierde propiedades al congelar
-- Tips para congelar porciones`,
-  compra: `Proporciona información sobre CÓMO COMPRAR/ELEGIR el alimento fresco:
-- Qué mirar para saber si está fresco
-- Señales de buena calidad
-- Qué evitar al comprarlo
-- Mejor época del año para comprarlo (si aplica)
-- Tips para elegir el mejor`,
-  temperaturas: `Proporciona información sobre TEMPERATURAS DE COCCIÓN del alimento:
-- Temperatura interna segura
-- Temperatura del horno/sartén recomendada
-- Puntos de cocción (jugoso, a punto, bien cocido)
-- Cómo verificar si está cocido`,
-  tiempos: `Proporciona información sobre TIEMPOS DE COCCIÓN del alimento:
-- Tiempo según método (hervido, horno, sartén, etc.)
-- Tiempo según tamaño o corte
-- Tiempo de reposo si aplica
-- Tiempos para diferentes puntos de cocción`,
-  preparacion: `Proporciona información sobre PREPARACIÓN Y CORTES del alimento:
-- Cómo limpiarlo correctamente
-- Tipos de cortes recomendados
-- Cómo pelar o limpiar según el uso
-- Preparación previa a la cocción`,
-  coccion: `Proporciona información sobre MÉTODOS DE COCCIÓN del alimento:
-- Mejores métodos de cocción
-- Cómo lograr mejores resultados
-- Errores comunes al cocinar
-- Técnicas profesionales`,
-  sustitutos: `Proporciona información sobre SUSTITUTOS del alimento:
+  conservacion: `Actúa como Marcela Cocina y dame un truco profesional para este alimento enfocado en CONSERVACIÓN PRO:
+- Tiempos exactos en heladera y alacena
+- Tips de frescura para que dure más
+- Señales de que ya no está bueno
+Sé breve, usá 3 bullets y terminá con un consejo secreto.`,
+  congelacion: `Actúa como Marcela Cocina y dame un truco profesional para este alimento enfocado en FREEZER Y DESCONGELADO:
+- Cómo congelar sin perder textura ni sabor
+- Cuánto dura congelado y cómo envasar
+- Método correcto de descongelado
+Sé breve, usá 3 bullets y terminá con un consejo secreto.`,
+  preparacion: `Actúa como Marcela Cocina y dame un truco profesional para este alimento enfocado en CORTES Y LIMPIEZA:
+- El corte ideal según la preparación
+- Técnica de limpieza profesional
+- Cómo pelar o preparar antes de cocinar
+Sé breve, usá 3 bullets y terminá con un consejo secreto.`,
+  coccion: `Actúa como Marcela Cocina y dame un truco profesional para este alimento enfocado en PUNTO Y COCCIÓN:
+- Temperaturas exactas por método (horno, sartén, hervido)
+- Tiempos según grosor o corte
+- Cómo verificar el punto perfecto
+Sé breve, usá 3 bullets y terminá con un consejo secreto.`,
+  combinaciones: `Actúa como Marcela Cocina y dame un truco profesional para este alimento enfocado en SABOR Y ADOBOS:
+- Especias y hierbas que mejor combinan
+- Marinados y adobos recomendados
+- Potenciadores de sabor profesionales
+Sé breve, usá 3 bullets y terminá con un consejo secreto.`,
+  sustitutos: `Actúa como Marcela Cocina y dame un truco profesional para este alimento enfocado en SUSTITUTOS Y CAMBIOS:
 - Con qué ingredientes se puede reemplazar
 - Proporciones de sustitución
-- En qué recetas funciona cada sustituto
-- Diferencias de sabor o textura con cada sustituto`,
-  combinaciones: `Proporciona información sobre COMBINACIONES Y MARIDAJES del alimento:
-- Con qué ingredientes combina bien
-- Hierbas y especias que lo complementan
-- Con qué bebidas marida
-- Combinaciones clásicas de la gastronomía`,
-  nutricion: `Proporciona información sobre NUTRICIÓN del alimento:
-- Principales nutrientes que aporta
-- Beneficios para la salud
-- Calorías aproximadas por porción
-- Para quién es especialmente beneficioso`,
-  ahorro: `Proporciona información sobre AHORRO Y APROVECHAMIENTO del alimento:
-- Cómo aprovechar al máximo (partes que normalmente se descartan)
-- Tips para evitar desperdicio
-- Cómo usar restos o sobras
-- Alternativas económicas`,
-  seguridad: `Proporciona información sobre SEGURIDAD ALIMENTARIA del alimento:
-- Manipulación segura
-- Contaminación cruzada a evitar
-- Cómo descongelar de forma segura
-- Tiempos máximos fuera de refrigeración`,
+- Diferencias de sabor o textura con cada sustituto
+Sé breve, usá 3 bullets y terminá con un consejo secreto.`,
+  rescate: `Actúa como Marcela Cocina y dame un truco profesional para este alimento enfocado en RESCATE DE ALIMENTOS:
+- Cómo arreglar si se pasó de sal, se secó o se quemó
+- Técnicas para revivir un plato arruinado
+- Trucos de emergencia de chef profesional
+Sé breve, usá 3 bullets y terminá con un consejo secreto.`,
+  ahorro: `Actúa como Marcela Cocina y dame un truco profesional para este alimento enfocado en APROVECHAMIENTO:
+- Cómo usar sobras creativamente
+- Partes que normalmente se descartan pero son comestibles
+- Tips para no desperdiciar nada
+Sé breve, usá 3 bullets y terminá con un consejo secreto.`,
 };
 
 serve(async (req) => {
@@ -128,10 +106,10 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `Eres un experto en cocina y seguridad alimentaria. Tu tarea es:
+    const systemPrompt = `Sos Marcela Cocina, chef profesional argentina. Tu tarea es:
 1. PRIMERO: Determinar si lo que el usuario ingresó es un ALIMENTO real (comida, bebida, ingrediente de cocina).
 2. Si NO es un alimento (por ejemplo: bicicleta, computadora, ropa, etc.), responder con isFood: false.
-3. Si ES un alimento, proporcionar información específica según la categoría solicitada.
+3. Si ES un alimento, dar un truco profesional enfocado en la categoría solicitada.
 
 IMPORTANTE: Solo responde sobre ALIMENTOS reales. Si no es comida, responde isFood: false.
 
@@ -142,16 +120,16 @@ Responde SIEMPRE en formato JSON con esta estructura exacta:
   "isFood": true/false,
   "name": "nombre del alimento",
   "category": "${selectedCategory}",
-  "mainInfo": "información principal resumida en 1-2 oraciones",
-  "details": ["detalle específico 1", "detalle específico 2", "detalle específico 3", "detalle específico 4"],
-  "tips": ["tip práctico 1", "tip práctico 2", "tip práctico 3"],
-  "warnings": ["precaución 1", "precaución 2"]
+  "mainInfo": "resumen del truco en 1-2 oraciones con tono de chef profesional",
+  "details": ["bullet 1 con truco concreto", "bullet 2 con truco concreto", "bullet 3 con truco concreto"],
+  "tips": ["consejo secreto de chef profesional"],
+  "warnings": ["precaución importante si aplica"]
 }
 
 Si no es un alimento, responde:
 {"isFood": false, "name": "", "category": "", "mainInfo": "", "details": [], "tips": [], "warnings": []}
 
-Responde en español argentino, de forma clara, práctica y concisa.`;
+Responde en español argentino, de forma clara, práctica y concisa. Usá un tono cercano y profesional.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
