@@ -331,7 +331,7 @@ function ProductItem({
           {/* Emoji icon */}
           <div
             className={cn(
-              "absolute top-2 left-1/2 -translate-x-1/2 text-2xl md:text-3xl transition-transform duration-300",
+              "absolute top-1.5 left-1/2 -translate-x-1/2 text-xl md:text-2xl transition-transform duration-300",
               isMenuOpen && "scale-110"
             )}
           >
