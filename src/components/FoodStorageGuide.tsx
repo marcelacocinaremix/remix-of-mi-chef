@@ -202,7 +202,7 @@ export function FoodStorageGuide() {
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [showFoodList, setShowFoodList] = useState(false);
   const [savedFavorites, setSavedFavorites] = useState<Array<{id: string; food_name: string; category: string; tip_data: any}>>([]);
-  const { toast } = useToast();
+  
   const { user } = useAuth();
   const { isPremium } = usePremium();
 
