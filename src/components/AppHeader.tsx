@@ -11,6 +11,7 @@ import { LanguageSettingsModal } from "@/components/LanguageSettingsModal";
 import { UserProfileModal } from "@/components/UserProfileModal";
 import { SubscriptionManager } from "@/components/SubscriptionManager";
 import { ThemePickerModal } from "@/components/ThemePickerModal";
+import { useStreakContext } from "@/contexts/StreakContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
