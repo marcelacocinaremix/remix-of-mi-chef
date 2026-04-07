@@ -19,7 +19,7 @@ import { UserProfileModal } from "@/components/UserProfileModal";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { NutritionalBalance } from "@/components/NutritionalBalance";
 import { CocinarGroupSection } from "@/components/CocinarGroupSection";
-import { PlanificarSection } from "@/components/PlanificarSection";
+import { MonthlyCalendar } from "@/components/MonthlyCalendar";
 import { AchievementsSection } from "@/components/AchievementsSection";
 import { MiCocinaSection } from "@/components/MiCocinaSection";
 import SmartHistory from "@/components/SmartHistory";
@@ -46,7 +46,7 @@ import { useKitchenTimer } from "@/hooks/useKitchenTimer";
 import { ArrowLeft } from "lucide-react";
 
 // Sub-tabs inside "Más" that render as full sections
-type MasSubTab = "aprender" | "jugar" | "marcela" | "perfil" | "balance" | "guia" | "logros" | "historial" | null;
+type MasSubTab = "aprender" | "jugar" | "marcela" | "perfil" | "balance" | "guia" | "logros" | "historial" | "calendario" | null;
 
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
@@ -362,12 +362,7 @@ export default function Index() {
     setMasSubTab(null);
 
     // Streak triggers
-    if (user && ["aprender", "planificar", "balance"].includes(tab)) recordStreak();
-
-    if (tab === "planificar") {
-      setPantryOpened(true); setCalendarOpened(true); setShoppingListOpened(true);
-      setTimeout(() => { setPantryOpened(false); setCalendarOpened(false); setShoppingListOpened(false); }, 100);
-    }
+    if (user && ["aprender", "balance"].includes(tab)) recordStreak();
     if (tab === "micocina") {
       setFavoritesOpened(true);
       setTimeout(() => setFavoritesOpened(false), 100);
@@ -429,7 +424,7 @@ export default function Index() {
           isLoading={isLoading}
           isSurpriseMode={false}
           isCharacterAnimating={isCharacterAnimating}
-          weeklyCalendar={activeTab === "planificar" ? { isActive: true, isGeneratingAI: weeklyCalendarState.isGeneratingAI, mealsPlanned: weeklyCalendarState.mealsPlanned } : undefined}
+          weeklyCalendar={undefined}
           showingYouTubeChannel={activeTab === "mas" && masSubTab === "marcela"}
           onIngredientAdded={ingredients}
           onHistoryDeleted={historyDeleted}
@@ -491,17 +486,6 @@ export default function Index() {
                 </div>
               </TabsContent>
 
-              {/* Planificar */}
-              <TabsContent value="planificar" className="space-y-6 animate-fade-in mt-0">
-                <PlanificarSection
-                  ingredients={ingredients}
-                  pantryItems={pantryItems}
-                  onStateChange={setWeeklyCalendarState}
-                  onSelectIngredients={handleSelectIngredients}
-                  onSubTabChange={setActiveSubTab}
-                  onNavigateToCooking={() => setActiveTab("cocinar")}
-                />
-              </TabsContent>
 
               {/* Súper */}
               <TabsContent value="super" className="animate-fade-in mt-0">
@@ -572,6 +556,9 @@ export default function Index() {
                           onSubTabChange={setActiveSubTab}
                         />
                       </div>
+                    )}
+                    {masSubTab === "calendario" && (
+                      <MonthlyCalendar onNavigateToCooking={() => setActiveTab("cocinar")} />
                     )}
                   </div>
                 )}
