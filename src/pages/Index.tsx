@@ -13,6 +13,7 @@ import { FloatingTimerButton } from "@/components/FloatingTimerButton";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { MasSection } from "@/components/MasSection";
 import { ShoppingListDirect } from "@/components/ShoppingListDirect";
+import { Pantry } from "@/components/Pantry";
 
 import { UserProfileModal } from "@/components/UserProfileModal";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -481,6 +482,13 @@ export default function Index() {
                 <MiCocinaSection
                   onSelectRecipe={handleSelectRecipe}
                 />
+              </TabsContent>
+
+              {/* Despensa */}
+              <TabsContent value="despensa" className="animate-fade-in mt-0">
+                <div className="max-w-xl mx-auto">
+                  <Pantry onSelectIngredients={handleSelectIngredients} />
+                </div>
               </TabsContent>
 
               {/* Planificar */}
