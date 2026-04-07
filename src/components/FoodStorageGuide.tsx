@@ -200,6 +200,7 @@ export function FoodStorageGuide() {
   const [savedFavId, setSavedFavId] = useState<string | null>(null);
   const [dailyUsed, setDailyUsed] = useState(0);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [showFoodList, setShowFoodList] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const { isPremium } = usePremium();
