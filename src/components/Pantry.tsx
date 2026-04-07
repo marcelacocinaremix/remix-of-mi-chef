@@ -1208,7 +1208,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Cantidad</label>
+                <label className="text-sm font-medium mb-2 block text-foreground/80">Cantidad</label>
                 <div className="flex gap-2">
                   <Input
                     type="text"
@@ -1216,12 +1216,12 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                     pattern="[0-9]*"
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/g, ''))}
-                    className="w-20"
+                    className="w-20 rounded-2xl border-border/40 shadow-sm"
                   />
                   <select
                     value={unit}
                     onChange={(e) => setUnit(e.target.value)}
-                    className="flex-1 px-3 py-2 rounded-lg border border-input bg-background text-sm"
+                    className="flex-1 px-3 py-2 rounded-2xl border border-border/40 bg-background text-sm shadow-sm focus:shadow-md transition-shadow"
                   >
                     {UNITS.map((u) => (
                       <option key={u} value={u}>{u}</option>
@@ -1230,11 +1230,12 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Vencimiento</label>
+                <label className="text-sm font-medium mb-2 block text-foreground/80">Vencimiento</label>
                 <Input
                   type="date"
                   value={expirationDate}
                   onChange={(e) => setExpirationDate(e.target.value)}
+                  className="rounded-2xl border-border/40 shadow-sm"
                 />
               </div>
             </div>
@@ -1244,7 +1245,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                 const success = await handleAddIngredient();
                 if (success) setCurrentStep(2);
               }} 
-              className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg py-6"
+              className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg py-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow"
             >
               <Plus className="w-5 h-5" />
               Agregar a la Despensa
