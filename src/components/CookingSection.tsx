@@ -92,11 +92,11 @@ export function CookingSection({
   const stepSummary = useCallback((step: number): string | null => {
     switch (step) {
       case 1:
-        return ingredients.length > 0 ? `${ingredients.length} ${t("ingredientsLabel") || "ingredientes"}` : null;
+        return ingredients.length > 0 ? `${ingredients.length} ingredientes` : null;
       case 2:
         return activeFlavor ? (activeFlavor === "dulce" ? t("flavorSweet") : t("flavorSavory")) : null;
       case 3:
-        return dietAndPrefFilters.length > 0 ? `${dietAndPrefFilters.length} ${t("filtersLabel") || "filtros"}` : null;
+        return dietAndPrefFilters.length > 0 ? `${dietAndPrefFilters.length} filtros` : null;
       case 4:
         return `${time} min`;
       case 5:
