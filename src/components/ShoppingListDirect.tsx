@@ -190,9 +190,12 @@ export function ShoppingListDirect() {
   }, [sortedCats, groupedPending, searchTerm]);
 
   useEffect(() => {
-    if (expandedCategories.size === 0 && sortedCats.length > 0) {
-      setExpandedCategories(new Set(sortedCats));
-    }
+    // Auto-expand any new categories that appear
+    setExpandedCategories(prev => {
+      const updated = new Set(prev);
+      sortedCats.forEach(cat => updated.add(cat));
+      return updated.size !== prev.size ? updated : prev;
+    });
   }, [sortedCats]);
 
   const toggleCat = (cat: string) => {
