@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Youtube, Instagram, Users, LogOut, User, Globe, Settings, Crown, Palette } from "lucide-react";
+import { Youtube, Instagram, Users, LogOut, User, Globe, Settings, Crown, Palette, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,6 +11,7 @@ import { LanguageSettingsModal } from "@/components/LanguageSettingsModal";
 import { UserProfileModal } from "@/components/UserProfileModal";
 import { SubscriptionManager } from "@/components/SubscriptionManager";
 import { ThemePickerModal } from "@/components/ThemePickerModal";
+import { useStreakContext } from "@/contexts/StreakContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,7 @@ export function AppHeader() {
   const { t, language } = useLanguage();
   const { isPremium } = usePremium();
   const { theme } = useAppTheme();
+  const { streakData } = useStreakContext();
   const navigate = useNavigate();
 
   const [showCommunityMenu, setShowCommunityMenu] = useState(false);
@@ -117,8 +119,16 @@ export function AppHeader() {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
-                <div className="px-3 py-2 text-sm font-medium text-foreground truncate border-b border-border/50 mb-1">
-                  {displayName}
+                <div className="px-3 py-2 border-b border-border/50 mb-1">
+                  <div className="text-sm font-medium text-foreground truncate">{displayName}</div>
+                  {streakData && streakData.currentStreak > 0 && (
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <Flame className="w-3.5 h-3.5 text-orange-500" />
+                      <span className="text-xs text-muted-foreground">
+                        <span className="font-bold text-orange-500">{streakData.currentStreak}</span> días de racha 🔥
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <DropdownMenuItem onClick={() => setShowProfileModal(true)}>
                   <Settings className="w-4 h-4 mr-2" />
