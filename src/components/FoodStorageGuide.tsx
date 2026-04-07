@@ -839,38 +839,13 @@ export function FoodStorageGuide() {
         </Card>
       )}
 
-      {/* Empty State - suggestions */}
+      {/* Empty State - just a hint, no suggestions */}
       {!foodInfo && !isLoading && !notFoodError && searchHistory.length === 0 && (
-        <Card className="border-dashed">
-          <CardContent className="py-8">
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center">
-                <Search className="w-8 h-8 text-muted-foreground" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Buscá un alimento</h3>
-                <p className="text-sm text-muted-foreground">
-                  Ingresá cualquier alimento y elegí qué información querés
-                </p>
-              </div>
-              <div className="flex flex-wrap justify-center gap-2">
-                {["Pollo", "Tomate", "Arroz", "Huevos", "Carne", "Papa"].map((food) => (
-                  <Button
-                    key={food}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setFoodName(food);
-                    }}
-                    className="text-xs"
-                  >
-                    {food}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="text-center py-6">
+          <p className="text-sm text-muted-foreground">
+            Escribí un alimento en el paso 1 para empezar
+          </p>
+        </div>
       )}
       <DailyLimitModal open={showLimitModal} onOpenChange={setShowLimitModal} type="tips" />
     </div>
