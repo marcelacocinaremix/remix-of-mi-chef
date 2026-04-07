@@ -26,6 +26,7 @@ export function AppHeader() {
   const { t, language } = useLanguage();
   const { isPremium } = usePremium();
   const { theme } = useAppTheme();
+  const { streakData } = useStreakContext();
   const navigate = useNavigate();
 
   const [showCommunityMenu, setShowCommunityMenu] = useState(false);
