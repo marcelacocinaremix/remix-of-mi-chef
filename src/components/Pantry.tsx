@@ -308,7 +308,7 @@ function ProductItem({
           if (e.key === "Escape") setIsMenuOpen(false);
         }}
         className={cn(
-          "relative w-16 h-20 md:w-20 md:h-24 flex flex-col items-center justify-end cursor-pointer",
+          "relative w-14 h-[68px] md:w-16 md:h-20 flex flex-col items-center justify-end cursor-pointer",
           "rounded-lg transition-all duration-300",
           "hover:scale-105 hover:-translate-y-1",
           isMenuOpen && "scale-105 -translate-y-1 z-30 shadow-xl"
