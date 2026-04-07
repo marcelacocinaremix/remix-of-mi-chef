@@ -340,12 +340,12 @@ function ProductItem({
 
           {/* Quantity indicator */}
           {item.quantity && item.quantity > 1 && (
-            <div className="absolute bottom-1 right-1 z-10 bg-primary text-primary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-sm animate-[bounce_0.5s_ease-out]">
+            <div className="absolute -top-2 right-0 z-20 bg-primary text-primary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-sm animate-[bounce_0.5s_ease-out]">
               x{item.quantity}
             </div>
           )}
           {item.quantity === 1 && item.unit && item.unit !== 'unidad' && (
-            <div className="absolute bottom-1 right-1 z-10 bg-muted text-muted-foreground text-[8px] font-medium px-1 py-0.5 rounded shadow-sm animate-[bounce_0.5s_ease-out]">
+            <div className="absolute -top-2 right-0 z-20 bg-muted text-muted-foreground text-[8px] font-medium px-1 py-0.5 rounded shadow-sm animate-[bounce_0.5s_ease-out]">
               1 {item.unit.slice(0, 2)}
             </div>
           )}
