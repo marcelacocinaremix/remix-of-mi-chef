@@ -451,12 +451,15 @@ function AccordionStep({
         </div>
 
         <div className="flex-1 min-w-0">
-          <span className={cn(
-            "text-sm font-semibold transition-colors",
-            isActive ? "text-foreground" : "text-muted-foreground"
-          )}>
-            {title}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className={cn(
+              "text-sm font-semibold transition-colors",
+              isActive ? "text-foreground" : "text-muted-foreground"
+            )}>
+              {title}
+            </span>
+            {rightContent}
+          </div>
           {!isActive && summary && (
             <p className="text-xs text-primary/80 font-medium truncate mt-0.5">{summary}</p>
           )}
