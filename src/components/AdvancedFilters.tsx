@@ -14,6 +14,7 @@ export interface FiltersState {
   cookingMethod: string | null;
   budget: string | null;
   maxTime: number | null;
+  forFreezing?: boolean;
 }
 
 interface AdvancedFiltersProps {
