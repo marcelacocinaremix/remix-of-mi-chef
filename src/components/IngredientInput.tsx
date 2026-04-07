@@ -189,17 +189,6 @@ export function IngredientInput({ ingredients, onIngredientsChange }: Ingredient
 
   return (
     <div className="space-y-2">
-      {/* Counter */}
-      <div className="flex items-center justify-end">
-        <span className={cn(
-          "text-xs font-bold px-2.5 py-1 rounded-full",
-          ingredients.length === 0 ? "bg-muted text-muted-foreground" :
-          isAtMax ? "bg-amber-500/20 text-amber-600" :
-          "bg-primary/20 text-primary"
-        )}>
-          {ingredients.length}/{MAX_INGREDIENTS}
-        </span>
-      </div>
 
       <div className="flex gap-2">
         {/* Pantry button */}
