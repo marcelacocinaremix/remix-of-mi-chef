@@ -455,10 +455,6 @@ export default function Index() {
             {/* ─── MAIN TABS (all except "mas" sub-sections) ─── */}
             <Tabs value={activeTab} onValueChange={(v) => handleTabChange(v as MainTab)} className="w-full">
 
-              {/* Inicio */}
-              <TabsContent value="inicio" className="space-y-6 animate-fade-in mt-0">
-                <MySummary onOpenRecipe={handleSelectRecipe} />
-              </TabsContent>
 
               {/* Cocinar */}
               <TabsContent value="cocinar" className="space-y-6 animate-fade-in mt-0">

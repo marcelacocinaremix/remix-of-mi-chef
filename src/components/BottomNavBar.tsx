@@ -13,7 +13,6 @@ interface BottomNavBarProps {
 }
 
 const NAV_ITEMS: { id: MainTab; labelKey: string; icon: React.ElementType; requiresAuth: boolean; lockedWhenExpired?: boolean }[] = [
-  { id: "inicio",     labelKey: "menuHome",       icon: Home,             requiresAuth: false },
   { id: "cocinar",    labelKey: "menuCook",        icon: UtensilsCrossed,  requiresAuth: false },
   { id: "micocina",   labelKey: "menuMyKitchen",   icon: Bookmark,         requiresAuth: true  },
   { id: "planificar", labelKey: "menuPlan",        icon: Calendar,         requiresAuth: true  },
