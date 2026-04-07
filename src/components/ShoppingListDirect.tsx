@@ -422,7 +422,7 @@ export function ShoppingListDirect() {
                             {item.is_purchased && <Check className="w-3 h-3 text-white" />}
                           </button>
                           <span
-                            className={cn("flex-1 text-base truncate", item.is_purchased && "opacity-40")}
+                            className={cn("flex-1 text-sm truncate", item.is_purchased && "opacity-40")}
                             style={{
                               color: item.is_purchased ? '#8899a6' : '#2c3e50',
                               textDecoration: item.is_purchased ? 'line-through' : 'none',
