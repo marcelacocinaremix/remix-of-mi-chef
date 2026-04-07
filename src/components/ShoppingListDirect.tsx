@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import {
   ShoppingCart, Check, Trash2, Plus, Minus,
-  Search, ChevronDown, PackageCheck, X, Undo2, Zap, Copy
+  Search, ChevronDown, PackageCheck, X, Undo2, Zap, Copy, ClipboardList
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
