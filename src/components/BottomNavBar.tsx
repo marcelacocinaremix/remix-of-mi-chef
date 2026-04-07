@@ -5,7 +5,7 @@ import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
-export type MainTab = "cocinar" | "micocina" | "despensa" | "super" | "mas";
+export type MainTab = "cocinar" | "prueba" | "micocina" | "despensa" | "super" | "mas";
 
 interface BottomNavBarProps {
   activeTab: MainTab;
