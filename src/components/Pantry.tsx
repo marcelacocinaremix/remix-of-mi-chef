@@ -1167,13 +1167,13 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Ingrediente</label>
+              <label className="text-sm font-medium mb-2 block text-foreground/80">Ingrediente</label>
               <Input
                 placeholder="Ej: Tomates, Arroz, Leche..."
                 value={newIngredient}
                 onChange={(e) => setNewIngredient(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddIngredient()}
-                className="text-lg"
+                className="text-lg rounded-2xl border-border/40 shadow-sm focus:shadow-md transition-shadow h-12"
               />
             </div>
             
