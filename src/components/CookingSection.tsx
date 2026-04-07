@@ -213,6 +213,16 @@ export function CookingSection({
           isActive={activeStep === 1}
           isCompleted={isStepCompleted(1)}
           onToggle={() => setActiveStep(activeStep === 1 ? 0 : 1)}
+          rightContent={
+            <span className={cn(
+              "text-xs font-bold px-2 py-0.5 rounded-full",
+              ingredients.length === 0 ? "bg-muted text-muted-foreground" :
+              ingredients.length >= 10 ? "bg-amber-500/20 text-amber-600" :
+              "bg-primary/20 text-primary"
+            )}>
+              {ingredients.length}/10
+            </span>
+          }
         >
           <div className="space-y-3">
             <IngredientInput ingredients={ingredients} onIngredientsChange={(v) => { setIngredients(v); if (v.length >= 10 && activeStep === 1) goToNextStep(1); }} />
@@ -402,6 +412,7 @@ function AccordionStep({
   isCompleted,
   onToggle,
   children,
+  rightContent,
 }: {
   step: number;
   title: string;
@@ -410,6 +421,7 @@ function AccordionStep({
   isCompleted: boolean;
   onToggle: () => void;
   children: React.ReactNode;
+  rightContent?: React.ReactNode;
 }) {
   return (
     <div
@@ -439,12 +451,15 @@ function AccordionStep({
         </div>
 
         <div className="flex-1 min-w-0">
-          <span className={cn(
-            "text-sm font-semibold transition-colors",
-            isActive ? "text-foreground" : "text-muted-foreground"
-          )}>
-            {title}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className={cn(
+              "text-sm font-semibold transition-colors",
+              isActive ? "text-foreground" : "text-muted-foreground"
+            )}>
+              {title}
+            </span>
+            {rightContent}
+          </div>
           {!isActive && summary && (
             <p className="text-xs text-primary/80 font-medium truncate mt-0.5">{summary}</p>
           )}
