@@ -24,6 +24,7 @@ export function MasSection({ onNavigate }: MasSectionProps) {
   if (!ready) return <MasSkeleton />;
 
   const items = [
+    { id: "calendario", label: t("menuPlan"),            icon: CalendarDays  },
     { id: "aprender", label: t("menuLearn"),          icon: GraduationCap },
     { id: "jugar",    label: t("menuPlay"),            icon: Gamepad2      },
     { id: "guia",     label: t("learnTabGuia"),        icon: Lightbulb     },
