@@ -362,12 +362,7 @@ export default function Index() {
     setMasSubTab(null);
 
     // Streak triggers
-    if (user && ["aprender", "planificar", "balance"].includes(tab)) recordStreak();
-
-    if (tab === "planificar") {
-      setPantryOpened(true); setCalendarOpened(true); setShoppingListOpened(true);
-      setTimeout(() => { setPantryOpened(false); setCalendarOpened(false); setShoppingListOpened(false); }, 100);
-    }
+    if (user && ["aprender", "balance"].includes(tab)) recordStreak();
     if (tab === "micocina") {
       setFavoritesOpened(true);
       setTimeout(() => setFavoritesOpened(false), 100);
