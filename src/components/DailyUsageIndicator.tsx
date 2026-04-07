@@ -37,7 +37,7 @@ export function DailyUsageIndicator() {
         <div className="flex items-center gap-2">
           <ChefHat className="h-4 w-4" />
           <span className="text-xs font-medium opacity-70">plan gratis</span>
-          <span className="font-bold">{used}/{limit}</span>
+          <span className="font-bold">{remaining}/{limit}</span>
           <span className="text-xs font-normal opacity-75">
             {isAtLimit ? "agotadas" : "por día"}
           </span>
