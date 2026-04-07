@@ -27,7 +27,6 @@ export function MasSection({ onNavigate }: MasSectionProps) {
     { id: "calendario", label: t("menuPlan"),            icon: CalendarDays  },
     { id: "aprender", label: t("menuLearn"),          icon: GraduationCap },
     { id: "jugar",    label: t("menuPlay"),            icon: Gamepad2      },
-    { id: "guia",     label: t("learnTabGuia"),        icon: Lightbulb     },
     { id: "balance",  label: t("subTabHealth"),        icon: Activity      },
     { id: "logros",   label: t("subTabAchievements"), icon: Trophy        },
     { id: "historial",label: "Historial de recetas",   icon: History       },
