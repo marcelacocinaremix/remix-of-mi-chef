@@ -291,7 +291,7 @@ export function CookingSection({
           isCompleted={isStepCompleted(4)}
           onToggle={() => setActiveStep(activeStep === 4 ? 0 : 4)}
         >
-          <TimeSelector value={time} onChange={(v) => { setTime(v); goToNextStep(4); }} />
+          <TimeSelector value={time} onChange={(v) => { setTime(v); setTimeChanged(true); goToNextStep(4); }} />
         </AccordionStep>
 
         {/* Step 5: Meal Type */}
