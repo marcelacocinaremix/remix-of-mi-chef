@@ -83,7 +83,7 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
                   isClicked && "animate-bounce"
                 )}>
                 <Icon
-                    size={24}
+                    size={27}
                     strokeWidth={isActive ? 2.2 : 1.5}
                     className="relative z-10 transition-all duration-300"
                   />
