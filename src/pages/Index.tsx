@@ -302,7 +302,7 @@ export default function Index() {
   };
 
   const handleReset = () => {
-    setIngredients([]); setTime(30); setMealType(null);
+    setIngredients([]); setTime(null); setMealType(null);
     setFilters({ difficulty: null, diet: [], excludeIngredients: [], servings: null, cookingMethod: null, budget: null, maxTime: null });
     setRecipes([]); setSelectedRecipe(null); setShownRecipeNames([]);
   };
