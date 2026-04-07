@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
 
-export type MainTab = "cocinar" | "micocina" | "planificar" | "balance" | "mas";
+export type MainTab = "cocinar" | "micocina" | "planificar" | "super" | "mas";
 
 interface BottomNavBarProps {
   activeTab: MainTab;
