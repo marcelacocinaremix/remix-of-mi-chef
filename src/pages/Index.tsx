@@ -484,6 +484,13 @@ export default function Index() {
                 />
               </TabsContent>
 
+              {/* Despensa */}
+              <TabsContent value="despensa" className="animate-fade-in mt-0">
+                <div className="max-w-xl mx-auto">
+                  <Pantry onSelectIngredients={handleSelectIngredients} />
+                </div>
+              </TabsContent>
+
               {/* Planificar */}
               <TabsContent value="planificar" className="space-y-6 animate-fade-in mt-0">
                 <PlanificarSection
