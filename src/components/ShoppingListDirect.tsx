@@ -271,7 +271,7 @@ export function ShoppingListDirect() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent flex items-center">
           <div className="px-4">
             <h3 className="text-white font-semibold text-base drop-shadow-lg">{t("menuShopping")}</h3>
-            <p className="text-white/80 text-xs font-light">{t("shoppingSubtitle") || "Tu lista de compras"}</p>
+            <p className="text-white/80 text-xs font-light">Tu lista de compras</p>
           </div>
         </div>
       </div>

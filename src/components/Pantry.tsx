@@ -943,7 +943,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
         <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent flex items-center">
           <div className="px-4">
             <h3 className="text-white font-semibold text-base drop-shadow-lg">{t("subTabPantry")}</h3>
-            <p className="text-white/80 text-xs font-light">{t("pantrySubtitle") || "Tu inventario de ingredientes"}</p>
+            <p className="text-white/80 text-xs font-light">Tu inventario de ingredientes</p>
           </div>
         </div>
       </div>
