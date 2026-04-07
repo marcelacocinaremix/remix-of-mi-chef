@@ -7080,7 +7080,7 @@ export const translations = {
     menuHome: "Accueil",
     menuCook: "Cuisiner",
     menuMyKitchen: "Ma Cuisine",
-    menuPlan: "Planifier",
+    menuPlan: "Calendrier",
     menuShopping: "Courses",
     menuLearn: "Apprendre",
     menuPlay: "Jouer",
