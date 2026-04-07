@@ -43,49 +43,39 @@ interface MarcelaAssistantProps {
 function getContextualHelp(activeTab: string | undefined, lang: Language): { title: string; body: string } {
   const help: Record<string, { es: { title: string; body: string }; en: { title: string; body: string }; pt: { title: string; body: string } }> = {
     cocinar: {
-      es: { title: "🍳 ¿Cómo generar recetas?", body: "Agregá ingredientes, elegí el tiempo y presioná \"Dame la receta\". Cuantos más ingredientes, mejor el resultado." },
-      en: { title: "🍳 How to generate recipes?", body: "Add ingredients, choose the time and press \"Give me the recipe\". More ingredients = better results." },
-      pt: { title: "🍳 Como gerar receitas?", body: "Adicione ingredientes, escolha o tempo e pressione \"Me dê a receita\". Mais ingredientes = melhores resultados." },
+      es: { title: "🍳 Generar recetas", body: "Seguí los pasos: 1️⃣ Agregá hasta 10 ingredientes, 2️⃣ Elegí tipo de comida, 3️⃣ Seleccioná el tiempo, 4️⃣ Filtros avanzados opcionales, 5️⃣ Presioná \"Generar receta\". Tenés 3 recetas gratis por día." },
+      en: { title: "🍳 Generate recipes", body: "Follow the steps: 1️⃣ Add up to 10 ingredients, 2️⃣ Choose meal type, 3️⃣ Select time, 4️⃣ Optional advanced filters, 5️⃣ Press \"Generate recipe\". You get 3 free recipes per day." },
+      pt: { title: "🍳 Gerar receitas", body: "Siga os passos: 1️⃣ Adicione até 10 ingredientes, 2️⃣ Escolha tipo de refeição, 3️⃣ Selecione tempo, 4️⃣ Filtros avançados opcionais, 5️⃣ Pressione \"Gerar receita\". Você tem 3 receitas grátis por dia." },
+    },
+    prueba: {
+      es: { title: "💡 Trucos del Chef", body: "Buscá cualquier alimento escribiendo o eligiendo de la lista. Seleccioná qué querés saber (conservar, cocinar, tiempos, etc.) y presioná \"Buscar\". ¡Podés guardar tus trucos favoritos! Tenés 2 consultas gratis por día." },
+      en: { title: "💡 Chef Tips", body: "Search any food by typing or choosing from the list. Select what you want to know (storage, cooking, times, etc.) and press \"Search\". Save your favorite tips! 2 free queries per day." },
+      pt: { title: "💡 Truques do Chef", body: "Busque qualquer alimento digitando ou escolhendo da lista. Selecione o que quer saber (conservação, cozimento, etc.) e pressione \"Buscar\". Salve seus favoritos! 2 consultas grátis por dia." },
     },
     micocina: {
-      es: { title: "❤️ Mi Cocina", body: "Aquí guardás tus recetas favoritas y revisás tu historial de cocina. También podés ver tus logros y racha." },
-      en: { title: "❤️ My Kitchen", body: "Save your favorite recipes and review your cooking history. Track achievements and streaks too." },
-      pt: { title: "❤️ Minha Cozinha", body: "Salve suas receitas favoritas e revise seu histórico de culinária. Acompanhe conquistas e sequências." },
+      es: { title: "❤️ Mi Cocina", body: "Tus recetas favoritas guardadas y tu historial de cocina. Tocá cualquier receta para verla completa y volver a cocinarla." },
+      en: { title: "❤️ My Kitchen", body: "Your saved favorite recipes and cooking history. Tap any recipe to view it and cook it again." },
+      pt: { title: "❤️ Minha Cozinha", body: "Suas receitas favoritas salvas e histórico de culinária. Toque em qualquer receita para vê-la e cozinhá-la novamente." },
     },
-    favoritos: {
-      es: { title: "⭐ Favoritos", body: "Las recetas que marcaste como favoritas aparecen aquí para acceso rápido. ¡Podés cocinarlas de nuevo!" },
-      en: { title: "⭐ Favorites", body: "Recipes you marked as favorites appear here for quick access. You can cook them again!" },
-      pt: { title: "⭐ Favoritos", body: "As receitas que você marcou como favoritas aparecem aqui. Você pode cozinhá-las novamente!" },
+    despensa: {
+      es: { title: "📦 Despensa", body: "Gestioná los ingredientes que tenés en casa. Agregá items con fecha de vencimiento y usá la despensa para generar recetas con lo que ya tenés." },
+      en: { title: "📦 Pantry", body: "Manage ingredients you have at home. Add items with expiration dates and use your pantry to generate recipes with what you already have." },
+      pt: { title: "📦 Despensa", body: "Gerencie ingredientes que você tem em casa. Adicione itens com data de validade e use a despensa para gerar receitas com o que já tem." },
     },
-    historial: {
-      es: { title: "📖 Historial", body: "Ves todas las recetas que cocinaste. Podés eliminar el historial o volver a buscar una receta." },
-      en: { title: "📖 History", body: "See all the recipes you've cooked. You can clear your history or search for a recipe again." },
-      pt: { title: "📖 Histórico", body: "Veja todas as receitas que você cozinhou. Você pode limpar o histórico ou pesquisar uma receita novamente." },
+    super: {
+      es: { title: "🛒 Lista del Súper", body: "Tu lista de compras inteligente. Agregá ingredientes, marcá los que ya compraste y organizalos por categoría." },
+      en: { title: "🛒 Shopping List", body: "Your smart shopping list. Add ingredients, check off what you've bought, and organize by category." },
+      pt: { title: "🛒 Lista de Compras", body: "Sua lista de compras inteligente. Adicione ingredientes, marque os comprados e organize por categoria." },
     },
-    planificar: {
-      es: { title: "📅 Planificar", body: "Organizá tus comidas en el calendario semanal o mensual. También podés gestionar tu lista del super y despensa." },
-      en: { title: "📅 Plan", body: "Organize your meals in the weekly or monthly calendar. Manage your shopping list and pantry too." },
-      pt: { title: "📅 Planejar", body: "Organize suas refeições no calendário semanal ou mensal. Gerencie sua lista de compras e despensa." },
-    },
-    inicio: {
-      es: { title: "🏠 Inicio", body: "Tu resumen diario: actividad, nutrición y racha de cocina. Todo en un solo lugar." },
-      en: { title: "🏠 Home", body: "Your daily summary: activity, nutrition and cooking streak. Everything in one place." },
-      pt: { title: "🏠 Início", body: "Seu resumo diário: atividade, nutrição e sequência de culinária. Tudo em um só lugar." },
-    },
-    aprender: {
-      es: { title: "🎓 Aprender", body: "Explorá lecciones de cocina, técnicas y consejos. Completá desafíos para ganar puntos." },
-      en: { title: "🎓 Learn", body: "Explore cooking lessons, techniques and tips. Complete challenges to earn points." },
-      pt: { title: "🎓 Aprender", body: "Explore aulas de culinária, técnicas e dicas. Complete desafios para ganhar pontos." },
-    },
-    balance: {
-      es: { title: "⚖️ Balance Nutricional", body: "Registrá tus comidas para ver tu balance diario de calorías, proteínas, carbohidratos y grasas." },
-      en: { title: "⚖️ Nutritional Balance", body: "Log your meals to see your daily balance of calories, protein, carbs and fats." },
-      pt: { title: "⚖️ Equilíbrio Nutricional", body: "Registre suas refeições para ver seu balanço diário de calorias, proteínas, carboidratos e gorduras." },
+    mas: {
+      es: { title: "📱 Más", body: "Accedé a funciones adicionales: balance nutricional, actividad física, historial de recetas, juegos de cocina, tips del día, planificador semanal y más." },
+      en: { title: "📱 More", body: "Access additional features: nutritional balance, physical activity, recipe history, cooking games, daily tips, weekly planner and more." },
+      pt: { title: "📱 Mais", body: "Acesse funcionalidades adicionais: balanço nutricional, atividade física, histórico de receitas, jogos de culinária, dicas do dia, planejador semanal e mais." },
     },
   };
 
-  const tab = activeTab ?? "inicio";
-  const entry = help[tab] ?? help["inicio"];
+  const tab = activeTab ?? "cocinar";
+  const entry = help[tab] ?? help["cocinar"];
   return entry[lang] ?? entry["es"];
 }
 
