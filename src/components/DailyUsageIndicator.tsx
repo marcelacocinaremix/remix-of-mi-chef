@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
-import { ChefHat, Flame, Sparkles } from "lucide-react";
+import { ChefHat, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SubscriptionManager } from "@/components/SubscriptionManager";
 
@@ -17,46 +17,38 @@ export function DailyUsageIndicator() {
   }, [user, refetch]);
 
   if (!user || !dailyUsage) return null;
+  if (isPremium) return null;
 
   const { remaining, limit } = dailyUsage;
+  const used = limit - remaining;
   const isAtLimit = remaining === 0;
   const isLow = remaining <= 1 && remaining > 0;
 
-  const planLabel = isPremium ? "plan premium" : "plan gratis";
-  const StatusIcon = isPremium ? Sparkles : ChefHat;
-
   return (
     <>
-      <button
-        onClick={() => setShowManager(true)}
-        className={cn(
-          "flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm active:scale-95 cursor-pointer",
-          isPremium
-            ? "bg-amber-500/10 text-amber-600 border border-amber-500/20"
-            : isAtLimit
-              ? "bg-destructive/10 text-destructive border border-destructive/20"
-              : isLow
-                ? "bg-amber-500/10 text-amber-600 border border-amber-500/20"
-                : "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
-        )}
-      >
-        <StatusIcon className="h-4 w-4" />
-        {isPremium ? (
-          <span className="text-xs font-semibold">Premium</span>
-        ) : (
-          <>
-            <span className="text-xs font-medium opacity-70 capitalize">{planLabel}</span>
-            {isAtLimit ? (
-              <Flame className="h-4 w-4 animate-pulse" />
-            ) : (
-              <span className="font-bold">{remaining}/{limit}</span>
-            )}
-            <span className="text-xs font-normal opacity-75">
-              {isAtLimit ? "agotadas" : "por día"}
-            </span>
-          </>
-        )}
-      </button>
+      <div className={cn(
+        "flex items-center justify-between px-3 py-2 rounded-xl text-sm font-semibold border",
+        isAtLimit
+          ? "bg-destructive/10 text-destructive border-destructive/20"
+          : isLow
+            ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+            : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+      )}>
+        <div className="flex items-center gap-2">
+          <ChefHat className="h-4 w-4" />
+          <span className="text-xs font-medium opacity-70">plan gratis</span>
+          <span className="font-bold">{used}/{limit}</span>
+          <span className="text-xs font-normal opacity-75">
+            {isAtLimit ? "agotadas" : "por día"}
+          </span>
+        </div>
+        <button
+          onClick={() => setShowManager(true)}
+          className="text-xs font-semibold underline opacity-70 hover:opacity-100"
+        >
+          Ver Premium
+        </button>
+      </div>
 
       <SubscriptionManager open={showManager} onOpenChange={setShowManager} />
     </>
