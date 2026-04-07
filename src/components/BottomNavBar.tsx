@@ -15,7 +15,7 @@ interface BottomNavBarProps {
 const NAV_ITEMS: { id: MainTab; labelKey: string; icon: React.ElementType; requiresAuth: boolean; lockedWhenExpired?: boolean }[] = [
   { id: "cocinar",    labelKey: "menuCook",        icon: UtensilsCrossed,  requiresAuth: false },
   { id: "micocina",   labelKey: "menuMyKitchen",   icon: Bookmark,         requiresAuth: true  },
-  { id: "super",      labelKey: "menuShopping",     icon: ShoppingCart,     requiresAuth: true  },
+  { id: "despensa",   labelKey: "subTabPantry",     icon: Package,          requiresAuth: true  },
   { id: "super",      labelKey: "menuShopping",     icon: ShoppingCart,     requiresAuth: true  },
   { id: "mas",        labelKey: "menuMore",        icon: LayoutGrid,       requiresAuth: false },
 ];
