@@ -89,7 +89,8 @@ export function AdvancedFilters({ filters, onChange, disabled = false, onUpgrade
     (filters.difficulty ? 1 : 0) +
     filters.excludeIngredients.length +
     (filters.servings ? 1 : 0) +
-    (filters.cookingMethod ? 1 : 0);
+    (filters.cookingMethod ? 1 : 0) +
+    (filters.forFreezing ? 1 : 0);
 
   const clearAllFilters = () => {
     onChange({
@@ -100,6 +101,7 @@ export function AdvancedFilters({ filters, onChange, disabled = false, onUpgrade
       cookingMethod: null,
       budget: null,
       maxTime: null,
+      forFreezing: false,
     });
   };
 
