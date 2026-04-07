@@ -340,12 +340,12 @@ function ProductItem({
 
           {/* Quantity indicator */}
           {item.quantity && item.quantity > 1 && (
-            <div className="absolute bottom-1 right-1 z-10 bg-primary text-primary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-sm">
+            <div className="absolute bottom-1 right-1 z-10 bg-primary text-primary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-sm animate-[bounce_0.5s_ease-out]">
               x{item.quantity}
             </div>
           )}
           {item.quantity === 1 && item.unit && item.unit !== 'unidad' && (
-            <div className="absolute bottom-1 right-1 z-10 bg-muted text-muted-foreground text-[8px] font-medium px-1 py-0.5 rounded shadow-sm">
+            <div className="absolute bottom-1 right-1 z-10 bg-muted text-muted-foreground text-[8px] font-medium px-1 py-0.5 rounded shadow-sm animate-[bounce_0.5s_ease-out]">
               1 {item.unit.slice(0, 2)}
             </div>
           )}
@@ -489,6 +489,7 @@ function PantryShelf({
   onUseIngredient,
   onEditExpiration,
   onUseCategoryIngredients,
+  onAddSlot,
   index 
 }: {
   category: typeof CATEGORIES[0];
@@ -499,6 +500,7 @@ function PantryShelf({
   onUseIngredient: (name: string) => void;
   onEditExpiration: (item: PantryItem) => void;
   onUseCategoryIngredients: () => void;
+  onAddSlot: () => void;
   index: number;
 }) {
   const { t } = useLanguage();
@@ -580,12 +582,26 @@ function PantryShelf({
               />
             ))}
             
-            {/* Empty shelf message */}
-            {items.length === 0 && (
-              <div className="w-full text-center py-4 text-muted-foreground text-sm">
-                {t("emptyShelf")}
+            {/* Add slot '+' button */}
+            <button
+              onClick={onAddSlot}
+              className={cn(
+                "relative w-14 h-[68px] md:w-16 md:h-20 flex flex-col items-center justify-center",
+                "rounded-lg border-2 border-dashed border-border/50 transition-all duration-300",
+                "hover:scale-105 hover:-translate-y-1 hover:border-primary/50 hover:bg-primary/5",
+                "active:scale-95 group"
+              )}
+            >
+              <div className={cn(
+                "w-8 h-8 rounded-full flex items-center justify-center",
+                "bg-gradient-to-br",
+                category.color,
+                "shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-110"
+              )}>
+                <Plus className="w-4 h-4 text-white" />
               </div>
-            )}
+              <span className="text-[9px] text-muted-foreground mt-1 font-medium">Agregar</span>
+            </button>
           </div>
         </div>
 
@@ -1151,13 +1167,13 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Ingrediente</label>
+              <label className="text-sm font-medium mb-2 block text-foreground/80">Ingrediente</label>
               <Input
                 placeholder="Ej: Tomates, Arroz, Leche..."
                 value={newIngredient}
                 onChange={(e) => setNewIngredient(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddIngredient()}
-                className="text-lg"
+                className="text-lg rounded-2xl border-border/40 shadow-sm focus:shadow-md transition-shadow h-12"
               />
             </div>
             
@@ -1192,7 +1208,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Cantidad</label>
+                <label className="text-sm font-medium mb-2 block text-foreground/80">Cantidad</label>
                 <div className="flex gap-2">
                   <Input
                     type="text"
@@ -1200,12 +1216,12 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                     pattern="[0-9]*"
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/g, ''))}
-                    className="w-20"
+                    className="w-20 rounded-2xl border-border/40 shadow-sm"
                   />
                   <select
                     value={unit}
                     onChange={(e) => setUnit(e.target.value)}
-                    className="flex-1 px-3 py-2 rounded-lg border border-input bg-background text-sm"
+                    className="flex-1 px-3 py-2 rounded-2xl border border-border/40 bg-background text-sm shadow-sm focus:shadow-md transition-shadow"
                   >
                     {UNITS.map((u) => (
                       <option key={u} value={u}>{u}</option>
@@ -1214,11 +1230,12 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Vencimiento</label>
+                <label className="text-sm font-medium mb-2 block text-foreground/80">Vencimiento</label>
                 <Input
                   type="date"
                   value={expirationDate}
                   onChange={(e) => setExpirationDate(e.target.value)}
+                  className="rounded-2xl border-border/40 shadow-sm"
                 />
               </div>
             </div>
@@ -1228,7 +1245,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                 const success = await handleAddIngredient();
                 if (success) setCurrentStep(2);
               }} 
-              className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg py-6"
+              className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg py-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow"
             >
               <Plus className="w-5 h-5" />
               Agregar a la Despensa
@@ -1385,17 +1402,35 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                   <p className="text-muted-foreground mt-4">Abriendo despensa...</p>
                 </div>
               ) : groupedItems.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="relative w-24 h-24 mx-auto mb-4">
-                    <div className="absolute inset-0 bg-gradient-to-br from-amber-200 to-amber-300 dark:from-amber-800 dark:to-amber-900 rounded-xl transform rotate-3" />
-                    <div className="absolute inset-0 bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-700 dark:to-amber-800 rounded-xl flex items-center justify-center">
-                      <Package className="w-12 h-12 text-amber-600 dark:text-amber-400" />
-                    </div>
+                <div className="text-center py-8">
+                  <Package className="w-10 h-10 text-amber-500/50 mx-auto mb-3" />
+                  <h4 className="font-semibold text-sm mb-2 text-amber-800 dark:text-amber-200">Estantes vacíos</h4>
+                  <p className="text-muted-foreground text-xs mb-4">Tocá el + para agregar productos</p>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    {CATEGORIES.slice(0, 4).map((cat) => (
+                      <button
+                        key={cat.id}
+                        onClick={() => {
+                          setSelectedCategory(cat.id);
+                          setCategoryOpen(false);
+                          setCurrentStep(1);
+                        }}
+                        className={cn(
+                          "w-14 h-[68px] flex flex-col items-center justify-center",
+                          "rounded-lg border-2 border-dashed border-border/40 transition-all duration-300",
+                          "hover:scale-105 hover:border-primary/50 hover:bg-primary/5 active:scale-95"
+                        )}
+                      >
+                        <div className={cn(
+                          "w-7 h-7 rounded-full flex items-center justify-center",
+                          "bg-gradient-to-br", cat.color, "shadow-sm"
+                        )}>
+                          <Plus className="w-3.5 h-3.5 text-white" />
+                        </div>
+                        <span className="text-[8px] text-muted-foreground mt-0.5">{cat.label}</span>
+                      </button>
+                    ))}
                   </div>
-                  <h4 className="font-semibold text-lg mb-2 text-amber-800 dark:text-amber-200">Estantes vacíos</h4>
-                  <p className="text-muted-foreground text-sm">
-                    ¡Es hora de llenar tu despensa! Usá el botón de arriba para agregar productos.
-                  </p>
                 </div>
               ) : (
                 groupedItems.map((category, index) => (
@@ -1409,6 +1444,11 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                     onUseIngredient={(name) => onSelectIngredients([name])}
                     onEditExpiration={handleEditExpiration}
                     onUseCategoryIngredients={() => handleUseCategoryIngredients(category.id)}
+                    onAddSlot={() => {
+                      setSelectedCategory(category.id);
+                      setCategoryOpen(false);
+                      setCurrentStep(1);
+                    }}
                     index={index}
                   />
                 ))
