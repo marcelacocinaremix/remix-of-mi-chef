@@ -1,11 +1,11 @@
-import { UtensilsCrossed, Bookmark, Package, ShoppingCart, LayoutGrid, Lock } from "lucide-react";
+import { UtensilsCrossed, Bookmark, Package, ShoppingCart, LayoutGrid, Lock, FlaskConical } from "lucide-react";
 import { useAppTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
-export type MainTab = "cocinar" | "micocina" | "despensa" | "super" | "mas";
+export type MainTab = "cocinar" | "prueba" | "micocina" | "despensa" | "super" | "mas";
 
 interface BottomNavBarProps {
   activeTab: MainTab;
@@ -15,6 +15,7 @@ interface BottomNavBarProps {
 
 const NAV_ITEMS: { id: MainTab; labelKey: string; icon: React.ElementType; requiresAuth: boolean; lockedWhenExpired?: boolean }[] = [
   { id: "cocinar",    labelKey: "menuCook",        icon: UtensilsCrossed,  requiresAuth: false },
+  { id: "prueba",     labelKey: "prueba",          icon: FlaskConical,     requiresAuth: false },
   { id: "micocina",   labelKey: "menuMyKitchen",   icon: Bookmark,         requiresAuth: true  },
   { id: "despensa",   labelKey: "subTabPantry",    icon: Package,          requiresAuth: true  },
   { id: "super",      labelKey: "menuShopping",    icon: ShoppingCart,     requiresAuth: true  },
@@ -103,7 +104,7 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
                   isActive ? "font-semibold text-[11px]" : "font-normal text-[10px]"
                 )}
               >
-                {t(item.labelKey as any)}
+                {item.labelKey === "prueba" ? "Prueba" : t(item.labelKey as any)}
               </span>
             </button>
           );
