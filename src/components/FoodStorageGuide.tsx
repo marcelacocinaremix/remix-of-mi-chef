@@ -445,12 +445,13 @@ export function FoodStorageGuide() {
   return (
     <div className="space-y-3 animate-fade-in px-1">
       {/* Banner */}
-      <div className="relative w-full h-28 rounded-2xl overflow-hidden">
+      <div className="relative w-full h-[100px] rounded-xl overflow-hidden shadow-md">
         <img src={trucosBanner} alt="Trucos del Chef" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent flex items-center px-5">
-          <div>
-            <h2 className="text-white text-xl font-bold">Trucos del Chef</h2>
-            <p className="text-white/80 text-sm">Consejos para cada alimento</p>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/20 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent flex items-center">
+          <div className="px-4">
+            <h3 className="text-white font-semibold text-base drop-shadow-lg">Trucos del Chef</h3>
+            <p className="text-white/80 text-xs">Consejos para cada alimento</p>
           </div>
         </div>
       </div>
