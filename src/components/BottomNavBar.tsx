@@ -1,4 +1,4 @@
-import { UtensilsCrossed, Bookmark, Package, ShoppingCart, LayoutGrid, Lock } from "lucide-react";
+import { UtensilsCrossed, Bookmark, Package, ShoppingCart, LayoutGrid, Lock, FlaskConical } from "lucide-react";
 import { useAppTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
