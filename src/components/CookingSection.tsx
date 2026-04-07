@@ -78,6 +78,7 @@ export function CookingSection({
 }: CookingSectionProps) {
   const { t } = useLanguage();
   const [activeStep, setActiveStep] = useState(1);
+  const [timeChanged, setTimeChanged] = useState(false);
 
   const activeFlavor = quickFilters.find(f => f === "dulce" || f === "salado") ?? null;
   const dietAndPrefFilters = quickFilters.filter(f => f !== "dulce" && f !== "salado");
