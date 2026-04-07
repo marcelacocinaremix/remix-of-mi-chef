@@ -78,6 +78,7 @@ export function CookingSection({
 }: CookingSectionProps) {
   const { t } = useLanguage();
   const [activeStep, setActiveStep] = useState(1);
+  const [timeChanged, setTimeChanged] = useState(false);
 
   const activeFlavor = quickFilters.find(f => f === "dulce" || f === "salado") ?? null;
   const dietAndPrefFilters = quickFilters.filter(f => f !== "dulce" && f !== "salado");
@@ -98,7 +99,7 @@ export function CookingSection({
       case 3:
         return dietAndPrefFilters.length > 0 ? `${dietAndPrefFilters.length} filtros` : null;
       case 4:
-        return `${time} min`;
+        return timeChanged ? `${time} min` : null;
       case 5:
         return mealType ? t(mealType === "desayuno" ? "breakfast" : mealType === "almuerzo" ? "lunch" : mealType === "merienda" ? "snack" : mealType === "cena" ? "dinner" : "forFreezing") : null;
       default:
@@ -290,7 +291,7 @@ export function CookingSection({
           isCompleted={isStepCompleted(4)}
           onToggle={() => setActiveStep(activeStep === 4 ? 0 : 4)}
         >
-          <TimeSelector value={time} onChange={(v) => { setTime(v); goToNextStep(4); }} />
+          <TimeSelector value={time} onChange={(v) => { setTime(v); setTimeChanged(true); goToNextStep(4); }} />
         </AccordionStep>
 
         {/* Step 5: Meal Type */}
