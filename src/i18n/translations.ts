@@ -3120,6 +3120,7 @@ export const translations = {
     menuCook: "Cozinhar",
     menuMyKitchen: "Minha Cozinha",
     menuPlan: "Planejar",
+    menuShopping: "Mercado",
     menuLearn: "Aprender",
     menuPlay: "Jogar",
     menuRecipes: "Receitas",
