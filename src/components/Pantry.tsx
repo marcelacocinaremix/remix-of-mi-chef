@@ -7,6 +7,7 @@ import {
   Lock, Crown, ChevronDown
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import pantryBanner from "@/assets/pantry-banner.jpg";
 
 function pantryHelpKey(uid?: string) { return uid ? `miChef_pantry_help_dismissed_${uid}` : "miChef_pantry_help_dismissed"; }
 

@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { SuperSmartHistory } from "./SuperSmartHistory";
+import superBanner from "@/assets/super-banner.jpg";
 
 const CATEGORY_KEYS: Record<string, { emoji: string; order: number; label: string }> = {
   verduras: { emoji: "🥬", order: 1, label: "Verduras" },
