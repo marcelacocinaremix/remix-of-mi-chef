@@ -4509,6 +4509,7 @@ export const translations = {
     menuCook: "Cucina",
     menuMyKitchen: "La Mia Cucina",
     menuPlan: "Pianifica",
+    menuShopping: "Spesa",
     menuLearn: "Impara",
     menuPlay: "Gioca",
     menuRecipes: "Ricette",
