@@ -288,11 +288,7 @@ export function FoodStorageGuide() {
     const categoryToUse = categoryOverride || selectedCategory;
     
     if (!foodToUse) {
-      toast({
-        title: "Ingresá un alimento",
-        description: "Escribí el nombre de un alimento para buscar.",
-        variant: "destructive",
-      });
+      toast.error("Escribí el nombre de un alimento para buscar");
       return;
     }
 
