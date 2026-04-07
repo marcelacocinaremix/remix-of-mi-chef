@@ -12,6 +12,7 @@ import { FloatingTimer } from "@/components/FloatingTimer";
 import { FloatingTimerButton } from "@/components/FloatingTimerButton";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { MasSection } from "@/components/MasSection";
+import { ShoppingListDirect } from "@/components/ShoppingListDirect";
 
 import { UserProfileModal } from "@/components/UserProfileModal";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -492,6 +493,11 @@ export default function Index() {
                   onSubTabChange={setActiveSubTab}
                   onNavigateToCooking={() => setActiveTab("cocinar")}
                 />
+              </TabsContent>
+
+              {/* Súper */}
+              <TabsContent value="super" className="animate-fade-in mt-0">
+                <ShoppingListDirect />
               </TabsContent>
 
               {/* Más — muestra grid o sub-sección */}

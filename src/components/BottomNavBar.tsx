@@ -1,10 +1,10 @@
-import { UtensilsCrossed, Bookmark, Calendar, LayoutGrid, Lock } from "lucide-react";
+import { UtensilsCrossed, Bookmark, Calendar, ShoppingCart, LayoutGrid, Lock } from "lucide-react";
 import { useAppTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
 
-export type MainTab = "cocinar" | "micocina" | "planificar" | "balance" | "mas";
+export type MainTab = "cocinar" | "micocina" | "planificar" | "super" | "mas";
 
 interface BottomNavBarProps {
   activeTab: MainTab;
@@ -16,6 +16,7 @@ const NAV_ITEMS: { id: MainTab; labelKey: string; icon: React.ElementType; requi
   { id: "cocinar",    labelKey: "menuCook",        icon: UtensilsCrossed,  requiresAuth: false },
   { id: "micocina",   labelKey: "menuMyKitchen",   icon: Bookmark,         requiresAuth: true  },
   { id: "planificar", labelKey: "menuPlan",        icon: Calendar,         requiresAuth: true  },
+  { id: "super",      labelKey: "menuShopping",     icon: ShoppingCart,     requiresAuth: true  },
   { id: "mas",        labelKey: "menuMore",        icon: LayoutGrid,       requiresAuth: false },
 ];
 
