@@ -245,7 +245,7 @@ export const translations = {
     menuHome: "Inicio",
     menuCook: "Generar",
     menuMyKitchen: "Mi Cocina",
-    menuPlan: "Planificar",
+    menuPlan: "Calendario",
     menuShopping: "Súper",
     menuLearn: "Aprender",
     menuPlay: "Jugar",
