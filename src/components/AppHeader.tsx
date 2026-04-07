@@ -119,8 +119,16 @@ export function AppHeader() {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
-                <div className="px-3 py-2 text-sm font-medium text-foreground truncate border-b border-border/50 mb-1">
-                  {displayName}
+                <div className="px-3 py-2 border-b border-border/50 mb-1">
+                  <div className="text-sm font-medium text-foreground truncate">{displayName}</div>
+                  {streakData && streakData.current_streak > 0 && (
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <Flame className="w-3.5 h-3.5 text-orange-500" />
+                      <span className="text-xs text-muted-foreground">
+                        <span className="font-bold text-orange-500">{streakData.current_streak}</span> días de racha 🔥
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <DropdownMenuItem onClick={() => setShowProfileModal(true)}>
                   <Settings className="w-4 h-4 mr-2" />
