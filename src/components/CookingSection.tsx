@@ -99,7 +99,7 @@ export function CookingSection({
       case 3:
         return dietAndPrefFilters.length > 0 ? `${dietAndPrefFilters.length} filtros` : null;
       case 4:
-        return `${time} min`;
+        return timeChanged ? `${time} min` : null;
       case 5:
         return mealType ? t(mealType === "desayuno" ? "breakfast" : mealType === "almuerzo" ? "lunch" : mealType === "merienda" ? "snack" : mealType === "cena" ? "dinner" : "forFreezing") : null;
       default:
