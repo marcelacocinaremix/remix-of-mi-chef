@@ -33,7 +33,7 @@ import {
  } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
 import { DailyLimitModal } from "@/components/DailyLimitModal";
@@ -202,7 +202,7 @@ export function FoodStorageGuide() {
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [showFoodList, setShowFoodList] = useState(false);
   const [savedFavorites, setSavedFavorites] = useState<Array<{id: string; food_name: string; category: string; tip_data: any}>>([]);
-  const { toast } = useToast();
+  
   const { user } = useAuth();
   const { isPremium } = usePremium();
 
@@ -288,11 +288,7 @@ export function FoodStorageGuide() {
     const categoryToUse = categoryOverride || selectedCategory;
     
     if (!foodToUse) {
-      toast({
-        title: "Ingresá un alimento",
-        description: "Escribí el nombre de un alimento para buscar.",
-        variant: "destructive",
-      });
+      toast.error("Escribí el nombre de un alimento para buscar");
       return;
     }
 
@@ -347,11 +343,7 @@ export function FoodStorageGuide() {
       }
     } catch (error) {
       console.error("Error fetching food info:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo obtener la información. Intentá de nuevo.",
-        variant: "destructive",
-      });
+      toast.error("No se pudo obtener la información. Intentá de nuevo.");
     } finally {
       setIsLoading(false);
     }
@@ -359,11 +351,7 @@ export function FoodStorageGuide() {
 
   const handleToggleFavorite = async () => {
     if (!user) {
-      toast({
-        title: "Iniciá sesión",
-        description: "Necesitás estar logueado para guardar favoritos",
-        variant: "destructive",
-      });
+      toast.error("Necesitás estar logueado para guardar");
       return;
     }
 
@@ -372,7 +360,6 @@ export function FoodStorageGuide() {
     setIsSaving(true);
     try {
       if (isSaved && savedFavId) {
-        // Remove from favorites using the stored id
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error } = await (supabase.from("favorite_food_tips") as any)
           .delete()
@@ -382,9 +369,8 @@ export function FoodStorageGuide() {
         
         setIsSaved(false);
         setSavedFavId(null);
-        toast({ title: "Eliminado", description: "Tip eliminado de tus favoritos" });
+        toast("Truco del chef eliminado");
       } else if (isSaved) {
-        // Fallback: delete by food_name + category if no id stored
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error } = await (supabase.from("favorite_food_tips") as any)
           .delete()
@@ -395,9 +381,8 @@ export function FoodStorageGuide() {
         if (error) throw error;
         setIsSaved(false);
         setSavedFavId(null);
-        toast({ title: "Eliminado", description: "Tip eliminado de tus favoritos" });
+        toast("Truco del chef eliminado");
       } else {
-        // Add to favorites
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: inserted, error } = await (supabase.from("favorite_food_tips") as any).insert([{
           user_id: user.id,
@@ -409,23 +394,19 @@ export function FoodStorageGuide() {
         if (error) {
           if (error.code === "23505") {
             setIsSaved(true);
-            toast({ title: "Ya guardado", description: "Este tip ya está en tus favoritos" });
+            toast("Este truco ya está guardado");
           } else {
             throw error;
           }
         } else {
           setIsSaved(true);
           setSavedFavId(inserted?.id ?? null);
-          toast({ title: "¡Guardado!", description: "Tip agregado a tus favoritos" });
+          toast.success("Truco del chef guardado");
         }
       }
     } catch (err) {
       console.error("Error toggling favorite:", err);
-      toast({
-        title: "Error",
-        description: "No pudimos procesar la solicitud",
-        variant: "destructive",
-      });
+      toast.error("No pudimos procesar la solicitud");
     } finally {
       setIsSaving(false);
       loadFavorites();
