@@ -603,7 +603,7 @@ function PantryShelf({
 
           {/* Products on shelf */}
           <div className="relative flex flex-wrap gap-1.5 md:gap-2 items-end min-h-[70px] md:min-h-[90px]">
-            {items.map((item, itemIndex) => (
+            {visibleItems.map((item, itemIndex) => (
               <ProductItem
                 key={item.id}
                 item={item}
@@ -617,6 +617,21 @@ function PantryShelf({
               />
             ))}
             
+            {/* Overflow indicator */}
+            {hasOverflow && (
+              <button
+                onClick={() => setShowAll(true)}
+                className={cn(
+                  "relative w-14 h-[68px] md:w-16 md:h-20 flex flex-col items-center justify-center",
+                  "rounded-lg border border-border/40 bg-muted/50 transition-all duration-300",
+                  "hover:scale-105 hover:-translate-y-1 active:scale-95"
+                )}
+              >
+                <span className="text-sm font-bold text-muted-foreground">+{items.length - MAX_VISIBLE}</span>
+                <span className="text-[8px] text-muted-foreground">más</span>
+              </button>
+            )}
+
             {/* Add slot '+' button */}
             <button
               onClick={onAddSlot}
