@@ -263,7 +263,18 @@ export function ShoppingListDirect() {
   }
 
   return (
-    <div className="space-y-2 pb-20">
+    <div className="space-y-4 pb-20">
+      {/* Banner */}
+      <div className="relative w-full h-[100px] rounded-xl overflow-hidden shadow-md">
+        <img src={superBanner} alt="Súper" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/20 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent flex items-center">
+          <div className="px-4">
+            <h3 className="text-white font-semibold text-base drop-shadow-lg">{t("menuShopping")}</h3>
+            <p className="text-white/80 text-xs font-light">{t("shoppingSubtitle") || "Tu lista de compras"}</p>
+          </div>
+        </div>
+      </div>
       {/* Product name + Category selector */}
       <div className="space-y-1.5">
         <div className="flex gap-1.5 items-center">
