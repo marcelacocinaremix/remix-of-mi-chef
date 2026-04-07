@@ -1684,7 +1684,7 @@ export const translations = {
     menuHome: "Home",
     menuCook: "Cook",
     menuMyKitchen: "My Kitchen",
-    menuPlan: "Plan",
+    menuPlan: "Calendar",
     menuShopping: "Shop",
     menuLearn: "Learn",
     menuPlay: "Play",
