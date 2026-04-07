@@ -247,6 +247,26 @@ export function FoodStorageGuide() {
     }
   }, []);
 
+  // Load saved favorites from DB
+  const loadFavorites = async () => {
+    if (!user) return;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data } = await (supabase.from("favorite_food_tips") as any)
+        .select("id, food_name, category, tip_data")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      if (data) setSavedFavorites(data);
+    } catch (e) {
+      console.error("Error loading favorites:", e);
+    }
+  };
+
+  useEffect(() => {
+    loadFavorites();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
   const saveToHistory = (food: string, category: string) => {
     const newItem: SearchHistoryItem = { food, category, timestamp: Date.now() };
     const filtered = searchHistory.filter(
