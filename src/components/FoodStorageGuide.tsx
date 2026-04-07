@@ -859,4 +859,77 @@ export function FoodStorageGuide() {
   );
 }
 
+/* ─── Accordion Step Component ─── */
+function TipsAccordionStep({
+  step,
+  title,
+  summary,
+  isActive,
+  isCompleted,
+  onToggle,
+  children,
+}: {
+  step: number;
+  title: string;
+  summary: string | null;
+  isActive: boolean;
+  isCompleted: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-[20px] border transition-all duration-300 overflow-hidden",
+        isActive
+          ? "border-primary/20 bg-card shadow-sm"
+          : "border-border/40 bg-muted/20"
+      )}
+    >
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all duration-200 active:bg-muted/30"
+      >
+        <div
+          className={cn(
+            "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all duration-300",
+            isActive
+              ? "bg-primary text-primary-foreground"
+              : isCompleted
+                ? "bg-primary/15 text-primary"
+                : "bg-muted text-muted-foreground"
+          )}
+        >
+          {isCompleted && !isActive ? <Check className="w-3.5 h-3.5" /> : step}
+        </div>
+        <div className="flex-1 min-w-0">
+          <span className={cn(
+            "text-sm font-semibold transition-colors",
+            isActive ? "text-foreground" : "text-muted-foreground"
+          )}>
+            {title}
+          </span>
+          {!isActive && summary && (
+            <p className="text-xs text-primary/80 font-medium truncate mt-0.5">{summary}</p>
+          )}
+        </div>
+        <ChevronRight
+          className={cn(
+            "w-4 h-4 text-muted-foreground shrink-0 transition-transform duration-300",
+            isActive && "rotate-90"
+          )}
+        />
+      </button>
+      <div
+        className={cn(
+          "transition-all duration-300 ease-in-out",
+          isActive ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
+        )}
+        style={{ overflow: isActive ? "visible" : "hidden" }}
+      >
+        <div className="px-4 pb-4 pt-1">{children}</div>
+      </div>
+    </div>
+  );
+}
 
