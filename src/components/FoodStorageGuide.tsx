@@ -343,11 +343,7 @@ export function FoodStorageGuide() {
       }
     } catch (error) {
       console.error("Error fetching food info:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo obtener la información. Intentá de nuevo.",
-        variant: "destructive",
-      });
+      toast.error("No se pudo obtener la información. Intentá de nuevo.");
     } finally {
       setIsLoading(false);
     }
