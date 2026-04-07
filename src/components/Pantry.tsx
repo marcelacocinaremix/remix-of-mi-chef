@@ -1264,27 +1264,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               "backdrop-blur-sm"
             )}>
               <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className={cn(
-                    "p-2.5 rounded-xl transition-all duration-500",
-                    "bg-gradient-to-br from-amber-500 to-orange-600",
-                    "shadow-lg shadow-amber-500/30"
-                  )}>
-                    <DoorOpen className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-display text-xl font-bold bg-gradient-to-r from-amber-700 to-orange-600 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">
-                      Mi Despensa
-                    </h3>
-                    <p className="text-xs text-muted-foreground">{items.length} productos en {groupedItems.length} estantes</p>
-                  </div>
-                </div>
                 <div className="flex items-center gap-2">
-                  {currentAchievement && (
-                    <Badge variant="secondary" className="bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
-                      {currentAchievement.icon} {currentAchievement.name}
-                    </Badge>
-                  )}
                 </div>
               </div>
 
