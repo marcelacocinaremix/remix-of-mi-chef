@@ -82,8 +82,8 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
                   "relative flex items-center justify-center transition-transform duration-300",
                   isClicked && "animate-bounce"
                 )}>
-                  <Icon
-                    size={21}
+                <Icon
+                    size={24}
                     strokeWidth={isActive ? 2.2 : 1.5}
                     className="relative z-10 transition-all duration-300"
                   />
