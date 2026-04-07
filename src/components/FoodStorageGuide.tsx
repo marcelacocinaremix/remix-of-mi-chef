@@ -189,7 +189,7 @@ const MAX_HISTORY = 10;
 
 export function FoodStorageGuide() {
   const [foodName, setFoodName] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("conservacion");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [foodInfo, setFoodInfo] = useState<FoodInfo | null>(null);
   const [notFoodError, setNotFoodError] = useState(false);
