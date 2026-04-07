@@ -119,13 +119,13 @@ export default function PantrySmartHistory({ items, onAddToShoppingList }: Pantr
     <div className="space-y-3 mt-3">
       {/* Info Pills - 2x2 grid */}
       <div className="grid grid-cols-2 gap-2 px-1">
-        <div className="flex items-center gap-2.5 bg-muted/50 rounded-xl px-3 py-2.5 border border-border/30">
-          <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-            <Package className="w-4 h-4 text-muted-foreground" />
+        <div className="flex items-center gap-2.5 bg-amber-50 dark:bg-amber-950/30 rounded-xl px-3 py-2.5 border border-amber-200/50 dark:border-amber-800/30">
+          <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center shrink-0">
+            <Package className="w-4 h-4 text-amber-700 dark:text-amber-400" />
           </div>
           <div>
-            <p className="text-lg font-bold leading-none">{stats.total}</p>
-            <p className="text-[10px] text-muted-foreground">Total</p>
+            <p className="text-lg font-bold leading-none text-amber-800 dark:text-amber-300">{stats.total}</p>
+            <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80">Total</p>
           </div>
         </div>
         <div className="flex items-center gap-2.5 bg-green-50 dark:bg-green-950/30 rounded-xl px-3 py-2.5 border border-green-200/50 dark:border-green-800/30">
