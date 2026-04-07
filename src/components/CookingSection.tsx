@@ -279,17 +279,29 @@ export function CookingSection({
           isCompleted={isStepCompleted(3)}
           onToggle={() => setActiveStep(activeStep === 3 ? 0 : 3)}
         >
-          <QuickFilters
-            activeFilters={dietAndPrefFilters}
-            onFiltersChange={(newFilters) => {
-              const flavorFilters = quickFilters.filter(f => f === "dulce" || f === "salado");
-              setQuickFilters([...flavorFilters, ...newFilters]);
-              const newDiet = newFilters.filter(f =>
-                ['vegetariano', 'vegano', 'sin-gluten', 'sin-lactosa', 'alto-proteina'].includes(f)
-              );
-              setFilters({ ...filters, diet: newDiet });
-            }}
-          />
+          <div className="space-y-3">
+            <QuickFilters
+              activeFilters={dietAndPrefFilters}
+              onFiltersChange={(newFilters) => {
+                const flavorFilters = quickFilters.filter(f => f === "dulce" || f === "salado");
+                setQuickFilters([...flavorFilters, ...newFilters]);
+                const newDiet = newFilters.filter(f =>
+                  ['vegetariano', 'vegano', 'sin-gluten', 'sin-lactosa', 'alto-proteina'].includes(f)
+                );
+                setFilters({ ...filters, diet: newDiet });
+              }}
+            />
+            {activeStep === 3 && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => goToNextStep(3)}
+                className="w-full rounded-[20px] active:scale-[0.96] transition-all duration-300"
+              >
+                Siguiente →
+              </Button>
+            )}
+          </div>
         </AccordionStep>
 
         {/* Step 4: Time */}
