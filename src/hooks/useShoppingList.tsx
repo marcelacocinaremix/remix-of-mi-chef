@@ -28,7 +28,8 @@ export function useShoppingList() {
         .from("shopping_list_items")
         .select("*")
         .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .order("category", { ascending: true })
+        .order("ingredient_name", { ascending: true });
 
       if (error) throw error;
       setItems(data || []);
