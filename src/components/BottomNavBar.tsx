@@ -1,10 +1,10 @@
-import { UtensilsCrossed, Bookmark, Calendar, ShoppingCart, LayoutGrid, Lock } from "lucide-react";
+import { UtensilsCrossed, Bookmark, Package, Calendar, ShoppingCart, LayoutGrid, Lock } from "lucide-react";
 import { useAppTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
 
-export type MainTab = "cocinar" | "micocina" | "planificar" | "super" | "mas";
+export type MainTab = "cocinar" | "micocina" | "despensa" | "planificar" | "super" | "mas";
 
 interface BottomNavBarProps {
   activeTab: MainTab;
