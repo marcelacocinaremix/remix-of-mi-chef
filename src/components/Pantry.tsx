@@ -91,6 +91,31 @@ const CATEGORIES = [
   { id: "otros", label: "Otros", emoji: "📦", color: "from-gray-500 to-slate-600", bgColor: "bg-gray-50 dark:bg-gray-950/30", textColor: "text-gray-700 dark:text-gray-300", shelfColor: "from-gray-100 to-gray-50 dark:from-gray-900/40 dark:to-gray-950/20" },
 ];
 
+// Auto-categorize ingredients by name
+const INGREDIENT_CATEGORY_MAP: Record<string, string[]> = {
+  verduras: ["tomate", "lechuga", "cebolla", "zanahoria", "papa", "batata", "espinaca", "brócoli", "brocoli", "zapallo", "zapallito", "calabaza", "choclo", "apio", "pepino", "pimiento", "morrón", "morron", "berenjena", "repollo", "acelga", "rúcula", "rucula", "remolacha", "ajo", "perejil", "albahaca", "cilantro", "chaucha", "arvejas", "habas", "rábano", "nabo", "puerro", "hinojo", "alcachofa", "coliflor", "espárrago", "esparrago"],
+  frutas: ["manzana", "banana", "naranja", "limón", "limon", "frutilla", "uva", "pera", "durazno", "kiwi", "sandía", "sandia", "melón", "melon", "mandarina", "pomelo", "ananá", "anana", "piña", "mango", "cereza", "ciruela", "damasco", "higo", "frambuesa", "arándano", "arandano", "maracuyá", "maracuya", "papaya", "coco", "granada"],
+  carnes: ["pollo", "carne", "vaca", "cerdo", "pescado", "salmón", "salmon", "atún", "atun", "merluza", "milanesa", "bife", "costilla", "asado", "lomo", "pechuga", "muslo", "hamburguesa", "chorizo", "salchicha", "bondiola", "matambre", "molida", "osobuco", "entraña", "vacío", "vacio", "cordero", "pavo", "jamón", "jamon", "panceta"],
+  lacteos: ["leche", "queso", "yogur", "yogurt", "manteca", "crema", "ricota", "mozzarella", "cheddar", "parmesano", "dulce de leche", "flan", "natilla", "nata"],
+  granos: ["arroz", "fideos", "pasta", "harina", "avena", "trigo", "maíz", "maiz", "lenteja", "poroto", "garbanzo", "pan", "galletita", "cereal", "polenta", "quinoa", "cuscús", "cuscus", "sémola", "semola", "granola"],
+  condimentos: ["sal", "pimienta", "orégano", "oregano", "comino", "pimentón", "pimenton", "curry", "canela", "nuez moscada", "laurel", "tomillo", "romero", "azafrán", "azafran", "mostaza", "ketchup", "mayonesa", "salsa", "vinagre", "aceite", "oliva", "soja", "chimichurri", "provenzal", "ají", "aji"],
+  bebidas: ["agua", "jugo", "gaseosa", "vino", "cerveza", "café", "cafe", "té", "mate", "soda", "limonada"],
+  congelados: ["helado", "nugget", "empanada", "pizza congelada", "vegetales congelados", "patitas"],
+};
+
+function autoDetectCategory(ingredientName: string): string {
+  const normalized = ingredientName.toLowerCase().trim();
+  for (const [category, keywords] of Object.entries(INGREDIENT_CATEGORY_MAP)) {
+    for (const keyword of keywords) {
+      if (normalized.includes(keyword) || keyword.includes(normalized)) {
+        return category;
+      }
+    }
+  }
+  return "otros";
+}
+
+
 const UNITS_KEYS = ["unidades", "kg", "g", "litros", "ml", "paquetes", "latas"];
 
 interface PantryProps {
@@ -1031,7 +1056,13 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               <Input
                 placeholder={t("pantryIngredientPlaceholder")}
                 value={newIngredient}
-                onChange={(e) => setNewIngredient(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setNewIngredient(val);
+                  if (val.trim().length >= 2) {
+                    setSelectedCategory(autoDetectCategory(val.trim()));
+                  }
+                }}
                 onKeyDown={(e) => e.key === "Enter" && handleAddIngredient()}
               />
             </div>
@@ -1058,7 +1089,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">{t("pantryCantidad")}</label>
                 <div className="flex gap-2">
@@ -1068,12 +1099,12 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                     pattern="[0-9]*"
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/g, ''))}
-                    className="w-20"
+                    className="w-20 rounded-xl"
                   />
                   <select
                     value={unit}
                     onChange={(e) => setUnit(e.target.value)}
-                    className="flex-1 px-3 py-2 rounded-lg border border-input bg-background text-sm"
+                    className="flex-1 px-3 py-2 rounded-xl border border-input bg-background text-sm"
                   >
                     {UNITS.map((u) => (
                       <option key={u} value={u}>{u}</option>
@@ -1083,11 +1114,15 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">{t("pantryExpiry")}</label>
-                <Input
-                  type="date"
-                  value={expirationDate}
-                  onChange={(e) => setExpirationDate(e.target.value)}
-                />
+                <div className="relative">
+                  <Input
+                    type="date"
+                    value={expirationDate}
+                    onChange={(e) => setExpirationDate(e.target.value)}
+                    className="rounded-xl pr-10 h-11"
+                  />
+                  <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                </div>
               </div>
             </div>
 
@@ -1212,7 +1247,14 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               <Input
                 placeholder="Ej: Tomates, Arroz, Leche..."
                 value={newIngredient}
-                onChange={(e) => setNewIngredient(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setNewIngredient(val);
+                  if (val.trim().length >= 2) {
+                    const detected = autoDetectCategory(val.trim());
+                    setSelectedCategory(detected);
+                  }
+                }}
                 onKeyDown={(e) => e.key === "Enter" && handleAddIngredient()}
                 className="text-lg rounded-2xl border-border/40 shadow-sm focus:shadow-md transition-shadow h-12"
               />
@@ -1247,7 +1289,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block text-foreground/80">Cantidad</label>
                 <div className="flex gap-2">
@@ -1272,12 +1314,15 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block text-foreground/80">Vencimiento</label>
-                <Input
-                  type="date"
-                  value={expirationDate}
-                  onChange={(e) => setExpirationDate(e.target.value)}
-                  className="rounded-2xl border-border/40 shadow-sm"
-                />
+                <div className="relative">
+                  <Input
+                    type="date"
+                    value={expirationDate}
+                    onChange={(e) => setExpirationDate(e.target.value)}
+                    className="rounded-xl border-border/40 shadow-sm pr-10 h-11"
+                  />
+                  <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                </div>
               </div>
             </div>
 
