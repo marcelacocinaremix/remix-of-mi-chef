@@ -27,7 +27,8 @@ import {
   Leaf,
    ChefHat,
    Crown,
-   Check
+   Check,
+   ChevronRight
  } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
