@@ -46,7 +46,7 @@ import { useKitchenTimer } from "@/hooks/useKitchenTimer";
 import { ArrowLeft } from "lucide-react";
 
 // Sub-tabs inside "Más" that render as full sections
-type MasSubTab = "aprender" | "jugar" | "marcela" | "perfil" | "balance" | "guia" | "logros" | "historial" | null;
+type MasSubTab = "aprender" | "jugar" | "marcela" | "perfil" | "balance" | "guia" | "logros" | "historial" | "calendario" | null;
 
 export default function Index() {
   const { t, language, isFirstVisit, setFirstVisitComplete } = useLanguage();
