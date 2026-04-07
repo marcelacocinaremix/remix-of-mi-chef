@@ -19,7 +19,7 @@ import { UserProfileModal } from "@/components/UserProfileModal";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { NutritionalBalance } from "@/components/NutritionalBalance";
 import { CocinarGroupSection } from "@/components/CocinarGroupSection";
-import { PlanificarSection } from "@/components/PlanificarSection";
+import { MonthlyCalendar } from "@/components/MonthlyCalendar";
 import { AchievementsSection } from "@/components/AchievementsSection";
 import { MiCocinaSection } from "@/components/MiCocinaSection";
 import SmartHistory from "@/components/SmartHistory";
