@@ -1,8 +1,9 @@
-import { UtensilsCrossed, Bookmark, Package, Calendar, ShoppingCart, LayoutGrid, Lock } from "lucide-react";
+import { UtensilsCrossed, Bookmark, Package, ShoppingCart, LayoutGrid, Lock } from "lucide-react";
 import { useAppTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
 
 export type MainTab = "cocinar" | "micocina" | "despensa" | "super" | "mas";
 
@@ -15,8 +16,8 @@ interface BottomNavBarProps {
 const NAV_ITEMS: { id: MainTab; labelKey: string; icon: React.ElementType; requiresAuth: boolean; lockedWhenExpired?: boolean }[] = [
   { id: "cocinar",    labelKey: "menuCook",        icon: UtensilsCrossed,  requiresAuth: false },
   { id: "micocina",   labelKey: "menuMyKitchen",   icon: Bookmark,         requiresAuth: true  },
-  { id: "despensa",   labelKey: "subTabPantry",     icon: Package,          requiresAuth: true  },
-  { id: "super",      labelKey: "menuShopping",     icon: ShoppingCart,     requiresAuth: true  },
+  { id: "despensa",   labelKey: "subTabPantry",    icon: Package,          requiresAuth: true  },
+  { id: "super",      labelKey: "menuShopping",    icon: ShoppingCart,     requiresAuth: true  },
   { id: "mas",        labelKey: "menuMore",        icon: LayoutGrid,       requiresAuth: false },
 ];
 
@@ -29,10 +30,13 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-t border-border/40"
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      className="fixed bottom-0 left-0 right-0 z-40 bg-background/90 backdrop-blur-xl border-t border-border/20"
+      style={{
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+        boxShadow: "0 -4px 20px rgba(0,0,0,0.06), 0 -1px 4px rgba(0,0,0,0.03)",
+      }}
     >
-      <div className="flex items-stretch justify-around max-w-lg mx-auto">
+      <div className="flex items-stretch justify-around max-w-lg mx-auto" style={{ height: 65 }}>
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -43,25 +47,44 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
             <button
               key={item.id}
               onClick={() => onTabChange(item.id)}
-              className={`flex flex-col items-center justify-center gap-[3px] py-2.5 px-2 flex-1 min-w-0 transition-all duration-200 active:scale-90 ${
-                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground/70"
-              }`}
+              className={cn(
+                "flex flex-col items-center justify-center gap-1 flex-1 min-w-0 relative",
+                "transition-all duration-300 ease-in-out active:scale-90",
+                isActive
+                  ? "text-primary"
+                  : "text-muted-foreground/70 hover:text-muted-foreground"
+              )}
             >
-              <div className="relative flex items-center justify-center w-9 h-9">
+              {/* Active indicator pill — top line */}
+              <span
+                className={cn(
+                  "absolute top-0 left-1/2 -translate-x-1/2 h-[3px] rounded-b-full transition-all duration-300 ease-in-out",
+                  isActive
+                    ? "w-8 bg-primary opacity-100"
+                    : "w-0 bg-transparent opacity-0"
+                )}
+              />
+
+              {/* Icon container */}
+              <div className="relative flex items-center justify-center w-10 h-8">
                 {isActive && (
                   <span
-                    className={`absolute inset-0 rounded-2xl ${
+                    className={cn(
+                      "absolute inset-0 rounded-xl transition-all duration-300",
                       isFuture
-                        ? "bg-primary/10 shadow-[0_0_10px_hsl(var(--primary)/0.25)]"
+                        ? "bg-primary/12 shadow-[0_0_12px_hsl(var(--primary)/0.2)]"
                         : "bg-primary/8"
-                    }`}
+                    )}
                   />
                 )}
-                <div className={`relative flex items-center justify-center ${isClicked ? "animate-bounce" : ""}`}>
+                <div className={cn(
+                  "relative flex items-center justify-center transition-transform duration-300",
+                  isClicked && "animate-bounce"
+                )}>
                   <Icon
                     size={24}
-                    strokeWidth={isActive ? 2 : 1.5}
-                    className="relative z-10 transition-all duration-200"
+                    strokeWidth={isActive ? 2.2 : 1.5}
+                    className="relative z-10 transition-all duration-300"
                   />
                   {showLock && (
                     <Lock
@@ -72,11 +95,13 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
                   )}
                 </div>
               </div>
+
+              {/* Label */}
               <span
-                className={`text-[11px] leading-none truncate w-full text-center transition-all duration-200 ${
-                  isActive ? "font-semibold" : "font-medium"
-                }`}
-                style={{ fontSize: "11px" }}
+                className={cn(
+                  "leading-none truncate w-full text-center transition-all duration-300",
+                  isActive ? "font-semibold text-[11px]" : "font-normal text-[10px]"
+                )}
               >
                 {t(item.labelKey as any)}
               </span>
