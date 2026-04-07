@@ -544,6 +544,7 @@ export function FoodStorageGuide() {
                           setShowFoodList(false);
                           setNotFoodError(false);
                           if (foodInfo) setFoodInfo(null);
+                          goToNextStep(1);
                         }}
                         className={cn(
                           "px-3 py-1.5 rounded-full text-sm border transition-all duration-200 active:scale-95",
