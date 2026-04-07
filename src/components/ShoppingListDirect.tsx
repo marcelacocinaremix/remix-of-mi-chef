@@ -325,17 +325,30 @@ export function ShoppingListDirect() {
         </div>
       </div>
 
-      {/* Quick add chips - horizontal scroll */}
-      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
-        {QUICK_ADD.map(p => (
-          <button
-            key={p.name}
-            onClick={() => handleQuickAdd(p)}
-            className="shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-muted/40 hover:bg-primary/10 text-sm border border-transparent hover:border-primary/20 transition-all"
-          >
-            <span>{p.emoji}</span><span>{p.name}</span>
-          </button>
-        ))}
+      {/* Elegir de la lista - collapsible */}
+      <div className="border border-border rounded-xl overflow-hidden">
+        <button
+          onClick={() => setShowQuickList(!showQuickList)}
+          className="w-full flex items-center gap-3 px-4 py-3 bg-muted/20 hover:bg-muted/40 transition-colors"
+        >
+          <ClipboardList className="w-5 h-5 text-muted-foreground" />
+          <span className="flex-1 text-left text-sm font-medium">Elegir de la lista</span>
+          <ChevronDown className={cn("w-4 h-4 text-muted-foreground transition-transform", showQuickList && "rotate-180")} />
+        </button>
+        {showQuickList && (
+          <div className="grid grid-cols-2 gap-1.5 p-3 bg-card/50">
+            {QUICK_ADD.map(p => (
+              <button
+                key={p.name}
+                onClick={() => handleQuickAdd(p)}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-muted/30 hover:bg-primary/10 text-sm border border-transparent hover:border-primary/20 transition-all active:scale-[0.96]"
+              >
+                <span className="text-lg">{p.emoji}</span>
+                <span className="text-left">{p.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Smart History - collapsible grid */}
