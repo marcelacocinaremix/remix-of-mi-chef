@@ -201,6 +201,7 @@ export function FoodStorageGuide() {
   const [dailyUsed, setDailyUsed] = useState(0);
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [showFoodList, setShowFoodList] = useState(false);
+  const [savedFavorites, setSavedFavorites] = useState<Array<{id: string; food_name: string; category: string; tip_data: any}>>([]);
   const { toast } = useToast();
   const { user } = useAuth();
   const { isPremium } = usePremium();
@@ -245,6 +246,26 @@ export function FoodStorageGuide() {
       }
     }
   }, []);
+
+  // Load saved favorites from DB
+  const loadFavorites = async () => {
+    if (!user) return;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data } = await (supabase.from("favorite_food_tips") as any)
+        .select("id, food_name, category, tip_data")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      if (data) setSavedFavorites(data);
+    } catch (e) {
+      console.error("Error loading favorites:", e);
+    }
+  };
+
+  useEffect(() => {
+    loadFavorites();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const saveToHistory = (food: string, category: string) => {
     const newItem: SearchHistoryItem = { food, category, timestamp: Date.now() };
@@ -407,6 +428,7 @@ export function FoodStorageGuide() {
       });
     } finally {
       setIsSaving(false);
+      loadFavorites();
     }
   };
 
@@ -897,6 +919,49 @@ export function FoodStorageGuide() {
           </p>
         </div>
       )}
+
+      {/* Saved Favorites */}
+      {savedFavorites.length > 0 && !isLoading && (
+        <Card>
+          <CardContent className="py-4">
+            <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
+              <Heart className="w-4 h-4 text-pink-500" />
+              Guardados ({savedFavorites.length})
+            </h4>
+            <div className="space-y-2">
+              {savedFavorites.map((fav) => {
+                const cat = categories.find((c) => c.id === fav.category);
+                return (
+                  <button
+                    key={fav.id}
+                    onClick={() => {
+                      setFoodName(fav.food_name);
+                      setSelectedCategory(fav.category);
+                      setFoodInfo(fav.tip_data as FoodInfo);
+                      setIsSaved(true);
+                      setSavedFavId(fav.id);
+                      setActiveStep(0);
+                    }}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors text-left"
+                  >
+                    {cat && (
+                      <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", cat.bgColor + "/20")}>
+                        <cat.icon className={cn("w-4 h-4", cat.color)} />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm capitalize">{fav.food_name}</p>
+                      <p className="text-xs text-muted-foreground">{cat?.name || fav.category}</p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <DailyLimitModal open={showLimitModal} onOpenChange={setShowLimitModal} type="tips" />
     </div>
   );
