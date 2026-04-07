@@ -83,7 +83,7 @@ export default function Index() {
   const { recordActivity: recordStreak } = useStreakContext();
   const [isCharacterAnimating, setIsCharacterAnimating] = useState(false);
   const [showShoppingListModal, setShowShoppingListModal] = useState(false);
-  const [activeTab, setActiveTab] = useState<MainTab>("inicio");
+  const [activeTab, setActiveTab] = useState<MainTab>("cocinar");
   const [masSubTab, setMasSubTab] = useState<MasSubTab>(null);
   const [activeSubTab, setActiveSubTab] = useState<string | null>(null);
   const [clickedTab, setClickedTab] = useState<string | null>(null);
