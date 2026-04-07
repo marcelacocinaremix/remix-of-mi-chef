@@ -3119,7 +3119,7 @@ export const translations = {
     menuHome: "Início",
     menuCook: "Cozinhar",
     menuMyKitchen: "Minha Cozinha",
-    menuPlan: "Planejar",
+    menuPlan: "Calendário",
     menuShopping: "Mercado",
     menuLearn: "Aprender",
     menuPlay: "Jogar",
