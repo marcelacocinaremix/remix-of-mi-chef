@@ -200,6 +200,7 @@ export function FoodStorageGuide() {
   const [savedFavId, setSavedFavId] = useState<string | null>(null);
   const [dailyUsed, setDailyUsed] = useState(0);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [showFoodList, setShowFoodList] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const { isPremium } = usePremium();
@@ -511,6 +512,54 @@ export function FoodStorageGuide() {
                 disabled={isLoading}
               />
             </div>
+
+            {/* Elegir de la lista */}
+            <button
+              type="button"
+              onClick={() => setShowFoodList(!showFoodList)}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-[20px] border border-border/40 bg-muted/20 text-left transition-all duration-200 active:scale-[0.98]"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-lg">📋</span>
+                <span className="text-sm font-medium">Elegir de la lista</span>
+              </div>
+              <ChevronRight className={cn("w-4 h-4 text-muted-foreground transition-transform duration-200", showFoodList && "rotate-90")} />
+            </button>
+
+            <AnimatePresence>
+              {showFoodList && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <div className="flex flex-wrap gap-2 pt-1 pb-2">
+                    {["Pollo", "Carne", "Cerdo", "Pescado", "Huevo", "Tomate", "Cebolla", "Ajo", "Papa", "Arroz", "Leche", "Queso", "Zanahoria", "Lechuga", "Banana", "Manzana", "Limón", "Pan", "Pasta", "Palta"].map((food) => (
+                      <button
+                        key={food}
+                        onClick={() => {
+                          setFoodName(food);
+                          setShowFoodList(false);
+                          setNotFoodError(false);
+                          if (foodInfo) setFoodInfo(null);
+                        }}
+                        className={cn(
+                          "px-3 py-1.5 rounded-full text-sm border transition-all duration-200 active:scale-95",
+                          foodName === food
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-card border-border hover:border-primary/40"
+                        )}
+                      >
+                        {food}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {foodName.trim() && activeStep === 1 && (
               <Button
                 variant="secondary"
