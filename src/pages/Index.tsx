@@ -486,6 +486,10 @@ export default function Index() {
                 </div>
               </TabsContent>
 
+               {/* Trucos del Chef */}
+               <TabsContent value="prueba" className="animate-fade-in mt-0">
+                 <FoodStorageGuide />
+               </TabsContent>
 
               {/* Súper */}
               <TabsContent value="super" className="animate-fade-in mt-0">

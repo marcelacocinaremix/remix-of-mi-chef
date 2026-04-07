@@ -1,4 +1,4 @@
-import { GraduationCap, Gamepad2, Youtube, User, Activity, Lightbulb, Palette, Trophy, History, CalendarDays } from "lucide-react";
+import { GraduationCap, Gamepad2, Youtube, User, Activity, Palette, Trophy, History, CalendarDays } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAppTheme } from "@/contexts/ThemeContext";
 import { useState, useEffect } from "react";
@@ -27,7 +27,6 @@ export function MasSection({ onNavigate }: MasSectionProps) {
     { id: "calendario", label: t("menuPlan"),            icon: CalendarDays  },
     { id: "aprender", label: t("menuLearn"),          icon: GraduationCap },
     { id: "jugar",    label: t("menuPlay"),            icon: Gamepad2      },
-    { id: "guia",     label: t("learnTabGuia"),        icon: Lightbulb     },
     { id: "balance",  label: t("subTabHealth"),        icon: Activity      },
     { id: "logros",   label: t("subTabAchievements"), icon: Trophy        },
     { id: "historial",label: "Historial de recetas",   icon: History       },
