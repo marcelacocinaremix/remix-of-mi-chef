@@ -489,6 +489,7 @@ function PantryShelf({
   onUseIngredient,
   onEditExpiration,
   onUseCategoryIngredients,
+  onAddSlot,
   index 
 }: {
   category: typeof CATEGORIES[0];
@@ -499,6 +500,7 @@ function PantryShelf({
   onUseIngredient: (name: string) => void;
   onEditExpiration: (item: PantryItem) => void;
   onUseCategoryIngredients: () => void;
+  onAddSlot: () => void;
   index: number;
 }) {
   const { t } = useLanguage();
