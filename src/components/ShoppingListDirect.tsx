@@ -58,6 +58,26 @@ const QUICK_ADD = [
   { name: "Cebolla", category: "verduras", unit: "kg", emoji: "🧅" },
   { name: "Queso", category: "lacteos", unit: "kg", emoji: "🧀" },
   { name: "Banana", category: "frutas", unit: "kg", emoji: "🍌" },
+  { name: "Papa", category: "verduras", unit: "kg", emoji: "🥔" },
+  { name: "Fideos", category: "almacen", unit: "paquete", emoji: "🍝" },
+  { name: "Manteca", category: "lacteos", unit: "unidad", emoji: "🧈" },
+  { name: "Sal", category: "condimentos", unit: "unidad", emoji: "🧂" },
+  { name: "Azúcar", category: "almacen", unit: "kg", emoji: "🍬" },
+  { name: "Harina", category: "almacen", unit: "kg", emoji: "🌾" },
+  { name: "Manzana", category: "frutas", unit: "kg", emoji: "🍎" },
+  { name: "Zanahoria", category: "verduras", unit: "kg", emoji: "🥕" },
+  { name: "Lechuga", category: "verduras", unit: "unidad", emoji: "🥬" },
+  { name: "Yogur", category: "lacteos", unit: "unidad", emoji: "🥛" },
+  { name: "Café", category: "almacen", unit: "paquete", emoji: "☕" },
+  { name: "Agua", category: "bebidas", unit: "litros", emoji: "💧" },
+  { name: "Galletitas", category: "almacen", unit: "paquete", emoji: "🍪" },
+  { name: "Jamón", category: "carnes", unit: "kg", emoji: "🥓" },
+  { name: "Limón", category: "frutas", unit: "kg", emoji: "🍋" },
+  { name: "Pimiento", category: "verduras", unit: "kg", emoji: "🫑" },
+  { name: "Atún", category: "pescados", unit: "lata", emoji: "🐟" },
+  { name: "Yerba", category: "almacen", unit: "kg", emoji: "🧉" },
+  { name: "Carne picada", category: "carnes", unit: "kg", emoji: "🥩" },
+  { name: "Crema", category: "lacteos", unit: "unidad", emoji: "🍶" },
 ];
 
 function AddToPantryDialog({ open, onClose, items, onConfirm }: {
@@ -337,17 +357,27 @@ export function ShoppingListDirect() {
           <ChevronDown className={cn("w-4 h-4 text-muted-foreground transition-transform", showQuickList && "rotate-180")} />
         </button>
         {showQuickList && (
-          <div className="grid grid-cols-2 gap-1.5 p-3 bg-card/50">
-            {QUICK_ADD.map(p => (
-              <button
-                key={p.name}
-                onClick={() => handleQuickAdd(p)}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-muted/30 hover:bg-primary/10 text-sm border border-transparent hover:border-primary/20 transition-all active:scale-[0.96]"
-              >
-                <span className="text-lg">{p.emoji}</span>
-                <span className="text-left">{p.name}</span>
-              </button>
-            ))}
+          <div className="grid grid-cols-2 gap-1.5 p-3 bg-card/50 max-h-[40vh] overflow-y-auto">
+            {QUICK_ADD.map(p => {
+              const alreadyInList = items.some(i => i.ingredient_name.toLowerCase() === p.name.toLowerCase());
+              return (
+                <button
+                  key={p.name}
+                  onClick={() => !alreadyInList && handleQuickAdd(p)}
+                  disabled={alreadyInList}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm border transition-all active:scale-[0.96]",
+                    alreadyInList
+                      ? "bg-primary/10 border-primary/30 opacity-70"
+                      : "bg-muted/30 hover:bg-primary/10 border-transparent hover:border-primary/20"
+                  )}
+                >
+                  <span className="text-lg">{p.emoji}</span>
+                  <span className="text-left flex-1">{p.name}</span>
+                  {alreadyInList && <Check className="w-3.5 h-3.5 text-primary" />}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
