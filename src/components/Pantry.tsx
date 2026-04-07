@@ -1113,24 +1113,16 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                   "border",
                   isActive 
                     ? "border-amber-500 bg-amber-50 dark:bg-amber-950/30 shadow-sm" 
-                    : isCompleted
-                      ? "border-green-500/30 bg-green-50 dark:bg-green-950/20"
-                      : "border-border/50 hover:border-amber-500/30"
+                    : "border-border/50 hover:border-amber-500/30"
                 )}
               >
                 <div className={cn(
                   "w-6 h-6 rounded-full flex items-center justify-center mb-1 transition-all",
                   isActive 
                     ? "bg-gradient-to-br from-amber-500 to-orange-500 text-white" 
-                    : isCompleted
-                      ? "bg-green-500 text-white"
-                      : "bg-muted text-muted-foreground"
+                    : "bg-muted text-muted-foreground"
                 )}>
-                  {isCompleted ? (
-                    <Check className="w-3 h-3" />
-                  ) : (
-                    <span className="text-[10px] font-bold">{step.id}</span>
-                  )}
+                  <span className="text-[10px] font-bold">{step.id}</span>
                 </div>
                 <span className={cn(
                   "text-[10px] font-medium text-center leading-tight",
