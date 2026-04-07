@@ -941,6 +941,10 @@ export function FoodStorageGuide() {
                       setIsSaved(true);
                       setSavedFavId(fav.id);
                       setActiveStep(0);
+                      // Scroll up to show results
+                      setTimeout(() => {
+                        document.getElementById("trucos-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }, 100);
                     }}
                     className="w-full flex items-center gap-3 p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors text-left"
                   >
