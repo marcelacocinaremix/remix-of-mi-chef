@@ -184,28 +184,6 @@ export function CookingSection({
         </div>
       )}
 
-      {/* Progress Bar */}
-      <div className="space-y-1.5">
-        <Progress value={progressValue} className="h-1 bg-muted/50 rounded-full" />
-        <div className="flex justify-between">
-          {steps.map(s => (
-            <button
-              key={s.id}
-              onClick={() => setActiveStep(s.id)}
-              className={cn(
-                "w-6 h-6 rounded-full text-[10px] font-bold flex items-center justify-center transition-all duration-300",
-                activeStep === s.id
-                  ? "bg-primary text-primary-foreground scale-110"
-                  : isStepCompleted(s.id)
-                    ? "bg-primary/20 text-primary"
-                    : "bg-muted text-muted-foreground"
-              )}
-            >
-              {isStepCompleted(s.id) && activeStep !== s.id ? <Check className="w-3 h-3" /> : s.id}
-            </button>
-          ))}
-        </div>
-      </div>
 
       {/* Clear Filters */}
       {(quickFilters.length > 0 || mealType || time !== 30) && (
