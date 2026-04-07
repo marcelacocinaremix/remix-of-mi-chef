@@ -495,6 +495,11 @@ export default function Index() {
                 />
               </TabsContent>
 
+              {/* Súper */}
+              <TabsContent value="super" className="animate-fade-in mt-0">
+                <ShoppingListDirect />
+              </TabsContent>
+
               {/* Más — muestra grid o sub-sección */}
               <TabsContent value="mas" className="animate-fade-in mt-0">
                 {!masSubTab ? (
