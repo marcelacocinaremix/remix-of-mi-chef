@@ -70,8 +70,10 @@ export function AppHeader() {
         </DropdownMenu>
       </div>
 
-      {/* CENTER: empty */}
-      <div />
+      {/* CENTER: Logo */}
+      <div className="flex-1 flex justify-center">
+        <img src={logo} alt="Mi Chef" className="h-7 object-contain" />
+      </div>
 
       {/* RIGHT: Profile / Login */}
       <div className="w-24 flex items-center justify-end">
