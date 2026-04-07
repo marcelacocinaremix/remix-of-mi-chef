@@ -51,17 +51,21 @@ export function useAchievements() {
   const [isLoading, setIsLoading] = useState(true);
   const [marcelaMessage, setMarcelaMessage] = useState("");
 
+  const tRef = { current: t };
+  tRef.current = t;
+
   const updateMarcelaMessage = useCallback((totalRecipes: number, streak: number) => {
+    const tr = tRef.current;
     if (totalRecipes === 0) {
-      setMarcelaMessage(t("marcelaMsgNoRecipes"));
+      setMarcelaMessage(tr("marcelaMsgNoRecipes"));
     } else if (streak >= 3) {
-      setMarcelaMessage(t("marcelaMsgStreak"));
+      setMarcelaMessage(tr("marcelaMsgStreak"));
     } else if (totalRecipes >= 10) {
-      setMarcelaMessage(t("marcelaMsgManyRecipes"));
+      setMarcelaMessage(tr("marcelaMsgManyRecipes"));
     } else {
-      setMarcelaMessage(t("marcelaMsgFewRecipes"));
+      setMarcelaMessage(tr("marcelaMsgFewRecipes"));
     }
-  }, [t]);
+  }, []);
 
   const fetchAchievements = useCallback(async () => {
     if (!user) {
