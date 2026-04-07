@@ -43,132 +43,59 @@ interface CategoryOption {
   id: string;
   name: string;
   icon: React.ElementType;
-  color: string;
-  bgColor: string;
   description: string;
-  group: "basico" | "cocina" | "extra";
 }
 
-const categoryGroups = {
-  basico: { label: "Básicos", description: "Lo esencial" },
-  cocina: { label: "Cocina", description: "Para cocinar" },
-  extra: { label: "Más info", description: "Información adicional" },
-};
-
 const categories: CategoryOption[] = [
-  // Básicos
   {
     id: "conservacion",
-    name: "Conservar",
+    name: "Conservación PRO",
     icon: Refrigerator,
-    color: "text-blue-500",
-    bgColor: "bg-blue-500",
-    description: "Cómo guardar y cuánto dura",
-    group: "basico"
+    description: "Tiempos en heladera y tips de frescura",
   },
   {
     id: "congelacion",
-    name: "Congelar",
+    name: "Freezer y Descongelado",
     icon: Snowflake,
-    color: "text-cyan-500",
-    bgColor: "bg-cyan-500",
-    description: "Tips de congelación",
-    group: "basico"
+    description: "Cómo congelar sin perder textura",
   },
-  {
-    id: "compra",
-    name: "Comprar",
-    icon: ShoppingCart,
-    color: "text-pink-500",
-    bgColor: "bg-pink-500",
-    description: "Cómo elegir fresco",
-    group: "basico"
-  },
-  // Cocina
   {
     id: "preparacion",
-    name: "Preparar",
+    name: "Cortes y Limpieza",
     icon: Utensils,
-    color: "text-amber-500",
-    bgColor: "bg-amber-500",
-    description: "Limpiar y cortar",
-    group: "cocina"
+    description: "El corte ideal y técnica de preparado",
   },
   {
     id: "coccion",
-    name: "Cocinar",
+    name: "Punto y Cocción",
     icon: Flame,
-    color: "text-orange-500",
-    bgColor: "bg-orange-500",
-    description: "Métodos de cocción",
-    group: "cocina"
-  },
-  {
-    id: "temperaturas",
-    name: "Temperaturas",
-    icon: ThermometerSun,
-    color: "text-red-500",
-    bgColor: "bg-red-500",
-    description: "Temperaturas ideales",
-    group: "cocina"
-  },
-  {
-    id: "tiempos",
-    name: "Tiempos",
-    icon: Timer,
-    color: "text-purple-500",
-    bgColor: "bg-purple-500",
-    description: "Tiempos de cocción",
-    group: "cocina"
-  },
-  // Extra
-  {
-    id: "sustitutos",
-    name: "Sustitutos",
-    icon: Shuffle,
-    color: "text-indigo-500",
-    bgColor: "bg-indigo-500",
-    description: "Con qué reemplazar",
-    group: "extra"
+    description: "Temperaturas y tiempos exactos",
   },
   {
     id: "combinaciones",
-    name: "Combinar",
+    name: "Sabor y Adobos",
     icon: ChefHat,
-    color: "text-rose-500",
-    bgColor: "bg-rose-500",
-    description: "Qué combina bien",
-    group: "extra"
+    description: "Especias, marinados y potenciadores",
   },
   {
-    id: "nutricion",
-    name: "Nutrición",
-    icon: Leaf,
-    color: "text-green-500",
-    bgColor: "bg-green-500",
-    description: "Info nutricional",
-    group: "extra"
+    id: "sustitutos",
+    name: "Sustitutos y Cambios",
+    icon: Shuffle,
+    description: "Qué usar si te falta el ingrediente",
+  },
+  {
+    id: "rescate",
+    name: "Rescate de Alimentos",
+    icon: Shield,
+    description: "Cómo arreglar si se pasó de sal o se secó",
   },
   {
     id: "ahorro",
-    name: "Ahorro",
-    icon: Coins,
-    color: "text-emerald-500",
-    bgColor: "bg-emerald-500",
-    description: "No desperdiciar",
-    group: "extra"
-  },
-  {
-    id: "seguridad",
-    name: "Seguridad",
-    icon: Shield,
-    color: "text-slate-500",
-    bgColor: "bg-slate-500",
-    description: "Manipulación segura",
-    group: "extra"
+    name: "Aprovechamiento",
+    icon: Leaf,
+    description: "Tips para usar sobras o partes descartables",
   },
 ];
-
 interface FoodInfo {
   isFood: boolean;
   name: string;
@@ -577,7 +504,7 @@ export function FoodStorageGuide() {
           </div>
         </TipsAccordionStep>
 
-        {/* Step 2: Category */}
+        {/* Step 2: Category — Expert Grid */}
         <TipsAccordionStep
           step={2}
           title="Elegí qué querés saber"
@@ -586,49 +513,30 @@ export function FoodStorageGuide() {
           isCompleted={isStepCompleted(2)}
           onToggle={() => setActiveStep(activeStep === 2 ? 0 : 2)}
         >
-          <div className="space-y-3">
-            <div className="space-y-4">
-              {(Object.keys(groupedCategories) as Array<keyof typeof groupedCategories>).map((groupKey) => (
-                <div key={groupKey}>
-                  <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide font-medium">
-                    {categoryGroups[groupKey].label}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {groupedCategories[groupKey].map((category) => {
-                      const Icon = category.icon;
-                      const isActive = selectedCategory === category.id;
-                      return (
-                        <button
-                          key={category.id}
-                          onClick={() => { setSelectedCategory(category.id); setActiveStep(0); }}
-                          disabled={isLoading}
-                          className={cn(
-                            "flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all duration-200 text-sm",
-                            isActive
-                              ? `${category.bgColor} text-white shadow-md`
-                              : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
-                            isLoading && "opacity-50 cursor-not-allowed"
-                          )}
-                        >
-                          <Icon className="w-4 h-4" />
-                          <span>{category.name}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {currentCategory && (
-              <div className={cn("p-3 rounded-lg", currentCategory.bgColor + "/10")}>
-                <p className="text-sm flex items-center gap-2">
-                  <currentCategory.icon className={cn("w-4 h-4", currentCategory.color)} />
-                  <span className="font-medium">{currentCategory.name}:</span>
-                  <span className="text-muted-foreground">{currentCategory.description}</span>
-                </p>
-              </div>
-            )}
+          <div className="grid grid-cols-2 gap-2.5">
+            {categories.map((category) => {
+              const Icon = category.icon;
+              const isActive = selectedCategory === category.id;
+              return (
+                <button
+                  key={category.id}
+                  onClick={() => { setSelectedCategory(category.id); setActiveStep(0); }}
+                  disabled={isLoading}
+                  className={cn(
+                    "flex flex-col items-start gap-1.5 p-3 rounded-[20px] text-left transition-all duration-200",
+                    "active:scale-[0.96]",
+                    isActive
+                      ? "bg-primary/10 border-2 border-primary/40 shadow-sm"
+                      : "bg-muted/30 border-2 border-transparent hover:bg-muted/50",
+                    isLoading && "opacity-50 cursor-not-allowed"
+                  )}
+                >
+                  <Icon className={cn("w-5 h-5", isActive ? "text-primary" : "text-muted-foreground")} strokeWidth={1.5} />
+                  <span className={cn("text-xs font-semibold leading-tight", isActive ? "text-foreground" : "text-foreground/80")}>{category.name}</span>
+                  <span className="text-[10px] leading-tight text-muted-foreground">{category.description}</span>
+                </button>
+              );
+            })}
           </div>
         </TipsAccordionStep>
       </div>
