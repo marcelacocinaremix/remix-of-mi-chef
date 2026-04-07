@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import logoImg from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -230,8 +229,14 @@ const MySummary = ({
   return (
     <div className="space-y-4 mb-6">
       {/* Hero Header */}
-      <div className="text-center pt-2 pb-3">
-        <img src={logoImg} alt="Mi Chef" className="h-16 mx-auto object-contain" />
+      <div className="text-center pt-4 pb-4 space-y-2">
+        <h1 className="text-4xl font-black text-foreground tracking-tight leading-none">
+          Mi Chef
+        </h1>
+        <p className="text-xs font-semibold tracking-[0.3em] text-muted-foreground uppercase">
+          Marcelacocina
+        </p>
+        <div className="mx-auto w-16 h-0.5 rounded-full bg-primary" />
       </div>
 
       {/* Streak Display */}
