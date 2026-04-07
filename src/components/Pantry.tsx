@@ -565,7 +565,7 @@ function PantryShelf({
           </div>
 
           {/* Products on shelf */}
-          <div className="relative flex flex-wrap gap-2 md:gap-3 items-end min-h-[80px] md:min-h-[100px]">
+          <div className="relative flex flex-wrap gap-1.5 md:gap-2 items-end min-h-[70px] md:min-h-[90px]">
             {items.map((item, itemIndex) => (
               <ProductItem
                 key={item.id}
