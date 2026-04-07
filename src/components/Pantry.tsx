@@ -582,12 +582,26 @@ function PantryShelf({
               />
             ))}
             
-            {/* Empty shelf message */}
-            {items.length === 0 && (
-              <div className="w-full text-center py-4 text-muted-foreground text-sm">
-                {t("emptyShelf")}
+            {/* Add slot '+' button */}
+            <button
+              onClick={onAddSlot}
+              className={cn(
+                "relative w-14 h-[68px] md:w-16 md:h-20 flex flex-col items-center justify-center",
+                "rounded-lg border-2 border-dashed border-border/50 transition-all duration-300",
+                "hover:scale-105 hover:-translate-y-1 hover:border-primary/50 hover:bg-primary/5",
+                "active:scale-95 group"
+              )}
+            >
+              <div className={cn(
+                "w-8 h-8 rounded-full flex items-center justify-center",
+                "bg-gradient-to-br",
+                category.color,
+                "shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-110"
+              )}>
+                <Plus className="w-4 h-4 text-white" />
               </div>
-            )}
+              <span className="text-[9px] text-muted-foreground mt-1 font-medium">Agregar</span>
+            </button>
           </div>
         </div>
 
