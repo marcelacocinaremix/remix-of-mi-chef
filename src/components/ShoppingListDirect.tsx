@@ -133,6 +133,7 @@ export function ShoppingListDirect() {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [recentlyPurchased, setRecentlyPurchased] = useState<string[]>([]);
   const [showPantryDialog, setShowPantryDialog] = useState(false);
+  const [showQuickList, setShowQuickList] = useState(false);
   const [itemsForPantry, setItemsForPantry] = useState<ShoppingListItem[]>([]);
 
   const purchasedCount = items.filter(i => i.is_purchased).length;
