@@ -1056,7 +1056,13 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               <Input
                 placeholder={t("pantryIngredientPlaceholder")}
                 value={newIngredient}
-                onChange={(e) => setNewIngredient(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setNewIngredient(val);
+                  if (val.trim().length >= 2) {
+                    setSelectedCategory(autoDetectCategory(val.trim()));
+                  }
+                }}
                 onKeyDown={(e) => e.key === "Enter" && handleAddIngredient()}
               />
             </div>
@@ -1083,7 +1089,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">{t("pantryCantidad")}</label>
                 <div className="flex gap-2">
@@ -1093,12 +1099,12 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                     pattern="[0-9]*"
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/g, ''))}
-                    className="w-20"
+                    className="w-20 rounded-xl"
                   />
                   <select
                     value={unit}
                     onChange={(e) => setUnit(e.target.value)}
-                    className="flex-1 px-3 py-2 rounded-lg border border-input bg-background text-sm"
+                    className="flex-1 px-3 py-2 rounded-xl border border-input bg-background text-sm"
                   >
                     {UNITS.map((u) => (
                       <option key={u} value={u}>{u}</option>
@@ -1108,11 +1114,15 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">{t("pantryExpiry")}</label>
-                <Input
-                  type="date"
-                  value={expirationDate}
-                  onChange={(e) => setExpirationDate(e.target.value)}
-                />
+                <div className="relative">
+                  <Input
+                    type="date"
+                    value={expirationDate}
+                    onChange={(e) => setExpirationDate(e.target.value)}
+                    className="rounded-xl pr-10 h-11"
+                  />
+                  <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                </div>
               </div>
             </div>
 
