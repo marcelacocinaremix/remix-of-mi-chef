@@ -147,9 +147,7 @@ export function CookingSection({
   return (
     <div className="space-y-3 px-1">
       {/* Usage indicator */}
-      <div className="flex items-center justify-end">
-        <DailyUsageIndicator />
-      </div>
+      <DailyUsageIndicator />
 
       {/* Suggestion Card */}
       {pendingSuggestion && (
