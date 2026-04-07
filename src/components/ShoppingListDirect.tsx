@@ -165,11 +165,16 @@ export function ShoppingListDirect() {
   }), [items]);
 
   const groupedPending = useMemo(() => {
-    return pendingItems.reduce((acc, item) => {
+    const groups = pendingItems.reduce((acc, item) => {
       const cat = item.category?.toLowerCase() || "otros";
       (acc[cat] = acc[cat] || []).push(item);
       return acc;
     }, {} as Record<string, ShoppingListItem[]>);
+    // Sort items alphabetically within each category
+    Object.keys(groups).forEach(cat => {
+      groups[cat].sort((a, b) => a.ingredient_name.localeCompare(b.ingredient_name));
+    });
+    return groups;
   }, [pendingItems]);
 
   const sortedCats = useMemo(() =>
