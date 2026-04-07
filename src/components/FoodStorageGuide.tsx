@@ -428,6 +428,7 @@ export function FoodStorageGuide() {
       });
     } finally {
       setIsSaving(false);
+      loadFavorites();
     }
   };
 
