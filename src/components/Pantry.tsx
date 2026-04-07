@@ -1205,15 +1205,6 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
       {/* STEP 1: Add Products */}
       {currentStep === 1 && (
         <div className="bg-card rounded-2xl p-4 md:p-6 shadow-elevated border border-border/50">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-              <Plus className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-foreground">Agregar Productos</h3>
-              <p className="text-xs text-muted-foreground">Sumá ingredientes a tu despensa</p>
-            </div>
-          </div>
 
           <div className="space-y-4">
             <div>
