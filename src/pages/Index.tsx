@@ -12,7 +12,7 @@ import { FloatingTimer } from "@/components/FloatingTimer";
 import { FloatingTimerButton } from "@/components/FloatingTimerButton";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { MasSection } from "@/components/MasSection";
-import MySummary from "@/components/MySummary";
+
 import { UserProfileModal } from "@/components/UserProfileModal";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { NutritionalBalance } from "@/components/NutritionalBalance";
@@ -83,7 +83,7 @@ export default function Index() {
   const { recordActivity: recordStreak } = useStreakContext();
   const [isCharacterAnimating, setIsCharacterAnimating] = useState(false);
   const [showShoppingListModal, setShowShoppingListModal] = useState(false);
-  const [activeTab, setActiveTab] = useState<MainTab>("inicio");
+  const [activeTab, setActiveTab] = useState<MainTab>("cocinar");
   const [masSubTab, setMasSubTab] = useState<MasSubTab>(null);
   const [activeSubTab, setActiveSubTab] = useState<string | null>(null);
   const [clickedTab, setClickedTab] = useState<string | null>(null);
@@ -106,7 +106,7 @@ export default function Index() {
   // Update activeTab when user logs in
   useEffect(() => {
     if (user && activeTab === "cocinar") {
-      setActiveTab("inicio");
+      // no-op, already on cocinar
     }
   }, [user]);
 
@@ -455,10 +455,6 @@ export default function Index() {
             {/* ─── MAIN TABS (all except "mas" sub-sections) ─── */}
             <Tabs value={activeTab} onValueChange={(v) => handleTabChange(v as MainTab)} className="w-full">
 
-              {/* Inicio */}
-              <TabsContent value="inicio" className="space-y-6 animate-fade-in mt-0">
-                <MySummary onOpenRecipe={handleSelectRecipe} />
-              </TabsContent>
 
               {/* Cocinar */}
               <TabsContent value="cocinar" className="space-y-6 animate-fade-in mt-0">
