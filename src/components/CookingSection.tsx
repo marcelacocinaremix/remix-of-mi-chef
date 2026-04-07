@@ -369,7 +369,7 @@ export function CookingSection({
           {(recipes.length > 0 || ingredients.length > 0) && (
             <Button
               variant="ghost"
-              onClick={onReset}
+              onClick={() => { onReset(); setActiveStep(1); setTimeChanged(false); }}
               className="rounded-[20px] active:scale-[0.96] transition-all duration-300"
             >
               <RotateCcw className="w-4 h-4 mr-1.5" />
