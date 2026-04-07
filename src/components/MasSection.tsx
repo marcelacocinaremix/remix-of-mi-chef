@@ -1,4 +1,4 @@
-import { GraduationCap, Gamepad2, Youtube, User, Activity, Lightbulb, Palette, Trophy, History, CalendarDays } from "lucide-react";
+import { GraduationCap, Gamepad2, Youtube, User, Activity, Palette, Trophy, History, CalendarDays } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAppTheme } from "@/contexts/ThemeContext";
 import { useState, useEffect } from "react";
