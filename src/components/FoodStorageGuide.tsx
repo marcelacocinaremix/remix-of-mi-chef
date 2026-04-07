@@ -410,7 +410,11 @@ export function FoodStorageGuide() {
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      handleSearch();
+      if (activeStep === 1 && foodName.trim()) {
+        goToNextStep(1);
+      } else {
+        handleSearch();
+      }
     }
   };
 
