@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -51,17 +51,21 @@ export function useAchievements() {
   const [isLoading, setIsLoading] = useState(true);
   const [marcelaMessage, setMarcelaMessage] = useState("");
 
+  const tRef = useRef(t);
+  tRef.current = t;
+
   const updateMarcelaMessage = useCallback((totalRecipes: number, streak: number) => {
+    const tr = tRef.current;
     if (totalRecipes === 0) {
-      setMarcelaMessage(t("marcelaMsgNoRecipes"));
+      setMarcelaMessage(tr("marcelaMsgNoRecipes"));
     } else if (streak >= 3) {
-      setMarcelaMessage(t("marcelaMsgStreak"));
+      setMarcelaMessage(tr("marcelaMsgStreak"));
     } else if (totalRecipes >= 10) {
-      setMarcelaMessage(t("marcelaMsgManyRecipes"));
+      setMarcelaMessage(tr("marcelaMsgManyRecipes"));
     } else {
-      setMarcelaMessage(t("marcelaMsgFewRecipes"));
+      setMarcelaMessage(tr("marcelaMsgFewRecipes"));
     }
-  }, [t]);
+  }, []);
 
   const fetchAchievements = useCallback(async () => {
     if (!user) {
@@ -107,8 +111,8 @@ export function useAchievements() {
       const mappedAchievements: Achievement[] = ACHIEVEMENTS_CONFIG.map(config => ({
         id: config.type,
         type: config.type,
-        title: t(config.titleKey as any),
-        description: t(config.descKey as any),
+        title: tRef.current(config.titleKey as any),
+        description: tRef.current(config.descKey as any),
         icon: config.icon,
         unlockedAt: achievementsData?.find(a => a.achievement_type === config.type)?.unlocked_at || null,
         isUnlocked: unlockedTypes.has(config.type),
@@ -127,7 +131,7 @@ export function useAchievements() {
     } finally {
       setIsLoading(false);
     }
-  }, [user, updateMarcelaMessage, t]);
+  }, [user, updateMarcelaMessage]);
 
   const checkAndUnlockAchievements = useCallback(async (newTotal: number, newStreak: number) => {
     if (!user) return;
