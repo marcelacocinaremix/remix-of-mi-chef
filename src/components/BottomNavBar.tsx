@@ -16,6 +16,7 @@ const NAV_ITEMS: { id: MainTab; labelKey: string; icon: React.ElementType; requi
   { id: "cocinar",    labelKey: "menuCook",        icon: UtensilsCrossed,  requiresAuth: false },
   { id: "micocina",   labelKey: "menuMyKitchen",   icon: Bookmark,         requiresAuth: true  },
   { id: "planificar", labelKey: "menuPlan",        icon: Calendar,         requiresAuth: true  },
+  { id: "super",      labelKey: "menuShopping",     icon: ShoppingCart,     requiresAuth: true  },
   { id: "mas",        labelKey: "menuMore",        icon: LayoutGrid,       requiresAuth: false },
 ];
 
