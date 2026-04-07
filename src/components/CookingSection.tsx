@@ -224,7 +224,7 @@ export function CookingSection({
                 onClick={() => goToNextStep(1)}
                 className="w-full rounded-[20px] active:scale-[0.96] transition-all duration-300"
               >
-                {t("next") || "Siguiente"} →
+                Siguiente →
               </Button>
             )}
           </div>
