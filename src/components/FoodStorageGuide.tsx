@@ -25,9 +25,11 @@ import {
   ShoppingCart,
   Shuffle,
   Leaf,
-  ChefHat,
-  Crown
-} from "lucide-react";
+   ChefHat,
+   Crown,
+   Check,
+   ChevronRight
+ } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -421,8 +423,22 @@ export function FoodStorageGuide() {
     extra: categories.filter(c => c.group === "extra"),
   };
 
+  const [activeStep, setActiveStep] = useState(1);
+
+  const stepSummary = (step: number): string | null => {
+    if (step === 1) return foodName.trim() ? foodName.trim() : null;
+    if (step === 2) return currentCategory ? currentCategory.name : null;
+    return null;
+  };
+
+  const isStepCompleted = (step: number) => !!stepSummary(step);
+
+  const goToNextStep = (current: number) => {
+    setTimeout(() => setActiveStep(current + 1), 200);
+  };
+
   return (
-    <div className="space-y-5 animate-fade-in">
+    <div className="space-y-3 animate-fade-in px-1">
       {/* Daily usage indicator — only for free users */}
       {!isPremium && (
         <div className={cn(
@@ -449,109 +465,129 @@ export function FoodStorageGuide() {
           </button>
         </div>
       )}
-      {/* Step 1: Search Input */}
-      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-amber-500/5">
-        <CardContent className="py-5">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">1</span>
-            <h3 className="font-semibold">Escribí el alimento</h3>
-          </div>
-          <div className="relative">
-            <Apple className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              placeholder="Ej: pollo, tomate, arroz, leche, carne..."
-              value={foodName}
-              onChange={(e) => {
-                setFoodName(e.target.value);
-                setNotFoodError(false);
-                // Clear results when user starts typing something new
-                if (foodInfo) setFoodInfo(null);
-                setIsSaved(false);
-                setSavedFavId(null);
-              }}
-              onKeyPress={handleKeyPress}
-              className="pl-10 h-12 text-base"
-              disabled={isLoading}
-            />
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Step 2: Category Selector */}
-      <Card className="border-border/50">
-        <CardContent className="py-5">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">2</span>
-            <h3 className="font-semibold">Elegí qué querés saber</h3>
-          </div>
-
-          <div className="space-y-4">
-            {(Object.keys(groupedCategories) as Array<keyof typeof groupedCategories>).map((groupKey) => (
-              <div key={groupKey}>
-                <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide font-medium">
-                  {categoryGroups[groupKey].label}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {groupedCategories[groupKey].map((category) => {
-                    const Icon = category.icon;
-                    const isActive = selectedCategory === category.id;
-                    return (
-                      <button
-                        key={category.id}
-                        onClick={() => setSelectedCategory(category.id)}
-                        disabled={isLoading}
-                        className={cn(
-                          "flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all duration-200 text-sm",
-                          isActive
-                            ? `${category.bgColor} text-white shadow-md`
-                            : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
-                          isLoading && "opacity-50 cursor-not-allowed"
-                        )}
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span>{category.name}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {currentCategory && (
-            <div className={cn("mt-4 p-3 rounded-lg", currentCategory.bgColor + "/10")}>
-              <p className="text-sm flex items-center gap-2">
-                <currentCategory.icon className={cn("w-4 h-4", currentCategory.color)} />
-                <span className="font-medium">{currentCategory.name}:</span>
-                <span className="text-muted-foreground">{currentCategory.description}</span>
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Step 3: Search Button */}
-      <div className="flex items-center gap-3">
-        <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center shrink-0">3</span>
-        <Button 
-          onClick={() => handleSearch()} 
-          disabled={isLoading || !foodName.trim()}
-          className="flex-1 h-12"
-          size="lg"
+      {/* Accordion Steps */}
+      <div className="space-y-2">
+        {/* Step 1: Food Name */}
+        <TipsAccordionStep
+          step={1}
+          title="Escribí el alimento"
+          summary={stepSummary(1)}
+          isActive={activeStep === 1}
+          isCompleted={isStepCompleted(1)}
+          onToggle={() => setActiveStep(activeStep === 1 ? 0 : 1)}
         >
-          {isLoading ? (
-            <>
-              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Buscando...
-            </>
-          ) : (
-            <>
-              <Search className="w-5 h-5 mr-2" />
-              Buscar información
-            </>
-          )}
-        </Button>
+          <div className="space-y-3">
+            <div className="relative">
+              <Apple className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                placeholder="Ej: pollo, tomate, arroz, leche, carne..."
+                value={foodName}
+                onChange={(e) => {
+                  setFoodName(e.target.value);
+                  setNotFoodError(false);
+                  if (foodInfo) setFoodInfo(null);
+                  setIsSaved(false);
+                  setSavedFavId(null);
+                }}
+                onKeyPress={handleKeyPress}
+                className="pl-10 h-12 text-base"
+                disabled={isLoading}
+              />
+            </div>
+            {foodName.trim() && activeStep === 1 && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => goToNextStep(1)}
+                className="w-full rounded-[20px] active:scale-[0.96] transition-all duration-300"
+              >
+                Siguiente →
+              </Button>
+            )}
+          </div>
+        </TipsAccordionStep>
+
+        {/* Step 2: Category */}
+        <TipsAccordionStep
+          step={2}
+          title="Elegí qué querés saber"
+          summary={stepSummary(2)}
+          isActive={activeStep === 2}
+          isCompleted={isStepCompleted(2)}
+          onToggle={() => setActiveStep(activeStep === 2 ? 0 : 2)}
+        >
+          <div className="space-y-3">
+            <div className="space-y-4">
+              {(Object.keys(groupedCategories) as Array<keyof typeof groupedCategories>).map((groupKey) => (
+                <div key={groupKey}>
+                  <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide font-medium">
+                    {categoryGroups[groupKey].label}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {groupedCategories[groupKey].map((category) => {
+                      const Icon = category.icon;
+                      const isActive = selectedCategory === category.id;
+                      return (
+                        <button
+                          key={category.id}
+                          onClick={() => { setSelectedCategory(category.id); setActiveStep(0); }}
+                          disabled={isLoading}
+                          className={cn(
+                            "flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all duration-200 text-sm",
+                            isActive
+                              ? `${category.bgColor} text-white shadow-md`
+                              : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
+                            isLoading && "opacity-50 cursor-not-allowed"
+                          )}
+                        >
+                          <Icon className="w-4 h-4" />
+                          <span>{category.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {currentCategory && (
+              <div className={cn("p-3 rounded-lg", currentCategory.bgColor + "/10")}>
+                <p className="text-sm flex items-center gap-2">
+                  <currentCategory.icon className={cn("w-4 h-4", currentCategory.color)} />
+                  <span className="font-medium">{currentCategory.name}:</span>
+                  <span className="text-muted-foreground">{currentCategory.description}</span>
+                </p>
+              </div>
+            )}
+          </div>
+        </TipsAccordionStep>
       </div>
+
+      {/* CTA Button */}
+      <Button 
+        onClick={() => handleSearch()} 
+        disabled={isLoading || !foodName.trim()}
+        className={cn(
+          "w-full py-6 text-base font-bold rounded-[20px] transition-all duration-300",
+          "bg-primary hover:bg-primary/90 shadow-[0_4px_20px_hsl(var(--primary)/0.3)]",
+          "active:scale-[0.96]",
+          "disabled:opacity-60"
+        )}
+        size="lg"
+      >
+        {isLoading ? (
+          <>
+            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+            Buscando...
+          </>
+        ) : (
+          <>
+            <Search className="w-5 h-5 mr-2" />
+            Buscar información
+          </>
+        )}
+      </Button>
 
       {/* Not a food error */}
       <AnimatePresence>
@@ -825,4 +861,77 @@ export function FoodStorageGuide() {
   );
 }
 
+/* ─── Accordion Step Component ─── */
+function TipsAccordionStep({
+  step,
+  title,
+  summary,
+  isActive,
+  isCompleted,
+  onToggle,
+  children,
+}: {
+  step: number;
+  title: string;
+  summary: string | null;
+  isActive: boolean;
+  isCompleted: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-[20px] border transition-all duration-300 overflow-hidden",
+        isActive
+          ? "border-primary/20 bg-card shadow-sm"
+          : "border-border/40 bg-muted/20"
+      )}
+    >
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all duration-200 active:bg-muted/30"
+      >
+        <div
+          className={cn(
+            "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all duration-300",
+            isActive
+              ? "bg-primary text-primary-foreground"
+              : isCompleted
+                ? "bg-primary/15 text-primary"
+                : "bg-muted text-muted-foreground"
+          )}
+        >
+          {isCompleted && !isActive ? <Check className="w-3.5 h-3.5" /> : step}
+        </div>
+        <div className="flex-1 min-w-0">
+          <span className={cn(
+            "text-sm font-semibold transition-colors",
+            isActive ? "text-foreground" : "text-muted-foreground"
+          )}>
+            {title}
+          </span>
+          {!isActive && summary && (
+            <p className="text-xs text-primary/80 font-medium truncate mt-0.5">{summary}</p>
+          )}
+        </div>
+        <ChevronRight
+          className={cn(
+            "w-4 h-4 text-muted-foreground shrink-0 transition-transform duration-300",
+            isActive && "rotate-90"
+          )}
+        />
+      </button>
+      <div
+        className={cn(
+          "transition-all duration-300 ease-in-out",
+          isActive ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
+        )}
+        style={{ overflow: isActive ? "visible" : "hidden" }}
+      >
+        <div className="px-4 pb-4 pt-1">{children}</div>
+      </div>
+    </div>
+  );
+}
 
