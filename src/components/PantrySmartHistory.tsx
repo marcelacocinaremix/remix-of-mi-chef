@@ -1,19 +1,17 @@
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   AlertTriangle, 
   TrendingUp, 
   Package, 
   Calendar,
   Leaf,
-  BarChart3,
   Clock,
   ShoppingCart,
   Sparkles,
   CheckCircle2,
-  ChevronDown
+  ChevronDown,
+  XCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -118,34 +116,50 @@ export default function PantrySmartHistory({ items, onAddToShoppingList }: Pantr
   }
 
   return (
-    <div className="space-y-2 mt-3">
-      {/* Compact stats row */}
-      <div className="flex items-center gap-1 px-1">
-        <div className="flex-1 flex items-center gap-1.5">
-          <Package className="w-3 h-3 text-primary shrink-0" />
-          <span className="text-xs font-semibold">{stats.total}</span>
-          <span className="text-[10px] text-muted-foreground">total</span>
+    <div className="space-y-3 mt-3">
+      {/* Info Pills - 2x2 grid */}
+      <div className="grid grid-cols-2 gap-2 px-1">
+        <div className="flex items-center gap-2.5 bg-muted/50 rounded-xl px-3 py-2.5 border border-border/30">
+          <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+            <Package className="w-4 h-4 text-muted-foreground" />
+          </div>
+          <div>
+            <p className="text-lg font-bold leading-none">{stats.total}</p>
+            <p className="text-[10px] text-muted-foreground">Total</p>
+          </div>
         </div>
-        <div className="flex-1 flex items-center gap-1.5">
-          <CheckCircle2 className="w-3 h-3 text-green-500 shrink-0" />
-          <span className="text-xs font-semibold text-green-600">{stats.okProducts.length}</span>
-          <span className="text-[10px] text-muted-foreground">OK</span>
+        <div className="flex items-center gap-2.5 bg-green-50 dark:bg-green-950/30 rounded-xl px-3 py-2.5 border border-green-200/50 dark:border-green-800/30">
+          <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/50 flex items-center justify-center shrink-0">
+            <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
+          </div>
+          <div>
+            <p className="text-lg font-bold leading-none text-green-700 dark:text-green-300">{stats.okProducts.length}</p>
+            <p className="text-[10px] text-green-600/80 dark:text-green-400/80">En buen estado</p>
+          </div>
         </div>
-        <div className="flex-1 flex items-center gap-1.5">
-          <Clock className="w-3 h-3 text-amber-500 shrink-0" />
-          <span className="text-xs font-semibold text-amber-600">{stats.expiringSoon.length}</span>
-          <span className="text-[10px] text-muted-foreground truncate">Por vencer</span>
+        <div className="flex items-center gap-2.5 bg-amber-50 dark:bg-amber-950/30 rounded-xl px-3 py-2.5 border border-amber-200/50 dark:border-amber-800/30">
+          <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center shrink-0">
+            <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+          </div>
+          <div>
+            <p className="text-lg font-bold leading-none text-amber-700 dark:text-amber-300">{stats.expiringSoon.length}</p>
+            <p className="text-[10px] text-amber-600/80 dark:text-amber-400/80">Por vencer</p>
+          </div>
         </div>
-        <div className="flex-1 flex items-center gap-1.5">
-          <AlertTriangle className="w-3 h-3 text-red-500 shrink-0" />
-          <span className="text-xs font-semibold text-red-600">{stats.expired.length}</span>
-          <span className="text-[10px] text-muted-foreground">Vencidos</span>
+        <div className="flex items-center gap-2.5 bg-red-50 dark:bg-red-950/30 rounded-xl px-3 py-2.5 border border-red-200/50 dark:border-red-800/30">
+          <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/50 flex items-center justify-center shrink-0">
+            <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
+          </div>
+          <div>
+            <p className="text-lg font-bold leading-none text-red-700 dark:text-red-300">{stats.expired.length}</p>
+            <p className="text-[10px] text-red-600/80 dark:text-red-400/80">Vencidos</p>
+          </div>
         </div>
       </div>
 
-      {/* Ultra-thin health bar */}
+      {/* Thin gradient progress bar */}
       <div className="px-1">
-        <div className="flex items-center gap-2 mb-0.5">
+        <div className="flex items-center gap-2 mb-1">
           <span className="text-[10px] text-muted-foreground flex items-center gap-1">
             <Sparkles className="w-2.5 h-2.5" />
             Estado de despensa
@@ -158,14 +172,19 @@ export default function PantrySmartHistory({ items, onAddToShoppingList }: Pantr
             {stats.healthScore}%
           </span>
         </div>
-        <Progress 
-          value={stats.healthScore} 
-          className={cn(
-            "h-1",
-            stats.healthScore >= 80 ? "[&>div]:bg-green-500" :
-            stats.healthScore >= 50 ? "[&>div]:bg-amber-500" : "[&>div]:bg-red-500"
-          )}
-        />
+        <div className="w-full h-1 rounded-full bg-muted overflow-hidden">
+          <div 
+            className="h-full rounded-full transition-all duration-500"
+            style={{ 
+              width: `${stats.healthScore}%`,
+              background: stats.healthScore >= 80 
+                ? 'linear-gradient(90deg, hsl(142, 71%, 45%), hsl(160, 60%, 45%))' 
+                : stats.healthScore >= 50 
+                  ? 'linear-gradient(90deg, hsl(38, 92%, 50%), hsl(25, 95%, 53%))' 
+                  : 'linear-gradient(90deg, hsl(0, 72%, 51%), hsl(15, 75%, 48%))'
+            }}
+          />
+        </div>
       </div>
 
       {/* Expiring soon - compact */}
@@ -249,20 +268,23 @@ export default function PantrySmartHistory({ items, onAddToShoppingList }: Pantr
           <ChevronDown className={cn("w-3.5 h-3.5 text-muted-foreground transition-transform", categoriesOpen && "rotate-180")} />
         </button>
         {categoriesOpen && (
-          <div className="space-y-1 animate-fade-in">
+          <div className="space-y-1.5 animate-fade-in">
             {stats.categoryCount.slice(0, 5).map(({ category, count }) => {
               const cat = CATEGORY_LABELS[category] || CATEGORY_LABELS.otros;
               const percentage = Math.round((count / stats.total) * 100);
               return (
-                <div key={category} className="flex items-center gap-1.5">
-                  <span className="text-xs w-4">{cat.emoji}</span>
-                  <span className={cn("text-[10px] font-medium w-16 truncate", cat.color)}>
+                <div key={category} className="flex items-center gap-2">
+                  <span className="text-sm w-5">{cat.emoji}</span>
+                  <span className={cn("text-[11px] font-medium w-20 truncate", cat.color)}>
                     {cat.label}
                   </span>
-                  <div className="flex-1">
-                    <Progress value={percentage} className="h-1" />
+                  <div className="flex-1 h-1 rounded-full bg-muted overflow-hidden">
+                    <div 
+                      className="h-full rounded-full bg-primary/60 transition-all duration-300" 
+                      style={{ width: `${percentage}%` }} 
+                    />
                   </div>
-                  <span className="text-[10px] text-muted-foreground w-6 text-right">{count}</span>
+                  <span className="text-[11px] text-muted-foreground w-6 text-right font-medium">{count}</span>
                 </div>
               );
             })}

@@ -1237,7 +1237,14 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               <Input
                 placeholder="Ej: Tomates, Arroz, Leche..."
                 value={newIngredient}
-                onChange={(e) => setNewIngredient(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setNewIngredient(val);
+                  if (val.trim().length >= 2) {
+                    const detected = autoDetectCategory(val.trim());
+                    setSelectedCategory(detected);
+                  }
+                }}
                 onKeyDown={(e) => e.key === "Enter" && handleAddIngredient()}
                 className="text-lg rounded-2xl border-border/40 shadow-sm focus:shadow-md transition-shadow h-12"
               />
