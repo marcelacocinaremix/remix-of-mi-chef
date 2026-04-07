@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronUp, X, Filter, Users, Thermometer, Lock, Crown } from "lucide-react";
+import { ChevronDown, ChevronUp, X, Filter, Users, Thermometer, Lock, Crown, Snowflake } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ export interface FiltersState {
   cookingMethod: string | null;
   budget: string | null;
   maxTime: number | null;
+  forFreezing?: boolean;
 }
 
 interface AdvancedFiltersProps {
@@ -88,7 +89,8 @@ export function AdvancedFilters({ filters, onChange, disabled = false, onUpgrade
     (filters.difficulty ? 1 : 0) +
     filters.excludeIngredients.length +
     (filters.servings ? 1 : 0) +
-    (filters.cookingMethod ? 1 : 0);
+    (filters.cookingMethod ? 1 : 0) +
+    (filters.forFreezing ? 1 : 0);
 
   const clearAllFilters = () => {
     onChange({
@@ -99,6 +101,7 @@ export function AdvancedFilters({ filters, onChange, disabled = false, onUpgrade
       cookingMethod: null,
       budget: null,
       maxTime: null,
+      forFreezing: false,
     });
   };
 
@@ -194,6 +197,27 @@ export function AdvancedFilters({ filters, onChange, disabled = false, onUpgrade
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Para freezar */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-3 flex items-center gap-2">
+              <Snowflake className="w-4 h-4" />
+              {t('forFreezing')}
+            </label>
+            <button
+              onClick={() => onChange({ ...filters, forFreezing: !filters.forFreezing })}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 rounded-full",
+                "border-2 transition-all duration-300 text-sm font-medium",
+                filters.forFreezing
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-background hover:border-primary/50"
+              )}
+            >
+              <Snowflake className="w-4 h-4" />
+              {t('forFreezing')}
+            </button>
           </div>
 
           {/* Difficulty */}
