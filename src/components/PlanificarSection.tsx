@@ -1,22 +1,19 @@
 import { useState, useEffect } from "react";
 import { MonthlyCalendar } from "./MonthlyCalendar";
 import { Pantry } from "./Pantry";
-import { ShoppingListDirect } from "./ShoppingListDirect";
-import { CalendarDays, Package, ShoppingCart } from "lucide-react";
+import { CalendarDays, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PaywallModal } from "@/components/PaywallModal";
 import { PlanificarSkeleton } from "@/components/skeletons/TabSkeletons";
 import calendarBanner from "@/assets/calendar-banner.jpg";
 import pantryBanner from "@/assets/pantry-banner-fixed.jpg";
-import superBanner from "@/assets/super-banner.jpg";
 
-type SubTab = "calendario" | "despensa" | "super";
+type SubTab = "calendario" | "despensa";
 
 const getBannerImages = (t: (key: any) => string): Record<SubTab, { src: string; title: string; description: string }> => ({
   calendario: { src: calendarBanner, title: t("planBannerCalendarTitle"), description: t("planBannerCalendarDesc") },
   despensa:   { src: pantryBanner,   title: t("planBannerPantryTitle"),   description: t("planBannerPantryDesc")   },
-  super:      { src: superBanner,    title: t("planBannerShoppingTitle"), description: t("planBannerShoppingDesc") },
 });
 
 interface PlanificarSectionProps {
@@ -51,7 +48,6 @@ export const PlanificarSection = ({
   const subTabs = [
     { id: "calendario" as SubTab, label: t("subTabCalendar"), icon: CalendarDays },
     { id: "despensa"   as SubTab, label: t("subTabPantry"),   icon: Package      },
-    { id: "super"      as SubTab, label: t("subTabGrocery"),  icon: ShoppingCart },
   ];
 
   const bannerImages = getBannerImages(t);
@@ -114,11 +110,6 @@ export const PlanificarSection = ({
         {activeSubTab === "despensa" && (
           <div className="max-w-xl mx-auto">
             <Pantry onSelectIngredients={onSelectIngredients} />
-          </div>
-        )}
-        {activeSubTab === "super" && (
-          <div className="max-w-xl mx-auto">
-            <ShoppingListDirect />
           </div>
         )}
       </div>
