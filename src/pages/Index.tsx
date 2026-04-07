@@ -424,7 +424,7 @@ export default function Index() {
           isLoading={isLoading}
           isSurpriseMode={false}
           isCharacterAnimating={isCharacterAnimating}
-          weeklyCalendar={activeTab === "planificar" ? { isActive: true, isGeneratingAI: weeklyCalendarState.isGeneratingAI, mealsPlanned: weeklyCalendarState.mealsPlanned } : undefined}
+          weeklyCalendar={undefined}
           showingYouTubeChannel={activeTab === "mas" && masSubTab === "marcela"}
           onIngredientAdded={ingredients}
           onHistoryDeleted={historyDeleted}
