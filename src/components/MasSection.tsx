@@ -42,7 +42,7 @@ export function MasSection({ onNavigate }: MasSectionProps) {
   return (
     <div className="space-y-3 px-1 py-2 animate-fade-in">
       <h2 className="text-lg font-semibold text-foreground px-1">{t("menuMore")}</h2>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-3">
         {allItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -50,13 +50,13 @@ export function MasSection({ onNavigate }: MasSectionProps) {
               key={item.id}
               onClick={() => item.id === "temas" ? setShowThemes(true) : onNavigate(item.id)}
               className={`
-                flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border border-border/40
+                flex flex-col items-center justify-center gap-2 aspect-square rounded-xl border border-border/40
                 bg-card transition-all duration-200 active:scale-95
                 ${isFuture ? "hover:border-primary/50" : "hover:bg-accent/30"}
               `}
             >
-              <Icon size={24} strokeWidth={1.5} className="text-foreground/80" />
-              <span className="text-[11px] font-medium text-foreground/70 leading-tight text-center">{item.label}</span>
+              <Icon size={28} strokeWidth={1.5} className="text-foreground/80" />
+              <span className="text-xs font-medium text-foreground/70 leading-tight text-center px-1">{item.label}</span>
             </button>
           );
         })}
