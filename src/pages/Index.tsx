@@ -58,7 +58,7 @@ export default function Index() {
   const { isRunning: timerIsRunning, isFinished: timerIsFinished } = useKitchenTimer();
 
   const [ingredients, setIngredients] = useState<string[]>([]);
-  const [time, setTime] = useState<number>(30);
+  const [time, setTime] = useState<number | null>(null);
   const [mealType, setMealType] = useState<string | null>(null);
   const [filters, setFilters] = useState<FiltersState>({
     difficulty: null,
@@ -302,7 +302,7 @@ export default function Index() {
   };
 
   const handleReset = () => {
-    setIngredients([]); setTime(30); setMealType(null);
+    setIngredients([]); setTime(null); setMealType(null);
     setFilters({ difficulty: null, diet: [], excludeIngredients: [], servings: null, cookingMethod: null, budget: null, maxTime: null });
     setRecipes([]); setSelectedRecipe(null); setShownRecipeNames([]);
   };

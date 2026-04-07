@@ -3,7 +3,7 @@ import { Clock, Zap, Timer, Coffee, ChefHat } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TimeSelectorProps {
-  value: number;
+  value: number | null;
   onChange: (value: number) => void;
 }
 
