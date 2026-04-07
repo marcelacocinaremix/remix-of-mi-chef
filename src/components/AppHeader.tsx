@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Youtube, Instagram, Users, LogOut, User, Globe, Settings, Crown, Palette } from "lucide-react";
+import { Youtube, Instagram, Users, LogOut, User, Globe, Settings, Crown, Palette, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
