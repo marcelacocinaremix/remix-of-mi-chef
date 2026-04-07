@@ -104,7 +104,7 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
                   isActive ? "font-semibold text-[11px]" : "font-normal text-[10px]"
                 )}
               >
-                {t(item.labelKey as any)}
+                {item.labelKey === "prueba" ? "Prueba" : t(item.labelKey as any)}
               </span>
             </button>
           );
