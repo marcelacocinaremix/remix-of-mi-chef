@@ -12,7 +12,7 @@ import { FloatingTimer } from "@/components/FloatingTimer";
 import { FloatingTimerButton } from "@/components/FloatingTimerButton";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { MasSection } from "@/components/MasSection";
-import MySummary from "@/components/MySummary";
+
 import { UserProfileModal } from "@/components/UserProfileModal";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { NutritionalBalance } from "@/components/NutritionalBalance";

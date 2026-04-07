@@ -1,4 +1,4 @@
-import { Home, UtensilsCrossed, Bookmark, Calendar, LayoutGrid, Lock } from "lucide-react";
+import { UtensilsCrossed, Bookmark, Calendar, LayoutGrid, Lock } from "lucide-react";
 import { useAppTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
