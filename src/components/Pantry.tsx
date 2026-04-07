@@ -1401,17 +1401,35 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                   <p className="text-muted-foreground mt-4">Abriendo despensa...</p>
                 </div>
               ) : groupedItems.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="relative w-24 h-24 mx-auto mb-4">
-                    <div className="absolute inset-0 bg-gradient-to-br from-amber-200 to-amber-300 dark:from-amber-800 dark:to-amber-900 rounded-xl transform rotate-3" />
-                    <div className="absolute inset-0 bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-700 dark:to-amber-800 rounded-xl flex items-center justify-center">
-                      <Package className="w-12 h-12 text-amber-600 dark:text-amber-400" />
-                    </div>
+                <div className="text-center py-8">
+                  <Package className="w-10 h-10 text-amber-500/50 mx-auto mb-3" />
+                  <h4 className="font-semibold text-sm mb-2 text-amber-800 dark:text-amber-200">Estantes vacíos</h4>
+                  <p className="text-muted-foreground text-xs mb-4">Tocá el + para agregar productos</p>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    {CATEGORIES.slice(0, 4).map((cat) => (
+                      <button
+                        key={cat.id}
+                        onClick={() => {
+                          setSelectedCategory(cat.id);
+                          setCategoryOpen(false);
+                          setCurrentStep(1);
+                        }}
+                        className={cn(
+                          "w-14 h-[68px] flex flex-col items-center justify-center",
+                          "rounded-lg border-2 border-dashed border-border/40 transition-all duration-300",
+                          "hover:scale-105 hover:border-primary/50 hover:bg-primary/5 active:scale-95"
+                        )}
+                      >
+                        <div className={cn(
+                          "w-7 h-7 rounded-full flex items-center justify-center",
+                          "bg-gradient-to-br", cat.color, "shadow-sm"
+                        )}>
+                          <Plus className="w-3.5 h-3.5 text-white" />
+                        </div>
+                        <span className="text-[8px] text-muted-foreground mt-0.5">{cat.label}</span>
+                      </button>
+                    ))}
                   </div>
-                  <h4 className="font-semibold text-lg mb-2 text-amber-800 dark:text-amber-200">Estantes vacíos</h4>
-                  <p className="text-muted-foreground text-sm">
-                    ¡Es hora de llenar tu despensa! Usá el botón de arriba para agregar productos.
-                  </p>
                 </div>
               ) : (
                 groupedItems.map((category, index) => (
