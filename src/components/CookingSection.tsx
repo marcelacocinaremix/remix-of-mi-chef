@@ -325,7 +325,7 @@ export function CookingSection({
           isCompleted={isStepCompleted(5)}
           onToggle={() => setActiveStep(activeStep === 5 ? 0 : 5)}
         >
-          <MealTypeSelector value={mealType} onChange={(v) => { setMealType(v); }} />
+          <MealTypeSelector value={mealType} onChange={(v) => { setMealType(v); if (v) setActiveStep(0); }} />
         </AccordionStep>
       </div>
 
