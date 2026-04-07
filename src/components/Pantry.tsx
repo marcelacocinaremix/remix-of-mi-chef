@@ -1425,6 +1425,11 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                     onUseIngredient={(name) => onSelectIngredients([name])}
                     onEditExpiration={handleEditExpiration}
                     onUseCategoryIngredients={() => handleUseCategoryIngredients(category.id)}
+                    onAddSlot={() => {
+                      setSelectedCategory(category.id);
+                      setCategoryOpen(false);
+                      setCurrentStep(1);
+                    }}
                     index={index}
                   />
                 ))
