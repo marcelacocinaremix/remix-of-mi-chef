@@ -106,7 +106,7 @@ export default function Index() {
   // Update activeTab when user logs in
   useEffect(() => {
     if (user && activeTab === "cocinar") {
-      setActiveTab("inicio");
+      // no-op, already on cocinar
     }
   }, [user]);
 
