@@ -469,7 +469,7 @@ export function FoodStorageGuide() {
           <div className="flex items-center gap-2">
             <ChefHat className="h-4 w-4" />
             <span className="text-xs font-medium opacity-70">plan gratis</span>
-            <span className="font-bold">{dailyUsed}/{DAILY_LIMIT}</span>
+            <span className="font-bold">{DAILY_LIMIT - dailyUsed}/{DAILY_LIMIT}</span>
             <span className="text-xs font-normal opacity-75">
               {dailyUsed >= DAILY_LIMIT ? "agotadas" : "por día"}
             </span>
