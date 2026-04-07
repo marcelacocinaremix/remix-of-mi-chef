@@ -5794,7 +5794,7 @@ export const translations = {
     menuHome: "Startseite",
     menuCook: "Kochen",
     menuMyKitchen: "Meine Küche",
-    menuPlan: "Planen",
+    menuPlan: "Kalender",
     menuShopping: "Einkauf",
     menuLearn: "Lernen",
     menuPlay: "Spielen",
