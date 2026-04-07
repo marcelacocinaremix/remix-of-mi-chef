@@ -215,8 +215,18 @@ export function CookingSection({
           onToggle={() => setActiveStep(activeStep === 1 ? 0 : 1)}
         >
           <div className="space-y-3">
-            <IngredientInput ingredients={ingredients} onIngredientsChange={(v) => { setIngredients(v); if (v.length > 0 && activeStep === 1) goToNextStep(1); }} />
-            <IngredientCategorySelector selectedIngredients={ingredients} onIngredientsChange={setIngredients} />
+            <IngredientInput ingredients={ingredients} onIngredientsChange={(v) => { setIngredients(v); if (v.length >= 10 && activeStep === 1) goToNextStep(1); }} />
+            <IngredientCategorySelector selectedIngredients={ingredients} onIngredientsChange={(v) => { setIngredients(v); if (v.length >= 10 && activeStep === 1) goToNextStep(1); }} />
+            {ingredients.length > 0 && ingredients.length < 10 && activeStep === 1 && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => goToNextStep(1)}
+                className="w-full rounded-[20px] active:scale-[0.96] transition-all duration-300"
+              >
+                {t("next") || "Siguiente"} →
+              </Button>
+            )}
           </div>
         </AccordionStep>
 
