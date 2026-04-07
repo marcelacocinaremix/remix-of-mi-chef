@@ -1284,9 +1284,10 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               <div className="flex gap-2 flex-wrap">
                 <Button 
                   onClick={() => setCurrentStep(1)}
-                  className="gap-2 flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg"
+                  size="sm"
+                  className="gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-md text-xs h-8 px-4"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-3.5 h-3.5" />
                   Agregar Producto
                 </Button>
               </div>
