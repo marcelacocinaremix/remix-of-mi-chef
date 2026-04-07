@@ -131,7 +131,7 @@ export function useAchievements() {
     } finally {
       setIsLoading(false);
     }
-  }, [user, updateMarcelaMessage, t]);
+  }, [user, updateMarcelaMessage]);
 
   const checkAndUnlockAchievements = useCallback(async (newTotal: number, newStreak: number) => {
     if (!user) return;
