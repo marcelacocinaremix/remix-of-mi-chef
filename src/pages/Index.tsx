@@ -486,17 +486,6 @@ export default function Index() {
                 </div>
               </TabsContent>
 
-              {/* Planificar */}
-              <TabsContent value="planificar" className="space-y-6 animate-fade-in mt-0">
-                <PlanificarSection
-                  ingredients={ingredients}
-                  pantryItems={pantryItems}
-                  onStateChange={setWeeklyCalendarState}
-                  onSelectIngredients={handleSelectIngredients}
-                  onSubTabChange={setActiveSubTab}
-                  onNavigateToCooking={() => setActiveTab("cocinar")}
-                />
-              </TabsContent>
 
               {/* Súper */}
               <TabsContent value="super" className="animate-fade-in mt-0">
