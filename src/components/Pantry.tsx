@@ -308,7 +308,7 @@ function ProductItem({
           if (e.key === "Escape") setIsMenuOpen(false);
         }}
         className={cn(
-          "relative w-16 h-20 md:w-20 md:h-24 flex flex-col items-center justify-end cursor-pointer",
+          "relative w-14 h-[68px] md:w-16 md:h-20 flex flex-col items-center justify-end cursor-pointer",
           "rounded-lg transition-all duration-300",
           "hover:scale-105 hover:-translate-y-1",
           isMenuOpen && "scale-105 -translate-y-1 z-30 shadow-xl"
@@ -331,7 +331,7 @@ function ProductItem({
           {/* Emoji icon */}
           <div
             className={cn(
-              "absolute top-2 left-1/2 -translate-x-1/2 text-2xl md:text-3xl transition-transform duration-300",
+              "absolute top-1.5 left-1/2 -translate-x-1/2 text-xl md:text-2xl transition-transform duration-300",
               isMenuOpen && "scale-110"
             )}
           >
@@ -565,7 +565,7 @@ function PantryShelf({
           </div>
 
           {/* Products on shelf */}
-          <div className="relative flex flex-wrap gap-2 md:gap-3 items-end min-h-[80px] md:min-h-[100px]">
+          <div className="relative flex flex-wrap gap-1.5 md:gap-2 items-end min-h-[70px] md:min-h-[90px]">
             {items.map((item, itemIndex) => (
               <ProductItem
                 key={item.id}
