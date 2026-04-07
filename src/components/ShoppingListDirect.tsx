@@ -364,7 +364,17 @@ export function ShoppingListDirect() {
           <p className="text-xs text-muted-foreground">Tu lista está vacía. Agregá productos arriba.</p>
         </div>
       ) : (
-        <div className="space-y-1.5">
+        <div
+          className="rounded-xl overflow-hidden shadow-sm"
+          style={{
+            background: `
+              linear-gradient(to right, transparent 39px, #ef444430 39px, #ef444430 40px, transparent 40px),
+              repeating-linear-gradient(to bottom, transparent 0px, transparent 47px, #d1dce6 47px, #d1dce6 48px)
+            `,
+            backgroundSize: '100% 48px',
+            backgroundColor: '#fdfaf5',
+          }}
+        >
           {filteredCats.map(cat => {
             const cfg = CATEGORY_KEYS[cat] || CATEGORY_KEYS.otros;
             const catItems = searchTerm
@@ -374,41 +384,52 @@ export function ShoppingListDirect() {
             const expanded = expandedCategories.has(cat);
 
             return (
-              <div key={cat} className="rounded-lg border border-border/50 overflow-hidden">
-                <button onClick={() => toggleCat(cat)} className="w-full flex items-center gap-2 px-2.5 py-2 hover:bg-muted/30 transition-colors">
+              <div key={cat}>
+                <button
+                  onClick={() => toggleCat(cat)}
+                  className="w-full flex items-center gap-2 pl-12 pr-3 transition-colors"
+                  style={{ height: 48, lineHeight: '48px' }}
+                >
                   <span className="text-base">{cfg.emoji}</span>
-                  <span className="text-sm font-semibold flex-1 text-left">{cfg.label}</span>
-                  <Badge variant="secondary" className="h-5 text-[10px] px-1.5">{catItems.length}</Badge>
-                  <ChevronDown className={cn("w-3.5 h-3.5 text-muted-foreground transition-transform", expanded && "rotate-180")} />
+                  <span className="text-sm font-bold flex-1 text-left" style={{ color: '#3b4a5a' }}>{cfg.label}</span>
+                  <Badge variant="secondary" className="h-5 text-[10px] px-1.5 bg-white/60">{catItems.length}</Badge>
+                  <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", expanded && "rotate-180")} style={{ color: '#8899a6' }} />
                 </button>
                 <AnimatePresence>
                   {expanded && (
                     <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
-                      <div className="px-2 pb-1.5 space-y-0.5">
-                        {catItems.map(item => (
-                          <div key={item.id} className="group flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted/30 transition-colors">
-                            <button
-                              onClick={() => handleToggle(item)}
-                              className={cn(
-                                "w-5 h-5 rounded border-2 flex items-center justify-center transition-all shrink-0",
-                                item.is_purchased ? "bg-emerald-500 border-emerald-500" : "border-muted-foreground/30 hover:border-primary"
-                              )}
-                            >
-                              {item.is_purchased && <Check className="w-3 h-3 text-white" />}
-                            </button>
-                            <span className={cn("flex-1 text-base truncate", item.is_purchased && "line-through opacity-50")}>
-                              {item.ingredient_name}
-                            </span>
-                            {fmt(item) && <span className="text-xs text-muted-foreground">{fmt(item)}</span>}
-                            <div className="flex items-center gap-0">
-                              <button onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))} className="p-0.5 text-muted-foreground" disabled={item.quantity <= 1}><Minus className="w-3 h-3" /></button>
-                              <span className="w-5 text-center text-xs font-semibold">{item.quantity}</span>
-                              <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-0.5 text-muted-foreground"><Plus className="w-3 h-3" /></button>
-                            </div>
-                            <button onClick={() => removeItem(item.id)} className="p-0.5 text-muted-foreground hover:text-destructive"><Trash2 className="w-3.5 h-3.5" /></button>
+                      {catItems.map(item => (
+                        <div key={item.id} className="flex items-center gap-2 pl-12 pr-3" style={{ height: 48 }}>
+                          <button
+                            onClick={() => handleToggle(item)}
+                            className={cn(
+                              "w-5 h-5 rounded border-2 flex items-center justify-center transition-all shrink-0",
+                              item.is_purchased ? "bg-emerald-500 border-emerald-500" : "border-[#b0bec5] hover:border-primary"
+                            )}
+                          >
+                            {item.is_purchased && <Check className="w-3 h-3 text-white" />}
+                          </button>
+                          <span
+                            className={cn("flex-1 text-base truncate", item.is_purchased && "opacity-40")}
+                            style={{
+                              color: item.is_purchased ? '#8899a6' : '#2c3e50',
+                              textDecoration: item.is_purchased ? 'line-through' : 'none',
+                              textDecorationStyle: item.is_purchased ? ('wavy' as any) : undefined,
+                              textDecorationColor: item.is_purchased ? '#e74c3c' : undefined,
+                              textDecorationThickness: item.is_purchased ? '2px' : undefined,
+                            }}
+                          >
+                            {item.ingredient_name}
+                          </span>
+                          {fmt(item) && <span className="text-xs" style={{ color: '#8899a6' }}>{fmt(item)}</span>}
+                          <div className="flex items-center gap-0">
+                            <button onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))} className="p-0.5" style={{ color: '#8899a6' }} disabled={item.quantity <= 1}><Minus className="w-3 h-3" /></button>
+                            <span className="w-5 text-center text-xs font-semibold" style={{ color: '#3b4a5a' }}>{item.quantity}</span>
+                            <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-0.5" style={{ color: '#8899a6' }}><Plus className="w-3 h-3" /></button>
                           </div>
-                        ))}
-                      </div>
+                          <button onClick={() => removeItem(item.id)} className="p-0.5 hover:text-destructive" style={{ color: '#b0bec5' }}><Trash2 className="w-3.5 h-3.5" /></button>
+                        </div>
+                      ))}
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -418,24 +439,38 @@ export function ShoppingListDirect() {
 
           {/* Purchased section */}
           {purchasedItems.length > 0 && (
-            <div className="rounded-lg border border-emerald-500/20 overflow-hidden">
-              <div className="flex items-center gap-2 px-2.5 py-2 bg-emerald-500/5">
+            <div>
+              <div className="flex items-center gap-2 pl-12 pr-3" style={{ height: 48, borderTop: '1px solid #d1dce6' }}>
                 <Check className="w-3.5 h-3.5 text-emerald-500" />
-                <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 flex-1">Comprados</span>
-                <Badge className="h-5 text-[10px] px-1.5 bg-emerald-500/20 text-emerald-600 border-0">{purchasedItems.length}</Badge>
+                <span className="text-sm font-bold flex-1" style={{ color: '#27ae60' }}>Comprados</span>
+                <Badge className="h-5 text-[10px] px-1.5 border-0" style={{ backgroundColor: '#e8f5e9', color: '#2e7d32' }}>{purchasedItems.length}</Badge>
               </div>
-              <div className="px-2 pb-1.5 space-y-0.5">
-                {purchasedItems.map(item => (
-                  <div key={item.id} className="flex items-center gap-2 px-2 py-1 rounded-md">
-                    <button onClick={() => togglePurchased(item.id)} className="w-5 h-5 rounded bg-emerald-500 flex items-center justify-center shrink-0">
-                      <Check className="w-3 h-3 text-white" />
-                    </button>
-                    <span className="flex-1 text-sm line-through text-muted-foreground truncate">{item.ingredient_name}</span>
-                    <button onClick={() => removeItem(item.id)} className="p-0.5 text-muted-foreground hover:text-destructive"><Trash2 className="w-3 h-3" /></button>
-                  </div>
-                ))}
-              </div>
+              {purchasedItems.map(item => (
+                <div key={item.id} className="flex items-center gap-2 pl-12 pr-3" style={{ height: 48 }}>
+                  <button onClick={() => togglePurchased(item.id)} className="w-5 h-5 rounded bg-emerald-500 flex items-center justify-center shrink-0">
+                    <Check className="w-3 h-3 text-white" />
+                  </button>
+                  <span
+                    className="flex-1 text-sm truncate"
+                    style={{
+                      color: '#8899a6',
+                      textDecoration: 'line-through',
+                      textDecorationStyle: 'wavy' as any,
+                      textDecorationColor: '#e74c3c',
+                      textDecorationThickness: '2px',
+                    }}
+                  >
+                    {item.ingredient_name}
+                  </span>
+                  <button onClick={() => removeItem(item.id)} className="p-0.5 hover:text-destructive" style={{ color: '#b0bec5' }}><Trash2 className="w-3 h-3" /></button>
+                </div>
+              ))}
             </div>
+          )}
+
+          {/* Empty notebook lines filler */}
+          {totalItems < 8 && (
+            <div style={{ height: (8 - Math.min(totalItems, 8)) * 48 }} />
           )}
         </div>
       )}
