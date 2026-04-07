@@ -99,7 +99,7 @@ export function CookingSection({
       case 3:
         return dietAndPrefFilters.length > 0 ? `${dietAndPrefFilters.length} filtros` : null;
       case 4:
-        return timeChanged ? `${time} min` : null;
+        return timeChanged && time !== null ? `${time} min` : null;
       case 5:
         return mealType ? t(mealType === "desayuno" ? "breakfast" : mealType === "almuerzo" ? "lunch" : mealType === "merienda" ? "snack" : mealType === "cena" ? "dinner" : "forFreezing") : null;
       default:
@@ -187,13 +187,13 @@ export function CookingSection({
 
 
       {/* Clear Filters */}
-      {(quickFilters.length > 0 || mealType || time !== 30) && (
+      {(quickFilters.length > 0 || mealType || time !== null) && (
         <button
           onClick={() => {
             setQuickFilters([]);
             setFilters({ diet: [], difficulty: null, excludeIngredients: [], servings: null, cookingMethod: null, budget: null, maxTime: null });
             setMealType(null);
-            setTime(30);
+            setTime(null);
             setActiveStep(1);
           }}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-medium text-destructive hover:bg-destructive/10 transition-all duration-200"
