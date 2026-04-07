@@ -190,10 +190,7 @@ export function IngredientInput({ ingredients, onIngredientsChange }: Ingredient
   return (
     <div className="space-y-4">
       {/* Counter */}
-      <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">
-          Seleccioná ingredientes de la lista
-        </p>
+      <div className="flex items-center justify-end">
         <span className={cn(
           "text-xs font-bold px-2.5 py-1 rounded-full",
           ingredients.length === 0 ? "bg-muted text-muted-foreground" :
