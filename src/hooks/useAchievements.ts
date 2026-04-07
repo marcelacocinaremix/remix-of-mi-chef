@@ -111,8 +111,8 @@ export function useAchievements() {
       const mappedAchievements: Achievement[] = ACHIEVEMENTS_CONFIG.map(config => ({
         id: config.type,
         type: config.type,
-        title: t(config.titleKey as any),
-        description: t(config.descKey as any),
+        title: tRef.current(config.titleKey as any),
+        description: tRef.current(config.descKey as any),
         icon: config.icon,
         unlockedAt: achievementsData?.find(a => a.achievement_type === config.type)?.unlocked_at || null,
         isUnlocked: unlockedTypes.has(config.type),
