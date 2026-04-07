@@ -486,23 +486,11 @@ export function ShoppingListDirect() {
                             {item.ingredient_name}
                           </span>
                           {fmt(item) && <span className="text-xs" style={{ color: '#8899a6' }}>{fmt(item)}</span>}
-                          {/* Quantity badge */}
-                          <button
-                            onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                            disabled={item.quantity <= 1}
-                            className="flex items-center gap-0.5 h-7 px-2 rounded-full text-xs font-bold transition-all active:scale-90"
-                            style={{ backgroundColor: '#1a2332', color: '#fff', minWidth: 40 }}
-                          >
-                            <span>x{item.quantity}</span>
-                          </button>
-                          {/* Add more */}
-                          <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="flex items-center justify-center w-7 h-7 rounded-full transition-all active:scale-90"
-                            style={{ backgroundColor: '#e8f5e9', color: '#2e7d32' }}
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                          </button>
+                          <div className="flex items-center gap-0">
+                            <button onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))} className="p-0.5" style={{ color: '#8899a6' }} disabled={item.quantity <= 1}><Minus className="w-3 h-3" /></button>
+                            <span className="w-5 text-center text-xs font-semibold" style={{ color: '#3b4a5a' }}>{item.quantity}</span>
+                            <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-0.5" style={{ color: '#8899a6' }}><Plus className="w-3 h-3" /></button>
+                          </div>
                           <button onClick={() => removeItem(item.id)} className="p-0.5 hover:text-destructive" style={{ color: '#b0bec5' }}><Trash2 className="w-3.5 h-3.5" /></button>
                         </div>
                       ))}
