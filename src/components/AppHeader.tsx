@@ -72,7 +72,7 @@ export function AppHeader() {
 
       {/* CENTER: Brand */}
       <div className="flex-1 flex justify-center">
-        <span className="text-sm font-black tracking-tight text-foreground">Mi Chef</span>
+        <span className="text-base font-bold tracking-tight text-foreground" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>Mi Chef</span>
       </div>
 
       {/* RIGHT: Profile / Login */}
