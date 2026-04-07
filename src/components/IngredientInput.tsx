@@ -188,7 +188,7 @@ export function IngredientInput({ ingredients, onIngredientsChange }: Ingredient
   const getCategoryLabel = (category: string) => categoryLabels[category] || category;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Counter */}
       <div className="flex items-center justify-end">
         <span className={cn(
