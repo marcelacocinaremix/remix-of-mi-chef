@@ -504,6 +504,11 @@ function PantryShelf({
   index: number;
 }) {
   const { t } = useLanguage();
+  const [showAll, setShowAll] = useState(false);
+  const MAX_VISIBLE = 4;
+  const hasOverflow = items.length > MAX_VISIBLE;
+  const visibleItems = hasOverflow ? items.slice(0, MAX_VISIBLE) : items;
+
   return (
     <div 
       className={cn(
@@ -515,6 +520,34 @@ function PantryShelf({
         animationFillMode: 'backwards'
       }}
     >
+      {/* View all dialog */}
+      <Dialog open={showAll} onOpenChange={setShowAll}>
+        <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <span className="text-xl">{category.emoji}</span>
+              {category.label}
+              <Badge variant="secondary" className="text-xs">{items.length}</Badge>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-3 gap-2 py-3">
+            {items.map((item, itemIndex) => (
+              <ProductItem
+                key={item.id}
+                item={item}
+                category={category}
+                onRemove={() => { onRemove(item.id); if (items.length <= 1) setShowAll(false); }}
+                onToggleFavorite={() => onToggleFavorite(item.id)}
+                onAddToShoppingList={() => onAddToShoppingList(item.ingredient_name, item.category)}
+                onUseIngredient={() => onUseIngredient(item.ingredient_name)}
+                onEditExpiration={() => onEditExpiration(item)}
+                index={itemIndex}
+              />
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Shelf header */}
       <div className="flex items-center justify-between mb-2 px-2">
         <div className="flex items-center gap-2">
@@ -531,14 +564,16 @@ function PantryShelf({
             <p className="text-[10px] text-muted-foreground">{items.length} {t("pantryShelveProducts")}</p>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-xs gap-1 h-7"
-          onClick={onUseCategoryIngredients}
-        >
-          {t("pantryUseAllCategory")} <ArrowRight className="w-3 h-3" />
-        </Button>
+        {hasOverflow && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-xs gap-1 h-7"
+            onClick={() => setShowAll(true)}
+          >
+            Ver todos <ArrowRight className="w-3 h-3" />
+          </Button>
+        )}
       </div>
 
       {/* Shelf container - looks like a wooden shelf */}
@@ -568,7 +603,7 @@ function PantryShelf({
 
           {/* Products on shelf */}
           <div className="relative flex flex-wrap gap-1.5 md:gap-2 items-end min-h-[70px] md:min-h-[90px]">
-            {items.map((item, itemIndex) => (
+            {visibleItems.map((item, itemIndex) => (
               <ProductItem
                 key={item.id}
                 item={item}
@@ -582,6 +617,21 @@ function PantryShelf({
               />
             ))}
             
+            {/* Overflow indicator */}
+            {hasOverflow && (
+              <button
+                onClick={() => setShowAll(true)}
+                className={cn(
+                  "relative w-14 h-[68px] md:w-16 md:h-20 flex flex-col items-center justify-center",
+                  "rounded-lg border border-border/40 bg-muted/50 transition-all duration-300",
+                  "hover:scale-105 hover:-translate-y-1 active:scale-95"
+                )}
+              >
+                <span className="text-sm font-bold text-muted-foreground">+{items.length - MAX_VISIBLE}</span>
+                <span className="text-[8px] text-muted-foreground">más</span>
+              </button>
+            )}
+
             {/* Add slot '+' button */}
             <button
               onClick={onAddSlot}
