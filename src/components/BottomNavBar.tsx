@@ -37,7 +37,7 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
         boxShadow: "0 -4px 20px rgba(0,0,0,0.06), 0 -1px 4px rgba(0,0,0,0.03)",
       }}
     >
-      <div className="flex items-stretch justify-evenly max-w-lg mx-auto" style={{ height: 60 }}>
+      <div className="flex items-stretch justify-evenly max-w-lg mx-auto" style={{ height: 64 }}>
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
