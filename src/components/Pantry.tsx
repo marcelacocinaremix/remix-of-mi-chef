@@ -1289,22 +1289,22 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
               )}
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block text-foreground/80">Cantidad</label>
-                <div className="flex gap-2">
+            <div className="flex gap-3 items-end">
+              <div className="flex-1">
+                <label className="text-xs font-medium mb-1 block text-foreground/80">Cantidad</label>
+                <div className="flex gap-1.5">
                   <Input
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/g, ''))}
-                    className="w-20 rounded-2xl border-border/40 shadow-sm"
+                    className="w-14 rounded-xl border-border/40 shadow-sm h-9 text-sm text-center"
                   />
                   <select
                     value={unit}
                     onChange={(e) => setUnit(e.target.value)}
-                    className="flex-1 px-3 py-2 rounded-2xl border border-border/40 bg-background text-sm shadow-sm focus:shadow-md transition-shadow"
+                    className="flex-1 px-2 py-1.5 rounded-xl border border-border/40 bg-background text-xs shadow-sm h-9"
                   >
                     {UNITS.map((u) => (
                       <option key={u} value={u}>{u}</option>
@@ -1312,17 +1312,14 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                   </select>
                 </div>
               </div>
-              <div>
-                <label className="text-xs font-medium mb-1 block text-foreground/80">Vencimiento (opcional)</label>
-                <div className="relative">
-                  <Input
-                    type="date"
-                    value={expirationDate}
-                    onChange={(e) => setExpirationDate(e.target.value)}
-                    className="rounded-xl border-border/40 shadow-sm pr-9 h-9 text-sm"
-                  />
-                  <Calendar className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
-                </div>
+              <div className="w-[130px]">
+                <label className="text-xs font-medium mb-1 block text-foreground/80">Vencimiento</label>
+                <Input
+                  type="date"
+                  value={expirationDate}
+                  onChange={(e) => setExpirationDate(e.target.value)}
+                  className="rounded-xl border-border/40 shadow-sm h-9 text-xs"
+                />
               </div>
             </div>
 
