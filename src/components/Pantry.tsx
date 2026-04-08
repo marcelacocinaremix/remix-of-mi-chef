@@ -1313,11 +1313,11 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                 </div>
               </div>
               <div className="w-[130px]">
-                <label className="text-xs font-medium mb-1 block text-foreground/80">Vencimiento</label>
                 <Input
                   type="date"
                   value={expirationDate}
                   onChange={(e) => setExpirationDate(e.target.value)}
+                  placeholder="Vencimiento"
                   className="rounded-xl border-border/40 shadow-sm h-9 text-xs"
                 />
               </div>
