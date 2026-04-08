@@ -37,7 +37,7 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
         boxShadow: "0 -4px 20px rgba(0,0,0,0.06), 0 -1px 4px rgba(0,0,0,0.03)",
       }}
     >
-      <div className="flex items-stretch justify-evenly max-w-lg mx-auto" style={{ height: 60 }}>
+      <div className="flex items-stretch justify-evenly max-w-lg mx-auto" style={{ height: 64 }}>
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -67,7 +67,7 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
               />
 
               {/* Icon container */}
-              <div className="relative flex items-center justify-center w-9 h-7">
+              <div className="relative flex items-center justify-center w-10 h-8">
                 {isActive && (
                   <span
                     className={cn(
@@ -83,8 +83,8 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
                   isClicked && "animate-bounce"
                 )}>
                 <Icon
-                    size={27}
-                    strokeWidth={isActive ? 2.2 : 1.5}
+                    size={30}
+                    strokeWidth={isActive ? 1.8 : 1.4}
                     className="relative z-10 transition-all duration-300"
                   />
                   {showLock && (
