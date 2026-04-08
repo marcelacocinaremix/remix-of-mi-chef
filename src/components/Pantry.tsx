@@ -1313,15 +1313,15 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block text-foreground/80">Vencimiento</label>
+                <label className="text-xs font-medium mb-1 block text-foreground/80">Vencimiento (opcional)</label>
                 <div className="relative">
                   <Input
                     type="date"
                     value={expirationDate}
                     onChange={(e) => setExpirationDate(e.target.value)}
-                    className="rounded-xl border-border/40 shadow-sm pr-10 h-11"
+                    className="rounded-xl border-border/40 shadow-sm pr-9 h-9 text-sm"
                   />
-                  <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  <Calendar className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
                 </div>
               </div>
             </div>
