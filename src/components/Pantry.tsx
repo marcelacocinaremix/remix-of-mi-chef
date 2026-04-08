@@ -810,7 +810,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
           user_id: user.id,
           ingredient_name: newIngredient.trim().toLowerCase(),
           category: selectedCategory,
-          expiration_date: expirationDate || null,
+          expiration_date: expirationDate ? new Date(Date.now() + parseInt(expirationDate) * 86400000).toISOString().split('T')[0] : null,
           quantity: parseInt(quantity) || 1,
           unit: unit,
         })
@@ -1312,14 +1312,22 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
                   </select>
                 </div>
               </div>
-              <div className="w-[130px]">
-                <Input
-                  type="date"
+              <div className="w-[140px]">
+                <select
                   value={expirationDate}
                   onChange={(e) => setExpirationDate(e.target.value)}
-                  placeholder="Vencimiento"
-                  className="rounded-xl border-border/40 shadow-sm h-9 text-xs"
-                />
+                  className="w-full px-2 py-1.5 rounded-xl border border-border/40 bg-background text-xs shadow-sm h-9 text-foreground"
+                >
+                  <option value="">Vencimiento</option>
+                  <option value="3">3 días</option>
+                  <option value="7">1 semana</option>
+                  <option value="14">2 semanas</option>
+                  <option value="30">1 mes</option>
+                  <option value="60">2 meses</option>
+                  <option value="90">3 meses</option>
+                  <option value="180">6 meses</option>
+                  <option value="365">1 año</option>
+                </select>
               </div>
             </div>
 
