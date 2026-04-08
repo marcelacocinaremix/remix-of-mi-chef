@@ -810,7 +810,7 @@ export function Pantry({ onSelectIngredients }: PantryProps) {
           user_id: user.id,
           ingredient_name: newIngredient.trim().toLowerCase(),
           category: selectedCategory,
-          expiration_date: expirationDate || null,
+          expiration_date: expirationDate ? new Date(Date.now() + parseInt(expirationDate) * 86400000).toISOString().split('T')[0] : null,
           quantity: parseInt(quantity) || 1,
           unit: unit,
         })
