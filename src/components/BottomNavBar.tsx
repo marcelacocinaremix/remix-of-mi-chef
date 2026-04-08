@@ -67,7 +67,7 @@ export function BottomNavBar({ activeTab, onTabChange, clickedTab }: BottomNavBa
               />
 
               {/* Icon container */}
-              <div className="relative flex items-center justify-center w-9 h-7">
+              <div className="relative flex items-center justify-center w-10 h-8">
                 {isActive && (
                   <span
                     className={cn(
