@@ -11,10 +11,12 @@ import { Badge } from "@/components/ui/badge";
 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useExportPDF } from "@/hooks/useExportPDF";
+import { MainTab } from "@/components/BottomNavBar";
 
 interface RecipeDetailProps {
   recipe: Recipe;
   onBack: () => void;
+  onNavigateToSection?: (tab: MainTab) => void;
   onRecipeCooked?: () => void;
   recentlyCooked?: boolean;
   pantryItems?: string[];
@@ -35,7 +37,7 @@ const INGREDIENT_SUBSTITUTIONS: Record<string, string[]> = {
   "pollo": ["tofu", "seitán", "garbanzos"],
 };
 
-export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, pantryItems = [], onAddToShoppingList }: RecipeDetailProps) {
+export function RecipeDetail({ recipe, onBack, onNavigateToSection, onRecipeCooked, recentlyCooked, pantryItems = [], onAddToShoppingList }: RecipeDetailProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -257,6 +259,12 @@ export function RecipeDetail({ recipe, onBack, onRecipeCooked, recentlyCooked, p
       <CookingMode 
         recipe={recipe}
         alreadyCooked={hasMarkedCooked}
+        onNavigateToSection={(tab) => {
+          setShowCookingMode(false);
+          setHasUsedCookingMode(true);
+          onBack();
+          onNavigateToSection?.(tab);
+        }}
         onClose={() => {
           setShowCookingMode(false);
           setHasUsedCookingMode(true);
