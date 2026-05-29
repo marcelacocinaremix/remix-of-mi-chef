@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, ArrowRight, ChefHat, Check, X, Clock, Users, Sparkles, Flame, Volume2, VolumeX } from "lucide-react";
+import { createPortal } from "react-dom";
+import { ArrowLeft, ArrowRight, ChefHat, Check, X, Clock, Users, Sparkles, Flame, Volume2, VolumeX, UtensilsCrossed, Lightbulb, Bookmark, Package, ShoppingCart, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Recipe } from "@/components/RecipeList";
+import { MainTab } from "@/components/BottomNavBar";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +15,7 @@ interface CookingModeProps {
   recipe: Recipe;
   onClose: () => void;
   onMarkAsCooked?: () => void;
+  onNavigateToSection?: (tab: MainTab) => void;
   /** True if the recipe was already logged via "Ya la cociné" button — skip DB insert */
   alreadyCooked?: boolean;
 }
@@ -39,7 +42,16 @@ const getRandomMessage = (messages: string[]) => {
   return messages[Math.floor(Math.random() * messages.length)];
 };
 
-export function CookingMode({ recipe, onClose, onMarkAsCooked, alreadyCooked = false }: CookingModeProps) {
+const SECTION_ITEMS: { id: MainTab; label: string; icon: typeof UtensilsCrossed }[] = [
+  { id: "cocinar", label: "Generar", icon: UtensilsCrossed },
+  { id: "prueba", label: "Trucos", icon: Lightbulb },
+  { id: "micocina", label: "Mi Cocina", icon: Bookmark },
+  { id: "despensa", label: "Despensa", icon: Package },
+  { id: "super", label: "Súper", icon: ShoppingCart },
+  { id: "mas", label: "Más", icon: LayoutGrid },
+];
+
+export function CookingMode({ recipe, onClose, onMarkAsCooked, onNavigateToSection, alreadyCooked = false }: CookingModeProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const { play } = useSound();
@@ -63,28 +75,31 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked, alreadyCooked = f
     if (soundEnabled) play('magic');
   }, []);
 
+  const handleStepSelect = (stepIndex: number) => {
+    if (stepIndex === currentStep) return;
+
+    setIsTransitioning(true);
+    if (soundEnabled) play(stepIndex > currentStep ? 'pop' : 'whoosh');
+
+    if (stepIndex > currentStep && !completedSteps.includes(currentStep)) {
+      setCompletedSteps((prev) => [...prev, currentStep]);
+    }
+
+    window.setTimeout(() => {
+      setCurrentStep(stepIndex);
+      setIsTransitioning(false);
+    }, 200);
+  };
+
   const handlePrevious = () => {
     if (!isFirstStep) {
-      setIsTransitioning(true);
-      if (soundEnabled) play('whoosh');
-      setTimeout(() => {
-        setCurrentStep(currentStep - 1);
-        setIsTransitioning(false);
-      }, 200);
+      handleStepSelect(currentStep - 1);
     }
   };
 
   const handleNext = () => {
     if (!isLastStep) {
-      setIsTransitioning(true);
-      if (soundEnabled) play('pop');
-      if (!completedSteps.includes(currentStep)) {
-        setCompletedSteps([...completedSteps, currentStep]);
-      }
-      setTimeout(() => {
-        setCurrentStep(currentStep + 1);
-        setIsTransitioning(false);
-      }, 200);
+      handleStepSelect(currentStep + 1);
     }
   };
 
@@ -177,8 +192,8 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked, alreadyCooked = f
       ? 'from-amber-500 to-yellow-500' 
       : 'from-green-500 to-emerald-500';
 
-  return (
-    <div className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden">
+  const content = (
+    <div className="fixed inset-0 z-[90] bg-background flex h-screen flex-col overflow-hidden supports-[height:100dvh]:h-[100dvh]">
       {/* Solid background with decorative elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-amber-50/50 to-yellow-50 dark:from-background dark:via-background dark:to-secondary/10 pointer-events-none">
         <div className="absolute -top-20 -right-20 w-64 h-64 bg-orange-200/30 dark:bg-primary/10 rounded-full blur-3xl animate-pulse" />
@@ -267,7 +282,7 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked, alreadyCooked = f
       </div>
 
       {/* Progress section */}
-      <div className="px-4 py-3 bg-card/80 backdrop-blur-sm relative z-10">
+      <div className="px-4 py-3 bg-card/80 backdrop-blur-sm relative z-10 space-y-3 shrink-0">
         <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
           <span className="font-medium">Paso {currentStep + 1} de {totalSteps}</span>
           <span className="flex items-center gap-1">
@@ -281,14 +296,7 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked, alreadyCooked = f
           {recipe.steps.map((_, index) => (
             <button
               key={index}
-              onClick={() => {
-                setIsTransitioning(true);
-                if (soundEnabled) play('pop');
-                setTimeout(() => {
-                  setCurrentStep(index);
-                  setIsTransitioning(false);
-                }, 200);
-              }}
+              onClick={() => handleStepSelect(index)}
               className={cn(
                 "flex-1 h-2 rounded-full transition-all duration-300",
                 index < currentStep 
@@ -300,12 +308,32 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked, alreadyCooked = f
             />
           ))}
         </div>
+
+        {onNavigateToSection && (
+          <div className="overflow-x-auto scrollbar-hide -mx-1 px-1">
+            <div className="flex min-w-max gap-2">
+              {SECTION_ITEMS.map(({ id, label, icon: Icon }) => (
+                <Button
+                  key={id}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onNavigateToSection(id)}
+                  className="h-9 rounded-full bg-background/80 backdrop-blur-sm"
+                >
+                  <Icon className="w-4 h-4 mr-2" />
+                  {label}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Step content */}
-      <div className="flex-1 flex items-center justify-center p-6 overflow-auto relative z-10">
+      <div className="flex-1 min-h-0 flex items-center justify-center p-6 overflow-y-auto overflow-x-hidden relative z-10">
         <div className={cn(
-          "max-w-2xl w-full text-center space-y-6 transition-all duration-300",
+          "max-w-2xl w-full text-center space-y-6 transition-all duration-300 py-2",
           isTransitioning ? "opacity-0 scale-95" : "opacity-100 scale-100"
         )}>
           {/* Step number with animation */}
@@ -354,16 +382,16 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked, alreadyCooked = f
 
           {/* Last step celebration */}
           {isLastStep && (
-            <div className="pt-4 animate-bounce" style={{ animationDuration: '2s' }}>
+            <div className="pt-2">
               <div className={cn(
-                "inline-flex items-center gap-2 px-6 py-3 rounded-full",
-                "bg-gradient-to-r from-green-500 to-emerald-500 text-white",
-                "shadow-lg shadow-green-500/30"
+                "inline-flex items-center gap-2 px-4 py-2 rounded-full",
+                "bg-card/90 text-foreground border border-border shadow-soft"
               )}>
-                <ChefHat className="w-6 h-6" />
-                <span className="font-bold text-lg">¡Último paso!</span>
-                <Sparkles className="w-5 h-5" />
+                <ChefHat className="w-4 h-4 text-primary" />
+                <span className="font-semibold">Último paso</span>
+                <Sparkles className="w-4 h-4 text-primary" />
               </div>
+              <p className="mt-2 text-sm text-muted-foreground">Cuando termines, tocá finalizar receta.</p>
             </div>
           )}
         </div>
@@ -385,12 +413,12 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked, alreadyCooked = f
             onClick={handlePrevious}
             disabled={isFirstStep}
             className={cn(
-              "flex-1 border-2 transition-all",
+              "flex-1 border-2 transition-all min-h-12",
               !isFirstStep && "hover:border-primary hover:bg-primary/5"
             )}
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
-            Anterior
+            Paso anterior
           </Button>
 
           {isLastStep ? (
@@ -399,27 +427,27 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked, alreadyCooked = f
               onClick={handleMarkAsCooked}
               disabled={isSaving}
               className={cn(
-                "flex-1 transition-all",
+                "flex-1 transition-all min-h-12",
                 "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600",
                 "shadow-lg shadow-green-500/30 hover:shadow-green-500/50",
                 "text-white font-bold"
               )}
             >
               <Check className="w-5 h-5 mr-2" />
-              {isSaving ? "Guardando..." : "¡Terminé!"}
+              {isSaving ? "Guardando..." : "Finalizar receta"}
             </Button>
           ) : (
             <Button
               size="lg"
               onClick={handleNext}
               className={cn(
-                "flex-1 transition-all",
+                "flex-1 transition-all min-h-12",
                 `bg-gradient-to-r ${gradientColor}`,
                 "shadow-lg hover:shadow-xl",
                 "text-white font-bold"
               )}
             >
-              Siguiente
+              Siguiente paso
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           )}
@@ -444,4 +472,6 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked, alreadyCooked = f
       `}</style>
     </div>
   );
+
+  return typeof document !== "undefined" ? createPortal(content, document.body) : content;
 }
