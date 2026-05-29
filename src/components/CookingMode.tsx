@@ -368,10 +368,13 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked, alreadyCooked = f
 
 
       {/* Navigation */}
-      <div className={cn(
-        "p-4 border-t border-border/50 relative z-10",
-        "bg-card/95 backdrop-blur-sm"
-      )}>
+      <div
+        className={cn(
+          "p-4 border-t border-border/50 relative z-10",
+          "bg-card/95 backdrop-blur-sm"
+        )}
+        style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+      >
         <div className="flex items-center justify-between gap-4 max-w-2xl mx-auto">
           <Button
             variant="outline"
