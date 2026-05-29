@@ -443,6 +443,10 @@ export default function Index() {
           <RecipeDetail
             recipe={selectedRecipe}
             onBack={() => setSelectedRecipe(null)}
+            onNavigateToSection={(tab) => {
+              setSelectedRecipe(null);
+              handleTabChange(tab);
+            }}
             onRecipeCooked={() => { refetchCookedRecipes(); recordCookedRecipe(); refetchAchievements(); }}
             pantryItems={pantryItems}
             onAddToShoppingList={shoppingList.addItem}
