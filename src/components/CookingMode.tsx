@@ -406,52 +406,50 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked, onNavigateToSecti
         )}
         style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}
       >
-        <div className="flex items-center justify-between gap-4 max-w-2xl mx-auto">
+        <div className="flex items-center justify-between gap-2 max-w-2xl mx-auto">
           <Button
             variant="outline"
-            size="lg"
             onClick={handlePrevious}
             disabled={isFirstStep}
             className={cn(
-              "flex-1 border-2 transition-all min-h-12",
+              "flex-1 min-w-0 border-2 transition-all min-h-12 px-2 text-sm sm:text-base",
               !isFirstStep && "hover:border-primary hover:bg-primary/5"
             )}
           >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Paso anterior
+            <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2 shrink-0" />
+            <span className="truncate">Anterior</span>
           </Button>
 
           {isLastStep ? (
             <Button
-              size="lg"
               onClick={handleMarkAsCooked}
               disabled={isSaving}
               className={cn(
-                "flex-1 transition-all min-h-12",
+                "flex-1 min-w-0 transition-all min-h-12 px-2 text-sm sm:text-base",
                 "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600",
                 "shadow-lg shadow-green-500/30 hover:shadow-green-500/50",
                 "text-white font-bold"
               )}
             >
-              <Check className="w-5 h-5 mr-2" />
-              {isSaving ? "Guardando..." : "Finalizar receta"}
+              <Check className="w-4 h-4 mr-1 sm:mr-2 shrink-0" />
+              <span className="truncate">{isSaving ? "Guardando..." : "Finalizar"}</span>
             </Button>
           ) : (
             <Button
-              size="lg"
               onClick={handleNext}
               className={cn(
-                "flex-1 transition-all min-h-12",
+                "flex-1 min-w-0 transition-all min-h-12 px-2 text-sm sm:text-base",
                 `bg-gradient-to-r ${gradientColor}`,
                 "shadow-lg hover:shadow-xl",
                 "text-white font-bold"
               )}
             >
-              Siguiente paso
-              <ArrowRight className="w-5 h-5 ml-2" />
+              <span className="truncate">Siguiente</span>
+              <ArrowRight className="w-4 h-4 ml-1 sm:ml-2 shrink-0" />
             </Button>
           )}
         </div>
+
       </div>
 
       {/* Custom keyframes for confetti */}
