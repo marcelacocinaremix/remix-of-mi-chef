@@ -357,6 +357,7 @@ export default function Index() {
       return;
     }
 
+    setSelectedRecipe(null);
     setActiveTab(tab);
     setActiveSubTab(null);
     setMasSubTab(null);
