@@ -249,10 +249,11 @@ export function CookingMode({ recipe, onClose, onMarkAsCooked, onNavigateToSecti
         >
           <X className="w-6 h-6" />
         </Button>
-        <div className="text-center">
-          <h2 className="font-display font-bold text-lg truncate max-w-[200px] sm:max-w-none flex items-center justify-center gap-2">
-            <Flame className="w-5 h-5 text-orange-500 animate-pulse" />
-            {recipe.name}
+        <div className="text-center flex-1 min-w-0 px-2">
+          <h2 className="font-display font-bold text-sm sm:text-base md:text-lg leading-tight break-words flex items-center justify-center gap-1.5">
+            <Flame className="w-4 h-4 text-orange-500 animate-pulse shrink-0" />
+            <span className="break-words">{recipe.name}</span>
+
           </h2>
           <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
